@@ -16,7 +16,7 @@ Ce document fixe les décisions structurelles communes à `portfolio-vitrines`. 
 
 Adopter un **générateur de site statique léger à l'échelle du dépôt**, recommandé : **Eleventy (11ty)**. Il sert uniquement à produire les fichiers HTML finaux ; il ne change ni la stack servie aux visiteurs, ni l'autonomie de déploiement de chaque site.
 
-Cette décision s'applique dès maintenant à `coiffeur-mixte` : quatre copies du header et du footer suffisent déjà à rendre une modification transversale risquée. Il est préférable de migrer ce premier site avant que les variantes, libellés ARIA et liens ne divergent davantage.
+Cette décision est **différée jusqu'à l'existence d'un deuxième site vitrine**. `coiffeur-mixte` conserve donc, temporairement et de manière assumée, son shell dupliqué : un seul site ne justifie pas encore l'ajout d'un outillage de build. La création du deuxième site sera le point de validation concret des éléments réellement mutualisables et déclenchera la migration vers des partials compilées.
 
 ### Pourquoi un build step, et non une autre solution
 
@@ -136,13 +136,16 @@ Une police propre à un seul client peut rester dans `sites/<nom-du-site>/assets
 
 ## 3. Trajectoire de migration
 
-### Étape 1 — maintenant, sur `coiffeur-mixte`
+### Étape 1 — au lancement du deuxième site vitrine
 
-1. Introduire Eleventy comme dépendance de développement, à la racine du dépôt.
-2. Convertir les quatre pages en sources de templates et créer les partials locales `head`, `header` et `footer`.
-3. Extraire les métadonnées et la navigation dans `sites/coiffeur-mixte/src/_data/site.json`.
-4. Vérifier que le HTML généré conserve exactement les comportements accessibles : skip link, menu sans JavaScript, `aria-current`, titre, méta-description et favicon.
-5. Conserver `css/style.css`, `js/main.js` et les assets comme ressources statiques ; cette étape ne justifie aucune réécriture du site.
+La création du deuxième site est le déclencheur de cette étape. Avant d'introduire l'outillage, comparer les deux shells pour confirmer ce qui est réellement commun et ce qui doit rester propre à chaque marque.
+
+1. Introduire Eleventy comme dépendance de développement, à la racine du dépôt, une fois le besoin validé sur les deux sites.
+2. Créer des partials locales `head`, `header` et `footer` pour chaque site ; ne pas créer de header mondial par anticipation.
+3. Convertir les pages de `coiffeur-mixte` en sources de templates et extraire ses métadonnées et sa navigation dans `src/_data/site.json`.
+4. Construire le deuxième site avec le même mécanisme, tout en conservant son shell et ses données propres.
+5. Vérifier que le HTML généré conserve exactement les comportements accessibles : skip link, menu sans JavaScript, `aria-current`, titre, méta-description et favicon.
+6. Conserver les CSS, JavaScript et assets comme ressources statiques ; cette étape ne justifie aucune réécriture des sites.
 
 ### Étape 2 — avant publication publique
 
@@ -151,7 +154,7 @@ Une police propre à un seul client peut rester dans `sites/<nom-du-site>/assets
 3. Mesurer le poids réel et le rendu avec les polices de repli puis locales.
 4. Définir la construction et le déploiement indépendant de `dist/` pour l'hébergeur retenu.
 
-### Étape 3 — au deuxième site
+### Étape 3 — standardisation après validation sur deux sites
 
 1. Réutiliser les tokens, styles de base, polices et primitives d'accessibilité de `shared/design-system/`.
 2. Créer un shell local au nouveau site ; ne pas imposer celui de Créa'Tif.
