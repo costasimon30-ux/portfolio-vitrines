@@ -3,19 +3,6 @@
   Utilise les tokens partagés : ../../shared/design-system/tokens.css
 */
 
-/* ---------- Grille utilitaire (12 desktop / 8 tablette / 4 mobile) ---------- */
-.grid {
-  display: grid;
-  gap: var(--space-3);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-@media (min-width: 768px) {
-  .grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
-}
-@media (min-width: 1024px) {
-  .grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-}
-
 /* ---------- Header / navigation ---------- */
 .site-header {
   position: sticky;
@@ -85,8 +72,18 @@
 .site-nav a[aria-current="page"] { border-color: var(--color-copper); color: var(--color-copper); }
 
 @media (max-width: 899px) {
-  .menu-toggle { display: inline-flex; }
-  .site-nav {
+  /* Sans JavaScript : la navigation reste visible, simplement empilée sous le logo.
+     Le bouton menu ne sert à rien sans JS : il reste caché (voir html.js ci-dessous). */
+  .site-nav ul {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .site-nav .nav-cta { justify-content: center; }
+
+  /* Avec JavaScript (classe posée par main.js) : nav repliable derrière le bouton. */
+  html.js .menu-toggle { display: inline-flex; }
+  html.js .site-nav {
     display: none;
     position: absolute;
     inset: 100% 0 auto 0;
@@ -94,13 +91,7 @@
     border-bottom: 1px solid var(--color-sand);
     padding: var(--space-3);
   }
-  .site-nav.is-open { display: block; }
-  .site-nav ul {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
-  }
-  .site-nav .nav-cta { justify-content: center; }
+  html.js .site-nav.is-open { display: block; }
 }
 
 /* ---------- Hero ---------- */
@@ -130,16 +121,61 @@
   margin-top: var(--space-3);
 }
 
-/* ---------- Placeholders visuels ---------- */
-.media-placeholder {
+/* ---------- Compositions décoratives (en attente de vraies photos) ----------
+   Quatre compositions distinctes, une par page (cf. docs/DIRECTION.md > Complément
+   de direction). Purement décoratives : toujours utilisées avec aria-hidden="true",
+   jamais de role="img" ni d'alt qui décrirait une scène inexistante. */
+.deco {
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-btn);
-  background: linear-gradient(135deg, var(--color-sage), var(--color-peach));
   min-width: 0;
   width: 100%;
 }
-.media-placeholder--tall { aspect-ratio: 3 / 4; }
-.media-placeholder--wide { aspect-ratio: 16 / 9; }
+.deco--tall { aspect-ratio: 3 / 4; }
+.deco--wide { aspect-ratio: 16 / 9; }
+
+/* Accueil — « La rencontre » : deux formes courbes (Sable, Sauge) reliées par un
+   trait Cuivre, sur Ivoire. */
+.deco--accueil {
+  background:
+    radial-gradient(circle at 30% 35%, var(--color-sand) 0%, var(--color-sand) 38%, transparent 39%),
+    radial-gradient(circle at 68% 65%, var(--color-sage) 0%, var(--color-sage) 34%, transparent 35%),
+    linear-gradient(135deg, transparent 48%, var(--color-copper) 49%, var(--color-copper) 51%, transparent 52%),
+    var(--color-ivory);
+}
+
+/* Coiffure — « La matière en mouvement » : rubans courbes Pêche/Sable et lignes
+   Encre espacées, composition verticale et fluide. */
+.deco--coiffure {
+  background:
+    linear-gradient(200deg, transparent 0%, transparent 10%, var(--color-peach) 10%, var(--color-peach) 28%, transparent 28%),
+    linear-gradient(200deg, transparent 38%, var(--color-sand) 38%, var(--color-sand) 60%, transparent 60%),
+    linear-gradient(200deg, transparent 68%, var(--color-peach) 68%, var(--color-peach) 82%, transparent 82%),
+    linear-gradient(200deg, transparent 32%, var(--color-ink) 32%, var(--color-ink) 32.6%, transparent 32.6%),
+    linear-gradient(200deg, transparent 64%, var(--color-ink) 64%, var(--color-ink) 64.6%, transparent 64.6%),
+    var(--color-ivory);
+}
+
+/* Barbier — « La précision du contour » : fond Encre, arc large Ivoire, deux
+   lignes franches Sauge, repère Cuivre décentré. */
+.deco--barbier {
+  background:
+    radial-gradient(circle at 50% 130%, var(--color-ivory) 0%, var(--color-ivory) 48%, transparent 49%),
+    linear-gradient(0deg, transparent 38%, var(--color-sage) 38%, var(--color-sage) 39.5%, transparent 39.5%),
+    linear-gradient(0deg, transparent 56%, var(--color-sage) 56%, var(--color-sage) 57.5%, transparent 57.5%),
+    radial-gradient(circle at 78% 24%, var(--color-copper) 0%, var(--color-copper) 5%, transparent 6%),
+    var(--color-ink);
+}
+
+/* Le salon — « La lumière du lieu » : panneaux Ivoire (fenêtre, miroir) sur
+   Sable, ombre géométrique Sauge. */
+.deco--salon {
+  background:
+    linear-gradient(var(--color-ivory), var(--color-ivory)) no-repeat 8% 12% / 36% 58%,
+    linear-gradient(var(--color-ivory), var(--color-ivory)) no-repeat 58% 28% / 30% 46%,
+    linear-gradient(135deg, transparent 58%, var(--color-sage) 58%, var(--color-sage) 70%, transparent 70%),
+    var(--color-sand);
+}
 
 /* ---------- Sections génériques ---------- */
 .section { padding-block: var(--space-6); }
@@ -165,7 +201,7 @@
   flex-direction: column;
   gap: var(--space-2);
 }
-.card .media-placeholder { margin-bottom: var(--space-2); }
+.card .deco { margin-bottom: var(--space-2); }
 
 /* ---------- Prestations ---------- */
 .service-grid {
@@ -179,35 +215,15 @@
 @media (min-width: 1024px) {
   .service-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+/* Variante 2x2 (page Coiffure) : reste à deux colonnes même en desktop large. */
+@media (min-width: 1024px) {
+  .service-grid--2x2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .service-card {
   border-top: 3px solid var(--color-copper);
   padding-top: var(--space-2);
 }
 
-/* ---------- Équipe ---------- */
-.team-grid {
-  display: grid;
-  gap: var(--space-4);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-@media (min-width: 768px) {
-  .team-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-.team-card p { margin: 0; }
-.team-card .team-role { color: var(--color-ink); font-size: .9rem; }
-
-/* ---------- Galerie ---------- */
-.gallery {
-  display: grid;
-  gap: var(--space-3);
-  grid-template-columns: 1fr;
-}
-@media (min-width: 600px) {
-  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (min-width: 1024px) {
-  .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
 
 /* ---------- Bloc signature / éditorial ---------- */
 .editorial {
@@ -248,6 +264,12 @@
   font-size: .8125rem;
   color: var(--color-copper);
   font-weight: 700;
+}
+.contact-disclaimer {
+  margin-top: var(--space-3);
+  color: var(--color-ink);
+  font-size: .9rem;
+  max-width: 65ch;
 }
 
 .values-grid {
@@ -290,3 +312,51 @@
   padding-top: var(--space-3);
   margin-top: var(--space-2);
 }
+
+/* ---------- Liste éditoriale (page Barbier — pas de grille de cartes) ---------- */
+.editorial-list {
+  border-top: 1px solid var(--color-sand);
+}
+.editorial-list__item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-sand);
+}
+.editorial-list__item h3 {
+  flex: 0 0 220px;
+  margin: 0;
+}
+.editorial-list__item p {
+  flex: 1 1 260px;
+  margin: 0;
+}
+
+/* ---------- Étapes numérotées ---------- */
+.steps {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 700px) {
+  .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.step__number {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-copper);
+  margin-bottom: var(--space-1);
+}
+.step h3 { margin-bottom: var(--space-1); }
+
+/* ---------- Encadré compact ---------- */
+.callout {
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-btn);
+  padding: var(--space-4);
+  background: var(--color-ivory);
+}
+.callout h3 { margin-top: 0; }

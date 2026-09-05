@@ -1,6 +1,11 @@
 (function () {
   "use strict";
 
+  // Pose la classe "js" le plus tôt possible : le CSS n'active le menu
+  // repliable que si elle est présente, garantissant une navigation
+  // utilisable même si ce script échoue ou est bloqué.
+  document.documentElement.classList.add("js");
+
   var toggle = document.querySelector(".menu-toggle");
   var nav = document.getElementById("primary-nav");
 
@@ -24,6 +29,16 @@
       closeNav();
     } else {
       openNav();
+    }
+  });
+
+  // Referme le menu dès qu'un lien de la navigation est activé
+  // (y compris une ancre sur la page courante, ex: salon.html#contact,
+  // qui ne recharge pas forcément le document).
+  nav.addEventListener("click", function (event) {
+    var link = event.target.closest("a");
+    if (link) {
+      closeNav();
     }
   });
 
