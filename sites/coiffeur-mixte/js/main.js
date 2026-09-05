@@ -9,11 +9,13 @@
   function closeNav() {
     nav.classList.remove("is-open");
     toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Ouvrir le menu");
   }
 
   function openNav() {
     nav.classList.add("is-open");
     toggle.setAttribute("aria-expanded", "true");
+    toggle.setAttribute("aria-label", "Fermer le menu");
   }
 
   toggle.addEventListener("click", function () {

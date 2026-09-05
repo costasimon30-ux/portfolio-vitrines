@@ -7,13 +7,13 @@
 .grid {
   display: grid;
   gap: var(--space-3);
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 @media (min-width: 768px) {
-  .grid { grid-template-columns: repeat(8, 1fr); }
+  .grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 }
 @media (min-width: 1024px) {
-  .grid { grid-template-columns: repeat(12, 1fr); }
+  .grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
 }
 
 /* ---------- Header / navigation ---------- */
@@ -120,7 +120,7 @@
   font-weight: 700;
   letter-spacing: .04em;
   text-transform: uppercase;
-  color: var(--color-copper);
+  color: var(--color-ink);
   font-size: .875rem;
 }
 .hero__actions {
@@ -135,6 +135,8 @@
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-btn);
   background: linear-gradient(135deg, var(--color-sage), var(--color-peach));
+  min-width: 0;
+  width: 100%;
 }
 .media-placeholder--tall { aspect-ratio: 3 / 4; }
 .media-placeholder--wide { aspect-ratio: 16 / 9; }
@@ -144,6 +146,7 @@
 .section--alt { background: var(--color-sand); }
 .section__head { max-width: 720px; margin-bottom: var(--space-5); }
 .section__head p { color: var(--color-sage); }
+.section--alt .section__head p { color: var(--color-ink); }
 
 /* ---------- Cartes univers (accueil) ---------- */
 .card-grid {
@@ -151,7 +154,7 @@
   gap: var(--space-4);
 }
 @media (min-width: 700px) {
-  .card-grid { grid-template-columns: repeat(2, 1fr); }
+  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .card {
   background: var(--color-ivory);
@@ -171,10 +174,10 @@
   grid-template-columns: 1fr;
 }
 @media (min-width: 600px) {
-  .service-grid { grid-template-columns: repeat(2, 1fr); }
+  .service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1024px) {
-  .service-grid { grid-template-columns: repeat(4, 1fr); }
+  .service-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 .service-card {
   border-top: 3px solid var(--color-copper);
@@ -185,13 +188,13 @@
 .team-grid {
   display: grid;
   gap: var(--space-4);
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 @media (min-width: 768px) {
-  .team-grid { grid-template-columns: repeat(4, 1fr); }
+  .team-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 .team-card p { margin: 0; }
-.team-card .team-role { color: var(--color-sage); font-size: .9rem; }
+.team-card .team-role { color: var(--color-ink); font-size: .9rem; }
 
 /* ---------- Galerie ---------- */
 .gallery {
@@ -200,10 +203,10 @@
   grid-template-columns: 1fr;
 }
 @media (min-width: 600px) {
-  .gallery { grid-template-columns: repeat(2, 1fr); }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1024px) {
-  .gallery { grid-template-columns: repeat(3, 1fr); }
+  .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* ---------- Bloc signature / éditorial ---------- */
@@ -235,7 +238,7 @@
   gap: var(--space-4);
 }
 @media (min-width: 768px) {
-  .info-grid { grid-template-columns: repeat(2, 1fr); }
+  .info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .info-list dt { font-weight: 700; margin-top: var(--space-3); }
 .info-list dd { margin: 0; color: var(--color-sage); }
@@ -253,14 +256,13 @@
   grid-template-columns: 1fr;
 }
 @media (min-width: 700px) {
-  .values-grid { grid-template-columns: repeat(3, 1fr); }
+  .values-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* ---------- Footer ---------- */
 .site-footer {
   background: var(--color-sand);
   padding-block: var(--space-5);
-  margin-top: var(--space-7);
 }
 .site-footer__inner {
   display: flex;
@@ -282,7 +284,7 @@
 }
 .site-footer__note {
   width: 100%;
-  color: var(--color-sage);
+  color: var(--color-ink);
   font-size: .875rem;
   border-top: 1px solid rgba(31,41,42,.12);
   padding-top: var(--space-3);
