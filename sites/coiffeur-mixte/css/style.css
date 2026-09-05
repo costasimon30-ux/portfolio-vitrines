@@ -1,0 +1,290 @@
+/*
+  Créa'Tif — salon de coiffure mixte (site de démonstration portfolio)
+  Utilise les tokens partagés : ../../shared/design-system/tokens.css
+*/
+
+/* ---------- Grille utilitaire (12 desktop / 8 tablette / 4 mobile) ---------- */
+.grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(4, 1fr);
+}
+@media (min-width: 768px) {
+  .grid { grid-template-columns: repeat(8, 1fr); }
+}
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: repeat(12, 1fr); }
+}
+
+/* ---------- Header / navigation ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-ivory);
+  border-bottom: 1px solid var(--color-sand);
+}
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--space-2);
+  position: relative;
+}
+.site-logo {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-ink);
+}
+.site-logo:hover { color: var(--color-copper); }
+
+.menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: transparent;
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+}
+.menu-toggle__icon,
+.menu-toggle__icon::before,
+.menu-toggle__icon::after {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--color-ink);
+  border-radius: 2px;
+  position: relative;
+  transition: transform .2s ease, opacity .2s ease;
+}
+.menu-toggle__icon::before,
+.menu-toggle__icon::after { content: ""; position: absolute; left: 0; }
+.menu-toggle__icon::before { top: -7px; }
+.menu-toggle__icon::after { top: 7px; }
+.menu-toggle[aria-expanded="true"] .menu-toggle__icon { background: transparent; }
+.menu-toggle[aria-expanded="true"] .menu-toggle__icon::before { top: 0; transform: rotate(45deg); }
+.menu-toggle[aria-expanded="true"] .menu-toggle__icon::after { top: 0; transform: rotate(-45deg); }
+
+.site-nav ul {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.site-nav a {
+  text-decoration: none;
+  font-weight: 600;
+  padding: var(--space-1) 0;
+  border-bottom: 2px solid transparent;
+}
+.site-nav a:hover { border-color: var(--color-copper); }
+.site-nav a[aria-current="page"] { border-color: var(--color-copper); color: var(--color-copper); }
+
+@media (max-width: 899px) {
+  .menu-toggle { display: inline-flex; }
+  .site-nav {
+    display: none;
+    position: absolute;
+    inset: 100% 0 auto 0;
+    background: var(--color-ivory);
+    border-bottom: 1px solid var(--color-sand);
+    padding: var(--space-3);
+  }
+  .site-nav.is-open { display: block; }
+  .site-nav ul {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .site-nav .nav-cta { justify-content: center; }
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  padding-block: var(--space-7) var(--space-6);
+  background: linear-gradient(180deg, var(--color-sand), var(--color-ivory));
+}
+.hero__inner {
+  display: grid;
+  gap: var(--space-5);
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .hero__inner { grid-template-columns: 1.1fr .9fr; gap: var(--space-6); }
+}
+.hero__eyebrow {
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--color-copper);
+  font-size: .875rem;
+}
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+/* ---------- Placeholders visuels ---------- */
+.media-placeholder {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-btn);
+  background: linear-gradient(135deg, var(--color-sage), var(--color-peach));
+}
+.media-placeholder--tall { aspect-ratio: 3 / 4; }
+.media-placeholder--wide { aspect-ratio: 16 / 9; }
+
+/* ---------- Sections génériques ---------- */
+.section { padding-block: var(--space-6); }
+.section--alt { background: var(--color-sand); }
+.section__head { max-width: 720px; margin-bottom: var(--space-5); }
+.section__head p { color: var(--color-sage); }
+
+/* ---------- Cartes univers (accueil) ---------- */
+.card-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+@media (min-width: 700px) {
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.card {
+  background: var(--color-ivory);
+  border: 1px solid var(--color-sand);
+  border-radius: var(--radius-btn);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.card .media-placeholder { margin-bottom: var(--space-2); }
+
+/* ---------- Prestations ---------- */
+.service-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 600px) {
+  .service-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .service-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.service-card {
+  border-top: 3px solid var(--color-copper);
+  padding-top: var(--space-2);
+}
+
+/* ---------- Équipe ---------- */
+.team-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 768px) {
+  .team-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.team-card p { margin: 0; }
+.team-card .team-role { color: var(--color-sage); font-size: .9rem; }
+
+/* ---------- Galerie ---------- */
+.gallery {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 600px) {
+  .gallery { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .gallery { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- Bloc signature / éditorial ---------- */
+.editorial {
+  display: grid;
+  gap: var(--space-5);
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .editorial { grid-template-columns: .9fr 1.1fr; }
+  .editorial--reverse { grid-template-columns: 1.1fr .9fr; }
+  .editorial--reverse .editorial__media { order: 2; }
+}
+
+/* ---------- CTA final ---------- */
+.cta-band {
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  text-align: center;
+  padding-block: var(--space-6);
+}
+.cta-band h2 { color: var(--color-ivory); }
+.cta-band .btn-secondary { border-color: var(--color-ivory); color: var(--color-ivory); }
+.cta-band .btn-secondary:hover { background: var(--color-ivory); color: var(--color-ink); }
+
+/* ---------- Infos pratiques (page Le salon) ---------- */
+.info-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+@media (min-width: 768px) {
+  .info-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.info-list dt { font-weight: 700; margin-top: var(--space-3); }
+.info-list dd { margin: 0; color: var(--color-sage); }
+.placeholder-note {
+  display: inline-block;
+  margin-top: var(--space-1);
+  font-size: .8125rem;
+  color: var(--color-copper);
+  font-weight: 700;
+}
+
+.values-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 700px) {
+  .values-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  background: var(--color-sand);
+  padding-block: var(--space-5);
+  margin-top: var(--space-7);
+}
+.site-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: space-between;
+}
+.site-footer__inner nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.site-footer__inner nav a { text-decoration: none; font-weight: 600; }
+.site-footer__brand {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+.site-footer__note {
+  width: 100%;
+  color: var(--color-sage);
+  font-size: .875rem;
+  border-top: 1px solid rgba(31,41,42,.12);
+  padding-top: var(--space-3);
+  margin-top: var(--space-2);
+}
