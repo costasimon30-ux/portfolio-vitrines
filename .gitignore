@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Outils / build (si besoin plus tard)
+node_modules/
+dist/
+.env
+*.log
