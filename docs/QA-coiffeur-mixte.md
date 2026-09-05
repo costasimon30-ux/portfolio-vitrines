@@ -147,19 +147,56 @@ Les contrôles de déploiement (en-têtes HTTP, compression, cache, HTTPS, `robo
 - Le sous-site pèse environ 52 Ko hors polices distantes ; il ne charge pas de photo lourde, bibliothèque JavaScript ni animation continue.
 - Les préconnexions Google Fonts et les polices de repli sont correctement déclarées.
 
+## Contre-vérification ciblée — 5 septembre 2026
+
+**Révision contrôlée :** `e2187ce` (`main`). Cette passe vérifie uniquement les anomalies signalées dans le présent rapport, avec une attention particulière au mobile, au clavier et aux coordonnées fictives ; elle ne constitue pas un nouvel audit complet.
+
+**Verdict de contre-vérification : non validé.** Les quatre corrections de fond sont en grande partie intégrées, mais la navigation de secours sans JavaScript reste inutilisable à 375 px. Cet écart majeur bloque encore la mise en avant définitive. Le lien d’évitement de la page Salon reste aussi incomplet.
+
+| Anomalie initiale | État | Constat de contre-vérification |
+| --- | --- | --- |
+| QA-01 — Coordonnées fictives | Corrigé | Aucun lien `tel:` ou `mailto:` n’est présent. Téléphone et e-mail sont du texte, accompagnés de mentions explicites « exemple non actionnable » et d’un avertissement portfolio. |
+| QA-03 — Médias fictifs | Corrigé | Les fausses photos, portraits et galerie ont disparu. Les quatre compositions CSS sont distinctes et marquées `aria-hidden="true"`, sans rôle image ni description de scène. |
+| QA-04 — Direction Coiffure / Barbier | Corrigé | Les deux pages reprennent désormais les axes et rythmes éditoriaux demandés dans `docs/DIRECTION.md`. |
+| QA-05 — Fermeture du menu sur ancre | Corrigé | Le gestionnaire de navigation appelle maintenant `closeNav()` lors de l’activation de tout lien, y compris `salon.html#contact`. |
+| QA-06 — Lien d’évitement | Partiellement corrigé | `tabindex="-1"` est présent sur les `main` d’Accueil, Coiffure et Barbier, mais absent de `salon.html`. |
+| QA-09 — CSS mort | Corrigé | Les règles `.grid`, `.team-grid` et `.gallery` signalées ne sont plus embarquées. |
+
+### QA-02 — Le repli mobile sans JavaScript reste visuellement inutilisable
+
+- **Priorité : majeur**
+- **Emplacement :** `sites/coiffeur-mixte/css/style.css:14-19, 74-82`.
+- **Étapes de reproduction :**
+  1. Ouvrir `index.html` à 375 px de large avec JavaScript désactivé ou `main.js` bloqué.
+  2. Constater que l’en-tête reste un conteneur flex sur une ligne alors que seule la liste de navigation passe en colonne.
+  3. Le menu déborde horizontalement et n’est pas visible ni normalement atteignable dans le viewport mobile ; le hero et ses CTA débordent également.
+- **Impact utilisateur :** si JavaScript échoue, la navigation principale ne fournit pas un parcours mobile exploitable. Le correctif de dégradation progressive est donc seulement partiel, malgré l’intention documentée dans le CSS.
+- **Recommandation :** sous 900 px, organiser réellement l’en-tête sans JavaScript sur deux lignes (par exemple `flex-wrap: wrap` avec la navigation en `flex-basis: 100%`, ou une colonne), puis conserver le positionnement absolu uniquement sous `html.js`. Recontrôler à 320, 375 et 768 px sans JavaScript, puis à 375 px avec le menu JavaScript au clavier.
+
+### QA-06 — La cible du lien d’évitement de la page Salon n’est pas focusable
+
+- **Priorité : mineur**
+- **Emplacement :** `sites/coiffeur-mixte/salon.html:36`.
+- **Étapes de reproduction :**
+  1. Ouvrir la page « Le salon » et utiliser Tab dès le chargement.
+  2. Activer « Aller au contenu principal ».
+  3. Le `main#main` ne porte pas `tabindex="-1"`, contrairement aux trois autres pages ; le focus n’est donc pas déplacé de manière fiable dans le contenu.
+- **Impact utilisateur :** le parcours clavier reste incohérent sur une page du site.
+- **Recommandation :** ajouter `tabindex="-1"` à `main#main` dans `salon.html`, puis vérifier le focus avec Tab et Entrée.
+
 ## Checklist avant mise en avant définitive
 
 ### Bloque la validation
 
-- [ ] Rendre les coordonnées fictives totalement non interactives.
-- [ ] Assurer une navigation mobile disponible sans JavaScript.
-- [ ] Retirer les portraits, réalisations et descriptions d’images fictifs ; les remplacer par les compositions prévues par la direction, accessibles comme décoratives.
-- [ ] Mettre Coiffure et Barbier en conformité avec les structures et contenus validés dans `docs/DIRECTION.md`.
+- [x] Rendre les coordonnées fictives totalement non interactives.
+- [ ] Assurer une navigation mobile disponible sans JavaScript, sans débordement à 320, 375 et 768 px.
+- [x] Retirer les portraits, réalisations et descriptions d’images fictifs ; les remplacer par les compositions prévues par la direction, accessibles comme décoratives.
+- [x] Mettre Coiffure et Barbier en conformité avec les structures et contenus validés dans `docs/DIRECTION.md`.
 
 ### À terminer avant publication web, sans bloquer une maquette interne
 
-- [ ] Fermer le menu après l’activation d’un lien, dont l’ancre Contact sur la page Salon.
-- [ ] Rendre la cible du lien d’évitement focusable.
+- [x] Fermer le menu après l’activation d’un lien, dont l’ancre Contact sur la page Salon.
+- [ ] Rendre la cible du lien d’évitement focusable sur la page Salon.
 - [ ] Configurer canonical, sitemap, `robots.txt`, cache et HTTPS quand le domaine de déploiement sera connu.
 - [ ] Choisir entre maintien temporaire de Google Fonts et auto-hébergement avant une production commerciale.
 
