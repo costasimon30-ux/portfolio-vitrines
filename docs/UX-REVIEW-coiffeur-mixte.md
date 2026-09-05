@@ -1,70 +1,73 @@
 # Revue UX — Créa’Tif
 
-**Révision observée :** `main` au 5 septembre 2026 — dernière évolution visuelle du site : `e2187ce`
+**Date :** 5 septembre 2026
 
-**Périmètre :** rendu réel des quatre pages à 375, 768 et 1440 px. Revue UI/UX et direction artistique uniquement ; elle ne remplace pas l’audit QA.
+**Commit observé :** `474b3e851e5a9628859914b46942e5d618c10bf8` sur `main`, après `git pull`.
 
-## Décision
+**Implémentation contrôlée :** `5827a14` — retouches ciblées et polices auto-hébergées.
 
-**Les photographies ne sont pas nécessaires pour valider ce projet de portfolio front-end.** Les compositions CSS sont maintenant suffisamment intentionnelles, honnêtes et différenciées pour assumer un salon fictif : elles ne cherchent plus à se faire passer pour des réalisations, des portraits ou un lieu réel.
+**Référence :** les trois demandes de la revue UX du commit `5f1dcdb`.
 
-La direction graphique provisoire est donc **validable**. En revanche, je ne considère pas encore le rendu comme une finition portfolio définitive : deux corrections de composition sont nécessaires pour supprimer la sensation de motif répété. Elles ne demandent pas de photo ; elles demandent une meilleure attribution des visuels existants.
+## Verdict explicite
 
-Pour un futur site commercial de salon, les photos redeviendraient indispensables afin de prouver le savoir-faire et le lieu. Ce n’est pas une condition pour ce concept de portfolio.
+**Validation finale du rendu portfolio : pas encore accordée.** Deux retouches sont validées ; une réserve P2 subsiste sur la hauteur du hero Coiffure à 768 px.
 
-## Rendu réellement vérifié
+**Le parti pris de compositions graphiques sans photos est validé pour un portfolio conceptuel. Aucune photographie n’est requise pour lever cette réserve.** La distinction des univers et le rythme des motifs sont désormais suffisamment aboutis. Il reste un ajustement de proportion sur tablette, pas une refonte artistique.
 
-| Viewport | Accueil | Coiffure | Barbier | Le salon |
+## Périmètre et méthode
+
+Contrôle du site réellement affiché en navigateur local, avec inspection visuelle des quatre pages complètes à **375, 768 et 1440 px**, après chargement des polices locales. Hauteur de fenêtre : 900 px sur mobile/tablette et 960 px sur desktop. Les dimensions des compositions ont été mesurées dans le rendu.
+
+Cette contre-revue porte uniquement sur les trois retouches demandées et l’absence de régression visuelle liée aux polices. Elle ne renouvelle pas l’audit fonctionnel, clavier, contrastes ou SEO.
+
+| Retouche | 375 px | 768 px | 1440 px | Statut |
 | --- | --- | --- | --- | --- |
-| 375 px | Conforme, menu compact et composition lisible | Conforme, mais hero trop dominant | Conforme | Conforme |
-| 768 px | Conforme, aucun débordement | Conforme, mais hero très haut | Conforme | Conforme, débordement précédent supprimé |
-| 1440 px | Conforme, hero équilibré | Conforme | Conforme | Conforme |
+| Distinction des cartes d’univers sur l’accueil | Cartes empilées nettement distinctes | Deux cartes distinctes côte à côte | Deux cartes distinctes côte à côte | P1 clôturée |
+| Réduction des répétitions des motifs | Parcours allégé | Alternance graphique/texte plus claire | Rythme éditorial préservé | P1 clôturée |
+| Hauteur du hero Coiffure sous 900 px | Réduction acceptable | Composition encore trop haute | Équilibre desktop préservé ; hors breakpoint concerné | P2 partiellement corrigée |
 
-À ces trois largeurs, les quatre pages ne présentent aucun défilement horizontal. Les compositions restent nettes et les contenus conservent une hiérarchie claire.
+Aucun défilement horizontal constaté sur les quatre pages aux trois largeurs testées.
 
-## Ce qui est désormais réussi
+## 1. Cartes d’univers de l’accueil — validé
 
-- Les motifs ne simulent plus des photos : l’interface annonce clairement un projet de direction artistique, sans fausse équipe, galerie ou carte réelle.
-- **Coiffure** possède une personnalité douce et fluide : Pêche, Sable et lignes obliques portent bien l’idée de mouvement et de nuance. Son parcours « Partir de vous » donne un rythme empathique et plus conversationnel.
-- **Barbier** est clairement distingué sans tomber dans le rétro : le fond Encre, l’arc Ivoire, les lignes Sauge et le point Cuivre créent une précision contemporaine. La liste éditoriale, les trois étapes et l’encadré « Entre deux visites » le séparent réellement de Coiffure.
-- **Le salon** est le plus sobre et architectural ; la composition fenêtre / miroir convient à la page d’informations pratiques.
-- L’identité transversale tient très bien : Ivoire, Encre, Cuivre, Cormorant Garamond et DM Sans conservent une même qualité calme et premium.
-- Le contact fictif est maintenant présenté sans action trompeuse. Visuellement, le bloc reste crédible et explicite.
+La carte **Coiffure** utilise désormais les bandes obliques Pêche / Sable ; la carte **Barbier**, le fond Encre, l’arc Ivoire et le point Cuivre. Les deux sensibilités se reconnaissent avant la lecture des titres, y compris lorsque les cartes se succèdent à 375 px.
 
-## Points à corriger avant de qualifier le rendu de final
+Ces compositions annoncent correctement les pages dédiées tout en conservant une identité Créa’Tif commune. Titres, descriptions et liens restent lisibles. **Aucune retouche supplémentaire demandée sur ces cartes.**
 
-### P1 — Les deux cartes d’univers de l’accueil sont visuellement identiques
+## 2. Répétition des motifs — validé
 
-Dans le point d’entrée « Deux univers », les cartes Coiffure et Barbier reprennent toutes deux la composition de l’accueil. À 375 px, elles sont indiscernables avant lecture de leur titre : le visiteur ne perçoit pas immédiatement les deux sensibilités que les pages internes réussissent ensuite à installer.
+- **Accueil :** le motif d’accueil apparaît deux fois, dans le hero et dans « Le geste juste », au lieu de cinq reprises identiques. Les deux cartes ajoutent chacune leur propre univers. « Notre approche » est maintenant une respiration typographique, sans grand visuel répété.
+- **Le salon :** deux compositions subsistent, hero et bloc éditorial, contre trois précédemment. Les informations pratiques n’ajoutent plus une troisième grande surface décorative.
+- **Coiffure et Barbier :** chacun conserve deux occurrences de son motif, hero et reprise secondaire.
 
-**Recommandation :** attribuer aux cartes un recadrage ou un détail de leur univers propre : rubans Pêche / Sable pour Coiffure, fond Encre / arc Ivoire pour Barbier. Elles doivent rester compactes et ne pas réutiliser les heroes complets.
+Le rendu respecte désormais le principe demandé : une composition forte et au plus une reprise secondaire du même motif par page. Sur mobile comme sur desktop, les visuels ponctuent le contenu au lieu d’occuper systématiquement chaque bloc. **Aucune réduction supplémentaire demandée.**
 
-### P1 — Réemploi excessif de certaines compositions
+## 3. Hero Coiffure sous 900 px — réserve P2 maintenue à 768 px
 
-L’accueil répète la même composition cinq fois (hero, deux cartes, deux blocs éditoriaux) et la page Le salon trois fois (hero, éditorial, informations pratiques). À force, les compositions perdent leur rôle de ponctuation et redeviennent des remplissages. Ce défaut est particulièrement perceptible sur mobile, où les grandes surfaces graphiques allongent inutilement le parcours.
+Le passage du ratio 3:4 au ratio 4:5 est effectif. Il suit bien l’une des options de ma précédente recommandation ; l’observation montre toutefois que cette option était insuffisante sur tablette.
 
-**Recommandation :** conserver une composition forte dans le hero et, au plus, une reprise secondaire justifiée. Supprimer les reprises restantes ou les remplacer par de l’espace, une séparation typographique ou un détail très recadré. La page Contact n’a pas besoin d’un troisième grand motif pour être comprise.
+| Largeur de fenêtre | Ancienne composition | Composition actuelle | Appréciation |
+| --- | --- | --- | --- |
+| 375 px | 312 × 416 px | 312 × 390 px | Acceptable ; lecture et CTA restent clairs |
+| 768 px | 705 × 940 px | 705 × 881 px | Encore trop dominante après le texte et les CTA |
+| 1440 px | Hors retouche demandée | Environ 490 × 653 px | Composition latérale équilibrée ; à conserver |
 
-### P2 — Le hero Coiffure est trop haut sous 900 px
+À 768 px, la réduction ne représente qu’environ **59 px, soit 6,25 %**. Le visuel décoratif seul occupe encore presque toute la hauteur de la fenêtre de test (881 px sur 900), alors qu’il vient après le texte. Il retarde toujours l’arrivée au contenu « Partir de vous ». Ce n’est pas un défaut bloquant la navigation, mais la réserve de finition de la précédente revue n’est pas levée.
 
-La composition Coiffure est rendue au ratio 3:4 : 312 × 416 px à 375 px, puis 705 × 940 px à 768 px. Elle occupe ainsi presque un écran complet de tablette après le texte, alors que son motif de rubans n’a pas besoin de cette surface pour être compris. Elle alourdit le parcours et déséquilibre visuellement Coiffure face aux trois autres pages.
+**Seule retouche restante recommandée :** donner au hero Coiffure un cadrage horizontal **3:2 entre 600 et 899 px**, soit environ **705 × 470 px à 768 px** dans le rendu testé. Conserver le 4:5 sur petit mobile et la composition desktop actuelle. Les bandes abstraites permettent ce recadrage sans perdre d’information.
 
-**Recommandation :** rapprocher le hero du ratio 4:5 prévu par la direction, ou le recadrer en format horizontal sous 900 px. Réserver le format plus vertical au module éditorial si celui-ci est conservé.
+Il s’agit de préciser l’option horizontale déjà proposée, sans modifier palette, motifs, typographies, contenu ou structure des pages.
 
-## Verdict par univers
+## Polices locales — rendu validé dans le périmètre testé
 
-| Élément | Décision |
-| --- | --- |
-| Direction commune Créa’Tif | Validée |
-| Compositions provisoires sans photos | Validées pour un portfolio conceptuel |
-| Distinction Coiffure / Barbier dans les pages dédiées | Validée |
-| Distinction Coiffure / Barbier dès l’accueil | À corriger |
-| Répétition des motifs | À corriger |
-| Ajout de vraies photos avant présentation portfolio | Non requis |
+Les fichiers locaux Cormorant Garamond 600 et DM Sans 400, 600 et 700 ont été servis avec succès (réponses HTTP 200 sous `shared/design-system/fonts/`). L’état de chargement du navigateur est `loaded` ; les familles calculées des titres et du texte correspondent à Cormorant Garamond et DM Sans.
 
-## Priorités pour Claude
+Après chargement, l’inspection des quatre pages aux trois largeurs ne révèle ni titre tronqué, ni chevauchement de texte, ni libellé de CTA coupé. Les accents et l’apostrophe de Créa’Tif s’affichent correctement. **Aucune régression visuelle attribuable au passage aux polices locales n’a été observée.**
 
-1. Différencier les deux cartes d’univers de l’accueil avec des détails de composition propres à Coiffure et Barbier.
-2. Réduire le nombre de grandes occurrences de chaque motif, surtout sur Accueil et Le salon.
-3. Rééquilibrer le ratio du hero Coiffure sous 900 px.
-4. Une fois ces trois retouches faites, la direction graphique provisoire peut être présentée dans le portfolio sans attendre de photographie.
+## Suite à donner à Claude
+
+1. Ajuster uniquement le cadrage du hero Coiffure dans la plage tablette indiquée.
+2. Recontrôler cette page à 375, 768 et 1440 px, polices locales chargées : petit mobile préservé, composition proche de 470 px de haut à 768 px, desktop inchangé.
+3. Faire constater la levée de cette dernière réserve avant validation finale du rendu.
+
+**Bilan : deux demandes clôturées, une demande partiellement corrigée. Photos non requises ; aucune nouvelle direction artistique à lancer.**
