@@ -1,208 +1,136 @@
 # QA / Audit — coiffeur-mixte
 
-**Date :** 5 septembre 2026
-**Révision auditée :** `3774de9` (`main`)
-**Périmètre :** `sites/coiffeur-mixte/` et les styles partagés effectivement chargés.
-**Référentiel :** `CLAUDE.md`, `docs/WORKFLOW.md`, `docs/AGENTS.md` et `docs/DIRECTION.md`.
+## Verdict actuel — 5 septembre 2026
 
-## Verdict
+**Corrections fonctionnelles validées en local ; validation finale encore réservée sur le chargement du menu.** Aucun défaut bloquant ou majeur n’est actif dans le périmètre contre-vérifié. Les 36 cas de navigation mobile passent, le lien d’évitement place réellement le focus sur les quatre pages, la structure Barbier est corrigée et les polices sont chargées localement. **Une anomalie mineure de la seconde Code Review reste ouverte : le menu développé apparaît avant de se replier lorsque `main.js` tarde à charger.** Le script bloque également l’apparition du contenu principal pendant cette attente.
 
-**Non validé pour la mise en avant définitive du portfolio.** Le socle est léger, les pages sont bien structurées, les liens et assets locaux sont résolus, et le correctif responsive livré après la revue UX supprime le débordement Contact constaté à 768 px. En revanche, quatre écarts majeurs restent incompatibles avec le brief : des coordonnées fictives déclenchent de vraies actions, la navigation mobile disparaît sans JavaScript, des contenus fictifs sont présentés comme réels aux technologies d’assistance, et les pages Coiffure/Barbier ne suivent pas la direction éditoriale validée.
+**Commit contrôlé :** `5827a149ba926359971c9ac99c8b512415ba57dc` (`5827a14`, livraison de Claude sur `main`). `git pull --ff-only` effectué avant cette passe : dépôt à jour.
 
-## Méthode et limites
+**Périmètre :** contre-vérification ciblée des anomalies de QA et de la seconde Code Review ; quatre pages de `sites/coiffeur-mixte/`, styles partagés et polices effectivement chargés. Ce verdict remplace les verdicts des passes précédentes, sans prétendre renouveler l’audit complet de toutes les catégories.
 
-- Inspection des quatre documents HTML, de `css/style.css`, de `js/main.js` et de `shared/design-system/tokens.css`.
-- Vérification des liens et ressources locales déclarés : aucun fichier référencé ne manque.
-- Vérification du rendu actuel de `salon.html` à 768 px : pas de débordement horizontal après le passage des pistes de grille en `minmax(0, 1fr)`.
-- Vérification des breakpoints déclarés : 600, 700, 768, 900 et 1024 px ; aucun élément métier ne dépend d’une hauteur de viewport fixe.
-- Vérification statique des structures, libellés, focus, contraste, SEO et poids des ressources.
+**Référentiel :** `CLAUDE.md`, `docs/WORKFLOW.md`, `docs/AGENTS.md`, `docs/DIRECTION.md`, `docs/ARCHITECTURE.md` et `docs/CODE-REVIEW-coiffeur-mixte.md` (passe 2, publiée dans `dcdadb9`).
 
-Les contrôles de déploiement (en-têtes HTTP, compression, cache, HTTPS, `robots.txt` et sitemap à la racine du futur hébergement) restent à faire lorsque l’URL finale sera connue.
+## État de chaque anomalie
 
-## Anomalies
+Les priorités des anomalies corrigées rappellent leur gravité initiale. Les identifiants CR2 ci-dessous correspondent, dans l’ordre, aux quatre constats P2 de la seconde Code Review.
 
-### QA-01 — Les coordonnées fictives ouvrent réellement le téléphone et l’e-mail
+| Identifiant | Priorité | État actuel | Preuve / portée de la vérification |
+| --- | --- | --- | --- |
+| QA-01 — Coordonnées fictives actionnables | Majeur | Corrigé, correction conservée | Aucun lien `tel:` ou `mailto:` dans les quatre pages. Les coordonnées du Salon sont du texte, explicitement fictif et non actionnable. Le CTA conduit au bloc Contact. |
+| QA-02 — Navigation mobile sans JavaScript | Majeur | Corrigé | Quatre pages × 320/375/768 px × JS actif/désactivé/`main.js` bloqué : navigation utilisable, liens dans le viewport et aucun débordement horizontal après chargement. |
+| QA-03 — Médias et portraits fictifs | Majeur | Corrigé, correction conservée | Contrôle statique : compositions `.deco` décoratives avec `aria-hidden="true"`, absence des anciennes grilles de portraits et galeries. |
+| QA-04 — Structures Coiffure / Barbier | Majeur | Corrigé, correction conservée | Contenus et ordre des sections comparés à la direction ; structure et titres Barbier vérifiés dans le DOM et l’arbre d’accessibilité Chromium. |
+| QA-05 — Menu restant ouvert sur l’ancre Contact | Mineur | Corrigé | Activation par Entrée et au clic, y compris depuis Salon vers sa propre ancre : destination correcte et `aria-expanded="false"`. |
+| QA-06 — Focus du lien d’évitement | Mineur | Corrigé | Dans les 36 cas, Tab → Entrée place `document.activeElement` sur `main#main` ; Tab suivant atteint un lien dans le contenu. |
+| QA-07 — Indexabilité et configuration finale | Mineur | En attente du déploiement | URL, choix d’indexation et configuration de l’hébergeur non disponibles. Aucun résultat de production ne peut être déduit du serveur local. |
+| QA-08 — Dépendance Google Fonts | Mineur | Corrigé localement ; livraison des assets à confirmer sur l’hébergeur | Les quatre WOFF2 locaux répondent 200 et sont chargés sur chaque page ; aucune requête tierce observée. Seuil obligatoire : **avant la première publication publique**, selon ARCHITECTURE. |
+| QA-09 — Grille CSS inutilisée | Mineur | Corrigé, correction conservée | Contrôle statique : anciennes règles `.grid`, `.team-grid` et `.gallery` absentes. |
+| CR2-01 — Focus Salon | Mineur (P2) | Corrigé | Même vérification que QA-06 ; `salon.html:35` possède désormais `tabindex="-1"`. |
+| CR2-02 — Étapes Barbier non ordonnées | Mineur (P2) | Corrigé dans le DOM et Chromium | `barbier.html:83-99` : `ol.steps` et trois `li`, dans l’ordre Échanger → Dessiner → Entretenir ; l’arbre d’accessibilité expose une liste et trois éléments. |
+| CR2-03 — « Entre deux visites » en h3 | Mineur (P2) | Corrigé | `barbier.html:107` : `h2`, également exposé au niveau 2 dans l’arbre d’accessibilité. |
+| CR2-04 — Flash du menu au chargement | Mineur (P2) | Partiellement corrigé, toujours ouvert | Script déplacé après l’en-tête, mais un retard réseau de 1,5 s reproduit le menu développé puis replié aux trois largeurs. Détails ci-dessous. |
 
-- **Priorité : majeur**
-- **Emplacement :** `sites/coiffeur-mixte/salon.html:96-106`.
+## Vérifications réalisées
+
+### Méthode
+
+Tests indépendants avec Playwright et **Google Chrome 152.0.7977.77, moteur Chromium**, en mode headless, sur un serveur HTTP local temporaire servant la racine du dépôt. Contextes neufs, viewport explicitement fixé en pixels CSS, hauteur de 900 px et cache HTTP désactivé par le serveur de test.
+
+Trois scénarios distincts ont été exécutés : JavaScript actif, désactivation JavaScript au niveau du contexte navigateur, puis JavaScript actif avec interception et rejet de la seule requête `**/js/main.js` (`blockedbyclient`). Ce dernier cas teste réellement une défaillance de ressource, pas seulement la suppression manuelle de la classe `js`.
+
+Les mesures portent sur le DOM rendu, les limites des liens, le focus réel, les événements clavier, les destinations activées et le réseau. Des captures ont complété l’examen, notamment avant/après le chargement retardé. Aucun fichier du site n’a été corrigé.
+
+### Navigation à 320 / 375 / 768 px
+
+Chaque cellule couvre Accueil, Coiffure, Barbier et Salon.
+
+| Largeur CSS | JS actif | JS désactivé | main.js bloqué |
+| --- | --- | --- | --- |
+| 320 px | 4/4 conformes après chargement | 4/4 conformes | 4/4 conformes |
+| 375 px | 4/4 conformes après chargement | 4/4 conformes | 4/4 conformes |
+| 768 px | 4/4 conformes après chargement | 4/4 conformes | 4/4 conformes |
+
+- Dans les 36 cas : `document.documentElement.scrollWidth === innerWidth`. Avec JS, l’absence de débordement est aussi vérifiée menu ouvert.
+- Avec JS : menu fermé au repos, bouton atteignable par Tab, ouverture par Entrée et Espace, fermeture par Échap avec retour du focus au bouton.
+- Sans JS ou avec script bloqué : navigation développée visible, bouton inutilisable masqué ; les cinq liens restent atteignables au clavier et dans la largeur du viewport.
+- Les cinq destinations de navigation ont été activées au clic dans chaque cas, soit 180 activations ; le CTA Contact a aussi été activé au clavier. Les quatre pages et `salon.html#contact` sont atteintes correctement.
+- Aucune exception JavaScript ni erreur réseau inattendue sur ces parcours. Les rejets volontaires de `main.js` sont des erreurs simulées attendues.
+- Ce tableau valide l’état utilisable après chargement ou après échec du script ; il ne clôt pas le défaut transitoire CR2-04.
+
+### Clavier et Barbier
+
+Sur chacune des quatre pages, aux trois largeurs et dans les trois modes, le premier Tab atteint le lien d’évitement visible, Entrée donne le focus à `main#main`, et le Tab suivant continue dans le contenu. Le focus de Salon n’est donc plus une simple correction constatée dans le HTML : son comportement est vérifié.
+
+Barbier expose un unique H1, les sections en H2 et les prestations/étapes en H3. « Entre deux visites » est une section de niveau 2, sœur de « Nos prestations » et « Le détail fait l’équilibre ». Les trois étapes figurent dans une liste ordonnée HTML et trois éléments de liste dans l’arbre d’accessibilité Chromium. Les chiffres décoratifs restent masqués. L’annonce vocale exacte sous VoiceOver/Safari ou NVDA n’a pas été testée.
+
+### Polices locales et réseau
+
+Sur chacune des quatre pages, `fonts.css` est chargé avant `tokens.css`. Les quatre fichiers WOFF2 locaux — Cormorant Garamond 600 et DM Sans 400/600/700 — répondent HTTP 200, et leurs entrées dans `document.fonts` sont à l’état `loaded`. Les polices effectivement utilisées sur les titres et sur-titres ont également été inspectées via Chromium : ce sont des polices web chargées, pas simplement des noms de familles déclarés en CSS.
+
+Le poids cumulé des quatre fontes sur disque est de **66 088 octets (environ 64,5 Kio)**. Les déclarations utilisent `font-display: swap`. La notice locale consigne origine, variantes et licence déclarée ; cette passe ne constitue pas un audit juridique des licences.
+
+Aucune requête vers Google Fonts, `fonts.gstatic.com` ou un autre domaine tiers n’a été observée. En bloquant volontairement les WOFF2 sur l’accueil à 320 px, le texte reste visible avec les polices système et la page ne déborde pas.
+
+**Règle alignée sur ARCHITECTURE : l’auto-hébergement est requis avant toute première publication publique du portfolio.** Le CDN n’est toléré que pour une démo strictement locale ou éphémère ; l’ancienne formulation « avant production commerciale » est retirée. L’implémentation locale satisfait désormais ce seuil, sous réserve d’embarquer effectivement `shared/design-system/` dans le déploiement.
+
+## Anomalie restant à corriger
+
+### CR2-04 — Le menu développé apparaît pendant l’attente de main.js
+
+- **Priorité : mineur (P2 de la seconde Code Review).**
+- **État : partiellement corrigé, toujours reproductible.**
+- **Emplacements :** les quatre HTML, `script src="js/main.js"` à la ligne 33 ; `js/main.js:7` ; `css/style.css:74-107`.
 - **Étapes de reproduction :**
-  1. Ouvrir la page « Le salon » puis le bloc « Informations pratiques & contact ».
-  2. Activer le numéro, l’adresse e-mail, « Nous écrire » ou « Nous appeler ».
-  3. Le navigateur ouvre une application de téléphone ou de messagerie malgré la mention « exemple ».
-- **Impact utilisateur :** le site de démonstration simule un moyen de contact qui ne correspond à personne. Cela contredit explicitement le brief, crée une impasse et peut faire croire à un contact abouti.
-- **Recommandation :** tant que les coordonnées ne sont pas réelles, les afficher comme du texte non interactif et remplacer les CTA par un contenu de portfolio non actionnable. N’ajouter `tel:` et `mailto:` qu’après validation des coordonnées réelles.
+  1. Servir le dépôt en HTTP et ouvrir `sites/coiffeur-mixte/index.html` dans un contexte neuf, JS actif, à 320, 375 ou 768 px.
+  2. Retarder uniquement la réponse de `js/main.js` de 1 500 ms, en laissant HTML, CSS et polices charger normalement.
+  3. Pendant l’attente, constater la navigation développée, le bouton masqué et l’absence de `main` dans le DOM.
+  4. Libérer la réponse : la classe `js` apparaît, la navigation se replie, le bouton apparaît et le contenu principal est enfin analysé et affiché.
+- **Résultat mesuré :** aux trois largeurs, l’en-tête passe de **297,375 px à 81 px**. Un premier affichage est enregistré dès 60–80 ms, avant la libération du script ; les captures avant/après confirment le changement visible. Il ne s’agit donc pas d’une simple possibilité déduite du code.
+- **Impact utilisateur :** sur connexion lente ou cache froid, l’interface change d’état devant l’utilisateur et l’affichage de l’offre attend une ressource servant essentiellement au menu. La navigation reste utilisable en repli ; il n’y a plus de perte permanente d’accès ni de débordement dans les scénarios testés.
+- **Recommandation :** revoir l’état initial et la stratégie de chargement pour conserver une navigation opérationnelle dès le premier rendu, sans transition développé → replié perceptible ni blocage de l’analyse du contenu principal. Évaluer un contrôle HTML natif utilisable avant l’enrichissement JavaScript, ou une initialisation critique autonome. Ne pas masquer la navigation par une classe précoce qui laisserait un bouton inactif si `main.js` est bloqué.
+- **Retest attendu :** mêmes trois largeurs avec cache froid, réponse de script retardée puis rejetée ; contrôler premier rendu, apparition du contenu, Tab/Entrée/Échap et navigation de secours. Le cas retardé a été exécuté sur Accueil ; les quatre documents partagent le même placement de script.
 
-### QA-02 — La navigation mobile devient inaccessible si JavaScript ne s’exécute pas
+## Contrôles restant hors de cette passe
 
-- **Priorité : majeur**
-- **Emplacement :** `sites/coiffeur-mixte/css/style.css:87-104`, `sites/coiffeur-mixte/js/main.js:4-50`.
-- **Étapes de reproduction :**
-  1. Ouvrir n’importe quelle page à une largeur inférieure à 900 px.
-  2. Désactiver JavaScript, bloquer `main.js` ou simuler son échec de chargement.
-  3. La navigation principale est en `display: none`; le bouton menu reste présent mais ne peut rien ouvrir.
-- **Impact utilisateur :** perte complète d’accès aux autres pages sur mobile en cas de défaillance JavaScript. Ce n’est pas une dégradation progressive acceptable pour la navigation principale.
-- **Recommandation :** rendre la navigation visible et utilisable par défaut, puis appliquer le comportement repliable uniquement après l’initialisation JavaScript (par exemple une classe `js` sur `html`). Prévoir un repli `noscript` si nécessaire.
+### Dépendants du déploiement ou de sa configuration
 
-### QA-03 — Les placeholders annoncent des personnes, réalisations et scènes inexistantes
+- **QA-07 — URL et indexation :** définir puis vérifier les URL canoniques, le choix d’indexer ou non la démo, `robots.txt` et le sitemap au niveau réellement publié. L’absence de configuration finale ne prouve pas à elle seule une impossibilité d’indexation.
+- **Distribution des ressources partagées :** les chemins `../../shared/design-system/` fonctionnent dans l’arborescence locale servie. Confirmer que le déploiement indépendant du site embarque CSS et fontes au bon emplacement ; publier uniquement le dossier du site sans adaptation ne suffit pas.
+- **Hébergement :** HTTPS, redirections, réponses 404, compression, cache, types MIME et éventuelle CSP restent à vérifier sur l’hébergeur retenu. Les réponses 200 du serveur temporaire ne valident pas ces réglages de production.
+- **Performance publique :** pas de score Lighthouse publié ni de mesure terrain des Core Web Vitals dans cette passe. Le retard contrôlé de 1,5 s est un scénario de diagnostic, pas une mesure de latence réelle.
+- **Cookies sur la version publiée :** aucune écriture de cookie ou de stockage dans le code inspecté et aucun cookie document ni appel tiers observé localement. Vérifier les éventuels ajouts de l’hébergeur sur l’URL finale avant de conclure pour la version publique.
 
-- **Priorité : majeur**
-- **Emplacement :** `index.html:49, 88, 94, 105, 122-154`, `coiffure.html:49, 55, 98-100`, `barbier.html:49, 55, 98-100`, `salon.html:45, 74, 102`, et `css/style.css:134-142`.
-- **Étapes de reproduction :**
-  1. Parcourir les pages avec un lecteur d’écran, ou inspecter les éléments `.media-placeholder`.
-  2. Chaque même dégradé CSS est exposé avec `role="img"` et un `aria-label` décrivant un salon, une équipe, un portrait ou une réalisation.
-  3. L’accueil affiche également une équipe et une galerie fictives, malgré l’absence de visuels ou de personnes réelles.
-- **Impact utilisateur :** les technologies d’assistance reçoivent une information factuellement fausse. Le rendu donne aussi l’impression d’un portfolio inachevé et ne respecte pas la consigne de masquer portraits et galeries sans ressources authentiques.
-- **Recommandation :** rendre les compositions CSS purement décoratives avec `aria-hidden="true"`, sans rôle image ni texte alternatif. Retirer les portraits et galeries fictifs. Implémenter, à leur place, les compositions éditoriales distinctes prévues dans `docs/DIRECTION.md`, sans prétendre représenter des personnes ou prestations réelles.
+### Non exécutés, mais possibles avant déploiement
 
-### QA-04 — Les pages Coiffure et Barbier ne sont pas conformes au cahier des charges actuel
+Safari/iOS, Firefox, appareils physiques et lecture vocale VoiceOver/NVDA n’ont pas été testés ici. Les contrastes complets, les vues desktop/très grand écran et la revue visuelle générale n’ont pas été recommencés. Ces limites sont distinctes des contrôles qui attendent réellement un hébergement ; elles ne sont pas présentées comme des validations acquises.
 
-- **Priorité : majeur**
-- **Emplacement :** `sites/coiffeur-mixte/coiffure.html:38-111`, `sites/coiffeur-mixte/barbier.html:38-111`.
-- **Étapes de reproduction :**
-  1. Comparer les pages aux sections « Coiffure — expression, matière et conseil » et « Barbier — lignes, confort et entretien » de `docs/DIRECTION.md`.
-  2. Constater le même gabarit sur les deux pages : hero, bloc éditorial, grille de quatre cartes, galerie, CTA.
-  3. Constater que les textes de hero, les axes de conseil Coiffure, la liste éditoriale et les étapes Barbier validés dans le brief ne sont pas présents.
-- **Impact utilisateur :** les deux univers manquent de singularité et le livrable ne correspond pas à la source de vérité produit/éditoriale du portfolio.
-- **Recommandation :** conserver les primitives communes (en-tête, footer, boutons, conteneur), mais créer les rythmes et contenus spécifiés : axes de conseil, module couleur et grille de prestations pour Coiffure ; liste éditoriale, trois étapes et encadré entretien pour Barbier.
+## Checklist de livraison actualisée
 
-### QA-05 — Le menu mobile reste ouvert après le CTA ancré de la page Salon
+### Avant la mise en avant définitive
 
-- **Priorité : mineur**
-- **Emplacement :** `sites/coiffeur-mixte/salon.html:30`, `sites/coiffeur-mixte/js/main.js:21-35`.
-- **Étapes de reproduction :**
-  1. À moins de 900 px, ouvrir le menu sur `salon.html`.
-  2. Activer « Nous contacter ».
-  3. Le lien vise `salon.html#contact`; il peut déplacer la page vers l’ancre sans rechargement et sans appeler `closeNav()`.
-- **Impact utilisateur :** le panneau peut rester superposé au bloc Contact et forcer une action supplémentaire pour être fermé.
-- **Recommandation :** fermer la navigation lorsqu’un lien du menu est activé, en particulier les ancres de la page courante. Vérifier ce comportement au clic, avec Entrée et avec la touche Espace lorsque pertinent.
+- [x] Navigation à 320/375/768 px utilisable avec JS actif, désactivé et script bloqué.
+- [x] Liens de navigation et CTA Contact activables au clavier et au clic.
+- [x] Lien d’évitement fonctionnel sur les quatre pages.
+- [x] Séquence et titres Barbier corrigés.
+- [x] Coordonnées fictives sans action téléphone/e-mail.
+- [ ] Clore CR2-04 : stabilité du menu et disponibilité du contenu pendant le chargement du script. Seule réserve mineure active de cette contre-vérification.
 
-### QA-06 — Le lien d’évitement ne déplace pas fiablement le focus dans le contenu
+### Avant la première publication publique
 
-- **Priorité : mineur**
-- **Emplacement :** les quatre liens `.skip-link`, par exemple `index.html:16`, et `main#main`, par exemple `index.html:36`.
-- **Étapes de reproduction :**
-  1. Utiliser Tab au chargement : le lien « Aller au contenu principal » est bien visible.
-  2. L’activer puis poursuivre avec Tab.
-  3. `main` n’est pas focusable : le défilement vers l’ancre peut avoir lieu sans que le focus quitte le lien d’évitement.
-- **Impact utilisateur :** le mécanisme aide visuellement, mais ne garantit pas un parcours clavier cohérent ni le bénéfice attendu avec toutes les technologies d’assistance.
-- **Recommandation :** ajouter `tabindex="-1"` aux éléments `main#main`, puis vérifier dans les navigateurs cibles que l’activation place le focus dans le contenu principal.
+- [x] Auto-héberger les polices conformément à ARCHITECTURE ; contrôle local réalisé.
+- [ ] Confirmer sur la cible que CSS et WOFF2 partagés sont bien distribués, sans retour à un CDN de polices.
+- [ ] Finaliser QA-07 et vérifier la configuration HTTP, HTTPS, cache et indexation sur la cible.
+- [ ] Vérifier les éventuels cookies ou services ajoutés lors du déploiement.
 
-### QA-07 — L’indexabilité ne peut pas être finalisée avant configuration de déploiement
+### Acceptable pour la démonstration de portfolio
 
-- **Priorité : mineur**
-- **Emplacement :** configuration de déploiement absente du site autonome.
-- **Étapes de reproduction :**
-  1. Examiner les quatre documents : les titres, descriptions, `lang="fr"` et favicon sont présents et uniques.
-  2. Constater l’absence de canonique, de `robots.txt`, de sitemap et d’URL publique connue.
-  3. Les coordonnées étant fictives, aucune donnée structurée locale ne peut être publiée honnêtement.
-- **Impact utilisateur :** pas de problème pour une démonstration locale ; lors d’un déploiement indépendant, les moteurs ne disposent pas des signaux de contrôle d’indexation et de canonicalisation.
-- **Recommandation :** lors du choix de l’URL publique, ajouter un canonique par page, `robots.txt` et sitemap au bon niveau de déploiement. Ne pas générer de schéma `HairSalon`/`LocalBusiness` avant d’avoir des coordonnées réelles et autorisées.
+- [x] Démonstration locale présentable avec la réserve mineure de chargement explicitée ; aucun parcours principal n’est bloqué après chargement.
+- [x] Compositions CSS provisoires décoratives, sans fausse attribution photographique.
+- [x] Coordonnées clairement fictives et non actionnables ; aucune réservation ou collecte simulée.
+- [x] Absence de données structurées de salon réel tant que les informations sont fictives.
+- [x] Aucun bandeau cookies artificiel dans le site statique actuellement testé.
+- [x] Shell dupliqué temporairement pour ce premier site, Eleventy différé au deuxième selon ARCHITECTURE.
 
-### QA-08 — Les polices restent une dépendance tierce
+## Traçabilité
 
-- **Priorité : mineur**
-- **Emplacement :** les quatre `<head>`, par exemple `index.html:9-11`.
-- **Étapes de reproduction :**
-  1. Charger une page avec l’inspection réseau.
-  2. Le document effectue des requêtes vers Google Fonts et `fonts.gstatic.com`.
-- **Impact utilisateur :** légère dépendance de performance et de confidentialité à un tiers ; le site reste lisible grâce aux fallbacks système.
-- **Recommandation :** acceptable pour la démo actuelle. Avant une production commerciale, auto-héberger les fichiers de police, les subseter aux glyphes requis et définir une stratégie de cache.
-
-### QA-09 — Une grille CSS non utilisée est embarquée
-
-- **Priorité : mineur**
-- **Emplacement :** `sites/coiffeur-mixte/css/style.css:6-17`.
-- **Étapes de reproduction :**
-  1. Rechercher la classe `.grid` dans les documents HTML du site.
-  2. Constater qu’aucun élément ne l’emploie.
-  3. Constater que ses trois définitions de breakpoints sont néanmoins chargées sur les quatre pages.
-- **Impact utilisateur :** impact réseau négligeable aujourd’hui, mais le CSS mort rend les layouts plus ambigus et alourdit les futurs changements.
-- **Recommandation :** supprimer cette règle si elle n’est pas retenue, ou l’utiliser effectivement comme primitive documentée de grille.
-
-## Contrôles conformes
-
-### Fonctionnel et navigation
-
-- Les pages Accueil, Coiffure, Barbier et Le salon sont présentes.
-- Tous les liens internes et assets locaux déclarés sont résolus.
-- Aucun lien `#` factice, formulaire, compte, calendrier, réservation, paiement, bandeau cookies ou script analytics n’est présent.
-- Le menu est construit avec un vrai bouton, porte `aria-expanded`/`aria-controls`, peut être fermé avec Échap et son libellé est mis à jour par JavaScript.
-
-### Responsive
-
-- À 768 px, le rendu actuel de la page Salon ne présente plus de défilement horizontal ; la régression relevée dans `docs/UX-REVIEW-coiffeur-mixte.md` est corrigée dans la révision auditée.
-- Les layouts reposent sur des grilles fluides et se replient aux seuils 600, 700, 768, 900 et 1024 px.
-- Les conteneurs sont plafonnés à 1200 px : le comportement est adapté aux grands écrans.
-
-### Accessibilité
-
-- Une seule balise `h1` est présente par page ; `header`, `nav`, `main` et `footer` sont employés.
-- Les liens actifs emploient `aria-current="page"`.
-- Les focus visibles sont définis, les boutons atteignent 48 × 48 px et `prefers-reduced-motion` est respecté.
-- Après les corrections de la révision `102f871`, les usages de texte courant sur fond Sable utilisent Encre ; les combinaisons textuelles restantes atteignent le niveau AA minimal.
-
-### SEO et performance
-
-- Chaque page possède un titre, une méta-description et un favicon distinctement déclarés.
-- Le sous-site pèse environ 52 Ko hors polices distantes ; il ne charge pas de photo lourde, bibliothèque JavaScript ni animation continue.
-- Les préconnexions Google Fonts et les polices de repli sont correctement déclarées.
-
-## Contre-vérification ciblée — 5 septembre 2026
-
-**Révision contrôlée :** `e2187ce` (`main`). Cette passe vérifie uniquement les anomalies signalées dans le présent rapport, avec une attention particulière au mobile, au clavier et aux coordonnées fictives ; elle ne constitue pas un nouvel audit complet.
-
-**Verdict de contre-vérification : non validé.** Les quatre corrections de fond sont en grande partie intégrées, mais la navigation de secours sans JavaScript reste inutilisable à 375 px. Cet écart majeur bloque encore la mise en avant définitive. Le lien d’évitement de la page Salon reste aussi incomplet.
-
-| Anomalie initiale | État | Constat de contre-vérification |
-| --- | --- | --- |
-| QA-01 — Coordonnées fictives | Corrigé | Aucun lien `tel:` ou `mailto:` n’est présent. Téléphone et e-mail sont du texte, accompagnés de mentions explicites « exemple non actionnable » et d’un avertissement portfolio. |
-| QA-03 — Médias fictifs | Corrigé | Les fausses photos, portraits et galerie ont disparu. Les quatre compositions CSS sont distinctes et marquées `aria-hidden="true"`, sans rôle image ni description de scène. |
-| QA-04 — Direction Coiffure / Barbier | Corrigé | Les deux pages reprennent désormais les axes et rythmes éditoriaux demandés dans `docs/DIRECTION.md`. |
-| QA-05 — Fermeture du menu sur ancre | Corrigé | Le gestionnaire de navigation appelle maintenant `closeNav()` lors de l’activation de tout lien, y compris `salon.html#contact`. |
-| QA-06 — Lien d’évitement | Partiellement corrigé | `tabindex="-1"` est présent sur les `main` d’Accueil, Coiffure et Barbier, mais absent de `salon.html`. |
-| QA-09 — CSS mort | Corrigé | Les règles `.grid`, `.team-grid` et `.gallery` signalées ne sont plus embarquées. |
-
-### QA-02 — Le repli mobile sans JavaScript reste visuellement inutilisable
-
-- **Priorité : majeur**
-- **Emplacement :** `sites/coiffeur-mixte/css/style.css:14-19, 74-82`.
-- **Étapes de reproduction :**
-  1. Ouvrir `index.html` à 375 px de large avec JavaScript désactivé ou `main.js` bloqué.
-  2. Constater que l’en-tête reste un conteneur flex sur une ligne alors que seule la liste de navigation passe en colonne.
-  3. Le menu déborde horizontalement et n’est pas visible ni normalement atteignable dans le viewport mobile ; le hero et ses CTA débordent également.
-- **Impact utilisateur :** si JavaScript échoue, la navigation principale ne fournit pas un parcours mobile exploitable. Le correctif de dégradation progressive est donc seulement partiel, malgré l’intention documentée dans le CSS.
-- **Recommandation :** sous 900 px, organiser réellement l’en-tête sans JavaScript sur deux lignes (par exemple `flex-wrap: wrap` avec la navigation en `flex-basis: 100%`, ou une colonne), puis conserver le positionnement absolu uniquement sous `html.js`. Recontrôler à 320, 375 et 768 px sans JavaScript, puis à 375 px avec le menu JavaScript au clavier.
-
-### QA-06 — La cible du lien d’évitement de la page Salon n’est pas focusable
-
-- **Priorité : mineur**
-- **Emplacement :** `sites/coiffeur-mixte/salon.html:36`.
-- **Étapes de reproduction :**
-  1. Ouvrir la page « Le salon » et utiliser Tab dès le chargement.
-  2. Activer « Aller au contenu principal ».
-  3. Le `main#main` ne porte pas `tabindex="-1"`, contrairement aux trois autres pages ; le focus n’est donc pas déplacé de manière fiable dans le contenu.
-- **Impact utilisateur :** le parcours clavier reste incohérent sur une page du site.
-- **Recommandation :** ajouter `tabindex="-1"` à `main#main` dans `salon.html`, puis vérifier le focus avec Tab et Entrée.
-
-## Checklist avant mise en avant définitive
-
-### Bloque la validation
-
-- [x] Rendre les coordonnées fictives totalement non interactives.
-- [ ] Assurer une navigation mobile disponible sans JavaScript, sans débordement à 320, 375 et 768 px.
-- [x] Retirer les portraits, réalisations et descriptions d’images fictifs ; les remplacer par les compositions prévues par la direction, accessibles comme décoratives.
-- [x] Mettre Coiffure et Barbier en conformité avec les structures et contenus validés dans `docs/DIRECTION.md`.
-
-### À terminer avant publication web, sans bloquer une maquette interne
-
-- [x] Fermer le menu après l’activation d’un lien, dont l’ancre Contact sur la page Salon.
-- [ ] Rendre la cible du lien d’évitement focusable sur la page Salon.
-- [ ] Configurer canonical, sitemap, `robots.txt`, cache et HTTPS quand le domaine de déploiement sera connu.
-- [ ] Choisir entre maintien temporaire de Google Fonts et auto-hébergement avant une production commerciale.
-
-### Acceptable pour un projet de portfolio
-
-- [x] Site statique sans compte, réservation, formulaire de collecte ou bandeau cookies.
-- [x] Coordonnées présentées comme fictives, à condition qu’elles cessent d’être actionnables.
-- [x] Placeholders décoratifs temporaires, à condition qu’ils ne simulent ni personnes, ni réalisations, ni scènes réelles aux visiteurs ou aux technologies d’assistance.
-- [x] Absence de données structurées locales tant qu’aucune information métier réelle n’est disponible.
+Audit initial : `ef194f7` sur `3774de9`. Première contre-vérification : `840c396` sur `e2187ce`. Le détail historique des anomalies corrigées reste consultable dans ces versions Git du rapport. La présente passe sur `5827a14` actualise leurs états et remplace les anciennes conclusions, notamment le blocage de navigation sans JavaScript et le seuil tardif d’auto-hébergement.
