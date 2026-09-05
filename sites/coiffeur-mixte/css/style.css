@@ -73,7 +73,19 @@
 
 @media (max-width: 899px) {
   /* Sans JavaScript : la navigation reste visible, simplement empilée sous le logo.
-     Le bouton menu ne sert à rien sans JS : il reste caché (voir html.js ci-dessous). */
+     Le bouton menu ne sert à rien sans JS : il reste caché (voir html.js ci-dessous).
+     L'en-tête doit pouvoir passer à la ligne : sans ce repli, la liste de nav
+     empilée reste quand même à côté du logo sur une seule ligne flex et déborde
+     horizontalement à 320/375/768 px (constat QA, contre-vérification du 5
+     septembre 2026). */
+  .site-header__inner {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+  .site-nav {
+    flex-basis: 100%;
+    width: 100%;
+  }
   .site-nav ul {
     flex-direction: column;
     align-items: stretch;
@@ -133,6 +145,13 @@
 }
 .deco--tall { aspect-ratio: 3 / 4; }
 .deco--wide { aspect-ratio: 16 / 9; }
+
+/* Sous 900 px, le hero Coiffure (seul hero en ratio "tall") est ramené vers
+   4:5 plutôt que 3:4 : il occupait presque un écran de tablette complet
+   (constat docs/UX-REVIEW-coiffeur-mixte.md, hero Coiffure trop haut). */
+@media (max-width: 899px) {
+  .hero .deco--tall { aspect-ratio: 4 / 5; }
+}
 
 /* Accueil — « La rencontre » : deux formes courbes (Sable, Sauge) reliées par un
    trait Cuivre, sur Ivoire. */
@@ -237,6 +256,24 @@
   .editorial--reverse .editorial__media { order: 2; }
 }
 
+/* ---------- Bloc "Notre approche" (accueil) ----------
+   Séparation typographique plutôt qu'une troisième reprise de la composition
+   décorative de l'accueil (cf. docs/UX-REVIEW-coiffeur-mixte.md, réemploi
+   excessif des compositions). */
+.approche {
+  max-width: 640px;
+  margin-inline: auto;
+  text-align: center;
+}
+.approche::before {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 3px;
+  background: var(--color-copper);
+  margin: 0 auto var(--space-4);
+}
+
 /* ---------- CTA final ---------- */
 .cta-band {
   background: var(--color-ink);
@@ -249,12 +286,8 @@
 .cta-band .btn-secondary:hover { background: var(--color-ivory); color: var(--color-ink); }
 
 /* ---------- Infos pratiques (page Le salon) ---------- */
-.info-grid {
-  display: grid;
-  gap: var(--space-4);
-}
-@media (min-width: 768px) {
-  .info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.info-list--standalone {
+  max-width: 480px;
 }
 .info-list dt { font-weight: 700; margin-top: var(--space-3); }
 .info-list dd { margin: 0; color: var(--color-sage); }
@@ -359,4 +392,4 @@
   padding: var(--space-4);
   background: var(--color-ivory);
 }
-.callout h3 { margin-top: 0; }
+.callout :is(h2, h3) { margin-top: 0; }

@@ -6,9 +6,7 @@
 <title>Le salon &amp; Contact — Créa’Tif</title>
 <meta name="description" content="Découvrez le salon Créa’Tif, ses valeurs, son équipe, et retrouvez toutes les informations pratiques pour nous contacter.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../shared/design-system/fonts.css">
 <link rel="stylesheet" href="../../shared/design-system/tokens.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -32,8 +30,9 @@
     </nav>
   </div>
 </header>
+<script src="js/main.js"></script>
 
-<main id="main">
+<main id="main" tabindex="-1">
 
   <section class="hero">
     <div class="container hero__inner">
@@ -86,21 +85,18 @@
         <h2 id="contact-title">Informations pratiques &amp; contact</h2>
         <p>Toutes les coordonnées ci-dessous sont fictives — ce site est une démonstration réalisée pour un portfolio.</p>
       </div>
-      <div class="info-grid">
-        <dl class="info-list">
-          <dt>Adresse</dt>
-          <dd>12 rue des Lilas, 75000 Paris <span class="placeholder-note">(exemple non actionnable)</span></dd>
-          <dt>Horaires</dt>
-          <dd>Mardi – Samedi, 9h30 – 19h00 <span class="placeholder-note">(exemple non actionnable)</span></dd>
-          <dt>Téléphone</dt>
-          <dd>01 00 00 00 00 <span class="placeholder-note">(exemple non actionnable)</span></dd>
-          <dt>E-mail</dt>
-          <dd>contact@creatif-salon.example <span class="placeholder-note">(exemple non actionnable)</span></dd>
-          <dt>Moyens de paiement</dt>
-          <dd>Carte bancaire, espèces <span class="placeholder-note">(exemple non actionnable)</span></dd>
-        </dl>
-        <div class="deco deco--salon" aria-hidden="true"></div>
-      </div>
+      <dl class="info-list info-list--standalone">
+        <dt>Adresse</dt>
+        <dd>12 rue des Lilas, 75000 Paris <span class="placeholder-note">(exemple non actionnable)</span></dd>
+        <dt>Horaires</dt>
+        <dd>Mardi – Samedi, 9h30 – 19h00 <span class="placeholder-note">(exemple non actionnable)</span></dd>
+        <dt>Téléphone</dt>
+        <dd>01 00 00 00 00 <span class="placeholder-note">(exemple non actionnable)</span></dd>
+        <dt>E-mail</dt>
+        <dd>contact@creatif-salon.example <span class="placeholder-note">(exemple non actionnable)</span></dd>
+        <dt>Moyens de paiement</dt>
+        <dd>Carte bancaire, espèces <span class="placeholder-note">(exemple non actionnable)</span></dd>
+      </dl>
       <p class="contact-disclaimer">Ce site est une démonstration de portfolio&nbsp;: les coordonnées ci-dessus ne correspondent à aucun salon réel et ne déclenchent aucune action. Une intégration commerciale utiliserait de vraies coordonnées, cliquables.</p>
     </div>
   </section>
@@ -124,6 +120,5 @@
     <p class="site-footer__note">Site de démonstration réalisé pour un portfolio. Coordonnées, adresse et disponibilités présentées ici sont fictives.</p>
   </div>
 </footer>
-<script src="js/main.js"></script>
 </body>
 </html>

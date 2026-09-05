@@ -1,0 +1,41 @@
+/*
+  Polices auto-hébergées — portfolio-vitrines
+  Voir shared/design-system/fonts/NOTICE.md pour la source, l'auteur et la licence
+  (SIL OFL 1.1) de chaque fichier.
+
+  À charger avant tokens.css : ce fichier ne fait que déclarer les familles ;
+  tokens.css les référence via --font-heading et --font-body.
+  Seules les graisses réellement utilisées par les styles du site sont fournies.
+*/
+
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("fonts/cormorant-garamond/cormorant-garamond-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("fonts/dm-sans/dm-sans-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("fonts/dm-sans/dm-sans-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("fonts/dm-sans/dm-sans-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

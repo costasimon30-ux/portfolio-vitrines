@@ -6,9 +6,7 @@
 <title>Créa’Tif — Salon de coiffure mixte | Accueil</title>
 <meta name="description" content="Créa’Tif, salon de coiffure mixte premium : coupe, couleur, soins et barbier. Le geste juste, dans un cadre chaleureux et contemporain.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../shared/design-system/fonts.css">
 <link rel="stylesheet" href="../../shared/design-system/tokens.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -32,6 +30,7 @@
     </nav>
   </div>
 </header>
+<script src="js/main.js"></script>
 
 <main id="main" tabindex="-1">
 
@@ -85,13 +84,13 @@
       </div>
       <div class="card-grid">
         <article class="card">
-          <div class="deco deco--accueil" aria-hidden="true"></div>
+          <div class="deco deco--coiffure" aria-hidden="true"></div>
           <h3>Coiffure</h3>
           <p>Coupe &amp; brushing, couleur, soins, coiffure événementielle.</p>
           <a class="btn btn-secondary" href="coiffure.html">Voir l’univers Coiffure</a>
         </article>
         <article class="card">
-          <div class="deco deco--accueil" aria-hidden="true"></div>
+          <div class="deco deco--barbier" aria-hidden="true"></div>
           <h3>Barbier</h3>
           <p>Coupe &amp; contours, taille de barbe, rasage, soin visage.</p>
           <a class="btn btn-secondary" href="barbier.html">Voir l’univers Barbier</a>
@@ -112,13 +111,10 @@
   </section>
 
   <section class="section section--alt" aria-labelledby="approche-title">
-    <div class="container editorial editorial--reverse">
-      <div class="deco deco--accueil deco--tall editorial__media" aria-hidden="true"></div>
-      <div>
-        <h2 id="approche-title">Notre approche</h2>
-        <p>Coiffeuses, coiffeurs et barbiers avancent avec la même méthode&nbsp;: écouter avant de couper, observer la matière avant de colorer, prendre le temps du geste plutôt que de l’accélérer.</p>
-        <p>Une équipe formée en continu, qui partage ses techniques et ajuste ensemble sa pratique — pour que chaque prestation, quelle que soit la personne qui la réalise, porte la même exigence.</p>
-      </div>
+    <div class="container approche">
+      <h2 id="approche-title">Notre approche</h2>
+      <p>Coiffeuses, coiffeurs et barbiers avancent avec la même méthode&nbsp;: écouter avant de couper, observer la matière avant de colorer, prendre le temps du geste plutôt que de l’accélérer.</p>
+      <p>Une équipe formée en continu, qui partage ses techniques et ajuste ensemble sa pratique — pour que chaque prestation, quelle que soit la personne qui la réalise, porte la même exigence.</p>
     </div>
   </section>
 
@@ -149,6 +145,5 @@
     <p class="site-footer__note">Site de démonstration réalisé pour un portfolio. Coordonnées, adresse et disponibilités présentées ici sont fictives.</p>
   </div>
 </footer>
-<script src="js/main.js"></script>
 </body>
 </html>
