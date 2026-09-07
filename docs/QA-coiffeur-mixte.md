@@ -1,94 +1,98 @@
 # QA / Audit — coiffeur-mixte
 
-## Verdict actuel — 5 septembre 2026
+## Verdict actuel — 7 septembre 2026
 
-**Corrections fonctionnelles validées en local ; validation finale encore réservée sur le chargement du menu.** Aucun défaut bloquant ou majeur n’est actif dans le périmètre contre-vérifié. Les 36 cas de navigation mobile passent, le lien d’évitement place réellement le focus sur les quatre pages, la structure Barbier est corrigée et les polices sont chargées localement. **Une anomalie mineure de la seconde Code Review reste ouverte : le menu développé apparaît avant de se replier lorsque `main.js` tarde à charger.** Le script bloque également l’apparition du contenu principal pendant cette attente.
+**CR2-04 clôturé sur `9f60163` : réserve locale de chargement levée.** Sur les quatre pages à 320/375/768 px, le menu reste stable et le contenu est effectivement visible avant la libération de `main.js`, retardé de 1 500 ms. Le menu natif fonctionne aussi avec le script bloqué ou JavaScript désactivé. Les contrôles clavier, d’accessibilité du déclencheur, de navigation desktop et du lien d’évitement passent. Aucune anomalie locale ouverte dans ce périmètre ciblé ; la publication publique reste soumise aux contrôles de déploiement listés plus bas.
 
-**Commit contrôlé :** `5827a149ba926359971c9ac99c8b512415ba57dc` (`5827a14`, livraison de Claude sur `main`). `git pull --ff-only` effectué avant cette passe : dépôt à jour.
+**Commit contrôlé :** `9f601636ce459d3cc78ab3951a27222abb1975d0` (`9f60163`, livraison de Claude sur `main`). `git pull --ff-only` effectué le 7 septembre avant cette passe : dépôt à jour.
 
-**Périmètre :** contre-vérification ciblée des anomalies de QA et de la seconde Code Review ; quatre pages de `sites/coiffeur-mixte/`, styles partagés et polices effectivement chargés. Ce verdict remplace les verdicts des passes précédentes, sans prétendre renouveler l’audit complet de toutes les catégories.
+**Périmètre du 7 septembre :** CR2-04 et non-régression directe du menu `details/summary`, du clavier, de la navigation desktop et du lien d’évitement sur les quatre pages. Les autres constats corrigés restent issus de la passe du 5 septembre sur `5827a14` ; ils ne sont pas présentés comme un nouvel audit complet. Le présent verdict remplace la réserve de chargement de cette passe.
 
 **Référentiel :** `CLAUDE.md`, `docs/WORKFLOW.md`, `docs/AGENTS.md`, `docs/DIRECTION.md`, `docs/ARCHITECTURE.md` et `docs/CODE-REVIEW-coiffeur-mixte.md` (passe 2, publiée dans `dcdadb9`).
 
 ## État de chaque anomalie
 
-Les priorités des anomalies corrigées rappellent leur gravité initiale. Les identifiants CR2 ci-dessous correspondent, dans l’ordre, aux quatre constats P2 de la seconde Code Review.
+Les priorités rappellent la gravité initiale. Les identifiants CR2 correspondent, dans l’ordre, aux quatre constats P2 de la seconde Code Review. QA-02, QA-05, QA-06, CR2-01 et CR2-04 sont contre-vérifiés le 7 septembre ; les autres résultats locaux sont conservés depuis le 5 septembre.
 
 | Identifiant | Priorité | État actuel | Preuve / portée de la vérification |
 | --- | --- | --- | --- |
 | QA-01 — Coordonnées fictives actionnables | Majeur | Corrigé, correction conservée | Aucun lien `tel:` ou `mailto:` dans les quatre pages. Les coordonnées du Salon sont du texte, explicitement fictif et non actionnable. Le CTA conduit au bloc Contact. |
-| QA-02 — Navigation mobile sans JavaScript | Majeur | Corrigé | Quatre pages × 320/375/768 px × JS actif/désactivé/`main.js` bloqué : navigation utilisable, liens dans le viewport et aucun débordement horizontal après chargement. |
+| QA-02 — Navigation mobile sans JavaScript | Majeur | Corrigé, nouveau mécanisme vérifié | Quatre pages × trois largeurs × quatre scénarios : menu natif replié au repos, utilisable avant le script, après son rejet et sans JavaScript ; aucun débordement horizontal. |
 | QA-03 — Médias et portraits fictifs | Majeur | Corrigé, correction conservée | Contrôle statique : compositions `.deco` décoratives avec `aria-hidden="true"`, absence des anciennes grilles de portraits et galeries. |
 | QA-04 — Structures Coiffure / Barbier | Majeur | Corrigé, correction conservée | Contenus et ordre des sections comparés à la direction ; structure et titres Barbier vérifiés dans le DOM et l’arbre d’accessibilité Chromium. |
-| QA-05 — Menu restant ouvert sur l’ancre Contact | Mineur | Corrigé | Activation par Entrée et au clic, y compris depuis Salon vers sa propre ancre : destination correcte et `aria-expanded="false"`. |
-| QA-06 — Focus du lien d’évitement | Mineur | Corrigé | Dans les 36 cas, Tab → Entrée place `document.activeElement` sur `main#main` ; Tab suivant atteint un lien dans le contenu. |
+| QA-05 — Menu restant ouvert sur l’ancre Contact | Mineur | Corrigé avec JS ; repli manuel sans JS | Après chargement du script, l’activation de Contact ferme `details`, y compris sur Salon. Sans script, l’ancre fonctionne mais le menu reste ouvert sur la page courante ; fermeture native avec Entrée/Espace sur « Menu ». |
+| QA-06 — Focus du lien d’évitement | Mineur | Corrigé, non-régression vérifiée | Tab → Entrée place réellement le focus sur `main#main` sur les quatre pages, en mobile et desktop ; Tab suivant continue dans le contenu en mobile. |
 | QA-07 — Indexabilité et configuration finale | Mineur | En attente du déploiement | URL, choix d’indexation et configuration de l’hébergeur non disponibles. Aucun résultat de production ne peut être déduit du serveur local. |
 | QA-08 — Dépendance Google Fonts | Mineur | Corrigé localement ; livraison des assets à confirmer sur l’hébergeur | Les quatre WOFF2 locaux répondent 200 et sont chargés sur chaque page ; aucune requête tierce observée. Seuil obligatoire : **avant la première publication publique**, selon ARCHITECTURE. |
 | QA-09 — Grille CSS inutilisée | Mineur | Corrigé, correction conservée | Contrôle statique : anciennes règles `.grid`, `.team-grid` et `.gallery` absentes. |
-| CR2-01 — Focus Salon | Mineur (P2) | Corrigé | Même vérification que QA-06 ; `salon.html:35` possède désormais `tabindex="-1"`. |
-| CR2-02 — Étapes Barbier non ordonnées | Mineur (P2) | Corrigé dans le DOM et Chromium | `barbier.html:83-99` : `ol.steps` et trois `li`, dans l’ordre Échanger → Dessiner → Entretenir ; l’arbre d’accessibilité expose une liste et trois éléments. |
-| CR2-03 — « Entre deux visites » en h3 | Mineur (P2) | Corrigé | `barbier.html:107` : `h2`, également exposé au niveau 2 dans l’arbre d’accessibilité. |
-| CR2-04 — Flash du menu au chargement | Mineur (P2) | Partiellement corrigé, toujours ouvert | Script déplacé après l’en-tête, mais un retard réseau de 1,5 s reproduit le menu développé puis replié aux trois largeurs. Détails ci-dessous. |
+| CR2-01 — Focus Salon | Mineur (P2) | Corrigé | Même vérification que QA-06 ; `salon.html:37` possède `tabindex="-1"`. |
+| CR2-02 — Étapes Barbier non ordonnées | Mineur (P2) | Corrigé dans le DOM et Chromium | `barbier.html:85-101` : `ol.steps` et trois `li`, dans l’ordre Échanger → Dessiner → Entretenir ; l’arbre d’accessibilité expose une liste et trois éléments. |
+| CR2-03 — « Entre deux visites » en h3 | Mineur (P2) | Corrigé | `barbier.html:109` : `h2`, également exposé au niveau 2 dans l’arbre d’accessibilité. |
+| CR2-04 — Flash du menu au chargement | Mineur (P2) | **Clôturé le 7 septembre** | 24 observations avant réponse du script : contenu visible avant `DOMContentLoaded`, en-tête stable à 81 px et état du menu conservé après libération ou rejet. Voir le protocole et les résultats ci-dessous. |
 
-## Vérifications réalisées
+## Contre-vérification de CR2-04 — 7 septembre
 
-### Méthode
+### Méthode et preuve avant libération du script
 
-Tests indépendants avec Playwright et **Google Chrome 152.0.7977.77, moteur Chromium**, en mode headless, sur un serveur HTTP local temporaire servant la racine du dépôt. Contextes neufs, viewport explicitement fixé en pixels CSS, hauteur de 900 px et cache HTTP désactivé par le serveur de test.
+Tests indépendants avec Playwright et **Google Chrome 152.0.7977.77 (Chromium)**, en mode headless, sur un serveur HTTP local temporaire servant la racine du dépôt. Contextes neufs, cache HTTP désactivé par le serveur, largeur en pixels CSS et hauteur de 900 px.
 
-Trois scénarios distincts ont été exécutés : JavaScript actif, désactivation JavaScript au niveau du contexte navigateur, puis JavaScript actif avec interception et rejet de la seule requête `**/js/main.js` (`blockedbyclient`). Ce dernier cas teste réellement une défaillance de ressource, pas seulement la suppression manuelle de la classe `js`.
+Pour les scénarios retardés, seule la requête `**/js/main.js` est interceptée et retenue par un temporisateur de 1 500 ms, puis libérée ou rejetée. Le délai mesuré est de 1 500 à 1 502 ms. HTML, CSS et polices restent disponibles. Un scénario séparé rejette immédiatement le script ; un autre désactive JavaScript au niveau du navigateur.
 
-Les mesures portent sur le DOM rendu, les limites des liens, le focus réel, les événements clavier, les destinations activées et le réseau. Des captures ont complété l’examen, notamment avant/après le chargement retardé. Aucun fichier du site n’a été corrigé.
+**L’observation pendant l’attente n’attend pas DOMContentLoaded.** La navigation initiale attend seulement l’engagement de la réponse HTML (`waitUntil: "commit"`). Pendant que la requête du script est toujours retenue, le test relève le rectangle et la visibilité du H1, vérifie qu’il n’est pas occulté, mesure l’en-tête, inspecte l’arbre d’accessibilité, prend une capture du viewport et actionne le menu au clavier.
 
-### Navigation à 320 / 375 / 768 px
+Sur les **24 cas retardés** (12 libérations + 12 rejets après attente) :
 
-Chaque cellule couvre Accueil, Coiffure, Barbier et Salon.
+- Le contenu est observé **53 à 205 ms après l’interception**, avec `domContentLoadedEventStart === 0` dans tous les cas et la réponse du script toujours retenue.
+- Les captures sont terminées **87 à 271 ms après l’interception**, donc bien avant les 1 500 ms ; elles montrent le titre et le contenu du hero, pas seulement un élément présent dans le DOM.
+- Le suivi par trames de rendu relève un en-tête de **81 px pendant toute l’observation**, avant et après la réponse, y compris pendant l’ouverture volontaire du menu.
+- Le menu est initialement fermé. Entrée/Espace l’actionnent avant l’exécution du script ; laissé ouvert pendant sa libération ou son rejet, il reste ouvert. La position verticale du H1 ne change pas.
+- Le contenu principal existe dès la première trame échantillonnée. Les observations et captures avant réponse, et non cette seule présence DOM, fondent la clôture du défaut d’affichage.
 
-| Largeur CSS | JS actif | JS désactivé | main.js bloqué |
-| --- | --- | --- | --- |
-| 320 px | 4/4 conformes après chargement | 4/4 conformes | 4/4 conformes |
-| 375 px | 4/4 conformes après chargement | 4/4 conformes | 4/4 conformes |
-| 768 px | 4/4 conformes après chargement | 4/4 conformes | 4/4 conformes |
+### Matrice mobile
 
-- Dans les 36 cas : `document.documentElement.scrollWidth === innerWidth`. Avec JS, l’absence de débordement est aussi vérifiée menu ouvert.
-- Avec JS : menu fermé au repos, bouton atteignable par Tab, ouverture par Entrée et Espace, fermeture par Échap avec retour du focus au bouton.
-- Sans JS ou avec script bloqué : navigation développée visible, bouton inutilisable masqué ; les cinq liens restent atteignables au clavier et dans la largeur du viewport.
-- Les cinq destinations de navigation ont été activées au clic dans chaque cas, soit 180 activations ; le CTA Contact a aussi été activé au clavier. Les quatre pages et `salon.html#contact` sont atteintes correctement.
-- Aucune exception JavaScript ni erreur réseau inattendue sur ces parcours. Les rejets volontaires de `main.js` sont des erreurs simulées attendues.
-- Ce tableau valide l’état utilisable après chargement ou après échec du script ; il ne clôt pas le défaut transitoire CR2-04.
+Chaque cellule couvre Accueil, Coiffure, Barbier et Salon. Total : **48 cas**, tous conformes aux comportements décrits ici.
 
-### Clavier et Barbier
+| Largeur CSS | main.js retardé de 1 500 ms puis chargé | main.js bloqué immédiatement | JavaScript désactivé | main.js retardé de 1 500 ms puis bloqué |
+| --- | --- | --- | --- | --- |
+| 320 px | 4/4 | 4/4 | 4/4 | 4/4 |
+| 375 px | 4/4 | 4/4 | 4/4 | 4/4 |
+| 768 px | 4/4 | 4/4 | 4/4 | 4/4 |
 
-Sur chacune des quatre pages, aux trois largeurs et dans les trois modes, le premier Tab atteint le lien d’évitement visible, Entrée donne le focus à `main#main`, et le Tab suivant continue dans le contenu. Le focus de Salon n’est donc plus une simple correction constatée dans le HTML : son comportement est vérifié.
+Dans les quatre scénarios, le contenu est visible, le menu reste replié au repos et ses cinq liens rentrent dans le viewport à l’ouverture. `scrollWidth === innerWidth` menu fermé et ouvert. Aucune exception JavaScript ni échec réseau inattendu dans ces parcours ; les rejets du script sont volontaires.
 
-Barbier expose un unique H1, les sections en H2 et les prestations/étapes en H3. « Entre deux visites » est une section de niveau 2, sœur de « Nos prestations » et « Le détail fait l’équilibre ». Les trois étapes figurent dans une liste ordonnée HTML et trois éléments de liste dans l’arbre d’accessibilité Chromium. Les chiffres décoratifs restent masqués. L’annonce vocale exacte sous VoiceOver/Safari ou NVDA n’a pas été testée.
+### Clavier, état accessible et relation à la navigation
 
-### Polices locales et réseau
+Sur les 48 cas mobiles :
 
-Sur chacune des quatre pages, `fonts.css` est chargé avant `tokens.css`. Les quatre fichiers WOFF2 locaux — Cormorant Garamond 600 et DM Sans 400/600/700 — répondent HTTP 200, et leurs entrées dans `document.fonts` sont à l’état `loaded`. Les polices effectivement utilisées sur les titres et sur-titres ont également été inspectées via Chromium : ce sont des polices web chargées, pas simplement des noms de familles déclarés en CSS.
+- Tab atteint le lien d’évitement, le logo puis `summary`, avec un focus visible sur le déclencheur.
+- Entrée ouvre le menu ; Espace le ferme puis le rouvre. Tab passe du déclencheur au premier lien, puis parcourt Accueil, Coiffure, Barbier, Le salon et Nous contacter dans cet ordre.
+- L’arbre d’accessibilité expose `summary` comme un contrôle natif `DisclosureTriangle`, nommé **« Menu »**, avec `expanded: false` fermé et `expanded: true` ouvert. L’absence d’un attribut HTML `aria-expanded` n’entraîne donc pas ici une absence d’état accessible.
+- À l’ouverture, la relation `controls` pointe effectivement vers le nœud `primary-nav`, exposé comme repère **« Navigation principale »**. La navigation est un frère de `details` dans le DOM ; sa relation avec le contrôle n’a pas été supposée à partir de la seule proximité visuelle.
+- Fermée, la navigation principale est absente de l’arbre d’accessibilité. Ouverte, elle et ses liens sont accessibles ; le prochain Tab atteint directement le premier lien.
 
-Le poids cumulé des quatre fontes sur disque est de **66 088 octets (environ 64,5 Kio)**. Les déclarations utilisent `font-display: swap`. La notice locale consigne origine, variantes et licence déclarée ; cette passe ne constitue pas un audit juridique des licences.
+**Différence de comportement à conserver explicitement :** Échap et la fermeture automatique après un lien sont des améliorations de `main.js`. Après son chargement, Échap ferme le menu et rend le focus à « Menu » ; Contact ferme aussi le menu sur Salon. Pendant l’attente, après rejet ou sans JavaScript, Échap ne ferme pas le menu et l’ancre Contact de la page Salon le laisse ouvert. Il reste refermable nativement avec Entrée/Espace sur « Menu », accessible par Maj+Tab depuis les liens. Ce repli fonctionnel est acceptable pour la démo et ne reproduit pas CR2-04.
 
-Aucune requête vers Google Fonts, `fonts.gstatic.com` ou un autre domaine tiers n’a été observée. En bloquant volontairement les WOFF2 sur l’accueil à 320 px, le texte reste visible avec les polices système et la page ne déborde pas.
+Ces constats valident les informations exposées à Chromium. Ils ne constituent pas une vérification de leur annonce vocale exacte par VoiceOver/Safari ou NVDA.
 
-**Règle alignée sur ARCHITECTURE : l’auto-hébergement est requis avant toute première publication publique du portfolio.** Le CDN n’est toléré que pour une démo strictement locale ou éphémère ; l’ancienne formulation « avant production commerciale » est retirée. L’implémentation locale satisfait désormais ce seuil, sous réserve d’embarquer effectivement `shared/design-system/` dans le déploiement.
+### Contrôles brefs desktop et lien d’évitement
 
-## Anomalie restant à corriger
+**24 cas desktop :** quatre pages × 1024/1440 px × JS actif/script bloqué/JS désactivé. Navigation visible, liens dans le viewport, déclencheur mobile masqué et absent de l’arbre d’accessibilité une fois la navigation achevée. Tab atteint directement les liens après le logo ; un changement de page vers Coiffure est activé par Entrée, y compris un rechargement depuis Coiffure. Le repère « Navigation principale » reste exposé.
 
-### CR2-04 — Le menu développé apparaît pendant l’attente de main.js
+Sur les quatre pages, en mobile comme en desktop, Tab → Entrée sur le lien d’évitement place `document.activeElement` sur `main#main`. Le Tab suivant continue dans le contenu en mobile. Pas de régression du correctif QA-06 / CR2-01.
 
-- **Priorité : mineur (P2 de la seconde Code Review).**
-- **État : partiellement corrigé, toujours reproductible.**
-- **Emplacements :** les quatre HTML, `script src="js/main.js"` à la ligne 33 ; `js/main.js:7` ; `css/style.css:74-107`.
-- **Étapes de reproduction :**
-  1. Servir le dépôt en HTTP et ouvrir `sites/coiffeur-mixte/index.html` dans un contexte neuf, JS actif, à 320, 375 ou 768 px.
-  2. Retarder uniquement la réponse de `js/main.js` de 1 500 ms, en laissant HTML, CSS et polices charger normalement.
-  3. Pendant l’attente, constater la navigation développée, le bouton masqué et l’absence de `main` dans le DOM.
-  4. Libérer la réponse : la classe `js` apparaît, la navigation se replie, le bouton apparaît et le contenu principal est enfin analysé et affiché.
-- **Résultat mesuré :** aux trois largeurs, l’en-tête passe de **297,375 px à 81 px**. Un premier affichage est enregistré dès 60–80 ms, avant la libération du script ; les captures avant/après confirment le changement visible. Il ne s’agit donc pas d’une simple possibilité déduite du code.
-- **Impact utilisateur :** sur connexion lente ou cache froid, l’interface change d’état devant l’utilisateur et l’affichage de l’offre attend une ressource servant essentiellement au menu. La navigation reste utilisable en repli ; il n’y a plus de perte permanente d’accès ni de débordement dans les scénarios testés.
-- **Recommandation :** revoir l’état initial et la stratégie de chargement pour conserver une navigation opérationnelle dès le premier rendu, sans transition développé → replié perceptible ni blocage de l’analyse du contenu principal. Évaluer un contrôle HTML natif utilisable avant l’enrichissement JavaScript, ou une initialisation critique autonome. Ne pas masquer la navigation par une classe précoce qui laisserait un bouton inactif si `main.js` est bloqué.
-- **Retest attendu :** mêmes trois largeurs avec cache froid, réponse de script retardée puis rejetée ; contrôler premier rendu, apparition du contenu, Tab/Entrée/Échap et navigation de secours. Le cas retardé a été exécuté sur Accueil ; les quatre documents partagent le même placement de script.
+### Décision de clôture
+
+**CR2-04 est clôturé.** Le correctif repose sur `details/summary` et le sélecteur CSS de l’état `[open]`, indépendants du chargement de `main.js` ; le script est désormais `defer` (`*.html:35`). Les essais avant sa libération prouvent que ce changement supprime le flash développé → replié et l’attente du contenu constatés sur `5827a14`.
+
+Aucune correction supplémentaire n’est demandée au titre de CR2-04. La fermeture manuelle de secours et les limites de couverture des navigateurs restent documentées ci-dessus.
+
+## Résultats antérieurs conservés — passe du 5 septembre
+
+Les constats sur les coordonnées fictives, les compositions décoratives, les séquences et titres Barbier, le CSS inutilisé et l’auto-hébergement des polices proviennent de la contre-vérification de `5827a14`, publiée dans `474b3e8`. Leur détail demeure dans cette version Git du rapport. La présente passe ne renouvelle pas ces audits.
+
+Les polices locales avaient répondu HTTP 200 sur les quatre pages : Cormorant Garamond 600 et DM Sans 400/600/700, quatre WOFF2 totalisant 66 088 octets, avec `font-display: swap`, sans requête tierce et avec un repli système lisible. Aucun changement de `shared/design-system/` n’est présent entre les deux livraisons.
+
+**Seuil inchangé, conforme à ARCHITECTURE : auto-hébergement obligatoire avant la première publication publique du portfolio**, pas seulement avant une production commerciale. Sa distribution sur la cible reste à confirmer.
 
 ## Contrôles restant hors de cette passe
 
@@ -102,7 +106,7 @@ Aucune requête vers Google Fonts, `fonts.gstatic.com` ou un autre domaine tiers
 
 ### Non exécutés, mais possibles avant déploiement
 
-Safari/iOS, Firefox, appareils physiques et lecture vocale VoiceOver/NVDA n’ont pas été testés ici. Les contrastes complets, les vues desktop/très grand écran et la revue visuelle générale n’ont pas été recommencés. Ces limites sont distinctes des contrôles qui attendent réellement un hébergement ; elles ne sont pas présentées comme des validations acquises.
+Safari/iOS, Firefox, appareils physiques et lecture vocale VoiceOver/NVDA n’ont pas été testés ici. Les contrastes complets, les très grands écrans et la revue visuelle générale n’ont pas été recommencés ; le contrôle desktop du 7 septembre se limite à la navigation et au lien d’évitement à 1024/1440 px. Ces limites sont distinctes des contrôles qui attendent réellement un hébergement ; elles ne sont pas présentées comme des validations acquises.
 
 ## Checklist de livraison actualisée
 
@@ -113,7 +117,9 @@ Safari/iOS, Firefox, appareils physiques et lecture vocale VoiceOver/NVDA n’on
 - [x] Lien d’évitement fonctionnel sur les quatre pages.
 - [x] Séquence et titres Barbier corrigés.
 - [x] Coordonnées fictives sans action téléphone/e-mail.
-- [ ] Clore CR2-04 : stabilité du menu et disponibilité du contenu pendant le chargement du script. Seule réserve mineure active de cette contre-vérification.
+- [x] Clore CR2-04 : menu stable et contenu effectivement visible avant libération ou rejet du script, sur les quatre pages à 320/375/768 px.
+- [x] Contrôler l’état accessible de « Menu », sa relation à la navigation et le repli natif sans JavaScript.
+- [x] Vérifier brièvement la navigation desktop et le lien d’évitement.
 
 ### Avant la première publication publique
 
@@ -124,7 +130,8 @@ Safari/iOS, Firefox, appareils physiques et lecture vocale VoiceOver/NVDA n’on
 
 ### Acceptable pour la démonstration de portfolio
 
-- [x] Démonstration locale présentable avec la réserve mineure de chargement explicitée ; aucun parcours principal n’est bloqué après chargement.
+- [x] Réserve locale de chargement levée ; contenu et menu disponibles pendant l’attente du script.
+- [x] Sans JavaScript, fermeture manuelle du menu avec Entrée/Espace ; absence d’Échap et de fermeture automatique sur une ancre de la page courante acceptée comme dégradation de confort.
 - [x] Compositions CSS provisoires décoratives, sans fausse attribution photographique.
 - [x] Coordonnées clairement fictives et non actionnables ; aucune réservation ou collecte simulée.
 - [x] Absence de données structurées de salon réel tant que les informations sont fictives.
@@ -133,4 +140,4 @@ Safari/iOS, Firefox, appareils physiques et lecture vocale VoiceOver/NVDA n’on
 
 ## Traçabilité
 
-Audit initial : `ef194f7` sur `3774de9`. Première contre-vérification : `840c396` sur `e2187ce`. Le détail historique des anomalies corrigées reste consultable dans ces versions Git du rapport. La présente passe sur `5827a14` actualise leurs états et remplace les anciennes conclusions, notamment le blocage de navigation sans JavaScript et le seuil tardif d’auto-hébergement.
+Audit initial : `ef194f7` sur `3774de9`. Première contre-vérification : `840c396` sur `e2187ce`. Le détail historique des anomalies corrigées reste consultable dans ces versions Git du rapport. Contre-vérification du 5 septembre : `474b3e8` sur `5827a14`, CR2-04 encore ouvert. Passe ciblée du 7 septembre : `9f60163` testé, CR2-04 clôturé avec observation du contenu avant la réponse du script. Les validations locales ne remplacent pas les contrôles de déploiement.
