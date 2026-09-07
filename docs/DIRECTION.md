@@ -4,7 +4,50 @@ Ce fichier centralise les décisions de direction (produit, contenu, périmètre
 
 ## Portfolio global
 
-_(à compléter : positionnement du portfolio, cible, nombre de sites prévus, style général)_
+Le portfolio professionnel présentera plusieurs projets ; **Créa’Tif est une démo parmi d'autres, pas la page d'accueil du portfolio**. Le positionnement commercial, le contenu, l'arborescence et la direction artistique du portfolio feront l'objet d'un cadrage distinct. Aucun écran de portfolio n'est à construire dans la présente étape.
+
+### Cadrage de publication — décisions produit du 7 septembre 2026
+
+**Statut : organisation retenue pour préparer l'architecture, non implémentée et non déployée.** L'étude de Claude est une base de travail ; ses essais locaux ne valent ni configuration d'hébergement livrée, ni recette de l'environnement public. Les décisions ci-dessous ne donnent aucune autorisation de création de compte, de connexion GitHub à un hébergeur, d'achat de domaine ou de mise en ligne.
+
+#### Séparation du portfolio et des démos
+
+- **Même dépôt `portfolio-vitrines`** pour les sources du futur portfolio et celles des démos. Le portfolio aura son propre dossier de site et sa propre publication ; l'Architecte en précisera l'emplacement sans créer le site maintenant. Ne pas transformer la racine publiée de Créa’Tif en catalogue de projets.
+- **Une démo = une publication autonome**, accessible directement, sans devoir publier les autres démos ou le portfolio. Le futur portfolio les présentera et y donnera accès par des liens ; aucune page de projet n'est rédigée à ce stade.
+- **Schéma d'URL retenu : sous-domaines distincts**, plutôt que démos placées sous des chemins du site principal. Après autorisation de publier, commencer avec une URL de plateforme par projet ; à terme, domaine principal pour le portfolio et sous-domaines dédiés aux démos. Aucun nom de domaine ou de projet d'hébergement n'est réservé ou réputé disponible. L'ajout d'un domaine personnalisé devra préserver les chemins des pages ; la gestion des URL alternatives sera précisée avant ce raccordement.
+
+#### Hébergement de référence et croissance
+
+- **Cloudflare Pages, un projet par site**, est retenu comme cible de préparation, sous réserve de l'accord de Simon pour utiliser/créer le compte et connecter ce dépôt. Ce choix convient au besoin actuel ; il n'est pas présenté comme la seule solution possible ni comme un engagement de gratuité permanente.
+- Ajouter une vitrine signifie ajouter son dossier source, sa section de brief, sa sortie publiable isolée et, après accord de Simon, son projet d'hébergement. Aucun changement des URL ou publication des sources des sites existants ne doit être nécessaire pour ajouter le deuxième site.
+- **Limite à anticiper : cinq projets Pages reliés à un même dépôt**, selon la documentation consultée le 7 septembre 2026. Le futur portfolio compte pour un projet : cela laisse quatre démos dans cette configuration par défaut. Avant un sixième projet connecté, demander un nouvel arbitrage ; une hausse peut être sollicitée mais n'est pas garantie. [Cloudflare — monorepos](https://developers.cloudflare.com/pages/configuration/monorepos/).
+- Le plan Free documente notamment **500 builds par mois et un build simultané** ; les requêtes de ressources statiques sont annoncées gratuites et illimitées, ce qui ne supprime pas les autres limites. Rester sur du statique, sans Functions, service payant ou activation de facturation pour cette étape. [Limites Pages](https://developers.cloudflare.com/pages/platform/limits/), [requêtes statiques](https://developers.cloudflare.com/pages/functions/pricing/).
+
+#### Sortie publiée et périmètre d'assemblage
+
+Chaque sortie doit contenir seulement les pages et ressources nécessaires au site ciblé, y compris les polices locales et les notices de licence utiles. **Ne jamais publier le dépôt entier** : exclure les rapports et captures de `docs/`, les sorties locales de Claude, `.git`, les sources des autres sites et les fichiers internes de travail. Cette isolation d'hébergement ne rend pas privé le dépôt GitHub déjà public.
+
+L'Architecte doit formaliser un assemblage minimal, reproductible et testable localement : emplacement du script, commande, répertoire de sortie, sélection des fichiers et résolution des dépendances à `shared/`. Les huit liens actuels vers `../../shared/design-system/` ne doivent pas produire de ressources manquantes à la racine du site publié. Les choix de chemins et de transformation appartiennent à l'Architecte, puis leur implémentation à Claude ; ne pas imposer un nombre de lignes de script.
+
+Ce besoin d'assemblage n'autorise ni framework, ni générateur de templates maison, ni migration immédiate vers Eleventy. La trajectoire déjà documentée pour le deuxième site reste distincte ; l'Architecte précisera son raccordement futur sans présumer que tout l'assemblage sera automatiquement supprimé.
+
+Les futures mises à jour doivent distinguer un changement du site, de ses dépendances partagées ou de son assemblage d'un simple changement documentaire. L'Architecte précisera les chemins déclencheurs et les contrôles de déploiement ; un commit `docs:` ne doit pas, à lui seul, republier toutes les démos. Les réglages ne seront activés qu'après accord de Simon. [Cloudflare — chemins de déclenchement](https://developers.cloudflare.com/pages/configuration/build-watch-paths/).
+
+#### Indexation et statut de démonstration
+
+- **Démos de commerces fictifs : non destinées à l'indexation.** Prévoir `noindex, follow` sur toutes leurs pages HTML, dont les quatre pages de Créa’Tif. Les mentions de démonstration et les coordonnées fictives non actionnables restent en place ; ne pas ajouter de données structurées les présentant comme un établissement réel.
+- **`robots.txt` des démos : exploration autorisée**, sans `Disallow: /` et sans directive `noindex` dans ce fichier. Les robots doivent pouvoir lire la consigne `noindex` des pages. Celle-ci n'est ni un contrôle d'accès ni une garantie de confidentialité ou de suppression immédiate des résultats. [Google — règles robots et interaction avec robots.txt](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag).
+- **Portfolio professionnel final : indexable après validation et publication**, sans hériter du `noindex` des démos. Ses éventuelles fiches de projets pourront être indexables tout en pointant vers des démos non indexables. Aucun sitemap public ne doit être généré aujourd'hui avec des domaines inventés.
+- Distinguer les URL de production et de prévisualisation : les prévisualisations du portfolio ne doivent pas être indexables. L'Architecte précisera l'application des règles par site et environnement, ainsi que le traitement de la notice de crédits accessible séparément. Les directives d'indexation restent à implémenter : elles ne sont pas réputées présentes ou validées dans le site actuel.
+
+#### Ordre de réalisation et autorisations
+
+1. **Architecte Front-end :** compléter uniquement `docs/ARCHITECTURE.md` à partir de ce cadrage, avec un contrat d'assemblage, les réglages proposés, les critères de vérification et les éventuels points incompatibles. Aucun code ou réglage externe à cette étape.
+2. **Claude, sur instruction d'implémentation après ce cadrage technique :** préparer l'assemblage et les directives d'indexation, vérifier la sortie servie localement, sans changer le rendu approuvé ni les médias. Les chemins de ressources, liens, crédits et polices doivent rester fonctionnels ; ne pas rouvrir une revue générale des fonctionnalités pour ce seul besoin.
+3. **Simon :** autoriser séparément l'utilisation/création du compte Cloudflare, l'accès au dépôt, puis la première mise en ligne et le mode des futures publications. L'URL de plateforme permet de différer l'achat d'un domaine ; aucun achat n'est engagé. **Connecter Git peut déclencher une publication : attendre cet accord avant toute connexion**, y compris pour une prévisualisation. [Cloudflare — intégration Git](https://developers.cloudflare.com/pages/get-started/git-integration/).
+4. **QA, après publication autorisée et avant mise en avant auprès de prospects :** recette ciblée sur l'URL réelle et la révision déployée : HTTPS, accès direct aux quatre pages, liens/ancre de contact et notice, CSS/polices/photos sans erreur, absence des fichiers internes et autres sites, règles d'indexation réellement servies, affichage mobile/desktop et chargement des ressources. Distinguer les observations de cette recette des validations antérieures et des points non testés.
+
+Le maintien de P06 est acté : aucune nouvelle recherche ou modification de cette image n'est demandée. La réserve reste documentée ; elle n'est ni levée par ce cadrage, ni transformée en autorisation de mise en ligne. L'accord de publication sera distinct et portera sur la version retenue avec sa réserve connue.
 
 ## Sites
 
