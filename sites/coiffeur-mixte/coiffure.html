@@ -47,8 +47,18 @@
           <a class="btn btn-secondary" href="#prestations">Voir les prestations</a>
         </div>
       </div>
-      <div class="deco deco--coiffure deco--tall" aria-hidden="true"></div>
+      <figure class="photo photo--p02 photo--hero-coiffure">
+        <img src="assets/photos/p02-brushing-matiere-800.webp"
+             srcset="assets/photos/p02-brushing-matiere-480.webp 480w,
+                     assets/photos/p02-brushing-matiere-800.webp 800w,
+                     assets/photos/p02-brushing-matiere-1200.webp 1200w"
+             sizes="(min-width: 900px) 510px, calc(100vw - 48px)"
+             width="800" height="533"
+             alt="Brushing d’une mèche brune avec une brosse ronde et un sèche-cheveux."
+             decoding="async" fetchpriority="high">
+      </figure>
     </div>
+    <p class="container illustration-note">Créa’Tif — concept de salon fictif. Photographies d’illustration.</p>
   </section>
 
   <section class="section" aria-labelledby="partir-title">
@@ -101,11 +111,20 @@
 
   <section class="section" aria-labelledby="couleur-title">
     <div class="container editorial">
-      <div class="deco deco--coiffure deco--wide editorial__media" aria-hidden="true"></div>
       <div>
         <h2 id="couleur-title">La couleur se pense aussi à la lumière</h2>
         <p>Discrète ou plus affirmée, une nuance change avec la lumière et le mouvement. Le conseil commence par l’effet recherché et l’entretien envisagé.</p>
       </div>
+      <figure class="photo photo--3-2 photo--p07 editorial__media">
+        <img src="assets/photos/p07-texture-et-nuances-800.webp"
+             srcset="assets/photos/p07-texture-et-nuances-480.webp 480w,
+                     assets/photos/p07-texture-et-nuances-800.webp 800w,
+                     assets/photos/p07-texture-et-nuances-1200.webp 1200w"
+             sizes="(min-width: 900px) 520px, calc(100vw - 48px)"
+             width="800" height="530"
+             alt="Cheveux foncés coiffés en torsades, aux pointes brunes, vus de dos."
+             loading="lazy" decoding="async">
+      </figure>
     </div>
   </section>
 
@@ -133,6 +152,7 @@
       </ul>
     </nav>
     <p class="site-footer__note">Site de démonstration réalisé pour un portfolio. Coordonnées, adresse et disponibilités présentées ici sont fictives.</p>
+    <p class="site-footer__credits">Photographies d’illustration&nbsp;: <a href="https://www.shopify.com/stock-photos/photos/blowdrying-hair-on-round-brush">Brushing et matière</a> — Shopify Partners / Burst&nbsp;; <a href="https://unsplash.com/photos/dark-textured-hair-styled-in-twists-with-brown-ends-QngsebgpK84">Texture et nuances</a> — Corinne Sawers / Unsplash. Provenance, licences et recadrages&nbsp;: <a href="assets/photos/NOTICE.md">assets/photos/NOTICE.md</a>.</p>
   </div>
 </footer>
 </body>

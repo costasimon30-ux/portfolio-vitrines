@@ -47,8 +47,18 @@
           <a class="btn btn-secondary" href="#prestations">Voir les prestations</a>
         </div>
       </div>
-      <div class="deco deco--barbier deco--wide" aria-hidden="true"></div>
+      <figure class="photo photo--3-2 photo--p03">
+        <img src="assets/photos/p03-finition-coupe-courte-800.webp"
+             srcset="assets/photos/p03-finition-coupe-courte-480.webp 480w,
+                     assets/photos/p03-finition-coupe-courte-800.webp 800w,
+                     assets/photos/p03-finition-coupe-courte-1200.webp 1200w"
+             sizes="(min-width: 900px) 510px, calc(100vw - 48px)"
+             width="800" height="533"
+             alt="Finition d’une coupe courte aux ciseaux et au peigne sur une nuque."
+             decoding="async" fetchpriority="high">
+      </figure>
     </div>
+    <p class="container illustration-note">Créa’Tif — concept de salon fictif. Photographies d’illustration.</p>
   </section>
 
   <section class="section section--alt" id="prestations" aria-labelledby="prestations-title">
@@ -79,7 +89,6 @@
 
   <section class="section" aria-labelledby="equilibre-title">
     <div class="container editorial">
-      <div class="deco deco--barbier editorial__media" aria-hidden="true"></div>
       <div>
         <h2 id="equilibre-title">Le détail fait l’équilibre</h2>
         <ol class="steps">
@@ -100,6 +109,16 @@
           </li>
         </ol>
       </div>
+      <figure class="photo photo--3-2 photo--p06 editorial__media">
+        <img src="assets/photos/p06-entretien-de-barbe-800.webp"
+             srcset="assets/photos/p06-entretien-de-barbe-480.webp 480w,
+                     assets/photos/p06-entretien-de-barbe-800.webp 800w,
+                     assets/photos/p06-entretien-de-barbe-1200.webp 1200w"
+             sizes="(min-width: 900px) 520px, calc(100vw - 48px)"
+             width="800" height="533"
+             alt="Taille d’une barbe à la tondeuse, vue de trois-quarts arrière."
+             loading="lazy" decoding="async">
+      </figure>
     </div>
   </section>
 
@@ -136,6 +155,7 @@
       </ul>
     </nav>
     <p class="site-footer__note">Site de démonstration réalisé pour un portfolio. Coordonnées, adresse et disponibilités présentées ici sont fictives.</p>
+    <p class="site-footer__credits">Photographies d’illustration&nbsp;: <a href="https://www.shopify.com/stock-photos/photos/barber-adds-final-touches-to-a-haircut">Finition d’une coupe courte</a> et <a href="https://www.shopify.com/stock-photos/photos/clippers-trim-a-mans-beard">Entretien de barbe</a> — Matthew Henry / Burst. Provenance, licences et recadrages&nbsp;: <a href="assets/photos/NOTICE.md">assets/photos/NOTICE.md</a>.</p>
   </div>
 </footer>
 </body>

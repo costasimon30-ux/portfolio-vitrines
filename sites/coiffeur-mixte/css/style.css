@@ -141,74 +141,176 @@
   margin-top: var(--space-3);
 }
 
-/* ---------- Compositions décoratives (en attente de vraies photos) ----------
-   Quatre compositions distinctes, une par page (cf. docs/DIRECTION.md > Complément
-   de direction). Purement décoratives : toujours utilisées avec aria-hidden="true",
-   jamais de role="img" ni d'alt qui décrirait une scène inexistante. */
-.deco {
-  aspect-ratio: 4 / 3;
-  border-radius: var(--radius-btn);
-  min-width: 0;
-  width: 100%;
-}
-.deco--tall { aspect-ratio: 3 / 4; }
-.deco--wide { aspect-ratio: 16 / 9; }
+/* ---------- Hero Accueil (P01) ----------
+   Sous 900px : sur-titre et H1 → P01 en image de contenu 3:2 → mention
+   d'illustration → introduction → CTA, sur Ivoire et sans superposition
+   (ordre prescrit dans docs/DIRECTION.md). Espace supérieur réduit à 24px,
+   écarts de 24px entre éléments, marges latérales inchangées : à 375px de
+   large le cadre mesure donc environ 327 × 218px.
 
-/* Hero Coiffure (seul hero en ratio "tall") : le ratio 3:4 d'origine occupait
-   presque un écran de tablette complet (docs/UX-REVIEW-coiffeur-mixte.md).
-   Un premier passage à 4:5 restait insuffisant à 768px (réserve P2 de la
-   revue du 5 septembre 2026) : la retouche demandée est un cadrage
-   horizontal 3:2 entre 600 et 899px, en conservant 4:5 sur petit mobile et
-   le 3:4 desktop (≥900px, règle de base ci-dessus, inchangée). */
+   À partir de 900px : la MÊME et unique <img> devient le fond du bandeau, et
+   le texte passe dans un panneau Ivoire opaque à gauche. Un seul élément
+   image, donc un seul téléchargement, et un ordre de lecture identique aux
+   deux tailles. Le fond est en `position:absolute; z-index:-1` dans le
+   contexte d'empilement du bandeau : il se peint au-dessus du fond du
+   bandeau mais sous le contenu en flux, si bien que le panneau reste opaque
+   au-dessus de la photo sans qu'aucun ancêtre du <img> ait besoin d'être
+   positionné (ce qui replierait le fond sur la largeur du conteneur). */
+.hero--home {
+  background: var(--color-ivory);
+  padding-block: 0;
+}
+.hero--home .hero__band { padding-block: var(--space-3) var(--space-6); }
+.hero--home .hero__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.hero--home .hero__panel > * { margin-block: 0; }
+.hero--home .hero__actions { margin-top: 0; }
+.hero--home .hero__photo { aspect-ratio: 3 / 2; }
+.hero--home .illustration-note--below { display: none; }
+
+@media (min-width: 900px) {
+  .hero--home .hero__band {
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+    display: grid;
+    align-items: center;
+    min-height: 560px;
+    /* 32px ici s'ajoutent aux 32px de marge intérieure du panneau : le bandeau
+       reste dans la fourchette de 560–640px prescrite à 1440px tout en laissant
+       la hauteur s'étendre avec le texte. */
+    padding-block: var(--space-4);
+  }
+  /* `width: 100%` est nécessaire : .hero__inner est un élément de grille du
+     bandeau et porte `margin-inline: auto` (classe .container). Sans largeur
+     explicite, ses marges automatiques le réduisent au contenu — le panneau se
+     retrouverait centré au milieu du bandeau au lieu d'être calé à gauche sur
+     la grille de 1200px. */
+  .hero--home .hero__inner {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero--home .hero__panel { gap: var(--space-2); }
+  .hero--home .hero__photo {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+  .hero--home .hero__photo > img { object-position: 70% 35%; }
+  .hero--home .hero__panel {
+    max-width: 440px;
+    padding: var(--space-4);
+    background: var(--color-ivory);
+    border-radius: var(--radius-btn);
+  }
+  /* La mention existe en deux exemplaires parce qu'elle change de parent
+     selon la taille : dans le flux du panneau sous 900px (juste après P01,
+     avant l'introduction), sous le bandeau à partir de 900px. Un seul des
+     deux est rendu à la fois — `display:none` le retire aussi de l'arbre
+     d'accessibilité, donc la phrase n'est jamais annoncée deux fois. */
+  .hero--home .illustration-note--inline { display: none; }
+  .hero--home .illustration-note--below {
+    display: block;
+    margin: 0 auto;
+    padding-block: var(--space-3) var(--space-5);
+  }
+}
+
+/* ---------- Hero Le salon (P04) ----------
+   Bandeau d'ambiance sous l'introduction : blocs empilés, jamais côte à côte,
+   pour que la légende et le texte restent hors de l'image. */
+@media (min-width: 900px) {
+  .hero--salon .hero__inner { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Photographies d'illustration ----------
+   Cf. docs/DIRECTION.md > « Évolution photographique ciblée — brief validé le
+   7 septembre 2026 », et assets/photos/NOTICE.md pour l'auteur, la fiche
+   source, la licence, la date de consultation et les recadrages de chaque
+   fichier.
+
+   Principe de cadrage : aucun recadrage destructif n'est appliqué aux
+   fichiers livrés. Le cadre porte le ratio (aspect-ratio) et l'image le
+   remplit en `cover`, alignée sur le repère focal prescrit — la photo n'est
+   donc jamais déformée. C'est le cadre qui réserve la place avant chargement :
+   son `aspect-ratio` fixe sa hauteur dès le premier rendu, indépendamment du
+   moment où l'image arrive, ce qui évite tout décalage de mise en page.
+
+   Sincérité : ces photographies illustrent un concept de salon fictif. Elles
+   ne représentent ni l'équipe, ni les clients, ni les réalisations, ni le lieu
+   d'un salon réel — d'où les mentions d'illustration en texte visible. */
+.photo {
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--radius-btn);
+  background: var(--color-sand);
+}
+.photo > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo--3-2 { aspect-ratio: 3 / 2; }
+
+/* Repères focaux prescrits (x depuis la gauche, y depuis le haut). */
+.photo--p01 > img { object-position: 65% 40%; }
+.photo--p02 > img { object-position: 60% 50%; }
+.photo--p03 > img { object-position: 50% 50%; }
+.photo--p04 > img { object-position: 50% 65%; }
+.photo--p05 > img { object-position: 55% 50%; }
+.photo--p06 > img { object-position: 60% 45%; }
+.photo--p07 > img { object-position: 50% 55%; }
+
+/* Hero Coiffure : ratios responsives conservés à l'identique de la correction
+   validée (docs/UX-REVIEW-coiffeur-mixte.md) — 3:4 desktop, 3:2 horizontal
+   impérativement conservé entre 600 et 899px, 4:5 sur petit mobile. */
+.photo--hero-coiffure { aspect-ratio: 3 / 4; }
 @media (max-width: 599px) {
-  .hero .deco--tall { aspect-ratio: 4 / 5; }
+  .photo--hero-coiffure { aspect-ratio: 4 / 5; }
 }
 @media (min-width: 600px) and (max-width: 899px) {
-  .hero .deco--tall { aspect-ratio: 3 / 2; }
+  .photo--hero-coiffure { aspect-ratio: 3 / 2; }
 }
 
-/* Accueil — « La rencontre » : deux formes courbes (Sable, Sauge) reliées par un
-   trait Cuivre, sur Ivoire. */
-.deco--accueil {
-  background:
-    radial-gradient(circle at 30% 35%, var(--color-sand) 0%, var(--color-sand) 38%, transparent 39%),
-    radial-gradient(circle at 68% 65%, var(--color-sage) 0%, var(--color-sage) 34%, transparent 35%),
-    linear-gradient(135deg, transparent 48%, var(--color-copper) 49%, var(--color-copper) 51%, transparent 52%),
-    var(--color-ivory);
+/* Bandeau d'ambiance Le salon : 16:9 desktop, 3:2 dès qu'on descend sous
+   900px pour conserver les deux bacs dans le cadre. */
+.photo--band { aspect-ratio: 3 / 2; }
+@media (min-width: 900px) {
+  .photo--band { aspect-ratio: 16 / 9; }
 }
 
-/* Coiffure — « La matière en mouvement » : rubans courbes Pêche/Sable et lignes
-   Encre espacées, composition verticale et fluide. */
-.deco--coiffure {
-  background:
-    linear-gradient(200deg, transparent 0%, transparent 10%, var(--color-peach) 10%, var(--color-peach) 28%, transparent 28%),
-    linear-gradient(200deg, transparent 38%, var(--color-sand) 38%, var(--color-sand) 60%, transparent 60%),
-    linear-gradient(200deg, transparent 68%, var(--color-peach) 68%, var(--color-peach) 82%, transparent 82%),
-    linear-gradient(200deg, transparent 32%, var(--color-ink) 32%, var(--color-ink) 32.6%, transparent 32.6%),
-    linear-gradient(200deg, transparent 64%, var(--color-ink) 64%, var(--color-ink) 64.6%, transparent 64.6%),
-    var(--color-ivory);
+/* Figure légendée : la légende reste hors de l'image, sur fond uni, en texte
+   permanent (jamais uniquement au survol). */
+.photo-figure { margin: 0; }
+.photo-figure__caption {
+  margin-top: var(--space-2);
+  font-size: .875rem;
+  color: var(--color-ink);
 }
 
-/* Barbier — « La précision du contour » : fond Encre, arc large Ivoire, deux
-   lignes franches Sauge, repère Cuivre décentré. */
-.deco--barbier {
-  background:
-    radial-gradient(circle at 50% 130%, var(--color-ivory) 0%, var(--color-ivory) 48%, transparent 49%),
-    linear-gradient(0deg, transparent 38%, var(--color-sage) 38%, var(--color-sage) 39.5%, transparent 39.5%),
-    linear-gradient(0deg, transparent 56%, var(--color-sage) 56%, var(--color-sage) 57.5%, transparent 57.5%),
-    radial-gradient(circle at 78% 24%, var(--color-copper) 0%, var(--color-copper) 5%, transparent 6%),
-    var(--color-ink);
+/* Mention d'illustration : toujours du texte sur fond uni, jamais posé sur la
+   photo. */
+.illustration-note {
+  font-size: .875rem;
+  color: var(--color-ink);
 }
+/* Mention placée sous le premier visuel d'un hero (Coiffure, Barbier). */
+.hero > .illustration-note { margin: var(--space-4) auto 0; }
 
-/* Le salon — « La lumière du lieu » : panneaux Ivoire (fenêtre, miroir) sur
-   Sable, ombre géométrique Sauge. */
-.deco--salon {
-  background:
-    linear-gradient(var(--color-ivory), var(--color-ivory)) no-repeat 8% 12% / 36% 58%,
-    linear-gradient(var(--color-ivory), var(--color-ivory)) no-repeat 58% 28% / 30% 46%,
-    linear-gradient(135deg, transparent 58%, var(--color-sage) 58%, var(--color-sage) 70%, transparent 70%),
-    var(--color-sand);
+/* Crédits photo : accessibles en texte dans le pied de page, pas au survol. */
+.site-footer__credits {
+  width: 100%;
+  font-size: .8125rem;
+  color: var(--color-ink);
 }
+.site-footer__credits a { text-decoration: underline; }
 
 /* ---------- Sections génériques ---------- */
 .section { padding-block: var(--space-6); }
@@ -216,6 +318,11 @@
 .section__head { max-width: 720px; margin-bottom: var(--space-5); }
 .section__head p { color: var(--color-sage); }
 .section--alt .section__head p { color: var(--color-ink); }
+
+/* Bloc de texte seul, là où une composition décorative a été retirée sans
+   être remplacée (Le salon — « Deux univers, une même équipe » : le brief
+   interdit une deuxième photo du même lieu). */
+.text-block { max-width: 68ch; }
 
 /* ---------- Cartes univers (accueil) ---------- */
 .card-grid {
@@ -234,7 +341,7 @@
   flex-direction: column;
   gap: var(--space-2);
 }
-.card .deco { margin-bottom: var(--space-2); }
+.card .photo { margin-bottom: var(--space-2); }
 
 /* ---------- Prestations ---------- */
 .service-grid {
@@ -264,10 +371,14 @@
   gap: var(--space-5);
   align-items: center;
 }
+/* Le texte précède désormais l'image dans le DOM : sous 900px l'ordre affiché
+   est donc « texte puis image », comme le demande le brief photographique.
+   À partir de 900px, `order` remet l'image dans la colonne de gauche, sans
+   rien changer au parcours clavier (la figure n'est pas focalisable).
+   (`.editorial--reverse` a été retiré : plus aucune page ne l'utilisait.) */
 @media (min-width: 900px) {
   .editorial { grid-template-columns: .9fr 1.1fr; }
-  .editorial--reverse { grid-template-columns: 1.1fr .9fr; }
-  .editorial--reverse .editorial__media { order: 2; }
+  .editorial__media { order: -1; }
 }
 
 /* ---------- Bloc "Notre approche" (accueil) ----------

@@ -36,14 +36,27 @@
 
 <main id="main" tabindex="-1">
 
-  <section class="hero">
+  <section class="hero hero--salon">
     <div class="container hero__inner">
       <div>
         <p class="hero__eyebrow">Le salon</p>
         <h1>Un lieu pensé comme une parenthèse</h1>
         <p>Créa’Tif, c’est une équipe, un cadre lumineux et une exigence portée sur chaque détail — de l’accueil au dernier geste.</p>
       </div>
-      <div class="deco deco--salon deco--wide" aria-hidden="true"></div>
+      <figure class="photo-figure">
+        <div class="photo photo--band photo--p04">
+          <img src="assets/photos/p04-espace-de-soin-1200.webp"
+               srcset="assets/photos/p04-espace-de-soin-480.webp 480w,
+                       assets/photos/p04-espace-de-soin-800.webp 800w,
+                       assets/photos/p04-espace-de-soin-1200.webp 1200w,
+                       assets/photos/p04-espace-de-soin-1600.webp 1600w"
+               sizes="(min-width: 1248px) 1200px, calc(100vw - 48px)"
+               width="1200" height="799"
+               alt="Deux bacs de lavage et une plante devant un mur de briques, dans un salon."
+               decoding="async" fetchpriority="high">
+        </div>
+        <figcaption class="photo-figure__caption">Ambiance de salon — photographie d’illustration, lieu non associé à Créa’Tif.</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -71,9 +84,8 @@
   </section>
 
   <section class="section section--alt" aria-labelledby="equipe-title">
-    <div class="container editorial">
-      <div class="deco deco--salon editorial__media" aria-hidden="true"></div>
-      <div>
+    <div class="container">
+      <div class="text-block">
         <h2 id="equipe-title">Deux univers, une même équipe</h2>
         <p>Coiffeuses, coiffeurs et barbiers travaillent main dans la main pour vous accueillir, quel que soit votre besoin du jour.</p>
         <p>Retrouvez notre philosophie de travail sur la page <a href="index.html#approche-title">Accueil</a>.</p>
@@ -120,6 +132,7 @@
       </ul>
     </nav>
     <p class="site-footer__note">Site de démonstration réalisé pour un portfolio. Coordonnées, adresse et disponibilités présentées ici sont fictives.</p>
+    <p class="site-footer__credits">Photographie d’illustration&nbsp;: <a href="https://www.shopify.com/stock-photos/photos/hair-salon-sinks-on-red-brick">Espace de soin</a> — Shopify Partners / Burst. Provenance, licences et recadrages&nbsp;: <a href="assets/photos/NOTICE.md">assets/photos/NOTICE.md</a>.</p>
   </div>
 </footer>
 </body>
