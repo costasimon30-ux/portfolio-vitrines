@@ -1,73 +1,49 @@
 # Revue UX — Créa’Tif
 
-**Date :** 5 septembre 2026
+**Date :** 7 septembre 2026
 
-**Commit observé :** `474b3e851e5a9628859914b46942e5d618c10bf8` sur `main`, après `git pull`.
+**Commit observé :** `9f601636ce459d3cc78ab3951a27222abb1975d0` sur `main`, après `git pull`.
 
-**Implémentation contrôlée :** `5827a14` — retouches ciblées et polices auto-hébergées.
+**Livraison contrôlée :** `9f60163`.
 
-**Référence :** les trois demandes de la revue UX du commit `5f1dcdb`.
+**Référence :** dernière réserve P2 de la revue `ac3b054` — hauteur du hero Coiffure sur tablette.
 
 ## Verdict explicite
 
-**Validation finale du rendu portfolio : pas encore accordée.** Deux retouches sont validées ; une réserve P2 subsiste sur la hauteur du hero Coiffure à 768 px.
+**Validation finale du rendu accordée pour un portfolio conceptuel sans photos.**
 
-**Le parti pris de compositions graphiques sans photos est validé pour un portfolio conceptuel. Aucune photographie n’est requise pour lever cette réserve.** La distinction des univers et le rythme des motifs sont désormais suffisamment aboutis. Il reste un ajustement de proportion sur tablette, pas une refonte artistique.
+La dernière réserve UX est **levée** : le hero Coiffure adopte le cadrage horizontal 3:2 demandé sur tablette, sans dégrader le petit mobile ni la composition desktop. Les deux autres retouches avaient déjà été validées dans la revue précédente.
+
+**Aucune nouvelle correction artistique ni recherche photographique n’est demandée.** Le projet peut être présenté comme un concept de salon fictif avec ses compositions graphiques actuelles. Cette validation porte sur le rendu UI/UX ; elle ne remplace pas la QA fonctionnelle ni l’arbitrage final de Simon.
 
 ## Périmètre et méthode
 
-Contrôle du site réellement affiché en navigateur local, avec inspection visuelle des quatre pages complètes à **375, 768 et 1440 px**, après chargement des polices locales. Hauteur de fenêtre : 900 px sur mobile/tablette et 960 px sur desktop. Les dimensions des compositions ont été mesurées dans le rendu.
+Contre-vérification limitée au hero de la page Coiffure et à sa transition vers « Partir de vous ». Inspection du site réellement affiché en navigateur local à **375, 768 et 1440 px**, avec les polices locales chargées. Hauteur de fenêtre : 900 px sur mobile/tablette et 960 px sur desktop.
 
-Cette contre-revue porte uniquement sur les trois retouches demandées et l’absence de régression visuelle liée aux polices. Elle ne renouvelle pas l’audit fonctionnel, clavier, contrastes ou SEO.
+Les dimensions ci-dessous sont celles du **visuel décoratif**, pas de la section hero entière. Elles ont été mesurées dans le rendu, en complément de l’inspection visuelle. Un contrôle du ratio aux bornes 599/600 et 899/900 px complète les trois formats demandés.
 
-| Retouche | 375 px | 768 px | 1440 px | Statut |
-| --- | --- | --- | --- | --- |
-| Distinction des cartes d’univers sur l’accueil | Cartes empilées nettement distinctes | Deux cartes distinctes côte à côte | Deux cartes distinctes côte à côte | P1 clôturée |
-| Réduction des répétitions des motifs | Parcours allégé | Alternance graphique/texte plus claire | Rythme éditorial préservé | P1 clôturée |
-| Hauteur du hero Coiffure sous 900 px | Réduction acceptable | Composition encore trop haute | Équilibre desktop préservé ; hors breakpoint concerné | P2 partiellement corrigée |
+## Résultats du hero Coiffure
 
-Aucun défilement horizontal constaté sur les quatre pages aux trois largeurs testées.
-
-## 1. Cartes d’univers de l’accueil — validé
-
-La carte **Coiffure** utilise désormais les bandes obliques Pêche / Sable ; la carte **Barbier**, le fond Encre, l’arc Ivoire et le point Cuivre. Les deux sensibilités se reconnaissent avant la lecture des titres, y compris lorsque les cartes se succèdent à 375 px.
-
-Ces compositions annoncent correctement les pages dédiées tout en conservant une identité Créa’Tif commune. Titres, descriptions et liens restent lisibles. **Aucune retouche supplémentaire demandée sur ces cartes.**
-
-## 2. Répétition des motifs — validé
-
-- **Accueil :** le motif d’accueil apparaît deux fois, dans le hero et dans « Le geste juste », au lieu de cinq reprises identiques. Les deux cartes ajoutent chacune leur propre univers. « Notre approche » est maintenant une respiration typographique, sans grand visuel répété.
-- **Le salon :** deux compositions subsistent, hero et bloc éditorial, contre trois précédemment. Les informations pratiques n’ajoutent plus une troisième grande surface décorative.
-- **Coiffure et Barbier :** chacun conserve deux occurrences de son motif, hero et reprise secondaire.
-
-Le rendu respecte désormais le principe demandé : une composition forte et au plus une reprise secondaire du même motif par page. Sur mobile comme sur desktop, les visuels ponctuent le contenu au lieu d’occuper systématiquement chaque bloc. **Aucune réduction supplémentaire demandée.**
-
-## 3. Hero Coiffure sous 900 px — réserve P2 maintenue à 768 px
-
-Le passage du ratio 3:4 au ratio 4:5 est effectif. Il suit bien l’une des options de ma précédente recommandation ; l’observation montre toutefois que cette option était insuffisante sur tablette.
-
-| Largeur de fenêtre | Ancienne composition | Composition actuelle | Appréciation |
+| Largeur de fenêtre | Visuel mesuré | Ratio rendu | Verdict |
 | --- | --- | --- | --- |
-| 375 px | 312 × 416 px | 312 × 390 px | Acceptable ; lecture et CTA restent clairs |
-| 768 px | 705 × 940 px | 705 × 881 px | Encore trop dominante après le texte et les CTA |
-| 1440 px | Hors retouche demandée | Environ 490 × 653 px | Composition latérale équilibrée ; à conserver |
+| 375 px | 312 × 390 px | 4:5 | Petit mobile préservé ; mêmes dimensions que lors de la revue précédente |
+| 768 px | 705 × 470 px | 3:2 | Retouche validée ; cadrage horizontal et proportion attendue obtenus |
+| 1440 px | Environ 490 × 653 px | 3:4 | Desktop préservé ; mêmes dimensions et composition latérale équilibrée |
 
-À 768 px, la réduction ne représente qu’environ **59 px, soit 6,25 %**. Le visuel décoratif seul occupe encore presque toute la hauteur de la fenêtre de test (881 px sur 900), alors qu’il vient après le texte. Il retarde toujours l’arrivée au contenu « Partir de vous ». Ce n’est pas un défaut bloquant la navigation, mais la réserve de finition de la précédente revue n’est pas levée.
+- **À 375 px :** le texte précède le visuel, les deux CTA restent lisibles et la composition verticale conserve son équilibre.
+- **À 768 px :** la hauteur du visuel passe d’environ 881 à **470 px**, soit **411 px de moins** (environ 47 %). Les bandes Pêche / Sable restent identifiables dans le cadrage horizontal. Le visuel ne monopolise plus presque un écran entier après les CTA ; l’enchaînement vers « Partir de vous » est nettement allégé.
+- **À 1440 px :** le texte et le visuel restent côte à côte. La hiérarchie, les espacements et les CTA du hero sont préservés.
 
-**Seule retouche restante recommandée :** donner au hero Coiffure un cadrage horizontal **3:2 entre 600 et 899 px**, soit environ **705 × 470 px à 768 px** dans le rendu testé. Conserver le 4:5 sur petit mobile et la composition desktop actuelle. Les bandes abstraites permettent ce recadrage sans perdre d’information.
+**Bornes confirmées dans le rendu :** ratio 4:5 à 599 px, 3:2 à 600 et 899 px, puis retour au ratio desktop 3:4 à 900 px. Le cadrage horizontal est donc bien appliqué dans la plage demandée.
 
-Il s’agit de préciser l’option horizontale déjà proposée, sans modifier palette, motifs, typographies, contenu ou structure des pages.
+Aucun défilement horizontal constaté sur Coiffure aux trois largeurs principales. Les polices locales Cormorant Garamond et DM Sans sont chargées (`loaded`) ; aucun titre tronqué, chevauchement ou libellé de CTA coupé n’est observé dans le hero.
 
-## Polices locales — rendu validé dans le périmètre testé
+## Clôture des réserves
 
-Les fichiers locaux Cormorant Garamond 600 et DM Sans 400, 600 et 700 ont été servis avec succès (réponses HTTP 200 sous `shared/design-system/fonts/`). L’état de chargement du navigateur est `loaded` ; les familles calculées des titres et du texte correspondent à Cormorant Garamond et DM Sans.
+| Réserve | Statut | Référence de validation |
+| --- | --- | --- |
+| P1 — Distinction des cartes d’univers sur l’accueil | Clôturée ; validation antérieure conservée, non réauditée ici | Revue `ac3b054` |
+| P1 — Répétition des motifs | Clôturée ; validation antérieure conservée, non réauditée ici | Revue `ac3b054` |
+| P2 — Hauteur du hero Coiffure sous 900 px | Clôturée par cette contre-vérification | Livraison `9f60163` |
 
-Après chargement, l’inspection des quatre pages aux trois largeurs ne révèle ni titre tronqué, ni chevauchement de texte, ni libellé de CTA coupé. Les accents et l’apostrophe de Créa’Tif s’affichent correctement. **Aucune régression visuelle attribuable au passage aux polices locales n’a été observée.**
-
-## Suite à donner à Claude
-
-1. Ajuster uniquement le cadrage du hero Coiffure dans la plage tablette indiquée.
-2. Recontrôler cette page à 375, 768 et 1440 px, polices locales chargées : petit mobile préservé, composition proche de 470 px de haut à 768 px, desktop inchangé.
-3. Faire constater la levée de cette dernière réserve avant validation finale du rendu.
-
-**Bilan : deux demandes clôturées, une demande partiellement corrigée. Photos non requises ; aucune nouvelle direction artistique à lancer.**
+**Bilan : les trois réserves de finition sont clôturées. Rendu final validé pour le portfolio conceptuel sans photographies ; aucune suite corrective UI/UX demandée dans ce périmètre.**
