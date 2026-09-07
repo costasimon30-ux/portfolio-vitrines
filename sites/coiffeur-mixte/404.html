@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page introuvable — Créa’Tif</title>
+<meta name="robots" content="noindex, follow">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/shared/design-system/fonts.css">
+<link rel="stylesheet" href="/shared/design-system/tokens.css">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<!-- Chemins partant de « / » : cette page répond aussi à des URL imbriquées,
+     où des liens relatifs pointeraient à côté. Pas de header ni de navigation
+     ajoutés : un simple retour à l'accueil, sans refonte. -->
+<main id="main" tabindex="-1">
+  <section class="section">
+    <div class="container error-page">
+      <p class="hero__eyebrow">Erreur 404</p>
+      <h1>Cette page n’existe pas</h1>
+      <p>Le lien est peut-être incomplet, ou la page a changé d’adresse.</p>
+      <p><a class="btn btn-primary" href="/">Retour à l’accueil</a></p>
+    </div>
+  </section>
+</main>
+</body>
+</html>

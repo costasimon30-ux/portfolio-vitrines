@@ -1,0 +1,49 @@
+{
+  "kind": "demo",
+  "pages": [
+    "index.html",
+    "coiffure.html",
+    "barbier.html",
+    "salon.html",
+    "404.html"
+  ],
+  "publicFiles": [
+    "css/style.css",
+    "js/main.js",
+    "assets/favicon.svg",
+    "assets/photos/p01-coupe-en-cours-1200.webp",
+    "assets/photos/p01-coupe-en-cours-1600.webp",
+    "assets/photos/p01-coupe-en-cours-2000.webp",
+    "assets/photos/p01-coupe-en-cours-480.webp",
+    "assets/photos/p01-coupe-en-cours-800.webp",
+    "assets/photos/p02-brushing-matiere-1200.webp",
+    "assets/photos/p02-brushing-matiere-480.webp",
+    "assets/photos/p02-brushing-matiere-800.webp",
+    "assets/photos/p03-finition-coupe-courte-1200.webp",
+    "assets/photos/p03-finition-coupe-courte-480.webp",
+    "assets/photos/p03-finition-coupe-courte-800.webp",
+    "assets/photos/p04-espace-de-soin-1200.webp",
+    "assets/photos/p04-espace-de-soin-1600.webp",
+    "assets/photos/p04-espace-de-soin-480.webp",
+    "assets/photos/p04-espace-de-soin-800.webp",
+    "assets/photos/p05-precision-de-la-main-1200.webp",
+    "assets/photos/p05-precision-de-la-main-480.webp",
+    "assets/photos/p05-precision-de-la-main-800.webp",
+    "assets/photos/p06-entretien-de-barbe-1200.webp",
+    "assets/photos/p06-entretien-de-barbe-480.webp",
+    "assets/photos/p06-entretien-de-barbe-800.webp",
+    "assets/photos/p07-texture-et-nuances-1200.webp",
+    "assets/photos/p07-texture-et-nuances-480.webp",
+    "assets/photos/p07-texture-et-nuances-800.webp",
+    "assets/photos/NOTICE.md"
+  ],
+  "sharedFiles": [
+    "design-system/fonts.css",
+    "design-system/tokens.css",
+    "design-system/fonts/cormorant-garamond/cormorant-garamond-600.woff2",
+    "design-system/fonts/dm-sans/dm-sans-400.woff2",
+    "design-system/fonts/dm-sans/dm-sans-600.woff2",
+    "design-system/fonts/dm-sans/dm-sans-700.woff2",
+    "design-system/fonts/NOTICE.md"
+  ]
+}
