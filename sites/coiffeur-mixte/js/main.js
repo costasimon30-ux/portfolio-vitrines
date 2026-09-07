@@ -1,36 +1,21 @@
 (function () {
   "use strict";
 
-  // Pose la classe "js" le plus tôt possible : le CSS n'active le menu
-  // repliable que si elle est présente, garantissant une navigation
-  // utilisable même si ce script échoue ou est bloqué.
-  document.documentElement.classList.add("js");
-
-  var toggle = document.querySelector(".menu-toggle");
+  // Le repli du menu mobile est assuré nativement par <details>/<summary>
+  // (voir index.html, coiffure.html, barbier.html, salon.html) : replié par
+  // défaut dès le premier rendu CSS, ouvrable/fermable au clic ou au clavier
+  // (Entrée, Espace) sans JavaScript. Ce script n'apporte que des
+  // améliorations non bloquantes ; s'il échoue, se charge en retard ou est
+  // bloqué, le menu reste utilisable et sa présentation ne change pas
+  // (cf. docs/QA-coiffeur-mixte.md, CR2-04).
+  var disclosure = document.querySelector(".nav-disclosure");
   var nav = document.getElementById("primary-nav");
 
-  if (!toggle || !nav) return;
+  if (!disclosure || !nav) return;
 
   function closeNav() {
-    nav.classList.remove("is-open");
-    toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-label", "Ouvrir le menu");
+    disclosure.removeAttribute("open");
   }
-
-  function openNav() {
-    nav.classList.add("is-open");
-    toggle.setAttribute("aria-expanded", "true");
-    toggle.setAttribute("aria-label", "Fermer le menu");
-  }
-
-  toggle.addEventListener("click", function () {
-    var isOpen = nav.classList.contains("is-open");
-    if (isOpen) {
-      closeNav();
-    } else {
-      openNav();
-    }
-  });
 
   // Referme le menu dès qu'un lien de la navigation est activé
   // (y compris une ancre sur la page courante, ex: salon.html#contact,
@@ -43,13 +28,15 @@
   });
 
   document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && nav.classList.contains("is-open")) {
+    if (event.key === "Escape" && disclosure.hasAttribute("open")) {
       closeNav();
-      toggle.focus();
+      var summary = disclosure.querySelector(".menu-toggle");
+      if (summary) summary.focus();
     }
   });
 
-  // Referme le menu mobile si on repasse en largeur desktop
+  // Réinitialise l'état ouvert/fermé si on repasse en largeur desktop : le
+  // menu y est de toute façon toujours visible en CSS, quel que soit [open].
   var desktopQuery = window.matchMedia("(min-width: 900px)");
   function handleViewportChange(query) {
     if (query.matches) {

@@ -37,7 +37,10 @@
   border: 2px solid var(--color-ink);
   border-radius: var(--radius-btn);
   cursor: pointer;
+  list-style: none;
 }
+.menu-toggle::-webkit-details-marker { display: none; }
+.menu-toggle::marker { content: ""; }
 .menu-toggle__icon,
 .menu-toggle__icon::before,
 .menu-toggle__icon::after {
@@ -53,9 +56,9 @@
 .menu-toggle__icon::after { content: ""; position: absolute; left: 0; }
 .menu-toggle__icon::before { top: -7px; }
 .menu-toggle__icon::after { top: 7px; }
-.menu-toggle[aria-expanded="true"] .menu-toggle__icon { background: transparent; }
-.menu-toggle[aria-expanded="true"] .menu-toggle__icon::before { top: 0; transform: rotate(45deg); }
-.menu-toggle[aria-expanded="true"] .menu-toggle__icon::after { top: 0; transform: rotate(-45deg); }
+.nav-disclosure[open] > .menu-toggle .menu-toggle__icon { background: transparent; }
+.nav-disclosure[open] > .menu-toggle .menu-toggle__icon::before { top: 0; transform: rotate(45deg); }
+.nav-disclosure[open] > .menu-toggle .menu-toggle__icon::after { top: 0; transform: rotate(-45deg); }
 
 .site-nav ul {
   display: flex;
@@ -71,31 +74,24 @@
 .site-nav a:hover { border-color: var(--color-copper); }
 .site-nav a[aria-current="page"] { border-color: var(--color-copper); color: var(--color-copper); }
 
+/* Le menu mobile est un <details>/<summary> natif (voir le HTML) : replié
+   par défaut dès le premier rendu CSS, sans dépendre d'une classe posée par
+   un script. Utilisable au clavier (Tab, Entrée/Espace) et fonctionnel sans
+   JavaScript ou si main.js est bloqué, retardé, ou échoue — main.js n'ajoute
+   qu'un comportement de confort (fermeture après un lien, Échap), jamais une
+   condition d'affichage. Voir docs/QA-coiffeur-mixte.md, CR2-04 : le menu ne
+   doit plus apparaître développé le temps que le script charge.
+   `<nav id="primary-nav">` est un frère de `<details class="nav-disclosure">`,
+   pas son enfant : les navigateurs masquent le contenu d'un <details> fermé
+   d'une façon qu'aucune règle d'auteur ne peut réafficher (constaté à
+   l'implémentation), ce qui aurait empêché la nav de rester affichée en
+   permanence sur desktop. En sortant la nav du <details>, son affichage
+   n'est plus régi que par ce fichier CSS, y compris ≥900px où elle reste
+   simplement toujours visible, comme avant l'introduction du repli natif. */
 @media (max-width: 899px) {
-  /* Sans JavaScript : la navigation reste visible, simplement empilée sous le logo.
-     Le bouton menu ne sert à rien sans JS : il reste caché (voir html.js ci-dessous).
-     L'en-tête doit pouvoir passer à la ligne : sans ce repli, la liste de nav
-     empilée reste quand même à côté du logo sur une seule ligne flex et déborde
-     horizontalement à 320/375/768 px (constat QA, contre-vérification du 5
-     septembre 2026). */
-  .site-header__inner {
-    flex-wrap: wrap;
-    row-gap: var(--space-2);
-  }
-  .site-nav {
-    flex-basis: 100%;
-    width: 100%;
-  }
-  .site-nav ul {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
-  }
-  .site-nav .nav-cta { justify-content: center; }
+  .menu-toggle { display: inline-flex; }
 
-  /* Avec JavaScript (classe posée par main.js) : nav repliable derrière le bouton. */
-  html.js .menu-toggle { display: inline-flex; }
-  html.js .site-nav {
+  .site-nav {
     display: none;
     position: absolute;
     inset: 100% 0 auto 0;
@@ -103,7 +99,19 @@
     border-bottom: 1px solid var(--color-sand);
     padding: var(--space-3);
   }
-  html.js .site-nav.is-open { display: block; }
+  .nav-disclosure[open] ~ .site-nav {
+    display: block;
+  }
+  .site-nav ul {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .site-nav .nav-cta { justify-content: center; }
+}
+@media (min-width: 900px) {
+  /* Rien à replier sur desktop : le déclencheur natif n'a pas lieu d'être. */
+  .nav-disclosure { display: none; }
 }
 
 /* ---------- Hero ---------- */
@@ -146,11 +154,17 @@
 .deco--tall { aspect-ratio: 3 / 4; }
 .deco--wide { aspect-ratio: 16 / 9; }
 
-/* Sous 900 px, le hero Coiffure (seul hero en ratio "tall") est ramené vers
-   4:5 plutôt que 3:4 : il occupait presque un écran de tablette complet
-   (constat docs/UX-REVIEW-coiffeur-mixte.md, hero Coiffure trop haut). */
-@media (max-width: 899px) {
+/* Hero Coiffure (seul hero en ratio "tall") : le ratio 3:4 d'origine occupait
+   presque un écran de tablette complet (docs/UX-REVIEW-coiffeur-mixte.md).
+   Un premier passage à 4:5 restait insuffisant à 768px (réserve P2 de la
+   revue du 5 septembre 2026) : la retouche demandée est un cadrage
+   horizontal 3:2 entre 600 et 899px, en conservant 4:5 sur petit mobile et
+   le 3:4 desktop (≥900px, règle de base ci-dessus, inchangée). */
+@media (max-width: 599px) {
   .hero .deco--tall { aspect-ratio: 4 / 5; }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  .hero .deco--tall { aspect-ratio: 3 / 2; }
 }
 
 /* Accueil — « La rencontre » : deux formes courbes (Sable, Sauge) reliées par un
