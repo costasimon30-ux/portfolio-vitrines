@@ -14,6 +14,31 @@ _(à compléter : positionnement du portfolio, cible, nombre de sites prévus, s
 
 Premier projet du portfolio : une vitrine statique de démonstration, pensée pour montrer une intégration front-end premium, responsive et accessible. Il ne s'agit pas d'un site commercial prêt à recevoir de vrais rendez-vous.
 
+##### Suivi produit — passe photographique, 7 septembre 2026
+
+**Passe photographique implémentée ; revue UI/UX effectuée avec avis favorable ; validation esthétique finale de Simon en attente. La réserve de droits tiers concernant P06 reste ouverte et distincte de l'accord artistique.**
+
+- **Livraison Claude :** `1d59fef160c785a1c3b785dd8d795b5ae384b40f`, intégration de P01–P07 sur les quatre pages selon le brief finalisé dans `9456bb7`.
+- **Revue UI/UX :** [rapport de la passe photographique](UX-REVIEW-coiffeur-mixte.md) et 26 captures livrés dans `d7aefda013edeb9f62be65e767941872469bfadd`, sur le rendu de `1d59fef`. Aucune correction visuelle indispensable constatée dans le périmètre testé ; sélection et destinations respectées, présence photographique au premier écran d'accueil conforme aux quatre viewports du brief, hero Coiffure conforme aux bornes 599/600/899/900 px.
+- **Statut de validation :** l'avis visuel est favorable pour un portfolio conceptuel utilisant des photographies d'illustration. Il ne vaut ni validation finale de Simon, ni autorisation de diffusion, ni validation technique générale. Le site n'est pas déployé à cette livraison.
+
+Ce suivi actualise l'état du projet sans modifier le brief artistique. Les mentions « prêt à implémenter » et « 0 intégrée à cette date » de la sous-section artistique décrivent son état lors de la validation du brief ; elles ne sont pas une demande de recommencer l'intégration. Le compromis brique/atelier de P04 a déjà été accepté : il n'est pas rouvert.
+
+**Portée des preuves :** les conclusions ci-dessus sont celles de la revue UI/UX du rendu chargé, pas une nouvelle recette menée par le Chef de projet. Les contrôles fonctionnels déjà clôturés restent dans leur périmètre et ne sont pas rouverts. Cette revue n'a pas retesté le menu, le clavier, le zoom ou les textes agrandis, les lecteurs d'écran, les autres navigateurs/appareils, les contacts et liens externes, les performances/CLS/réseau lent, le SEO ni les licences et autorisations individuelles. Aucun de ces points n'est déclaré nouvellement validé par ce suivi.
+
+##### Décisions restantes — à arbitrer par Simon
+
+1. **Validation esthétique finale — en attente.** Confirmer que le rendu photographique répond à l'identité de salon souhaitée et convient au portfolio, à partir des captures du site intégré. L'accord antérieur sur la sélection ne remplace pas cette validation. Aucune nouvelle correction ou recherche photographique n'est lancée sans arbitrage.
+2. **Libellé du lien de crédits — facultatif, non bloquant visuellement.** Conserver le libellé actuel `assets/photos/NOTICE.md`, ou autoriser son renommage en « Crédits et licences photographiques » dans les quatre pieds de page, sans changer sa destination. Cette retouche reste une proposition, pas une instruction d'implémentation tant que Simon ne l'a pas choisie.
+3. **P06 — réserve de droits tiers ouverte avant diffusion.** Le rapport relève un modèle partiellement reconnaissable ; aucune autorisation individuelle n'a été contrôlée par l'UX. L'accord sur le rendu ne lève pas cette réserve. Simon doit arbitrer le traitement : faire documenter les autorisations pertinentes pour l'usage envisagé, ou décider d'un retrait/remplacement à cadrer séparément si la réserve ne peut être levée. Aucune recherche, substitution ou suppression n'est autorisée par ce suivi. **P06 est déjà présente dans le dépôt déclaré public : le sujet concerne donc aussi la diffusion via Git, et pas uniquement un futur hébergement.** Ne pas considérer l'absence de déploiement comme une résolution de la réserve ; toute mesure sur les médias ou le dépôt demande un arbitrage distinct.
+
+##### Captures proposées pour la décision
+
+- Accueil : [premier écran desktop, 1440 × 900](captures/coiffeur-mixte/1d59fef/accueil-1440x900-premier-ecran.png) et [premier écran mobile, 320 × 568](captures/coiffeur-mixte/1d59fef/accueil-320x568-premier-ecran.png).
+- Univers et ambiance : [Coiffure, page complète à 768 × 1024](captures/coiffeur-mixte/1d59fef/coiffure-768x1024-page.png), [Barbier, page complète à 1440 × 900, dont P06](captures/coiffeur-mixte/1d59fef/barbier-1440x900-page.png) et [Le salon, page complète à 1440 × 900](captures/coiffeur-mixte/1d59fef/salon-1440x900-page.png).
+
+Ces dimensions désignent les viewports de départ ; les pages complètes sont des captures déroulées. Les mesures de premier écran et les limites de capture sont documentées séparément dans le rapport UX.
+
 #### Marque et positionnement
 
 - **Marque unique :** Créa’Tif.
