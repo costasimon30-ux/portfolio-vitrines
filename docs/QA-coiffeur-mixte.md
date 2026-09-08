@@ -1,6 +1,126 @@
 # QA / Audit — coiffeur-mixte
 
-## Verdict actuel — recette hébergée du 8 septembre 2026
+## Verdict actuel — clôture HQA-02, 8 septembre 2026
+
+**HQA-02 CLOS. Créa’Tif : démo de portfolio livrée, avec réserves acceptées.**
+
+Le CSS attendu est effectivement servi. Les **105 scénarios d’ancres** passent aux quatre largeurs demandées et au zoom natif 200 %, ainsi que les **20 contrôles complémentaires menu / lien d’évitement**. Aucun scénario de cette matrice en défaut ou non exécuté. Les titres restent visibles sous l’en-tête après stabilisation, sans recouvrement ni défilement correctif.
+
+Cette conclusion applique le critère de sortie de `docs/DIRECTION.md`, commit **`10f86bc934ef128ed4f43302ccdde1908754476a`**. La démo est partageable par son URL HTTPS ; **aucune nouvelle passe générale ni autorisation supplémentaire n’est requise pour cette clôture**. Il ne s’agit pas d’une certification exhaustive ni d’un service réel de salon collectant des données.
+
+## Identification et preuve du CSS publié
+
+- URL : [Créa’Tif — démo hébergée](https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/).
+- Recette indépendante : **8 septembre 2026, 20:03:21–20:11:47 UTC**, soit **22:03:21–22:11:47 Europe/Paris**.
+- Source publiée annoncée : **`edeeb30ece425bc8000a1aac806576a0efc3ccb4`**.
+- Version Cloudflare rapportée : **`ff687b8e`**, précédente **`7fc82871`**. Ce sont les identifiants courts de **version transmis**, pas des identifiants complets ou un identifiant distinct de déploiement vérifié par QA. Leur complétude n’est pas un nouveau blocage.
+- Conventions `CLAUDE.md`, `docs/WORKFLOW.md`, `docs/AGENTS.md` et critère de clôture lus ; `git pull --ff-only` au début puis avant rédaction, `main` à `10f86bc`. Le HEAD documentaire n’est pas supposé publié.
+
+**Comparaison indépendante :** lecture de `sites/coiffeur-mixte/css/style.css` directement dans l’objet Git `edeeb30`, puis GET de [la feuille CSS hébergée](https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/css/style.css), réponse **200**, `text/css`. Les deux fichiers font **18 154 octets** et sont identiques octet pour octet. SHA-256 commun :
+
+```text
+4d9a64f53dacafdeb4e02a51720c8d24921723eac1766d93917d566af609d4d7
+```
+
+Le corps de la première réponse CSS de chacun des **cinq profils navigateur isolés** possède également ce SHA-256. Sur les 105 arrivées, le style calculé est `scroll-padding-top: 89px` et le bord inférieur de l’en-tête est à **81 px CSS**.
+
+La preuve porte sur **le CSS reçu et son comportement**, pas sur une nouvelle comparaison des 42 fichiers ou l’inspection du tableau de bord Cloudflare. Aucun assemblage ni déploiement n’a été exécuté.
+
+## Protocole ciblé : premier plan, clics et stabilisation
+
+**Google Chrome 152.0.7977.77, macOS, fenêtre visible (mode headed), pilotage Playwright.** Un profil temporaire isolé par format ; page amenée au premier plan avant la navigation et le clic. Aucun profil personnel modifié.
+
+Formats réellement observés :
+
+| Format | Viewport en pixels CSS | Modalité |
+| --- | --- | --- |
+| Mobile étroit | 320 × 568 | Zoom 100 % |
+| Mobile | 375 × 667 | Zoom 100 % |
+| Tablette | 768 × 1024 | Zoom 100 % |
+| Desktop | 1440 × 900 | Zoom 100 % |
+| Zoom natif 200 % | **720 × 406** | Réglage 200 % dans Chrome, fenêtre extérieure de 1440 px ; `devicePixelRatio: 4` sur cet écran Retina, `visualViewport.scale: 1` |
+
+Le zoom n’est pas une transformation CSS ni un pincement simulé. Le réglage temporaire est remis à 100 % et les fenêtres de test sont fermées en fin d’essai.
+
+**55 activations de liens par clic navigateur réel**, toutes enregistrées avec `isTrusted === true`, `document.hasFocus() === true` et `visibilityState === "visible"`. Les **50 autres scénarios** sont des accès directs avec fragment. Le défilement normal reste **`smooth`**, préférence de mouvement réduit désactivée. Aucun `scrollTo`, déplacement forcé vers la cible ou défilement correctif après arrivée ; l’instrumentation observe les événements et la géométrie sans modifier les styles.
+
+Après chargement et disponibilité des fontes, échantillonnage toutes les 100 ms du défilement, des positions du titre et de l’en-tête, de la hauteur du document et des images non différées / visibles. Validation après au moins **1,1 s de stabilité**, avec les médias concernés chargés et décodés. La phase d’observation dure ici **1,73 à 2,66 s** : ni une simple attente de `DOMContentLoaded`, ni une mesure de performance.
+
+À la fin de chaque scénario : titre entier dans le viewport, bord supérieur sous le bord inférieur de l’en-tête, tests de non-occultation en trois points du titre, page toujours visible et focalisée, menu refermé. Les captures complètent ces mesures, sans revue artistique.
+
+## Matrice de clôture des ancres
+
+Chaque cellule indique **réussites / scénarios exécutés**.
+
+| Cible | 320 px | 375 px | 768 px | 1440 px | Zoom natif 200 % |
+| --- | --- | --- | --- | --- | --- |
+| Accueil — `#univers` | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| Coiffure — `#prestations` | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| Barbier — `#prestations` | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| Salon — `#contact` | 9/9 | 9/9 | 9/9 | 9/9 | 9/9 |
+| Accueil — `#approche-title` | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| **Total** | **21/21** | **21/21** | **21/21** | **21/21** | **21/21** |
+
+### Scénarios réellement couverts dans chaque format
+
+- **Dix accès directs** : `/#univers`, `/index.html#univers`, `/coiffure#prestations`, `/coiffure.html#prestations`, `/barbier#prestations`, `/barbier.html#prestations`, `/salon#contact`, `/salon.html#contact`, `/#approche-title`, `/index.html#approche-title`.
+- **Trois clics internes** : « Découvrir le salon » vers `#univers`, puis « Voir les prestations » vers `#prestations` sur Coiffure et Barbier.
+- **Trois clics interpages Contact dans le contenu** : premier CTA `salon.html#contact` depuis Accueil, Coiffure et Barbier.
+- **Quatre clics Contact dans la navigation** : `salon.html#contact` depuis chacune des quatre pages, y compris Salon vers sa propre ancre ; ouverture préalable du menu sur les formats mobiles.
+- **Un clic interpage vers Notre approche** : lien « Accueil » du contenu de Salon, `index.html#approche-title`.
+
+Les liens `.html` existants sont utilisés tels quels. Leur destination finale conserve le fragment sur la route sans extension ; aucune substitution de lien par le test. Il n’existe pas de lien interpage vers chaque cible : les chemins effectivement émis par le site sont couverts, sans créer de navigation artificielle.
+
+### Mesures déterminantes
+
+**Aucun recouvrement sur les 105 arrivées.** La distance entre le haut du titre et le bas de l’en-tête est comprise entre **7,66 et 72,21 px CSS**. Elle peut varier entre première arrivée directe et clic après chargement, sans faire disparaître le titre.
+
+Pour le cas auparavant entièrement masqué, **`#approche-title`** :
+
+| Format | Distance titre / bas de l’en-tête après stabilisation |
+| --- | --- |
+| 320 px | 8,05 px |
+| 375 px | 8,08 px |
+| 768 px | 8,20 px |
+| 1440 px | 7,87 px |
+| Zoom natif 200 % | 8,07 px |
+
+Ces valeurs sont les mêmes pour ses trois modes d’accès dans chaque format. Le titre est désormais entièrement lisible, sans action de défilement supplémentaire.
+
+## Compléments strictement limités : menu et évitement
+
+**20/20 combinaisons réussies : quatre pages × cinq formats.**
+
+- Sur 320/375/768 px et au zoom 200 % : menu ouvert puis fermé par clic sur « Menu » ; réouverture, Échap ferme et rend le focus au déclencheur ; nouvelle ouverture puis navigation réelle vers Coiffure, menu refermé après arrivée.
+- À 1440 px : navigation desktop visible, déclencheur mobile masqué, clic sur Coiffure fonctionnel.
+- Sur les quatre pages dans chaque format : premier Tab sur le lien d’évitement, puis Entrée ; **`document.activeElement === main#main`** vérifié. Une présence de `tabindex` ou un simple défilement ne tient pas lieu de preuve du focus.
+
+## État final, limites et conservation des preuves
+
+| Point | État à la clôture |
+| --- | --- |
+| **HQA-02** | **CLOS** — CSS correct et matrice complète réussie |
+| HQA-01 / HQA-03 | Réserves acceptées selon DIRECTION ; non retestées, non rouvertes |
+| P06 | Arbitrage et réserve documentaire inchangés ; aucune nouvelle recherche |
+| PUB-A1 | Différé, inchangé |
+| Autres constats clos | Clôtures conservées, sans nouvelle revue |
+
+**Aucun scénario demandé non exécuté.** La portée reste Chrome sur macOS, aux dimensions précisées, avec JS normal. Safari/iOS, Firefox, lecteurs d’écran et appareils physiques ne sont pas certifiés par cette passe et ne constituent pas de nouvelles conditions de clôture. Aucun rejeu JS retardé/bloqué, audit général responsive, campagne performance, contrôle d’indexation/sécurité/licences ou revue artistique/assemblage.
+
+Aucun incident réellement critique découvert dans ces parcours. Les limites et réserves déjà acceptées subsistent ; elles ne déclenchent pas de nouvelle passe générale. **Créa’Tif : démo de portfolio livrée, avec réserves acceptées.**
+
+Preuves temporaires : `/private/tmp/creatif-hqa02.WHevWv/check.cjs`, `results.json` et **25 captures** des cinq cibles dans les cinq formats, notamment `320-approche-title.png`, `375-approche-title.png`, `768-approche-title.png`, `1440-approche-title.png`, `zoom200-approche-title.png` et `zoom200-contact.png`. Le JSON conserve URL de départ et d’arrivée, clics réels, état de premier plan, échantillons de stabilité, dimensions, distances et focus. Les lectures répétées du corps CSS réutilisé par le navigateur ne sont pas toutes disponibles via l’outil ; la comparaison GET indépendante et les cinq premières réponses CSS complètes fondent la preuve d’identité.
+
+Ces fichiers de travail ne sont pas versionnés et peuvent disparaître. Les résultats déterminants, la méthode et l’empreinte sont donc consignés ici. Le rapport général antérieur est conservé ci-dessous comme **archive datée**, pas comme nouveau verdict ou liste de travaux à relancer.
+
+**Seul ce rapport est modifié. Aucun changement de code, configuration, archive, `sources/`, artefact ou publication.** Toute future publication reste soumise à l’accord explicite de Simon ; cette clôture n’en lance aucune.
+
+<details>
+<summary>Archive : recette générale précédente, commit 1419775 — avant la correction edeeb30</summary>
+
+**Archive figée :** les versions, constats ouverts et demandes de validation ci-dessous décrivent la recette précédente. Leur état actuel est remplacé par la conclusion de clôture en tête de ce rapport et par DIRECTION `10f86bc`. Ne pas les interpréter comme une réouverture ou une nouvelle condition de livraison.
+
+## Verdict historique — recette hébergée du 8 septembre 2026
 
 **Avis QA favorable avec réserves mineures pour la démonstration de portfolio à l’URL HTTPS ci-dessous. Aucun défaut bloquant ou majeur identifié dans le périmètre exécuté.** Trois anomalies restent ouvertes : HTTP non redirigé vers HTTPS (HQA-01), titres occultés à l’arrivée sur certaines ancres (HQA-02), requête automatique de favicon en 404 à l’ouverture des crédits (HQA-03). Elles ne rendent pas les parcours principaux inutilisables ; leur acceptation pour la mise en avant relève de Simon.
 
@@ -276,3 +396,5 @@ Acceptables pour ce portfolio : coordonnées fictives non actionnables, pas de f
 Preuves de travail non versionnées sous `/private/tmp/creatif-hosted-qa.fKlg7Z/` : `http-results.json` (chaînes, en-têtes, inventaire SHA-256), `browser-results.json` (16 parcours, 4 sans JS, 404, timing), `zoom-results.json`, `final-checks-results.json` (arbre accessible, clavier, ancres, stockage), `console-results.json`, `links-zoom-results.json`, scripts de reproduction et captures. Référence d’artefact consultée en lecture seule sous `/private/tmp/review-publication-ad0aa8a.AXFfGZ/artifact-ad0aa8a/sites/coiffeur-mixte/dist/`.
 
 Ces dossiers temporaires pourront disparaître ; les scénarios, résultats, mesures, dates et empreintes déterminants sont consignés dans ce rapport versionné. Les captures de zoom natives, notamment le menu focalisé de Barbier (`zoom-last-false.png`), complètent les dimensions et actions testées ; les captures rognées ou incomplètes de l’outil ne fondent aucun constat de défaut du site.
+
+</details>
