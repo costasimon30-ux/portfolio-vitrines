@@ -471,3 +471,72 @@ L’agrégat SHA-256 du dictionnaire JSON trié des chemins vers leurs SHA-256 e
 Limites : exécution sur le volume macOS **insensible à la casse**, propriété vérifiée par alias de fichier et inode ; aucun rejeu sur volume sensible à la casse ou Linux n’est revendiqué. La suite complète exécute ses contrôles existants, notamment son test d’interruption, mais les constats déjà clos ne sont pas rouverts. Les journaux temporaires ne sont pas versionnés et pourront disparaître ; les scénarios, résultats et limites utiles sont consignés ici. La comparaison confirme l’absence de régression de l’artefact actuel, pas une preuve exhaustive de tous les HTML/CSS possibles.
 
 **Suite requise :** corriger la préparation de PUB-05 et les positions utilisées dans PUB-08, puis contre-vérifier ces deux réserves et obtenir une suite complète verte sur le volume concerné. PUB-A1 reste facultatif et différé. Aucun ancien contrôle fonctionnel, point P06 ou avis artistique rouvert. Les vérifications HTTP effectives (statut 404, redirections, en-têtes, HTTPS, règles d’hôte) restent distinctes, réservées à QA sur l’hébergement après autorisation. Aucun compte, connexion Cloudflare ou déploiement ; seul ce rapport est modifié dans le dépôt.
+
+---
+
+## Contre-vérification ciblée — livraison `ad0aa8a` — 8 septembre 2026
+
+Livraison auditée : **`ad0aa8ad21a5f373caddb71b329eef2d9f5e0b43`**. Référence : les deux réserves P2 du rapport **`daf8281afdfb4cf4b580382eb3038ae58546614e`**, portant sur `63246ad`. L’historique ci-dessus est conservé ; le présent verdict actualise uniquement PUB-05 et PUB-08.
+
+### Verdict de clôture
+
+**PUB-05 et PUB-08 sont résolus dans le périmètre contre-vérifié.** Les deux blocages locaux de `daf8281` sont levés : la suite inchangée donne **89 réussis, 0 échec, code 0**, et les reproductions indépendantes confirment les corrections. La combinaison auparavant manquante dans les essais de Claude — **Node 22.23.2 et volume macOS insensible à la casse simultanément** — a bien été exécutée ici.
+
+| Réserve | Statut | Correction et preuve déterminante |
+| --- | --- | --- |
+| PUB-05 — ancien P2 | **Résolu** | `scripts/verif-assemblage.mjs:527-607` : création exclusive, préparation limitée à chaque cas, contrôle du manifeste et test d’alias. L’alias natif `PUBLICATION.JSON` est conservé sans écriture ; onze exclusions sont refusées pour leurs motifs attendus, sans corruption du manifeste ni des sentinelles. |
+| PUB-08 — ancien P2 | **Résolu** | `scripts/assemble-site.mjs:544-549,580-583` : chaque extraction reçoit le document analysé correspondant ; le contrôle final utilise `docFinal.zonesInertes`, et non les positions initiales. Les trois anciens faux refus et les deux contrôles positifs passent, avec une seule meta robots active dans le head et templates intacts. |
+
+Aucune correction indispensable supplémentaire identifiée dans ce périmètre. Les autres constats restent clos ; **PUB-A1 reste facultatif et différé**. Cette clôture de revue locale n’est ni une recette HTTP de l’hébergement ni une autorisation de déploiement.
+
+### PUB-05 — Conservation pendant la préparation et refus motivés
+
+Le harnais indépendant exécute la fonction **`creerFixtureExclusive` telle qu’extraite de la livraison**, sans la réécrire, sur ses propres fixtures jetables. Ses assertions ne reprennent pas celles de la suite : elles comparent directement les octets du manifeste avant/après préparation, vérifient l’existence de l’entrée testée, puis le code et le motif du refus, les octets du manifeste déclaré et le contenu des deux sentinelles après assemblage.
+
+**Cas critique observé :** après création du seul `publication.json`, le chemin `PUBLICATION.JSON` existe déjà et les deux `stat` donnent le même inode. Aucun lien physique artificiel n’a été créé pour ce test. L’appel au helper livré avec `PUBLICATION.JSON` et le contenu `{}\n` retourne **« déjà présent (alias de casse), non réécrit »**. Le manifeste initial reste identique octet pour octet. Après l’ajout volontaire de l’entrée à `publicFiles`, l’assembleur retourne **1**, pour **« manifeste, configuration ou outillage exclu »**, et conserve le manifeste ainsi préparé et l’ancienne sortie.
+
+Les onze variantes suivantes sont reproduites indépendamment ; toutes les entrées existent effectivement au moment de l’appel. Les onze codes sont **1** et leurs motifs correspondent à la règle testée, pas à un manifeste corrompu ou à une ressource absente.
+
+| Entrées testées | Motif observé |
+| --- | --- |
+| `publication.json`, `PUBLICATION.JSON` | Manifeste, configuration ou outillage exclu |
+| `.env` | Chemin ou fichier caché exclu |
+| `extra.html` | Page HTML à déclarer dans `pages` |
+| `css/style.css.map`, `gabarit.njk`, `archive.zip` | Extension exclue |
+| `dist/old.txt`, `DIST/old.txt`, `docs/review.md`, `Claude outputs/internal.txt` | Segment désignant un contenu interne au dépôt |
+
+Dans chaque cas, la préparation des fichiers laisse le manifeste initial intact ; seule l’insertion intentionnelle de l’entrée testée le modifie ensuite. L’assemblage refusé ne modifie ni ce manifeste déclaré, ni `dist/old.txt`, ni la sentinelle. La suite complète confirme également ses onze refus et son test permanent d’alias, avec le détail **« alias natif (volume insensible à la casse) »**. Les dix erreurs `m.publicFiles is not iterable` et l’échec concurrent associé du rapport précédent ne se reproduisent plus.
+
+### PUB-08 — Rejeu des déplacements et inspection indépendante des sorties
+
+Les cinq cas sont construits séparément du jeu de tests livré, avec le même HTML minimal que les contre-exemples de `daf8281` :
+
+| Cas | Structure particulière | Résultat |
+| --- | --- | --- |
+| Insertion avant un template du body | Aucun robots initial ; body contenant `<template><meta name=robots content=index></template>` | Code 0, template préservé |
+| Remplacement raccourcissant | `<meta name="robots" content="noindex, nofollow, nosnippet, noarchive">` suivi du template dans le head | Code 0, template préservé |
+| Remplacement allongeant | `<meta name=robots><template><meta name=robots></template>` dans le head | Code 0, template préservé |
+| Contrôle positif : template seul dans le head | Insertion de la meta active après le template | Code 0, template préservé |
+| Contrôle positif : meta déjà identique | `<meta name="robots" content="index, follow">` puis template ; longueur inchangée en portfolio/production | Code 0, template préservé |
+
+Chaque cas est rejoué pour `portfolio/production`, `portfolio/preview`, `demo/production` et `demo/preview` : **20 assemblages, 20 codes 0**. Pour chacun, le harnais lit le HTML produit sans appeler les fonctions d’analyse de l’assembleur : retrait des templates et commentaires pour le comptage, recherche des metas robots hors contenu inerte, vérification de leur position dans le head et de leur politique. Il compare aussi l’intégralité du bloc template source/sortie, délimiteurs et contenu compris.
+
+**Résultat des 20 inspections :** exactement une meta robots active dans le head ; `index, follow` pour portfolio/production, `noindex, follow` pour les trois autres combinaisons ; bloc template identique à la source. La 404 de chaque fixture porte également une unique meta active `noindex, follow` dans son head. Aucun des trois messages d’erreur « 2 balise(s) robots effective(s) après transformation » ne réapparaît. Les cinq nouveaux contrôles correspondants de la suite livrée passent eux aussi.
+
+### Suite complète et comparaison des 42 fichiers réels
+
+La commande `node scripts/verif-assemblage.mjs` est lancée sans modification du script dans une copie de `ad0aa8a`, avec le binaire Node 22.23.2. Résultat final observé : **`Réussis : 89   Échecs : 0`**, code **0**. Les contrôles de concurrence et d’interruption inclus dans cette suite passent ; aucune nouvelle revue des constats déjà clos n’est engagée.
+
+Créa’Tif est assemblé séparément depuis `63246ad` et `ad0aa8a`, chacun en production et preview : **quatre codes 0**. L’inventaire de chaque sortie est exactement celui attendu du manifeste : **42 fichiers**, soit 5 pages + 28 publics + 7 partagés + `robots.txt` et `_headers`. Les **35 ressources copiées** sont identiques octet pour octet à leurs sources respectives. Les quatre sorties ont les mêmes chemins et les mêmes SHA-256 individuels pour tous les fichiers, **HTML compris**.
+
+L’agrégat SHA-256 du dictionnaire JSON trié des chemins vers leurs SHA-256 reste **`61baa3bee04b5a01a478f29523b052453ed26c0ebec90a64dd1da0e9f72838c4`**, selon la même méthode que `daf8281`. L’artefact réel est donc inchangé, et pas seulement son nombre de fichiers. Cet agrégat n’est pas directement comparable à l’empreinte shell de Claude, calculée autrement.
+
+### Méthode, conservation des preuves et limites
+
+`git pull --ff-only` effectué et conventions `CLAUDE.md`, `docs/WORKFLOW.md`, `docs/AGENTS.md` relues ; elles sont inchangées dans cette livraison. Diff correctif inspecté avant exécution. Tous les scripts s’exécutent uniquement dans des copies issues de `git archive` ou dans les fixtures, sous le répertoire temporaire unique **`/private/tmp/review-publication-ad0aa8a.AXFfGZ`**. `TMPDIR` y est borné à `temp/`. Le binaire officiel Darwin arm64 déjà vérifié lors des revues précédentes retourne **`v22.23.2`** ; aucun autre runtime n’a servi à ces essais.
+
+Preuves locales : `verify.mjs`, `observations.json`, `results.json` et `suite.log`, ainsi que les fixtures et copies d’artefacts. Le harnais termine avec toutes ses assertions satisfaites. L’inventaire et les empreintes de la copie source de la suite sont inchangés après son exécution ; son répertoire temporaire de bacs est vide. Les scripts et les sources du dépôt de travail ne sont pas modifiés : seul le présent rapport est ajouté à l’historique versionné.
+
+Les preuves temporaires ne sont pas versionnées et pourront disparaître ; les scénarios, résultats et empreintes utiles sont consignés ici. Aucun rejeu Linux ou sur volume sensible à la casse n’est revendiqué. L’analyse indépendante du HTML est bornée aux fixtures simples, à templates non imbriqués, utilisées pour ces deux réserves : ce n’est pas une certification générale d’un parseur HTML. La clôture repose sur les scénarios demandés et leur correction observée, pas sur une nouvelle revue générale.
+
+**Blocages restants dans ce périmètre : aucun.** Les vérifications HTTP effectives restent réservées à QA sur l’hébergement après autorisation, notamment statut 404, redirections, en-têtes, HTTPS et règles d’hôte. Elles ne maintiennent pas artificiellement PUB-05 ou PUB-08 ouverts. Aucun travail sur P06, aucune revue visuelle, aucun compte, connexion Cloudflare ou déploiement.
