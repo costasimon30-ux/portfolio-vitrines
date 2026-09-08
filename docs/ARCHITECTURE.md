@@ -155,6 +155,8 @@ Cette étape est indépendante de l'étape 1 : elle peut être réalisée avec u
 2. Vérifier le rendu avec les fontes locales et de repli sur la sortie assemblée.
 3. Préparer l'assemblage indépendant et les directives d'indexation selon la section 5, sans déploiement implicite.
 
+État au 8 septembre : l'assemblage de Créa'Tif est livré et contre-vérifié, puis sa première publication manuelle sur Workers Static Assets a été rapportée. La section 5 distingue ces acquis de la recette hébergée et encadre les versions suivantes ; cette étape ne constitue plus une demande de première mise en ligne.
+
 ### Étape 3 — standardisation après validation sur deux sites
 
 1. Réutiliser les tokens, styles de base, polices et primitives d'accessibilité de `shared/design-system/`.
@@ -170,29 +172,31 @@ Cette étape est indépendante de l'étape 1 : elle peut être réalisée avec u
 - Aucun fichier généré n'est modifié manuellement.
 - Avant publication publique, le rendu ne dépend plus de Google Fonts ou d'un autre CDN de polices tiers.
 
-## 5. Publication indépendante — contrat du 7 septembre 2026
+## 5. Publication indépendante — contrat actualisé le 8 septembre 2026
 
-Ce contrat applique le cadrage de `docs/DIRECTION.md` au commit `174ebdb`. Il est destiné à l'implémentation par Claude sur instruction ultérieure. Les commandes et fichiers décrits ci-dessous sont proposés, pas exécutés ou créés par cette note. Aucune incompatibilité avec le cadrage produit n'est identifiée.
+Ce contrat conserve les garanties de sortie du cadrage `174ebdb` et applique l'arbitrage de `docs/DIRECTION.md` au commit **`0154069`** : Créa'Tif est publié sur **Workers Static Assets par dépôt manuel de l'artefact local**, sans connexion Git. Pages + Git reste une proposition historique, non activée (§ 5.4). Le changement d'hébergement ne justifie ni migration, ni refonte de l'assembleur déjà audité.
+
+L'état publié ci-dessous est celui rapporté par Claude et consigné dans DIRECTION, pas une nouvelle observation HTTP de l'Architecte. L'assemblage est livré et contre-vérifié ; les procédures de publication et de retour arrière sont documentées ici, sans être exécutées. **Toute publication suivante, retour arrière compris, exige l'accord explicite de Simon pour la version ciblée.** Un commit, un push ou une correction QA ne vaut jamais cet accord.
 
 ### 5.1 Sources, sorties et URL
 
 Conserver un dépôt et publier un artefact distinct par site. Réserver **`sites/portfolio/`** au futur portfolio professionnel, sans créer ce dossier ni son contenu maintenant. Créa'Tif reste dans `sites/coiffeur-mixte/` et n'est jamais copié comme accueil du portfolio ou comme `index.html` à la racine du dépôt.
 
-| Élément | Sources | Sortie publiable | Projet Pages proposé, sous réserve de disponibilité |
+| Élément | Sources | Sortie publiable | Hébergement |
 | --- | --- | --- | --- |
-| Démo Créa'Tif | `sites/coiffeur-mixte/` | `sites/coiffeur-mixte/dist/` | `portfolio-vitrines-coiffeur-mixte` |
-| Future démo | `sites/<slug>/` | `sites/<slug>/dist/` | `portfolio-vitrines-<slug>` |
-| Futur portfolio, emplacement réservé | `sites/portfolio/` | `sites/portfolio/dist/` | `portfolio-vitrines` |
+| Démo Créa'Tif | `sites/coiffeur-mixte/` | `sites/coiffeur-mixte/dist/` | Worker `portfolio-vitrines-coiffeur-mixte`, dépôt manuel |
+| Future démo | `sites/<slug>/` | `sites/<slug>/dist/` | Publication indépendante ; produit et nom à valider |
+| Futur portfolio, emplacement réservé | `sites/portfolio/` | `sites/portfolio/dist/` | Publication indépendante ; produit et nom à valider |
 
 Chaque sortie contient ses pages à sa propre racine et une copie de ses dépendances communes. `dist/` est déjà couvert par `.gitignore` ; il reste non versionné. Ni le dépôt entier, ni `sites/`, ni le dossier source d'un site ne doivent être sélectionnés comme sortie publiée.
 
-Après accord de Simon, première URL : `https://<projet>.pages.dev/`. Cible éventuelle : domaine principal pour le portfolio, `https://<slug>.<domaine>/` pour chaque démo. Ces notations ne réservent aucun nom. Le rattachement ultérieur d'un domaine préserve les chemins ; il demandera la configuration du domaine et des URL alternatives, sans déplacer les sources. [Cloudflare — domaines personnalisés](https://developers.cloudflare.com/pages/configuration/custom-domains/).
+URL effective déclarée : [Créa'Tif sur Workers](https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/). L'URL `pages.dev` envisagée n'a pas été mise en service. Conserver l'URL actuelle ; aucune redirection vers Pages n'est demandée. Cible éventuelle inchangée : domaine principal pour le portfolio, `https://<slug>.<domaine>/` pour chaque démo, sans nom réservé ni achat engagé. Un futur raccordement devra préserver les chemins et traiter les URL alternatives avec les mécanismes du produit alors retenu, sans déplacer les sources.
 
-Les fichiers restent `index.html`, `coiffure.html`, `barbier.html`, `salon.html`. Pages redirige normalement les URL `.html` vers les URL sans extension : attendre `/`, `/coiffure`, `/barbier`, `/salon` sur l'hébergement, tout en conservant les liens relatifs actuels pour le service HTTP local. QA devra vérifier les redirections et l'ancre Contact. Ne pas introduire de routeur ou de réécriture générale vers l'accueil. [Cloudflare — résolution des pages](https://developers.cloudflare.com/pages/configuration/serving-pages/).
+Les fichiers restent `index.html`, `coiffure.html`, `barbier.html`, `salon.html`. Workers Static Assets dispose de sa propre résolution HTML ; son mode documenté `auto-trailing-slash` sert les fichiers plats sans extension et redirige notamment `.html` ou le slash final en 307. C'est compatible avec `/`, `/coiffure`, `/barbier`, `/salon` et les observations rapportées par Claude, sans prouver le réglage exact du Worker. Conserver les liens relatifs pour le service HTTP local ; QA vérifie les chaînes réelles et l'ancre Contact, sans exiger un statut emprunté à Pages. Aucun routeur ni repli général vers l'accueil. [Workers — résolution HTML](https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/).
 
 ### 5.2 Assembleur minimal et manifeste local
 
-**Emplacement proposé : `scripts/assemble-site.mjs`**, à la racine du dépôt. Script Node utilisant uniquement la bibliothèque standard, sans installation npm, téléchargement de ressource, framework ou moteur de templates. Choisir et figer une version Node LTS prise en charge localement et par Pages dans `.node-version` lors de l'implémentation. Le besoin est une sélection de fichiers, une copie et des transformations bornées de publication ; aucun traitement des images ni recomposition du header/footer.
+**Assembleur livré : `scripts/assemble-site.mjs`**, à la racine du dépôt. Script Node utilisant uniquement la bibliothèque standard, sans installation npm, téléchargement de ressource, framework ou moteur de templates. `.node-version` fixe **22.23.2**, version employée pour la contre-vérification et le build publié déclaré. Node sert uniquement à l'assemblage local, pas à l'exécution des pages hébergées. Le besoin reste une sélection de fichiers, une copie et des transformations bornées de publication ; aucun traitement des images ni recomposition du header/footer.
 
 Interface unique, depuis la racine du dépôt :
 
@@ -202,13 +206,15 @@ node scripts/assemble-site.mjs <slug> --environment preview
 node scripts/assemble-site.mjs <slug>
 ```
 
-L'option explicite sert aux essais locaux. Sans option, lire `PUBLICATION_ENV`, limité à `production` ou `preview` ; en son absence, utiliser `preview`. Une valeur inconnue doit faire échouer la commande. Sous Pages, si `CF_PAGES_BRANCH` est absent ou différent de `main`, forcer `preview` même si la variable demande `production`. Ainsi, un futur build de branche ne rend pas accidentellement le portfolio indexable. La production d'une démo reste non indexable dans tous les cas.
+L'option explicite sert aux essais **et à la préparation locale de la publication manuelle**. Sans option, l'assembleur lit `PUBLICATION_ENV`, limité à `production` ou `preview` ; en son absence ou si la variable est vide, il utilise `preview`. Une valeur inconnue sélectionnée doit faire échouer la commande. Ces valeurs sont des entrées locales de l'assembleur, pas des variables à installer dans le Worker : les directives sont déjà écrites dans l'artefact déposé.
+
+Le garde-fou Pages livré est conservé : si `CF_PAGES=1` ou `CF_PAGES_BRANCH` est défini, une demande `production` est ramenée à `preview` lorsque `CF_PAGES_BRANCH` est absent ou différent de `main`. Ce contexte Pages n'est pas actif dans le flux manuel Workers ; ne pas fabriquer ces variables ni les assimiler à Workers Builds. Vérifier le mode effectif annoncé. La production d'une démo reste non indexable dans tous les cas ; le mode local `preview` ne crée aucune URL distante.
 
 **Configuration : `sites/<slug>/publication.json`**, exclue de la sortie. Petit manifeste de données, avec quatre champs :
 
 - `kind` : `demo` ou `portfolio` ; `coiffeur-mixte` vaut `demo`. Le type ne se déduit jamais du nom du dossier ou de la branche.
-- `pages` : liste explicite des fichiers HTML à la racine du site ; actuellement les quatre pages plus `404.html`, à créer par Claude avant le premier artefact publiable. `index.html` et `404.html` sont obligatoires.
-- `publicFiles` : liste de fichiers exacts, relatifs au site, à copier avec leurs chemins conservés. Pour Créa'Tif : `css/style.css`, `js/main.js`, `assets/favicon.svg`, les 24 WebP actuels et `assets/photos/NOTICE.md`. La liste initiale peut être établie à partir des fichiers existants, puis versionnée et mise à jour explicitement.
+- `pages` : liste explicite des fichiers HTML à la racine du site ; actuellement les quatre pages plus `404.html`, déjà livrée. `index.html` et `404.html` sont obligatoires.
+- `publicFiles` : liste de fichiers exacts, relatifs au site, à copier avec leurs chemins conservés. Pour Créa'Tif : `css/style.css`, `js/main.js`, `assets/favicon.svg`, les 24 WebP actuels et `assets/photos/NOTICE.md`. Cette liste est déjà versionnée dans le manifeste ; toute évolution reste explicite.
 - `sharedFiles` : liste de fichiers exacts, relatifs à `shared/`. Pour Créa'Tif : `design-system/fonts.css`, `design-system/tokens.css`, les quatre WOFF2 effectivement référencés et `design-system/fonts/NOTICE.md`, ainsi que tout fichier de licence nécessaire associé. Aucun autre site ni bibliothèque complète n'est inclus automatiquement.
 
 Le choix de listes explicites rend l'artefact prévisible et évite les copies récursives du dépôt. Ajouter une photo optimisée ou une nouvelle dépendance implique d'ajouter son chemin au manifeste. Les répertoires `shared/` et les noms `robots.txt`, `_headers`, `sitemap.xml` dans la sortie sont réservés à l'assembleur ; refuser les collisions et les destinations dupliquées. Aucun chemin absolu, remontée `..` ou lien symbolique n'est accepté dans les entrées. Un slug doit correspondre à un enfant direct existant de `sites/`, en kebab-case.
@@ -230,53 +236,73 @@ Les liens entre pages, les `srcset`, les URL de photos dans le CSS et les liens 
 
 La version minimale ne traite que des pages HTML à la racine, comme le site actuel. L'arrivée de pages imbriquées nécessite un calcul des URL relatif à chaque document, à intégrer dans Eleventy au moment prévu, pas une extension implicite du remplacement de chaînes.
 
-**Page 404 :** Claude devra écrire une page HTML locale simple, sans nouvelle section de navigation, avec un lien vers `/` et des chemins de ressources partant de `/` si elle réutilise les styles. Ces chemins sont relatifs à l'origine, valables sur chaque hôte indépendant, et nécessaires lorsque la 404 répond à une URL imbriquée. La page porte `noindex, follow` dans tous les environnements. Sa présence à la racine de la sortie empêche Pages d'appliquer son comportement SPA par défaut ; un chemin inconnu doit répondre en HTTP 404. [Cloudflare — page 404 et comportement SPA](https://developers.cloudflare.com/pages/configuration/serving-pages/).
+**Page 404 :** conserver la page locale livrée, son lien vers `/` et ses éventuelles ressources relatives à l'origine, pour fonctionner également sur une URL inconnue imbriquée. La page porte `noindex, follow` dans tous les environnements. Le contrat exige une vraie réponse HTTP 404 avec cette page. Ne pas déduire sa prise en charge de la seule présence du fichier : Workers documente le mode `not_found_handling = "404-page"`, distinct des conventions Pages. Claude rapporte une 404 personnalisée ; QA doit confirmer le comportement effectif, sans modifier la configuration dans cette intervention. Aucun mode SPA à activer. [Workers — routage des assets et 404](https://developers.cloudflare.com/workers/static-assets/).
 
-### 5.4 Réglages Cloudflare proposés et déclencheurs
+### 5.4 Hébergement effectif, publication manuelle et retour arrière
 
-À appliquer uniquement après les accords de Simon sur le compte, la connexion et la publication. **La connexion Git peut elle-même déclencher une première publication** : ne pas la réaliser pour simplement tester cette note.
+#### État déclaré au 8 septembre 2026
 
-| Réglage du projet Créa'Tif | Valeur proposée |
+| Élément | Valeur consignée dans DIRECTION (`0154069`) |
 | --- | --- |
-| Dépôt / branche de production | `portfolio-vitrines` / `main` |
-| Framework preset | Aucun |
-| Répertoire racine du build | Racine du dépôt ; champ laissé vide |
-| Commande de build | `node scripts/assemble-site.mjs coiffeur-mixte` |
-| Répertoire de sortie | `sites/coiffeur-mixte/dist` |
-| Variable en environnement Production | `PUBLICATION_ENV=production` |
-| Variable en environnement Preview | `PUBLICATION_ENV=preview` |
-| Runtime | Version Node figée à l'implémentation, identique au local |
-| Functions, Worker, dépendances payantes | Aucun |
+| Produit / cible | Workers Static Assets / Worker `portfolio-vitrines-coiffeur-mixte` |
+| URL | `https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/` |
+| Origine de l'artefact | Assemblage local de la révision déclarée `619d931`, code validé `ad0aa8a` |
+| Commande / runtime déclarés | `node scripts/assemble-site.mjs coiffeur-mixte --environment production` / Node 22.23.2 |
+| Dossier remis | `sites/coiffeur-mixte/dist/`, 42 fichiers |
+| Empreinte shell déclarée par Claude | `c6ddb471aa4a6337754b8dd886866c1b2446587cedec2b3582ae2943a573be9d` |
+| Mise en ligne | Dépôt manuel de l'artefact ; accord explicite par version pour toute suite |
+| Git / build hébergé / previews par branche | Aucun raccordement ni mécanisme actif déclaré |
+| Version et déploiement Cloudflare | Identifiants non fournis ; à joindre si disponibles |
 
-La racine du dépôt garantit la disponibilité des sources et de `shared/` dans le contexte du build. L'isolation se fait par le répertoire de sortie. Aucune hypothèse d'accès hors d'une racine configurée sur `sites/coiffeur-mixte` n'est nécessaire. Pages distingue commande, racine et sortie du build. [Cloudflare — configuration des builds](https://developers.cloudflare.com/pages/configuration/build-configuration/).
+Ne pas confondre la révision source déclarée, l'empreinte du dossier et l'identifiant Cloudflare. Le HEAD du dépôt peut avancer sans que le site change. Le compte rendu de publication n'est pas une preuve que chaque fichier servi correspond au commit déclaré ; la traçabilité et la recette hébergée complètent cette déclaration.
 
-**Build watch paths de Créa'Tif**, en remplacement de l'inclusion par défaut `*` :
+Workers sert ici des fichiers statiques, sans backend applicatif demandé. Aucun champ de build Pages, variable distante Node, preset ou filtre Git n'est à configurer. Les quotas Pages (cinq projets par dépôt, builds mensuels, etc.) **ne s'appliquent pas à ce mode de dépôt manuel Workers** ; cette note ne les convertit pas en quotas Workers et ne promet pas de gratuité permanente. Le choix actuel n'impose pas Workers aux futurs sites. [Workers — Static Assets](https://developers.cloudflare.com/workers/static-assets/).
 
-```text
-Include:
-  sites/coiffeur-mixte/*
-  shared/design-system/*
-  scripts/assemble-site.mjs
-  .node-version
-Exclude:
-  sites/coiffeur-mixte/dist/*
-  docs/*
-  Claude outputs/*
-```
+#### Préparer puis déposer une version — procédure, non exécutée ici
 
-Le joker final `*` couvre les sous-dossiers dans les règles Pages. Ne pas exclure globalement `*.md` : une modification de `assets/photos/NOTICE.md` ou d'une notice de police doit reconstruire la publication qui la distribue. Le titre `docs:` d'un commit ne décide pas du build ; ses chemins modifiés le décident. Un changement limité à `docs/`, `CLAUDE.md` ou `README.md` est ignoré par cette sélection. Un changement du design system reconstruit les sites qui le consomment ; un changement du code Créa'Tif ne reconstruit pas les autres sites. Adapter les chemins partagés aux dépendances réellement déclarées à mesure que le portfolio grandit.
+1. **Identifier le candidat**, sans supposer que `main` doit être publié : relever le hash complet avec `git rev-parse HEAD` et vérifier `git status --short`. En présence de modifications locales, ne pas les effacer ni les attribuer au commit ; préparer une copie propre de la révision choisie dans un dossier dédié. Les scripts, `.node-version`, le manifeste, les sources et `shared/` doivent provenir de cette même révision.
+2. **Vérifier et assembler localement**, depuis la racine de cette copie, avec la version de `.node-version` :
 
-Ces filtres concernent les pushes ordinaires. Pages documente des exceptions (push vide, 3 000 fichiers ou plus, 20 commits ou plus) ; ils ne constituent donc pas une interdiction absolue de build. Les relances manuelles restent distinctes. [Cloudflare — filtres et exceptions](https://developers.cloudflare.com/pages/configuration/build-watch-paths/).
+   ```text
+   node --version
+   node scripts/verif-assemblage.mjs
+   node scripts/assemble-site.mjs coiffeur-mixte --environment production
+   ```
 
-Proposition pour le premier raccordement autorisé : publications de production déclenchées manuellement jusqu'à validation par Simon du mode automatique sur `main`, prévisualisations automatiques de branches désactivées initialement. S'il autorise ensuite leur activation, conserver les variables séparées et les filtres ci-dessus. Décrire les réglages effectifs et le commit publié lors de cette étape ; ne pas présumer leur activation aujourd'hui.
+   Exiger un code 0 à chaque étape, contrôler le mode effectif, puis appliquer les contrôles locaux du § 5.6. La suite isolée ne remplace pas le contrôle du dossier effectivement remis. Pour la référence actuelle, l'inventaire attendu est de 42 fichiers ; toute évolution ultérieure doit être expliquée par son manifeste. Ne pas exécuter deux assemblages concurrents vers le même `dist/`.
+3. **Figer le candidat contrôlé** : conserver une copie exacte de l'artefact et de son inventaire d'empreintes hors du dépôt et hors du `dist/` nettoyable, dans un emplacement de sauvegarde connu de Simon. Ne pas modifier l'artefact pour y ajouter une fiche de version ou un nouveau fichier public. Distinguer cette sauvegarde d'un dossier temporaire susceptible de disparaître. Conserver au minimum l'artefact en ligne et le précédent connu, tant qu'ils peuvent servir de retour arrière.
+4. **Obtenir l'accord explicite de Simon**, en présentant le hash source complet, l'empreinte de l'artefact, la cible Workers, les changements, les contrôles et les réserves connues. L'accord porte sur cet artefact précis. Toute reconstruction produisant d'autres octets ou toute correction après accord impose une nouvelle validation avant publication.
+5. **Après cet accord seulement**, utiliser le flux manuel du Worker existant dans le tableau de bord, sans créer de projet ni connecter Git. Remettre uniquement le contenu de l'artefact contrôlé : `index.html`, `_headers` et `robots.txt` doivent se retrouver à la racine publiée, avec `assets/`, `css/`, `js/` et `shared/` à leurs places. Ni le dossier parent du site, ni le dépôt, ni la sauvegarde/fiche de version ne sont à déposer. Vérifier l'inventaire présenté avant l'action finale de publication. Si l'interface exige un autre mécanisme ou des réglages non prévus, arrêter et demander l'arbitrage, sans basculer vers Git, Wrangler ou Pages de sa propre initiative.
+6. **Consigner le résultat** : date et fuseau, opérateur, URL, hash source, empreinte et méthode, version Node, commande, résultats locaux, identifiants de version et de déploiement Cloudflare s'ils sont accessibles, version précédente et accord de Simon. Conserver ce relevé non secret dans le handoff de publication, puis ses éléments utiles dans le suivi DIRECTION par l'agent compétent. Les accès, adresses de connexion, secrets et codes de secours restent dans la fiche privée hors dépôt.
+7. **Passer la version hébergée à QA** (§ 5.6). Des contrôles de fumée réussis par l'implémenteur ne constituent pas le verdict QA. Une anomalie n'autorise pas une correction distante ou une republication automatique.
 
-Ajouter un site consiste à créer `sites/<slug>/`, son manifeste et son brief, puis, après accord, un projet Pages visant `sites/<slug>/dist/` et la même commande avec ce slug. Chaque projet surveille uniquement son site, ses dépendances communes et l'outillage utilisé. Aucun changement d'URL ou déplacement des sites existants. Le futur portfolio utilise cette même convention avec `kind=portfolio`. La limite actuelle de cinq projets reliés au dépôt, portfolio compris, reste un arbitrage à traiter avant le sixième ; aucune multiplication de dépôts n'est prescrite ici. [Cloudflare — monorepos](https://developers.cloudflare.com/pages/configuration/monorepos/).
+Pour rendre les empreintes reproductibles, conserver l'inventaire complet des chemins relatifs triés et des SHA-256 de chaque fichier, ainsi que la commande et le format exacts de calcul de tout agrégat. L'empreinte shell déclarée ci-dessus n'est **pas directement comparable** à l'agrégat du Reviewer `61baa3bee04b5a01a478f29523b052453ed26c0ebec90a64dd1da0e9f72838c4` (dictionnaire JSON trié des chemins vers leurs SHA-256). Ne pas requalifier l'une en l'autre ni inventer une méthode absente du handoff ; en cas de doute, comparer les empreintes individuelles. Les identifiants Cloudflare manquants restent une limite de traçabilité explicite, pas une raison de republier pour les recréer.
+
+#### Retour à une version connue — uniquement sur nouvel accord
+
+1. Identifier précisément le problème, la version active et la cible de retour à partir du handoff et des preuves QA. Choisir une version réellement connue, pas simplement « le commit précédent ». L'état de référence actuel est validé localement ; sa recette hébergée reste distincte.
+2. Présenter à Simon la version cible, ses réserves et la méthode de retour ; attendre son accord explicite. Un rollback est lui aussi une mise en production.
+3. Si la version cible est identifiée et encore proposée par Cloudflare, utiliser après accord **le Worker existant → Deployments → version cible → Rollback**. Cette opération crée un nouveau déploiement actif de la version choisie ; relever son identifiant. Sa disponibilité dépend de l'historique et des contraintes Workers, pas des mécanismes Pages. Ne pas modifier les routes, domaines ou ressources associées pour contourner un refus. [Workers — procédure et limites du rollback](https://developers.cloudflare.com/workers/versions-and-deployments/rollbacks/).
+4. Si cette voie est indisponible, utiliser la sauvegarde intacte de l'artefact connu, vérifier ses empreintes, puis la déposer manuellement sur le même Worker selon la procédure ci-dessus. À défaut de sauvegarde, extraire le **commit complet connu** dans une copie de travail séparée, avec ses scripts, manifeste, ressources et version Node ; réassembler et comparer aux empreintes conservées avant de demander l'accord de dépôt. Une comparaison impossible ou différente doit être signalée : ce n'est plus un retour à l'identique démontré. Ne pas reconstruire un ancien HTML avec le `shared/` courant.
+5. Consigner le lien entre ancien déploiement, cible restaurée et nouveau déploiement ; vérifier les ressources, indexation, redirections, 404 et l'anomalie motivant le retour sur l'URL réelle. Ne pas réécrire l'historique Git, faire de `reset --hard`, supprimer le Worker ou reconstruire le portfolio pour un retour de publication.
+
+Le nettoyage de l'assembleur reste limité au `dist/` ciblé et ses validations préalables sont conservées. **PUB-A1 (préservation atomique de l'ancienne sortie pendant le build) reste facultatif et différé** : ne pas présenter `dist/` comme une sauvegarde garantie après interruption ou erreur d'écriture. Le dépôt distant manuel et la sauvegarde hors sortie séparent préparation locale et version en ligne, sans modifier l'assembleur.
+
+#### Proposition historique Pages + Git — alternative non activée
+
+La proposition du 7 septembre prévoyait un projet Pages par site, branche `main`, racine de build à la racine du dépôt, aucun preset, commande `node scripts/assemble-site.mjs <slug>`, sortie `sites/<slug>/dist`, Node fixé par `.node-version` et `PUBLICATION_ENV` séparé entre Production et Preview. Ces réglages sont archivés ici comme **alternative**, pas comme consigne applicable au Worker actuel. [Pages — configuration de build](https://developers.cloudflare.com/pages/configuration/build-configuration/).
+
+Les anciens filtres Pages incluaient `sites/coiffeur-mixte/*`, `shared/design-system/*`, `scripts/assemble-site.mjs`, `.node-version` et excluaient `sites/coiffeur-mixte/dist/*`, `docs/*`, `Claude outputs/*`. Ils ne sont pas installés. La limite de cinq projets Pages reliés au même dépôt, portfolio compris, concernait cette proposition ; elle n'est pas un seuil de croissance du Worker manuel actuel. Avant toute adoption future, revalider limites, filtres et contrôle humain de production. [Pages — filtres](https://developers.cloudflare.com/pages/configuration/build-watch-paths/), [Pages — monorepos](https://developers.cloudflare.com/pages/configuration/monorepos/).
+
+Aujourd'hui, **aucun push ne déclenche de publication**, documentaire ou non. Les changements dans un site, ses dépendances `shared/`, son manifeste ou l'assembleur déterminent les candidats à tester/reconstruire localement, pas une autorisation de les mettre en ligne. Une notice Markdown publiée est une dépendance, contrairement à un rapport `docs/` ; ne pas les confondre. Une modification de la suite de tests peut nécessiter un rejeu sans changement d'artefact.
+
+Ajouter un site garde les conventions `sites/<slug>/`, manifeste local, brief et sortie isolée. Le futur portfolio utilise `kind=portfolio`, sans être construit maintenant. Simon arbitre le produit d'hébergement de chaque nouvelle publication et autorise chaque version ; ni création automatique d'un Worker, ni obligation de Pages, ni changement d'URL des sites existants. Si une automatisation est réexaminée au deuxième site, séparer tests/builds et déploiement avec validation humaine. Connecter Workers à Git serait une autre décision technique : cela ne créerait pas un projet Pages et ne rendrait pas ses réglages applicables.
 
 ### 5.5 Indexation par site, environnement et ressource
 
 L'assembleur calcule une politique à partir de `kind` et du mode effectif ; il ne copie jamais un `_headers` global commun aux sites. Dans chaque HTML de sortie, ajouter une seule balise `<meta name="robots" content="…">` dans le `<head>`, ou remplacer la balise standard existante. Refuser une structure ambiguë (plusieurs balises ou consignes contradictoires spécifiques à un robot) pour correction explicite des sources. Cette substitution limitée ne transforme pas l'assembleur en moteur HTML.
 
-| Site / mode effectif | Balise robots des pages ordinaires | En-tête HTTP proposé |
+| Site / mode effectif | Balise robots des pages ordinaires | Contrat d'en-tête HTTP |
 | --- | --- | --- |
 | Démo / production | `noindex, follow` | `X-Robots-Tag: noindex, follow` pour `/*` |
 | Démo / preview ou local par défaut | `noindex, follow` | Même règle globale |
@@ -285,44 +311,50 @@ L'assembleur calcule une politique à partir de `kind` et du mode effectif ; il 
 
 Pour tous les sites, `robots.txt` à la racine de la sortie contient `User-agent: *` puis `Allow: /`, sur deux lignes. Pas de `Disallow: /` ni de directive `noindex` dans ce fichier. Google doit pouvoir explorer les pages pour lire leur interdiction d'indexation ; `noindex` ne protège pas l'accès et n'efface pas instantanément un résultat existant. [Google — noindex et exploration](https://developers.google.com/search/docs/crawling-indexing/block-indexing).
 
-Le script écrit les en-têtes dans **`dist/_headers`**, fichier interprété par Cloudflare pour les ressources statiques. Pour une démo ou une preview, le bloc global proposé est :
+Le script écrit les en-têtes dans **`dist/_headers`**, conservé à la racine lors du dépôt manuel. Workers Static Assets prend en charge ce fichier pour les réponses d'assets ; il ne le sert pas comme ressource publique. Ces règles ne couvriraient pas automatiquement les réponses produites par un code Worker applicatif, non demandé ici. Leur présence locale ne remplace pas la vérification des réponses hébergées. [Workers — en-têtes des assets](https://developers.cloudflare.com/workers/static-assets/headers/).
+
+Pour une démo ou un artefact local `preview`, le bloc global conservé est :
 
 ```text
 /*
   X-Robots-Tag: noindex, follow
 ```
 
-**Notice de crédits :** conserver le lien et les octets de `assets/photos/NOTICE.md`. Elle reste publiquement consultable mais non indexable, même servie séparément. Ajouter un bloc à son chemin exact avec `Content-Type: text/plain; charset=utf-8` ; hors règle globale, y ajouter aussi `X-Robots-Tag: noindex, follow`. Appliquer la même convention aux notices/licences textuelles explicitement incluses, notamment `/shared/design-system/fonts/NOTICE.md`. Il n'y a pas de conversion Markdown vers HTML, de renommage du lien ou de réécriture des crédits. Une balise meta dans les quatre pages ne s'appliquerait pas à ces ressources non HTML. [Cloudflare — fichier _headers](https://developers.cloudflare.com/pages/configuration/headers/), [Google — en-tête pour les ressources non HTML](https://developers.google.com/search/docs/crawling-indexing/block-indexing).
+**Notice de crédits :** conserver le lien et les octets de `assets/photos/NOTICE.md`. Elle reste publiquement consultable mais non indexable, même servie séparément. Conserver le bloc à son chemin exact avec `Content-Type: text/plain; charset=utf-8` ; hors règle globale, y ajouter aussi `X-Robots-Tag: noindex, follow`. Appliquer la même convention aux notices/licences textuelles explicitement incluses, notamment `/shared/design-system/fonts/NOTICE.md`. Il n'y a pas de conversion Markdown vers HTML, de renommage du lien ou de réécriture des crédits. Une balise meta dans les quatre pages ne s'appliquerait pas à ces ressources non HTML. [Workers — fichier _headers](https://developers.cloudflare.com/workers/static-assets/headers/), [Google — en-tête pour les ressources non HTML](https://developers.google.com/search/docs/crawling-indexing/block-indexing).
 
 Pour le portfolio en production, les pages ordinaires doivent effectivement rester indexables : ne pas tenter d'annuler une règle globale `noindex` par une seconde règle `index`. Générer un fichier sans cette règle globale, avec seulement les exceptions nécessaires. Les balises et en-têtes ne doivent pas se contredire.
 
-Cloudflare ajoute déjà `X-Robots-Tag: noindex` à ses déploiements de prévisualisation ; garder néanmoins la politique explicite de l'artefact, et vérifier l'en-tête effectivement servi. Le domaine de production `https://<projet>.pages.dev/` n'est pas une preview simplement parce qu'il appartient à la plateforme. [Cloudflare — prévisualisations](https://developers.cloudflare.com/pages/configuration/preview-deployments/).
+**Prévisualisations :** aucune preview par branche active n'est déclarée pour Créa'Tif. L'adresse actuelle `workers.dev` est son URL publique de production, pas une preview du seul fait de son suffixe. Le `noindex, follow` global de la démo s'applique indépendamment du nom d'hôte ; toute URL technique effectivement disponible doit être identifiée et contrôlée par QA, sans en activer une pour les tests. Une preview inexistante est « non applicable », jamais « validée ».
 
-Pour le futur portfolio indexable, prévoir également dans `_headers` une règle d'hôte `https://:version.:project.pages.dev/*` avec `X-Robots-Tag: noindex, follow` : elle couvre les URL techniques versionnées et alias de branche sans bloquer `https://<projet>.pages.dev/`. QA vérifiera ce cas même lorsqu'une URL versionnée dessert un artefact de production. [Cloudflare — règles d'hôtes](https://developers.cloudflare.com/pages/configuration/headers/).
+La protection automatique des previews Pages et la règle `https://:version.:project.pages.dev/*` appartiennent à l'ancienne proposition Pages. Ne pas les supposer applicables à Workers. La règle d'hôte Pages déjà prévue par l'assembleur pour le futur portfolio n'est pas une protection des URL `workers.dev` ; elle n'est pas modifiée pour cette démo. Avant toute publication d'un portfolio indexable ou activation de previews sur l'hébergement alors choisi, définir et tester sa protection réelle : artefact `preview` distinct non indexable, ou règles d'hôtes adaptées si une URL technique sert l'artefact de production. Ne pas publier ce dernier sur une URL de preview en comptant sur la seule règle Pages. Ce point futur ne bloque pas le `noindex` global actuel de Créa'Tif.
 
 **Sitemaps et URL alternatives :** aucun sitemap pour les démos `noindex`, ni pour les previews. Aucun domaine fictif ni canonique inventée dans l'artefact actuel. Le sitemap et les canoniques du futur portfolio seront préparés quand son contenu et son origine de production seront validés ; ne pas mettre les URL de démos non indexables dans ce sitemap. Au raccordement d'un domaine personnalisé, choisir une origine publique de référence, rediriger les URL de plateforme correspondantes vers elle en conservant chemin et paramètres, puis actualiser les canoniques et sitemap du portfolio. Les previews conservent leur non-indexation. Ces réglages futurs n'exigent pas de réorganiser les sources.
 
 ### 5.6 Vérifications et frontière de recette
 
-**À réaliser par Claude pendant l'implémentation, localement :**
+**Référence locale déjà auditée :** le rapport `docs/CODE-REVIEW-coiffeur-mixte.md`, commit `9d6bac7`, clôt PUB-05 et PUB-08 sur `ad0aa8a` ; les autres constats restent clos et PUB-A1 différé. Le Reviewer rapporte 89 contrôles réussis sous Node 22.23.2 sur volume macOS insensible à la casse, 42 fichiers identiques entre les sorties comparées et 35 ressources copiées octet pour octet. Conserver ces garanties (confinement, exclusions/collisions, chemins, indexation et propagation des échecs), sans en faire une certification de tout HTML/CSS ni une recette Workers. Aucun de ces essais n'est rejoué par cette mise à jour documentaire.
 
-1. Assembler Créa'Tif en `production` puis en `preview`. Vérifier sa non-indexation dans les deux sorties. Vérifier la branche de politique `portfolio/production` par un petit jeu de données temporaire de test, sans créer le futur portfolio ; vérifier également le repli preview en environnement absent ou branche non-main.
+**Contrôles locaux à conserver pour préparer un prochain candidat :**
+
+1. Assembler Créa'Tif en `production` puis en `preview` dans le cadre des vérifications ; vérifier sa non-indexation dans les deux sorties. La suite `node scripts/verif-assemblage.mjs` couvre les politiques portfolio sur des fixtures isolées, le repli local et le garde-fou de branche Pages, sans créer le futur portfolio ni une preview hébergée. Pour le candidat à déposer, terminer par l'assemblage explicite `--environment production` et relever son résultat effectif (§ 5.4).
 2. Assembler deux fois le même site avec le même mode et comparer les fichiers produits. Vérifier que seules les sorties générées changent et qu'un autre site ou dossier source n'est jamais nettoyé. Tester un slug invalide et une entrée manquante : échec explicite.
 3. Comparer l'inventaire publié au manifeste et aux fichiers générés attendus. Aucune capture, configuration, autre site ou source interne. Vérifier les empreintes des médias, fontes et notices copiés ; la réserve documentaire existante est conservée.
 4. Servir uniquement `sites/coiffeur-mixte/dist/` comme racine HTTP locale, par exemple avec `ruby -run -e httpd sites/coiffeur-mixte/dist -p 8765` depuis la racine du dépôt. Ne pas servir le dépôt pour ce contrôle : cela masquerait des dépendances sortantes.
 5. Vérifier les quatre accès directs, navigation, ancre Contact, favicon, notice, CSS, quatre fontes et les 24 variantes photo (`src`, `srcset`, URL CSS). Aucune dépendance locale hors artefact ; aucune erreur JavaScript ou ressource manquante. Vérifier le rendu ciblé à 375 et 1440 px, et une fois sans JavaScript. Pas de nouvelle revue artistique générale.
-6. Lire les metas, `robots.txt` et `_headers` générés, et vérifier la présence de `404.html`. Un simple serveur local ne reproduit ni `_headers`, ni les redirections Pages : ce contrôle ne prouve pas le comportement HTTP du futur hébergement.
+6. Lire les metas, `robots.txt` et `_headers` générés, et vérifier la présence de `404.html`. Un simple serveur local ne reproduit ni l'interprétation de `_headers`, ni le routage/redirections/404 de Workers Static Assets : ce contrôle ne prouve pas le comportement HTTP hébergé.
 
-Les essais d'assemblage déjà rapportés par Claude étayent la faisabilité ; ils ne constituent pas une exécution de ce nouveau contrat. Cette note est documentaire et ne déclare aucun de ces tests nouvellement passé.
+La validation locale acquise n'est pas rouverte par le changement de documentation. Les prochains rejeux vérifieront les candidats concernés, sans relancer une revue générale de l'assembleur ou PUB-A1 pour ce seul besoin.
 
-**À réserver à QA sur l'URL hébergée, après publication autorisée :** relever l'URL et le hash déployé ; vérifier HTTPS, redirections `.html`, accès directs et ancre, chargement effectif des CSS/polices/photos, notice lisible avec type MIME et `X-Robots-Tag`, robots et metas réellement servis. Contrôler production, URL versionnée et preview si elle existe, ainsi que la différence d'indexation du futur portfolio. Confirmer un vrai statut 404 sur `/inexistant` et `/dossier/inexistant`, avec lien de retour fonctionnel ; vérifier que `/docs/`, ses captures et un chemin d'un autre site ne servent aucun contenu interne. Compléter par un contrôle mobile/desktop ciblé et des requêtes après rechargement pour détecter les erreurs de cache ou chemins. L'absence de données dans l'artefact n'efface pas leur présence dans le dépôt GitHub public.
+**Recette QA hébergée autorisée par `0154069`, sans attendre cette note :** relever date, URL, révision source annoncée et identifiants Cloudflare accessibles ; signaler toute liaison non démontrée entre source et publication. Vérifier HTTPS, redirections `.html` et variantes avec/sans slash, accès directs/rechargements et ancre Contact sans boucle ; un 307 n'est pas en soi un défaut. Contrôler CSS/polices/photos et MIME, notices avec `X-Robots-Tag`, robots et metas réellement servis. Confirmer une vraie 404 simple et imbriquée avec retour fonctionnel, et l'absence de contenu interne sur `/docs/`, `/publication.json`, les configurations et un chemin d'un autre site.
+
+QA contrôle les quatre pages à 320/375/768/1440 px, menu, clavier/focus/lien d'évitement, zoom 200 %, contact et crédits, photos et débordements, cache froid et erreurs réseau/console ; distinguer mesures de laboratoire et données réelles indisponibles. Les URL versionnées ou previews ne sont testées que si elles existent et sont accessibles sans changement de réglage. QA consigne ses preuves et limites dans son rapport, sans correction ni republication. La mise en avant auprès de prospects reste soumise à cette recette ; les contrôles de fumée déclarés par Claude ne la remplacent pas. L'absence de données dans l'artefact ne rend pas privé le dépôt GitHub public. P06 et la sélection artistique ne sont pas rouverts.
 
 ### 5.7 Raccordement à Eleventy et décisions restant à Simon
 
 L'assemblage répond au besoin de publication du premier site. Au deuxième site vitrine, la validation de mutualisation puis la trajectoire Eleventy de la section 3 restent déclenchées comme convenu. Eleventy prendra en charge les layouts et la production HTML ; ses copies de ressources et sa configuration de sortie pourront absorber les copies et transformations actuelles. Maintenir **le contrat de sortie `sites/<slug>/dist/`**, les URL, la séparation des sites et les règles d'indexation.
 
-Supprimer `scripts/assemble-site.mjs` seulement lorsque ses responsabilités sont couvertes et vérifiées ; un petit utilitaire de préparation des en-têtes peut subsister si nécessaire. Ne pas conserver deux chaînes concurrentes pour produire le même HTML. À cette migration, mettre à jour la commande et les chemins surveillés (configuration Eleventy, `package.json`, lockfile et éventuels utilitaires), sans changer les projets Pages ni publier les sources des autres sites.
+Supprimer `scripts/assemble-site.mjs` seulement lorsque ses responsabilités sont couvertes et vérifiées ; un petit utilitaire de préparation des en-têtes peut subsister si nécessaire. Ne pas conserver deux chaînes concurrentes pour produire le même HTML. À cette migration, mettre à jour la commande locale, la liste des entrées et les vérifications (configuration Eleventy, `package.json`, lockfile et éventuels utilitaires), sans imposer de changement d'hébergement ou d'URL. Les éventuels filtres distants ne seront à définir que si une intégration Git est explicitement décidée ; aucune n'est active aujourd'hui.
 
-La création de `scripts/` est une extension d'outillage explicitement prévue par la présente mission ; sa future implémentation relève de Claude, avec le manifeste local et l'éventuelle configuration runtime à la racine. Aucune autre modification de la répartition des agents n'est décidée.
+L'outillage local est déjà livré. Son évolution relève de Claude sur instruction ; l'Architecte ne modifie que ce document. Le deuxième site déclenche la validation de mutualisation Eleventy prévue, **pas une migration vers Pages, un raccordement Git ou une autorisation de déploiement automatique**. Produit d'hébergement, construction locale et mode de publication restent trois décisions distinctes.
 
-Aucun arbitrage structurel bloquant ne reste pour préparer l'assemblage. Restent à Simon : l'autorisation de compte/connexion, la première mise en ligne et le mode des publications suivantes, puis l'achat et le raccordement éventuels d'un domaine. Un arbitrage de capacité sera nécessaire avant le sixième projet Pages connecté. Le maintien de P06 est acté ; sa réserve documentaire reste ouverte, sans nouvelle recherche ou modification de média demandée par cette architecture.
+L'arbitrage actuel est compatible avec le contrat de sortie. Restent à compléter la traçabilité Cloudflare disponible et la recette hébergée, pas une nouvelle décision entre Pages et Workers pour Créa'Tif. Simon autorise explicitement chaque version suivante ; l'achat/raccordement éventuel d'un domaine, l'hébergement des futurs sites et une éventuelle automatisation restent des décisions séparées. Aucun seuil de cinq sites Workers n'est déduit de l'ancienne limite Pages. Le maintien de P06 et sa réserve documentaire connue sont inchangés, sans nouvelle recherche ou modification de média.
