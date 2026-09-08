@@ -224,3 +224,129 @@ Les tests indépendants ont utilisé Node **24.19.0** et Python 3 ; ils ne rempl
 ### Suite attendue
 
 Traiter d’abord PUB-01 à PUB-04, puis les garanties de manifeste, collisions, références et indexation PUB-05 à PUB-09. Rejouer une suite réellement isolée, qui échoue face aux injections d’erreur, sur la version Node alignée de PUB-10. Les P1 constituent les blocages prioritaires ; les P2 indispensables sont des écarts au contrat de cette livraison, distincts de PUB-A1. Cette revue n’autorise aucun déploiement.
+
+---
+
+## Contre-vérification — corrections de publication — livraison `8cedeb3`
+
+Date : 8 septembre 2026. Livraison auditée : `8cedeb36b9a351fbfab4c0aef43bd93efd428f32`. Rapport initial : `930dd6f9b94fc04d29bbcfb7784c36a6eae64161`, sur l’implémentation `33d71b4`. Les sections précédentes sont conservées comme historique ; le tableau ci-dessous porte le statut de PUB-01 à PUB-10 pour cette nouvelle livraison.
+
+### Verdict
+
+**Validation encore refusée : cinq constats résolus, cinq partiellement résolus.** Il reste **un P1 (PUB-03)** et **quatre P2 (PUB-05 à PUB-08)** dans le périmètre initial. Aucun P0 identifié. PUB-A1 reste facultatif et différé, sans nouvelle condition de clôture.
+
+Le rejeu de référence sous **Node 22.23.2** confirme **62 contrôles réussis, 0 échec** dans la suite livrée. La comparaison indépendante confirme que les **42 fichiers de l’artefact réel sont inchangés octet pour octet** entre `33d71b4` et `8cedeb3`, en production comme en preview. Ces résultats ne couvrent pas les contre-exemples ci-dessous : certaines protections ne traitent encore que les formes utilisées par les tests fournis.
+
+### Statut des dix constats
+
+| Constat | Statut | Preuves de correction et limites |
+| --- | --- | --- |
+| PUB-01 — suppression d’un dossier préexistant | **Résolu** | Suite Bash supprimée. `verif-assemblage.mjs:72-90,114-131` crée et nettoie son propre bac. Une sentinelle dans `sites/tmp-portfolio-test/` et une ancienne sortie, préparées dans la copie servant de dépôt à la suite, sont conservées. Inventaire et empreintes de toute cette copie inchangés après les essais. |
+| PUB-02 — manifeste réel et temporaires globaux | **Résolu** | Copies isolées, aucun manifeste source réécrit. Deux exécutions concurrentes terminent avec code 0 dans des bacs distincts. `SIGINT` et `SIGTERM`, déclenchés après confirmation du premier build réussi, interrompent les processus, suppriment leurs bacs et préservent la copie source. Aucun temporaire global fixe créé. Un arrêt non interceptable n’est pas présenté comme nettoyé ; il ne nécessite plus de restaurer le manifeste source. |
+| PUB-03 — faux succès et ancien artefact | **Partiellement résolu — P1 restant** | Les six injections indépendantes de code 73 après un premier succès rendent toutes la suite non nulle. En revanche, cinq appels remplacés par un retour 0 sans production réutilisent le `dist/` précédent : 58 contrôles réussis, 0 échec, code final 0 dans le mode enfant sans auto-tests récursifs. Voir le détail ci-dessous. |
+| PUB-04 — liens symboliques | **Résolu** | Sept variantes indépendantes — racine `shared/`, manifeste, répertoire intermédiaire, fichier terminal, dossier du site, racine `sites/`, sortie `dist/` — sont refusées avec code 1 avant nettoyage. Cibles extérieures factices et ancienne sortie préservées. Contrôles par segment et confinement réel : `assemble-site.mjs:176-209,264-269,706-719,764-782`. Pas de simulation d’un remplacement malveillant de lien pendant la validation. |
+| PUB-05 — exclusions du manifeste | **Partiellement résolu — P2 restant** | Les cas initiaux `publication.json`, `.env`, `dist/old.txt`, HTML hors `pages`, sourcemap, template, ainsi qu’une archive, sont refusés avant nettoyage. Mais `PUBLICATION.JSON` est publié, `DIST/old.txt` détruit sa propre entrée sur le volume insensible à la casse testé, et les chemins internes `docs/…` / `Claude outputs/…` restent acceptés. |
+| PUB-06 — collisions | **Partiellement résolu — P2 restant** | Les cas initiaux `robots.txt/child.txt`, `ROBOTS.TXT` et `_headers` sont refusés avant nettoyage. `_HEADERS/child.txt` provoque encore un `EISDIR` après suppression de l’ancienne sortie ; `SITEMAP.XML` et `Shared/intrus.css` sont acceptés malgré leur nom réservé. |
+| PUB-07 — références | **Partiellement résolu — P2 restant** | Les six cas initiaux échouent désormais, ainsi qu’une remontée encodée ; le lien de crédit externe reste autorisé. Les balises `script` et les blocs `style` sont toutefois masqués en entier et leurs ressources échappent au contrôle. Une apostrophe dans un attribut pourtant valide provoque aussi un refus erroné. |
+| PUB-08 — robots effectifs | **Partiellement résolu — P2 restant** | Directive `googlebot` sans guillemets, doublons et robots hors head refusés ; robots en commentaire correctement ignorés et commentaire conservé. Des entités HTML, attributs dupliqués et une balise dans `template` contournent encore le contrôle d’effectivité. |
+| PUB-09 — notices/licences | **Résolu** | La convention documentée dans `README.md:52-57` est une solution admise. `LICENSE.txt`, `notice.MD`, `LICENCE`, `Copying.txt`, `CREDITS.md` testés dans les quatre combinaisons démo/portfolio × production/preview : blocs MIME exacts et exclusion globale ou individuelle présents. Aucun nouveau champ de manifeste exigé. Les noms hors convention ne sont pas déclarés couverts. |
+| PUB-10 — runtime/prérequis | **Résolu** | `.node-version` et rejeu réel alignés sur **22.23.2** ; suite Node seule. Un essai séparé sous **24.19.0**, sans option de dérogation, sort avec code 1 avant création d’un bac. Le refus de version concerne la suite, comme le précise le README ; l’assembleur affiche sa version sans imposer lui-même ce refus. |
+
+### Corrections indispensables restantes
+
+#### PUB-03 — P1 — Un succès silencieux après un premier build valide réutilise toujours l’ancien artefact
+
+**Fichiers / lignes :** `scripts/verif-assemblage.mjs:358-377,680-695,765-775`.
+
+**Ce qui est corrigé :** les statuts des builds sont désormais vérifiés. Les injections de code 73 au build preview, à chacun des deux builds du test de déterminisme, au contrôle d’isolation, aux notices puis à l’inventaire ont toutes produit un code final 1 et nommé le contrôle en échec. L’ancien problème « code non nul ignoré » est donc clos.
+
+**Scénario résiduel reproduit :** dans une copie jetable, un préambule d’injection laisse l’assembleur réel travailler au début, puis remplace uniquement ses appels 7 à 11 pour `coiffeur-mixte` dans la copie principale `depot` par `process.exit(0)`, sans sortie standard ni écriture. Cela neutralise les deux builds du déterminisme, celui d’isolation, celui des notices et celui de l’inventaire. Les autres fixtures utilisent l’assembleur réel. Le journal d’injection confirme les cinq appels neutralisés. Le résultat reste **`Réussis : 58 Échecs : 0`, code 0** avec `--self-test-enfant`.
+
+**Conséquence :** le contrôle prétend comparer deux nouveaux builds et valider une nouvelle production alors qu’il relit l’ancienne. L’auto-test « assembleur muet » fourni ne détecte ce défaut que sur une copie sans sortie préalable ; il ne couvre pas le scénario de réutilisation après succès demandé dans la revue initiale. Ce test n’établit pas que l’assembleur livré retourne spontanément 0 sans produire : il prouve que la suite ne détecterait pas cette régression.
+
+**Correction recommandée :** faire les builds positifs dans des sorties de test indépendantes et initialement absentes, ou invalider explicitement la sortie précédente avant l’appel dont on vérifie la production. Garder des tests séparés pour le remplacement d’une sortie préexistante. Ajouter l’injection « muet après premier succès » aux auto-tests. Une vérification du seul code 0 et de fichiers déjà présents ne prouve pas leur production par l’appel testé.
+
+#### PUB-05 — P2 — La casse et les chemins internes contournent encore les exclusions
+
+**Fichiers / lignes :** `scripts/assemble-site.mjs:51-56,224-248,764-767,801-819` ; promesse documentaire `README.md:45-50`.
+
+**Scénarios reproduits :**
+
+- `publicFiles: ["PUBLICATION.JSON"]` : code 0 et manifeste source copié dans la sortie sur le volume macOS insensible à la casse.
+- `publicFiles: ["DIST/old.txt"]`, fichier préexistant dans la sortie : le filtre compare exactement `dist`, laisse passer `DIST`, puis le nettoyage efface l’entrée. Échec `ENOENT` lors de la copie, ancienne sentinelle supprimée.
+- Fichiers factices `docs/review.md` et `Claude outputs/internal.txt` situés dans la fixture du site et déclarés publics : code 0, fichiers publiés. Aucune exclusion de ces segments internes n’est implémentée. Ce test ne prétend pas accéder au `docs/` réel du dépôt parent.
+
+**Conséquence :** le manifeste et une ancienne sortie restent sélectionnables via leur casse, avec le même effet destructeur sur l’entrée que dans PUB-05 initial. La garantie d’exclusion des fichiers internes reste plus large que ce que vérifie le code.
+
+**Correction recommandée :** appliquer les exclusions aux noms et segments sous une forme normalisée portable, avant tout nettoyage ; vérifier également qu’aucune source réelle n’appartient à la sortie calculée. Couvrir explicitement les chemins internes du contrat, sans interdire les notices autorisées. Ajouter les variantes de casse aux tests avec vérification de préservation de l’ancienne sortie.
+
+#### PUB-06 — P2 — Les noms réservés et conflits de préfixes ne partagent pas la normalisation de casse
+
+**Fichiers / lignes :** `scripts/assemble-site.mjs:727-758,785-803`.
+
+**Scénarios reproduits :** `_HEADERS/child.txt` passe la réservation, puis échoue avec `EISDIR` à l’écriture de `_headers`, après destruction de la sentinelle de l’ancien `dist/`. `SITEMAP.XML` et `Shared/intrus.css` sont acceptés avec code 0. Le contrôle `parCasse` compare les destinations entières ; les noms réservés et la comparaison fichier/préfixe restent sensibles à la casse. `sitemap.xml` n’étant pas généré, sa variante n’est même pas rattrapée par l’ajout des fichiers générés au plan.
+
+**Conséquence :** le comportement dépend encore du système de fichiers et certaines collisions ne sont découvertes qu’après nettoyage. Un nom réservé peut être publié sous une autre casse. Le cas `_HEADERS/child.txt` est une collision préalable de manifeste, pas la préservation atomique facultative de PUB-A1.
+
+**Correction recommandée :** normaliser de façon cohérente tous les noms réservés, segments de répertoire et préfixes du plan. Vérifier les conflits fichier/répertoire sur cette représentation avant suppression, pas seulement les doublons complets. Conserver ensuite le contrôle final d’inventaire déjà ajouté.
+
+#### PUB-07 — P2 — Des ressources automatiquement chargées restent invisibles au contrôle
+
+**Fichiers / lignes :** `scripts/assemble-site.mjs:328-336,340-359,521-549,593,621-633`.
+
+**Scénario concret sur une copie du site réel :** retirer seulement `js/main.js` de `publicFiles`, en conservant les HTML et leur `<script src="js/main.js"></script>`. L’assemblage retourne **0**, annonce **41 fichiers**, et `dist/js/main.js` est absent. La conformité de l’inventaire au manifeste ne détecte pas la référence cassée.
+
+**Autres variantes reproduites :** un script distant `https://example.invalid/a.js`, un script local absent et `url(absent.png)` dans un bloc `<style>` sont tous acceptés avec code 0. `masquerZonesNonBalises` retire les balises `script` en entier avant l’extraction des attributs ; il retire aussi les blocs `style`, dont le contenu CSS n’est jamais analysé séparément. `<img src="/">` est accepté parce que l’exception de racine ne distingue pas navigation et ressource. Avec deux attributs `src`, le parseur conserve le dernier et peut ignorer la première valeur absente utilisée par l’analyse HTML du navigateur.
+
+**Régression de syntaxe reproduite :** `<img src="present.webp" alt="L'atelier">`, avec une ressource déclarée et présente, est refusé comme « guillemet non fermé ». Le comptage global des apostrophes traite celle du texte comme un délimiteur. Deux apostrophes passent, une seule échoue : le contrôle ne suit pas le délimiteur réel de l’attribut.
+
+**Conséquence :** des JavaScript absents ou des ressources externes peuvent être déclarés valides ; une simple apostrophe dans un attribut valide peut au contraire casser le build. Les cas initiaux d’images sont corrigés, mais la garantie générale sur les ressources ne l’est pas.
+
+**Correction recommandée :** conserver et analyser les attributs des balises `script`, analyser séparément le CSS des blocs `style`, réserver le raccourci de racine aux liens de navigation, et analyser les guillemets selon leur contexte. Refuser explicitement les attributs dupliqués plutôt que choisir silencieusement la dernière valeur. Ajouter un test retirant `js/main.js` du manifeste réel, les ressources dans `script`/`style` et l’attribut français avec apostrophe.
+
+#### PUB-08 — P2 — Entités HTML et contenu inerte contournent encore la politique robots
+
+**Fichiers / lignes :** `scripts/assemble-site.mjs:328-359,426-497`.
+
+**Scénarios reproduits en `portfolio/production`, tous avec code 0 :**
+
+- `<meta name="goog&#108;ebot" content="noindex">` est conservé à côté de `robots="index, follow"`. Après décodage HTML, son nom est bien `googlebot`.
+- `<meta name=googlebot content="no&#105;ndex">` laisse de même subsister `noindex` : la recherche travaille sur la chaîne encodée.
+- `<meta name=googlebot name=description content=noindex>` contourne la détection par écrasement de la première valeur dans la `Map`, au lieu de refuser cet attribut dupliqué.
+- `<template><meta name=robots content=index></template>` dans le head voit sa balise remplacée à l’intérieur du template. Aucune balise robots active n’est ajoutée au head : le contenu d’un template est inerte tant qu’il n’est pas instancié.
+
+**Conséquence :** la sortie peut encore contenir une directive spécifique contradictoire ou aucune balise robots effective, alors que l’assembleur annonce une politique appliquée. Le `_headers` global des démos/previews ne corrige ni le HTML produit ni le cas portfolio/production sans règle globale.
+
+**Correction recommandée :** décoder les références de caractères dans les attributs pertinents avant d’évaluer la politique, refuser les attributs dupliqués et tenir compte des contextes inertes. Si ces structures restent hors du périmètre du transformateur, les refuser explicitement. La vérification finale ne doit pas simplement répéter les mêmes hypothèses d’analyse qui ont permis la transformation incorrecte.
+
+### Méthode, preuves indépendantes et limites
+
+Conventions relues après `git pull --ff-only` ; lecture complète des deux scripts avant exécution et examen du diff correctif, du README et du pin Node. Aucune exécution des scripts dans le dépôt de travail. Toutes les reproductions utilisent des copies issues de `git archive` ou des fixtures factices sous **`/private/tmp/review-publication-8cedeb3.FLrKwL`**, créé par `mktemp -d`. `TMPDIR` pointe vers un sous-dossier de ce répertoire pour contenir aussi les bacs créés par la suite. Les sources du dépôt réel sont restées inchangées.
+
+Le runtime officiel **Node 22.23.2 pour Darwin arm64** a été téléchargé et extrait uniquement dans ce dossier jetable. SHA-256 de l’archive comparé à `SHASUMS256.txt` de la même distribution : `61130f394c1630d211dd50aecc4353d379480f36d3ac913cd85dbba1aed585c6`. `node --version` retourne `v22.23.2`. Tous les essais fonctionnels de cette contre-vérification utilisent ce runtime. Le seul lancement sous **24.19.0** vérifie le refus de version ; il ne sert pas de preuve de compatibilité ou de rejeu de référence.
+
+Le harnais indépendant ne réutilise pas les fonctions de validation de l’assembleur pour décider de la conformité. Il prépare les fichiers et les sentinelles, observe les codes, compare les contenus et conserve ses résultats localement (`countercheck.mjs`, `results.json`, journaux des suites et injections). Les tests négatifs ordinaires exécutent l’assembleur copié inchangé. Les injections ajoutent un préambule uniquement à une copie jetable et passent par `VERIF_ASSEMBLEUR_INJECTE`, sans modifier la suite livrée.
+
+| Vérification | Preuve observée |
+| --- | --- |
+| Suite livrée complète | 62 réussis, 0 échec, code 0 sous 22.23.2 |
+| Deux suites lancées indépendamment en concurrence | Deux bacs distincts ; 58 réussis chacune, codes 0 ; mode `--self-test-enfant` pour éviter les auto-tests récursifs |
+| Interruptions pilotées par un événement | `SIGINT` puis `SIGTERM` après lecture de `[OK] assemblage production` ; signal de fin attendu, bac supprimé, copie source conservée |
+| Sources de la copie servant de dépôt à la suite | Inventaire et empreintes inchangés après concurrence, interruptions et injections non nulles ; sentinelles du site préexistant et de l’ancienne sortie conservées ; dossier temporaire des bacs vide après ces essais |
+| Six injections non nulles après succès | Code 73 injecté à six étapes ; six sorties finales 1 avec identification du test en échec |
+| Injection muette après succès | Appels 7–11 neutralisés sans écriture ; cinq réutilisations de la sortie précédente, résultat final 0 : défaut PUB-03 résiduel |
+| Liens symboliques | Sept variantes refusées avec code 1, cibles factices et ancienne sortie intactes |
+| Convention des notices | Cinq formes de nom, extension et casse dans les quatre modes/type ; blocs exacts présents, exceptions individuelles pour portfolio/production |
+| Inventaire réel | 42 fichiers exactement : 5 pages + 28 publics + 7 partagés + `robots.txt` et `_headers` |
+| Ressources réelles copiées | 35 fichiers identiques à leurs sources, comparés par contenu, photos/fontes/notices comprises |
+| Comparaison de livraisons | Ensemble des chemins et SHA-256 de chacun des 42 fichiers identiques entre `33d71b4` et `8cedeb3`, et entre production/preview pour cette démo |
+
+Les deux sorties de chaque livraison ont été comparées indépendamment ; les pages HTML font partie de la comparaison, pas seulement les ressources copiées. L’agrégat SHA-256 du dictionnaire JSON trié des chemins vers leurs SHA-256 est `61baa3bee04b5a01a478f29523b052453ed26c0ebec90a64dd1da0e9f72838c4`. Sa méthode diffère de l’empreinte shell du rapport initial : ces deux agrégats ne doivent pas être comparés directement.
+
+Les effets de casse ont été reproduits sur le volume macOS insensible à la casse utilisé ici ; aucun rejeu Linux n’est revendiqué. Les essais d’interruption ne prouvent pas un nettoyage sur `SIGKILL`. Aucun contrôle artistique, ancien parcours fonctionnel ou point P06 n’a été rouvert. Aucun changement de code, compte, connexion Cloudflare ou déploiement.
+
+### Clôture attendue et séparation avec QA
+
+Il reste à corriger et contre-vérifier **PUB-03, PUB-05, PUB-06, PUB-07 et PUB-08**. Les autres constats sont clos pour le périmètre et les preuves indiqués. Les 62 contrôles actuels ne suffisent pas à clore ces cinq variantes résiduelles. **PUB-A1 demeure facultatif et différé.**
+
+Les contrôles HTTP réels — statut 404 sur URL simple/imbriquée, redirections, en-têtes effectivement servis, HTTPS et règles d’hôte — restent réservés à QA sur l’hébergement après autorisation. Ils sont distincts des cinq corrections locales ci-dessus et ne sont pas utilisés pour maintenir artificiellement un constat local ouvert.
