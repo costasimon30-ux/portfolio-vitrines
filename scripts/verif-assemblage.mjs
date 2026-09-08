@@ -118,6 +118,12 @@ async function preparerCopie(nom = "depot") {
   // vérifier que la suite échoue réellement quand les assemblages échouent.
   const injecte = process.env.VERIF_ASSEMBLEUR_INJECTE;
   await fs.copyFile(injecte && injecte !== "" ? injecte : path.join(RACINE, ASSEMBLEUR), path.join(cible, ASSEMBLEUR));
+  // Une injection peut vouloir déléguer au vrai assembleur pour les premiers
+  // appels : il doit alors vivre DANS la copie, sinon il résoudrait la racine
+  // du dépôt réel.
+  if (injecte && injecte !== "") {
+    await fs.copyFile(path.join(RACINE, ASSEMBLEUR), path.join(cible, "scripts/assemble-site.reel.mjs"));
+  }
   await fs.copyFile(path.join(RACINE, ".node-version"), path.join(cible, ".node-version"));
   await fs.cp(path.join(RACINE, "shared"), path.join(cible, "shared"), { recursive: true });
   await fs.cp(path.join(RACINE, "sites", "coiffeur-mixte"), path.join(cible, "sites", "coiffeur-mixte"), {
@@ -168,6 +174,24 @@ async function assembler(depot, slug, args = [], env = {}) {
   } catch (e) {
     return { code: e.code ?? 1, stdout: e.stdout ?? "", stderr: e.stderr ?? String(e) };
   }
+}
+
+/**
+ * PUB-03 — Assemblage dont on vérifie la PRODUCTION : la sortie est supprimée
+ * avant l'appel, puis son existence et son contenu sont exigés après. Un
+ * assembleur qui retournerait 0 sans rien produire ne peut plus être validé
+ * par la relecture d'un artefact antérieur.
+ */
+async function assemblerNeuf(depot, slug, args = ["--environment", "production"], env = {}) {
+  const sortie = path.join(depot, "sites", slug, "dist");
+  await fs.rm(sortie, { recursive: true, force: true });
+  affirmer(!(await existe(sortie)), `sortie non supprimée avant l'assemblage : ${sortie}`);
+  const r = await assembler(depot, slug, args, env);
+  affirmer(r.code === 0, `assemblage en échec (code ${r.code}) : ${(r.stderr || "").slice(0, 200)}`);
+  affirmer(await existe(sortie), "l'assembleur a retourné 0 sans produire de sortie");
+  const produits = await fs.readdir(sortie);
+  affirmer(produits.length > 0, "sortie créée mais vide");
+  return r;
 }
 
 /** Assemblage attendu en échec, avec un motif d'erreur précis. */
@@ -274,9 +298,8 @@ async function principal() {
   groupe("1. Modes, politiques et environnement");
   const depot = await preparerCopie();
 
-  await test("assemblage production : réussite et non-indexation", async () => {
-    const r = await assembler(depot, "coiffeur-mixte", ["--environment", "production"]);
-    affirmer(r.code === 0, `code ${r.code} : ${r.stderr.slice(0, 200)}`);
+  await test("assemblage production : réussite, production effective et non-indexation", async () => {
+    const r = await assemblerNeuf(depot, "coiffeur-mixte");
     const html = await fs.readFile(path.join(depot, "sites/coiffeur-mixte/dist/index.html"), "utf8");
     affirmer(/<meta name="robots" content="noindex, follow">/.test(html), "balise robots absente");
     const headers = await fs.readFile(path.join(depot, "sites/coiffeur-mixte/dist/_headers"), "utf8");
@@ -285,8 +308,7 @@ async function principal() {
   });
 
   await test("assemblage preview : non-indexation également", async () => {
-    const r = await assembler(depot, "coiffeur-mixte", ["--environment", "preview"]);
-    affirmer(r.code === 0, `code ${r.code}`);
+    await assemblerNeuf(depot, "coiffeur-mixte", ["--environment", "preview"]);
     const html = await fs.readFile(path.join(depot, "sites/coiffeur-mixte/dist/index.html"), "utf8");
     affirmer(/content="noindex, follow"/.test(html), "balise robots absente");
   });
@@ -356,11 +378,9 @@ async function principal() {
   groupe("2. Déterminisme, entrées invalides, isolation");
 
   await test("déterminisme : deux assemblages produisent le même artefact", async () => {
-    const r1 = await assembler(depot, "coiffeur-mixte", ["--environment", "production"]);
-    affirmer(r1.code === 0, `1er assemblage : code ${r1.code}`);
+    await assemblerNeuf(depot, "coiffeur-mixte");
     const h1 = await empreinteDossier(path.join(depot, "sites/coiffeur-mixte/dist"));
-    const r2 = await assembler(depot, "coiffeur-mixte", ["--environment", "production"]);
-    affirmer(r2.code === 0, `2e assemblage : code ${r2.code}`);
+    await assemblerNeuf(depot, "coiffeur-mixte");
     const h2 = await empreinteDossier(path.join(depot, "sites/coiffeur-mixte/dist"));
     affirmer(h1 === h2, `${h1} ≠ ${h2}`);
     return `sha256 ${h1.slice(0, 16)}…`;
@@ -373,8 +393,7 @@ async function principal() {
     await fs.writeFile(path.join(autre, "sentinelle-source.txt"), "intacte");
     const sentinelleSite = path.join(depot, "sites/coiffeur-mixte", "sentinelle-source.txt");
     await fs.writeFile(sentinelleSite, "intacte");
-    const r = await assembler(depot, "coiffeur-mixte", ["--environment", "production"]);
-    affirmer(r.code === 0, `code ${r.code}`);
+    await assemblerNeuf(depot, "coiffeur-mixte");
     affirmer(await existe(path.join(autre, "dist", "sentinelle.txt")), "dist voisin nettoyé");
     affirmer(await existe(path.join(autre, "sentinelle-source.txt")), "source voisine supprimée");
     affirmer(await existe(sentinelleSite), "source du site nettoyée");
@@ -485,10 +504,16 @@ async function principal() {
   const casExclusions = [
     ["manifeste déclaré public", { publicFiles: ["publication.json"] }, /manifeste, configuration ou outillage exclu/],
     ["fichier caché déclaré public", { publicFiles: [".env"] }, /caché exclu/],
-    ["ancienne sortie déclarée publique", { publicFiles: ["dist/old.txt"] }, /sortie générée ne peut pas être une entrée/],
+    ["ancienne sortie déclarée publique", { publicFiles: ["dist/old.txt"] }, /contenu interne au dépôt/],
     ["page HTML hors de « pages »", { publicFiles: ["extra.html"] }, /doivent être déclarées dans « pages »/],
     ["sourcemap déclarée publique", { publicFiles: ["css/style.css.map"] }, /extension exclue/],
     ["template déclaré public", { publicFiles: ["gabarit.njk"] }, /extension exclue/],
+    // Contre-exemples de la contre-vérification 8c63d4c : variantes de casse et
+    // segments internes.
+    ["manifeste en majuscules", { publicFiles: ["PUBLICATION.JSON"] }, /manifeste, configuration ou outillage exclu/],
+    ["ancienne sortie en majuscules", { publicFiles: ["DIST/old.txt"] }, /contenu interne au dépôt/],
+    ["segment docs/ interne", { publicFiles: ["docs/review.md"] }, /contenu interne au dépôt/],
+    ["segment « Claude outputs/ » interne", { publicFiles: ["Claude outputs/internal.txt"] }, /contenu interne au dépôt/],
   ];
 
   for (const [nom, patch, motif] of casExclusions) {
@@ -502,6 +527,12 @@ async function principal() {
       await fs.writeFile(path.join(site, "css/style.css.map"), "{}\n");
       await fs.mkdir(path.join(site, "dist"), { recursive: true });
       await fs.writeFile(path.join(site, "dist/old.txt"), "ancien\n");
+      await fs.writeFile(path.join(site, "dist/sentinelle.txt"), "intacte");
+      await fs.writeFile(path.join(site, "PUBLICATION.JSON"), "{}\n").catch(() => {});
+      await fs.mkdir(path.join(site, "docs"), { recursive: true });
+      await fs.writeFile(path.join(site, "docs/review.md"), "interne\n");
+      await fs.mkdir(path.join(site, "Claude outputs"), { recursive: true });
+      await fs.writeFile(path.join(site, "Claude outputs/internal.txt"), "interne\n");
       const mp = path.join(site, "publication.json");
       const m = JSON.parse(await fs.readFile(mp, "utf8"));
       m.publicFiles = [...m.publicFiles, ...(patch.publicFiles || [])];
@@ -509,6 +540,7 @@ async function principal() {
       await refus(d, "coiffeur-mixte", motif);
       // Le refus intervient AVANT nettoyage : l'ancienne sortie survit.
       affirmer(await existe(path.join(site, "dist/old.txt")), "ancienne sortie détruite malgré le refus");
+      affirmer(await existe(path.join(site, "dist/sentinelle.txt")), "sentinelle de l'ancienne sortie détruite");
     });
   }
 
@@ -529,6 +561,10 @@ async function principal() {
     ["nom réservé exact", ["robots.txt"], /réservé à l'assembleur/],
     ["variante de casse d'un nom réservé", ["ROBOTS.TXT"], /Collision de casse|réservé/i],
     ["dossier shared/ réservé", ["shared/intrus.css"], /réservé aux dépendances communes/],
+    // Contre-exemples de la contre-vérification 8c63d4c : normalisation de casse.
+    ["_HEADERS traité comme répertoire", ["_HEADERS/child.txt"], /fichier réservé, il ne peut pas être un répertoire/],
+    ["SITEMAP.XML en majuscules", ["SITEMAP.XML"], /réservé à l'assembleur/],
+    ["Shared/ avec majuscule", ["Shared/intrus.css"], /réservé aux dépendances communes/],
   ];
 
   for (const [nom, ajouts, motif] of casCollisions) {
@@ -582,13 +618,23 @@ async function principal() {
     ["feuille de style distante", corpsPage(`<link rel="stylesheet" href="https://example.invalid/a.css">`), /chargée depuis un tiers/],
     ["url() de style en ligne vers une ressource absente", corpsPage(`<div style="background:url(absent.png)"></div>`), /absente de l'artefact/],
     ["balise base non prise en charge", corpsPage(`<p>x</p>`).replace("</head>", `<base href="/x/"></head>`), /balise <base>/],
-    ["guillemet non fermé", corpsPage(`<img src="absent.webp alt="">`), /guillemet non fermé|absente de l'artefact/],
+    ["guillemet non fermé", corpsPage(`<img src="absent.webp alt="">`), /mal formée|non terminée|absente de l'artefact/],
+    // Contre-exemples de la contre-vérification 8c63d4c.
+    ["script local absent", corpsPage(`<script src="absent.js"></script>`), /absente de l'artefact/],
+    ["script distant", corpsPage(`<script src="https://example.invalid/a.js"></script>`), /chargée depuis un tiers/],
+    ["url() dans un bloc style", corpsPage(`<p>x</p>`).replace("</head>", `<style>body{background:url(absent.png)}</style></head>`), /absente de l'artefact/],
+    ["racine « / » comme ressource automatique", corpsPage(`<img src="/" alt="">`), /racine n'est pas une ressource fichier/],
+    ["attribut src dupliqué", corpsPage(`<img src="absent-a.webp" src="present.webp" alt="">`), /attribut « src » dupliqué/],
   ];
 
   for (const [nom, page, motif] of casReferences) {
     await test(`refus : ${nom}`, async () => {
       const d = await preparerCopie(`depot-ref-${nom.replace(/[^a-z]+/gi, "-").toLowerCase().slice(0, 40)}`);
-      await fixtureSite(d, "fixture-refs", { index: page, extra: { "assets/garde.txt": "x\n" }, manifeste: { publicFiles: ["assets/garde.txt"] } });
+      await fixtureSite(d, "fixture-refs", {
+        index: page,
+        extra: { "assets/garde.txt": "x\n", "present.webp": "binaire\n" },
+        manifeste: { publicFiles: ["assets/garde.txt", "present.webp"] },
+      });
       await refus(d, "fixture-refs", motif);
     });
   }
@@ -601,6 +647,35 @@ async function principal() {
       manifeste: { publicFiles: ["a.css"] },
     });
     await refus(d, "fixture-import", /absente de l'artefact/);
+  });
+
+  await test("refus : ressource déclarée retirée du manifeste réel (js/main.js)", async () => {
+    const d = await preparerCopie("depot-ref-main-js");
+    const mp = path.join(d, "sites/coiffeur-mixte/publication.json");
+    const m = JSON.parse(await fs.readFile(mp, "utf8"));
+    m.publicFiles = m.publicFiles.filter((f) => f !== "js/main.js");
+    await fs.writeFile(mp, JSON.stringify(m, null, 2));
+    const r = await refus(d, "coiffeur-mixte", /absente de l'artefact/);
+    affirmer(/main\.js/.test(r.stderr + r.stdout), "la référence cassée n'est pas nommée");
+    return "script référencé mais non publié";
+  });
+
+  await test("accepté : apostrophe française dans un attribut valide", async () => {
+    const d = await preparerCopie("depot-ref-apostrophe");
+    await fixtureSite(d, "fixture-apostrophe", {
+      index: corpsPage(`<img src="present.webp" alt="L'atelier d'un artisan"><a href="/">accueil</a>`),
+      extra: { "present.webp": "binaire\n" },
+      manifeste: { publicFiles: ["present.webp"] },
+    });
+    const r = await assembler(d, "fixture-apostrophe", ["--environment", "production"]);
+    affirmer(r.code === 0, `refusé à tort : ${(r.stderr || "").slice(0, 200)}`);
+  });
+
+  await test("accepté : lien de navigation vers la racine", async () => {
+    const d = await preparerCopie("depot-ref-racine-nav");
+    await fixtureSite(d, "fixture-racine", { index: corpsPage(`<a href="/">accueil</a>`) });
+    const r = await assembler(d, "fixture-racine", ["--environment", "production"]);
+    affirmer(r.code === 0, `refusé à tort : ${(r.stderr || "").slice(0, 200)}`);
   });
 
   await test("accepté : lien de navigation distant (crédits)", async () => {
@@ -646,6 +721,40 @@ async function principal() {
     await refus(d, "fixture-double", /balises meta robots effectives/);
   });
 
+  for (const [nom, page, motif] of [
+    ["nom de robot encodé en entités",
+     `<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name="goog&#108;ebot" content="noindex"><title>t</title></head><body><a href="/">a</a></body></html>\n`,
+     /spécifique à « googlebot »/],
+    ["directive encodée en entités",
+     `<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name=googlebot content="no&#105;ndex"><title>t</title></head><body><a href="/">a</a></body></html>\n`,
+     /spécifique à « googlebot »/],
+    ["attribut name dupliqué",
+     `<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name=googlebot name=description content=noindex><title>t</title></head><body><a href="/">a</a></body></html>\n`,
+     /attribut « name » dupliqué/],
+  ]) {
+    await test(`refus : ${nom}`, async () => {
+      const d = await preparerCopie(`depot-robots-${nom.replace(/[^a-z]+/gi, "-").toLowerCase()}`);
+      await fixtureSite(d, "fixture-entites", { kind: "portfolio", index: page });
+      await refus(d, "fixture-entites", motif);
+    });
+  }
+
+  await test("balise robots dans un <template> : inerte, une vraie balise est ajoutée au head", async () => {
+    const d = await preparerCopie("depot-robots-template");
+    await fixtureSite(d, "fixture-template", {
+      kind: "portfolio",
+      index: `<!doctype html><html lang="fr"><head><meta charset="UTF-8"><template><meta name=robots content=index></template><title>t</title></head><body><a href="/">a</a></body></html>\n`,
+    });
+    const r = await assembler(d, "fixture-template", ["--environment", "production"]);
+    affirmer(r.code === 0, `code ${r.code} : ${(r.stderr || "").slice(0, 200)}`);
+    const html = await fs.readFile(path.join(d, "sites/fixture-template/dist/index.html"), "utf8");
+    const horsTemplate = html.replace(/<template[\s\S]*?<\/template>/gi, "");
+    const n = (horsTemplate.match(/<meta\s+name="robots"/g) || []).length;
+    affirmer(n === 1, `${n} balise(s) effective(s) hors template`);
+    affirmer(/<template>\s*<meta name=robots content=index>/.test(html), "le contenu du template a été réécrit");
+    return "template inerte préservé";
+  });
+
   await test("refus : balise robots hors du <head>", async () => {
     const d = await preparerCopie("depot-robots-hors-head");
     await fixtureSite(d, "fixture-hors-head", {
@@ -678,8 +787,7 @@ async function principal() {
   });
 
   await test("démo : chaque notice a son bloc exact avec le type MIME", async () => {
-    const r = await assembler(depot, "coiffeur-mixte", ["--environment", "production"]);
-    affirmer(r.code === 0, `code ${r.code}`);
+    await assemblerNeuf(depot, "coiffeur-mixte");
     const headers = await fs.readFile(path.join(depot, "sites/coiffeur-mixte/dist/_headers"), "utf8");
     for (const cible of ["/assets/photos/NOTICE.md", "/shared/design-system/fonts/NOTICE.md"]) {
       const bloc = new RegExp(`^${cible.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\n {2}Content-Type: text/plain; charset=utf-8$`, "m");
@@ -691,8 +799,7 @@ async function principal() {
   groupe("3. Inventaire, empreintes et fichiers générés");
 
   await test("inventaire conforme au manifeste, sans source interne", async () => {
-    const r = await assembler(depot, "coiffeur-mixte", ["--environment", "production"]);
-    affirmer(r.code === 0, `code ${r.code}`);
+    await assemblerNeuf(depot, "coiffeur-mixte");
     const site = path.join(depot, "sites/coiffeur-mixte");
     const m = JSON.parse(await fs.readFile(path.join(site, "publication.json"), "utf8"));
     const attendu = new Set([...m.pages, ...m.publicFiles, ...m.sharedFiles.map((s) => `shared/${s}`), "robots.txt", "_headers"]);
@@ -774,6 +881,43 @@ async function principal() {
       );
       affirmer(r.code !== 0, "la suite a rendu 0 malgré un assembleur muet");
       return `code enfant ${r.code}`;
+    });
+
+    await test("injection « succès muet APRÈS un premier succès » → suite en échec", async () => {
+      // Contre-exemple central de PUB-03 : l'assembleur travaille normalement
+      // au début, puis retourne 0 sans rien produire. Une suite qui relirait
+      // l'artefact précédent conclurait à tort au succès.
+      const dossier = path.join(bac, "injection-muet-apres-succes");
+      await fs.mkdir(dossier, { recursive: true });
+      const compteur = path.join(dossier, "compteur.txt");
+      const script = path.join(dossier, "assemble-site.mjs");
+      await fs.writeFile(
+        script,
+        [
+          'import fs from "node:fs";',
+          'const compteur = process.env.VERIF_COMPTEUR;',
+          'const seuil = Number(process.env.VERIF_MUET_APRES || "3");',
+          'let n = 0;',
+          'try { n = Number(fs.readFileSync(compteur, "utf8")) || 0; } catch {}',
+          'n += 1;',
+          'fs.writeFileSync(compteur, String(n));',
+          '// Au-delà du seuil : code 0, aucune sortie, aucune écriture.',
+          'if (n > seuil) process.exit(0);',
+          'await import("./assemble-site.reel.mjs");',
+          "",
+        ].join("\n")
+      );
+      const r = await execFileP(process.execPath, [path.join(RACINE, "scripts/verif-assemblage.mjs"), ...argsEnfant], {
+        cwd: RACINE,
+        env: { ...process.env, VERIF_ASSEMBLEUR_INJECTE: script, VERIF_COMPTEUR: compteur, VERIF_MUET_APRES: "3" },
+      }).then(
+        () => ({ code: 0 }),
+        (e) => ({ code: e.code ?? 1 })
+      );
+      const appels = Number((await fs.readFile(compteur, "utf8")).trim());
+      affirmer(appels > 3, `seulement ${appels} appels : le seuil n'a pas été franchi`);
+      affirmer(r.code !== 0, `la suite a rendu 0 malgré ${appels - 3} succès muets après succès`);
+      return `${appels} appels, ${appels - 3} muets, code enfant ${r.code}`;
     });
 
     await test("deux exécutions concurrentes n'interfèrent pas", async () => {

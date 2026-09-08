@@ -54,6 +54,8 @@ const EXTENSIONS_INTERDITES = new Set([
   ".njk", ".liquid", ".hbs", ".handlebars", ".ejs", ".pug", ".mustache",
 ]);
 const NOMS_INTERDITS = new Set(["publication.json", ".node-version", "package.json", "package-lock.json"]);
+/** Segments internes au dépôt, jamais publiables (comparés en minuscules). */
+const SEGMENTS_INTERNES = new Set(["dist", "docs", "claude outputs", "node_modules", ".git", "scripts"]);
 
 /** PUB-07 — Attributs qui déclenchent un chargement automatique par le navigateur. */
 const ATTRIBUTS_AUTOMATIQUES = {
@@ -220,16 +222,28 @@ function estNotice(relatif) {
   return EXTENSIONS_NOTICE.has(ext) && BASES_NOTICE.has(racine);
 }
 
-/** PUB-05 — Exclusions du contrat, appliquées avant tout nettoyage. */
+/**
+ * PUB-05 — Exclusions du contrat, appliquées avant tout nettoyage.
+ * La comparaison est faite sur une forme NORMALISÉE en minuscules : sur un
+ * volume insensible à la casse, `PUBLICATION.JSON` et `DIST/` désignent les
+ * mêmes fichiers que leurs variantes minuscules et doivent être refusés de la
+ * même façon.
+ */
 function refuserExclusions(relatif, champ) {
   const segments = relatif.split("/");
+  const segmentsBas = segments.map((s) => s.toLowerCase());
+
   if (segments.some((s) => s.startsWith("."))) {
     throw new ErreurAssemblage(`${champ} : « ${relatif} » — chemin ou fichier caché exclu par le contrat.`);
   }
-  if (segments[0] === "dist") {
-    throw new ErreurAssemblage(`${champ} : « ${relatif} » — une sortie générée ne peut pas être une entrée.`);
+  const interne = segmentsBas.find((s) => SEGMENTS_INTERNES.has(s));
+  if (interne !== undefined) {
+    throw new ErreurAssemblage(
+      `${champ} : « ${relatif} » — le segment « ${interne} » désigne un contenu interne au dépôt ` +
+        `(sortie générée, documentation ou outillage), exclu de toute publication.`
+    );
   }
-  const base = path.posix.basename(relatif);
+  const base = path.posix.basename(relatif).toLowerCase();
   if (NOMS_INTERDITS.has(base)) {
     throw new ErreurAssemblage(`${champ} : « ${relatif} » — manifeste, configuration ou outillage exclu.`);
   }
@@ -325,36 +339,120 @@ function politiqueIndexation(kind, environnementEffectif) {
  * Analyse HTML minimale (PUB-07, PUB-08)
  * ================================================================== */
 
-/** Masque commentaires, <script> et <style> par des espaces, en gardant les offsets. */
-function masquerZonesNonBalises(html) {
-  let out = html;
-  const remplacer = (re) =>
-    (out = out.replace(re, (m) => m.replace(/[^\n]/g, " ")));
-  remplacer(/<!--[\s\S]*?-->/g);
-  remplacer(/<script\b[\s\S]*?<\/script\s*>/gi);
-  remplacer(/<style\b[\s\S]*?<\/style\s*>/gi);
-  return out;
+/** Références de caractères HTML (PUB-08) : décodées avant toute décision. */
+const ENTITES_NOMMEES = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", "#39": "'",
+};
+function decoderEntites(valeur) {
+  return String(valeur).replace(/&(#x[0-9a-f]+|#\d+|[a-z][a-z0-9]*);/gi, (tout, corps) => {
+    const bas = corps.toLowerCase();
+    if (bas.startsWith("#x")) {
+      const n = parseInt(bas.slice(2), 16);
+      return Number.isFinite(n) ? String.fromCodePoint(n) : tout;
+    }
+    if (bas.startsWith("#")) {
+      const n = parseInt(bas.slice(1), 10);
+      return Number.isFinite(n) ? String.fromCodePoint(n) : tout;
+    }
+    return Object.prototype.hasOwnProperty.call(ENTITES_NOMMEES, bas) ? ENTITES_NOMMEES[bas] : tout;
+  });
 }
 
-/** Analyse les attributs d'une balise. Formes admises : "v", 'v', v sans espace. */
+const CORPS_BALISE = `(?:[^>"']|"[^"]*"|'[^']*')*`;
+
+/**
+ * Prépare l'analyse d'un document, en préservant les offsets :
+ *  - les commentaires sont masqués en entier ;
+ *  - seul le CONTENU des <script> et <style> est masqué, leurs balises restent
+ *    analysables — sinon leurs attributs, dont `src`, échappent au contrôle
+ *    (PUB-07) ;
+ *  - le CSS des blocs <style> est extrait pour être analysé séparément ;
+ *  - le contenu des <template> est repéré comme inerte : il n'est pas actif
+ *    tant qu'il n'est pas instancié, et ne peut donc pas porter la balise
+ *    robots effective (PUB-08).
+ */
+function analyserDocument(html) {
+  let masque = html.replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, " "));
+
+  const cssEnLigne = [];
+  const masquerContenu = (nom, collecter) => {
+    const re = new RegExp(`(<\\s*${nom}\\b${CORPS_BALISE}>)([\\s\\S]*?)(<\\s*/\\s*${nom}\\s*>)`, "gi");
+    masque = masque.replace(re, (tout, ouvrante, contenu, fermante, index) => {
+      if (collecter) cssEnLigne.push(html.slice(index + ouvrante.length, index + ouvrante.length + contenu.length));
+      return ouvrante + contenu.replace(/[^\n]/g, " ") + fermante;
+    });
+  };
+  masquerContenu("script", false);
+  masquerContenu("style", true);
+
+  const zonesInertes = [];
+  const reTemplate = new RegExp(`<\\s*template\\b${CORPS_BALISE}>`, "gi");
+  let t;
+  while ((t = reTemplate.exec(masque)) !== null) {
+    const debutContenu = reTemplate.lastIndex;
+    const relatif = masque.slice(debutContenu).search(/<\s*\/\s*template\s*>/i);
+    zonesInertes.push([debutContenu, relatif === -1 ? masque.length : debutContenu + relatif]);
+  }
+
+  return { masque, cssEnLigne, zonesInertes };
+}
+
+function estInerte(index, zonesInertes) {
+  return zonesInertes.some(([a, b]) => index >= a && index < b);
+}
+
+/**
+ * Analyse les attributs d'une balise en suivant le délimiteur réel de chaque
+ * valeur. Formes admises : "v", 'v', v sans espace. Un attribut dupliqué est
+ * refusé plutôt que résolu silencieusement en faveur du dernier (PUB-07/08).
+ */
 function analyserAttributs(texteBalise, etiquette) {
   const attributs = new Map();
-  const corps = texteBalise.replace(/^<\s*[a-zA-Z][\w:-]*/, "").replace(/\/?>$/, "");
-  const re = /([a-zA-Z_:][\w:.-]*)(\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
-  let m;
-  let reste = corps;
-  while ((m = re.exec(corps)) !== null) {
-    attributs.set(m[1].toLowerCase(), m[3] ?? m[4] ?? m[5] ?? "");
-    reste = reste.replace(m[0], "");
-  }
-  // Refus explicite d'une valeur d'attribut à guillemet non fermé, que ce
-  // découpage ne saurait pas interpréter (PUB-07 : pas d'ignorance silencieuse).
-  const guillemetsDoubles = (corps.match(/"/g) || []).length;
-  const guillemetsSimples = (corps.match(/'/g) || []).length;
-  if (guillemetsDoubles % 2 !== 0 || guillemetsSimples % 2 !== 0) {
-    throw new ErreurAssemblage(
-      `${etiquette} : guillemet non fermé dans une balise, syntaxe non prise en charge — ${texteBalise.slice(0, 80)}`
-    );
+  const ouverture = texteBalise.match(/^<\s*[a-zA-Z][\w:-]*/);
+  let i = ouverture ? ouverture[0].length : 1;
+  const fin = texteBalise.length - 1; // position du « > » final
+
+  while (i < fin) {
+    const c = texteBalise[i];
+    if (/\s/.test(c) || c === "/") {
+      i += 1;
+      continue;
+    }
+    const nomBrut = /^[^\s=/>]+/.exec(texteBalise.slice(i, fin));
+    if (!nomBrut) {
+      i += 1;
+      continue;
+    }
+    const nom = decoderEntites(nomBrut[0]).toLowerCase();
+    i += nomBrut[0].length;
+    while (i < fin && /\s/.test(texteBalise[i])) i += 1;
+
+    let valeur = "";
+    if (texteBalise[i] === "=") {
+      i += 1;
+      while (i < fin && /\s/.test(texteBalise[i])) i += 1;
+      const delimiteur = texteBalise[i];
+      if (delimiteur === '"' || delimiteur === "'") {
+        const ferme = texteBalise.indexOf(delimiteur, i + 1);
+        if (ferme === -1 || ferme > fin) {
+          throw new ErreurAssemblage(
+            `${etiquette} : valeur d'attribut non terminée dans « ${texteBalise.slice(0, 80)} ».`
+          );
+        }
+        valeur = texteBalise.slice(i + 1, ferme);
+        i = ferme + 1;
+      } else {
+        const brute = /^[^\s>]*/.exec(texteBalise.slice(i, fin));
+        valeur = brute ? brute[0] : "";
+        i += valeur.length;
+      }
+    }
+    if (attributs.has(nom)) {
+      throw new ErreurAssemblage(
+        `${etiquette} : attribut « ${nom} » dupliqué — structure ambiguë, à corriger dans les sources.`
+      );
+    }
+    attributs.set(nom, decoderEntites(valeur));
   }
   return attributs;
 }
@@ -365,7 +463,7 @@ function analyserAttributs(texteBalise, etiquette) {
  * être refusée explicitement, jamais ignorée (PUB-07).
  */
 function balises(htmlMasque, etiquette) {
-  const re = /<\s*([a-zA-Z][\w:-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g;
+  const re = new RegExp(`<\\s*([a-zA-Z][\\w:-]*)(${CORPS_BALISE})>`, "g");
   const trouvees = [];
   const debuts = new Set();
   let m;
@@ -424,33 +522,35 @@ function reecrireLiensPartages(html) {
  * transformation.
  */
 function appliquerBaliseRobots(html, contenu, etiquette) {
-  const masque = masquerZonesNonBalises(html);
-  const { debut, fin } = bornesHead(masque);
+  const doc = analyserDocument(html);
+  const { debut, fin } = bornesHead(doc.masque);
   if (debut === -1 || fin === -1 || fin < debut) {
     throw new ErreurAssemblage(`${etiquette} : <head> absent ou mal formé, structure non prise en charge.`);
   }
-  if (/<\s*base\b/i.test(masque)) {
+  if (/<\s*base\b/i.test(doc.masque)) {
     throw new ErreurAssemblage(
       `${etiquette} : balise <base> présente — elle change la résolution des URL, cas non pris en charge.`
     );
   }
 
-  const robots = [];
-  const specifiques = [];
-  for (const b of balises(masque, etiquette)) {
-    if (b.nom !== "meta") continue;
-    const attrs = analyserAttributs(html.slice(b.index, b.fin), etiquette);
-    const nom = (attrs.get("name") || "").toLowerCase();
-    if (nom === "robots") robots.push(b);
-    else if (["googlebot", "bingbot", "slurp", "duckduckbot", "googlebot-news"].includes(nom)) {
-      specifiques.push({ b, nom, contenu: attrs.get("content") || "" });
-    }
-  }
+  // Les métas d'un <template> sont inertes : elles ne comptent pas et ne
+  // doivent pas être réécrites (PUB-08).
+  const metas = (masque, source) =>
+    balises(masque, etiquette)
+      .filter((b) => b.nom === "meta" && !estInerte(b.index, doc.zonesInertes))
+      .map((b) => ({ b, attrs: analyserAttributs(source.slice(b.index, b.fin), etiquette) }));
 
-  for (const s of specifiques) {
-    if (/\bnoindex\b|\bnone\b|\bindex\b/i.test(s.contenu)) {
+  const actives = metas(doc.masque, html);
+  const robots = actives.filter(({ attrs }) => (attrs.get("name") || "").toLowerCase() === "robots");
+  const specifiques = actives.filter(({ attrs }) =>
+    ["googlebot", "googlebot-news", "bingbot", "slurp", "duckduckbot"].includes((attrs.get("name") || "").toLowerCase())
+  );
+
+  for (const { attrs } of specifiques) {
+    const directive = attrs.get("content") || "";
+    if (/\bnoindex\b|\bnone\b|\bindex\b/i.test(directive)) {
       throw new ErreurAssemblage(
-        `${etiquette} : directive d'indexation spécifique à « ${s.nom} » (${s.contenu.trim()}). ` +
+        `${etiquette} : directive d'indexation spécifique à « ${attrs.get("name")} » (${directive.trim()}). ` +
           `Elle contredirait la politique calculée — à corriger dans les sources.`
       );
     }
@@ -460,39 +560,33 @@ function appliquerBaliseRobots(html, contenu, etiquette) {
       `${etiquette} : ${robots.length} balises meta robots effectives. Structure ambiguë, à corriger dans les sources.`
     );
   }
-  if (robots.length === 1 && (robots[0].index < debut || robots[0].index > fin)) {
+  if (robots.length === 1 && (robots[0].b.index < debut || robots[0].b.index > fin)) {
     throw new ErreurAssemblage(`${etiquette} : la balise robots existante est hors du <head>.`);
   }
 
   const nouvelle = `<meta name="robots" content="${contenu}">`;
-  let resultat;
-  if (robots.length === 1) {
-    const b = robots[0];
-    resultat = html.slice(0, b.index) + nouvelle + html.slice(b.fin);
-  } else {
-    resultat = html.slice(0, fin) + nouvelle + "\n" + html.slice(fin);
-  }
+  const resultat =
+    robots.length === 1
+      ? html.slice(0, robots[0].b.index) + nouvelle + html.slice(robots[0].b.fin)
+      : html.slice(0, fin) + nouvelle + "\n" + html.slice(fin);
 
-  // Contrôle d'effectivité après transformation.
-  const masqueFinal = masquerZonesNonBalises(resultat);
-  const bornes = bornesHead(masqueFinal);
-  let effectives = 0;
-  for (const b of balises(masqueFinal, etiquette)) {
-    if (b.nom !== "meta") continue;
-    const attrs = analyserAttributs(resultat.slice(b.index, b.fin), etiquette);
-    if ((attrs.get("name") || "").toLowerCase() !== "robots") continue;
-    if (b.index < bornes.debut || b.index > bornes.fin) {
-      throw new ErreurAssemblage(`${etiquette} : balise robots produite hors du <head>.`);
-    }
-    if ((attrs.get("content") || "") !== contenu) {
-      throw new ErreurAssemblage(`${etiquette} : balise robots effective inattendue — ${attrs.get("content")}`);
-    }
-    effectives += 1;
-  }
-  if (effectives !== 1) {
+  // Contrôle d'effectivité indépendant, sur le document reconstruit.
+  const docFinal = analyserDocument(resultat);
+  const bornes = bornesHead(docFinal.masque);
+  const effectives = metas(docFinal.masque, resultat).filter(
+    ({ attrs }) => (attrs.get("name") || "").toLowerCase() === "robots"
+  );
+  if (effectives.length !== 1) {
     throw new ErreurAssemblage(
-      `${etiquette} : ${effectives} balise(s) robots effective(s) après transformation, 1 attendue.`
+      `${etiquette} : ${effectives.length} balise(s) robots effective(s) après transformation, 1 attendue.`
     );
+  }
+  const seule = effectives[0];
+  if (seule.b.index < bornes.debut || seule.b.index > bornes.fin) {
+    throw new ErreurAssemblage(`${etiquette} : balise robots produite hors du <head>.`);
+  }
+  if ((seule.attrs.get("content") || "") !== contenu) {
+    throw new ErreurAssemblage(`${etiquette} : balise robots effective inattendue — ${seule.attrs.get("content")}`);
   }
   return resultat;
 }
@@ -519,14 +613,13 @@ function estDistante(ref) {
 
 /** Références d'un HTML, séparées en chargements automatiques et navigation. */
 function referencesHtml(html, etiquette) {
-  const masque = masquerZonesNonBalises(html);
+  const doc = analyserDocument(html);
   const auto = [];
   const nav = [];
 
-  for (const b of balises(masque, etiquette)) {
+  for (const b of balises(doc.masque, etiquette)) {
     const attrs = analyserAttributs(html.slice(b.index, b.fin), etiquette);
-    const listeAuto = ATTRIBUTS_AUTOMATIQUES[b.nom] || [];
-    for (const nom of listeAuto) {
+    for (const nom of ATTRIBUTS_AUTOMATIQUES[b.nom] || []) {
       const v = attrs.get(nom);
       if (v === undefined || v.trim() === "") continue;
       if (nom === "srcset") {
@@ -538,13 +631,16 @@ function referencesHtml(html, etiquette) {
         auto.push({ ref: v.trim(), origine: `<${b.nom} ${nom}>` });
       }
     }
-    const listeNav = ATTRIBUTS_NAVIGATION[b.nom] || [];
-    for (const nom of listeNav) {
+    for (const nom of ATTRIBUTS_NAVIGATION[b.nom] || []) {
       const v = attrs.get(nom);
       if (v !== undefined && v.trim() !== "") nav.push({ ref: v.trim(), origine: `<${b.nom} ${nom}>` });
     }
     const style = attrs.get("style");
     if (style) for (const r of referencesCss(style)) auto.push({ ref: r, origine: `<${b.nom} style>` });
+  }
+  // Le CSS des blocs <style> est analysé comme n'importe quelle feuille (PUB-07).
+  for (const bloc of doc.cssEnLigne) {
+    for (const r of referencesCss(bloc)) auto.push({ ref: r, origine: "<style> … </style>" });
   }
   return { auto, nav };
 }
@@ -590,7 +686,12 @@ async function controlerReferences(sortie, fichiers) {
       problemes.push(`${relatifSource} ${origine} → ${ref} : sort de l'artefact`);
       return;
     }
-    if (normalise === "." || normalise === "") return; // racine du site
+    if (normalise === "." || normalise === "") {
+      if (automatique) {
+        problemes.push(`${relatifSource} ${origine} → ${ref} : la racine n'est pas une ressource fichier`);
+      }
+      return; // lien de navigation vers la racine : légitime
+    }
 
     const absolu = path.join(sortie, normalise);
     let infos;
@@ -724,17 +825,22 @@ async function assembler(slug, environnementDemande, env) {
   const planifies = new Map();
   const parCasse = new Map();
 
+  // PUB-06 — une seule normalisation sert aux noms réservés, aux doublons et
+  // aux conflits fichier/répertoire : sur un volume insensible à la casse,
+  // « SITEMAP.XML », « _HEADERS/… » et « Shared/… » désignent les réservés.
+  const normaliser = (d) => d.toLowerCase();
   const reserver = (destination, source, type) => {
     const segments = destination.split("/");
-    if (NOMS_RESERVES.has(segments[0]) && segments.length > 1) {
+    const segmentsBas = normaliser(destination).split("/");
+    if (NOMS_RESERVES.has(segmentsBas[0]) && segments.length > 1) {
       throw new ErreurAssemblage(
         `Collision : « ${destination} » — « ${segments[0]} » est un fichier réservé, il ne peut pas être un répertoire (${type}).`
       );
     }
-    if (NOMS_RESERVES.has(destination) && type !== "généré") {
+    if (NOMS_RESERVES.has(normaliser(destination)) && type !== "généré") {
       throw new ErreurAssemblage(`Collision : « ${destination} » est réservé à l'assembleur (${type}).`);
     }
-    if (segments[0] === DOSSIER_RESERVE && type !== "sharedFiles") {
+    if (segmentsBas[0] === DOSSIER_RESERVE && type !== "sharedFiles") {
       throw new ErreurAssemblage(
         `Collision : « ${destination} » — le dossier « ${DOSSIER_RESERVE}/ » est réservé aux dépendances communes.`
       );
@@ -746,7 +852,7 @@ async function assembler(slug, environnementDemande, env) {
     }
     // Volumes insensibles à la casse : deux destinations qui ne diffèrent que
     // par la casse écraseraient l'une l'autre selon le système de fichiers.
-    const cle = destination.toLowerCase();
+    const cle = normaliser(destination);
     if (parCasse.has(cle)) {
       throw new ErreurAssemblage(
         `Collision de casse : « ${destination} » et « ${parCasse.get(cle)} » — ` +
@@ -786,15 +892,29 @@ async function assembler(slug, environnementDemande, env) {
   // détectées AVANT le nettoyage, et non au moment de l'écriture.
   for (const genere of FICHIERS_GENERES) reserver(genere, null, "généré");
 
-  // Conflit fichier/répertoire entre destinations planifiées.
+  // Conflit fichier/répertoire entre destinations planifiées, sur la même
+  // représentation normalisée que les doublons et les noms réservés.
   for (const destination of planifies.keys()) {
-    const prefixe = destination + "/";
+    const prefixe = normaliser(destination) + "/";
     for (const autre of planifies.keys()) {
-      if (autre !== destination && autre.startsWith(prefixe)) {
+      if (autre !== destination && normaliser(autre).startsWith(prefixe)) {
         throw new ErreurAssemblage(
           `Collision fichier/répertoire : « ${destination} » est aussi un préfixe de « ${autre} ».`
         );
       }
+    }
+  }
+
+  // PUB-05 — aucune source réelle ne doit appartenir à la sortie qui va être
+  // nettoyée : sinon le nettoyage détruirait sa propre entrée.
+  for (const [destination, { source }] of planifies) {
+    if (!source) continue;
+    const dedans = path.relative(sortie, source);
+    if (dedans !== "" && !dedans.startsWith("..") && !path.isAbsolute(dedans)) {
+      throw new ErreurAssemblage(
+        `Manifeste : « ${destination} » a pour source ${path.relative(RACINE, source)}, situé dans la sortie ` +
+          `${path.relative(RACINE, sortie)} qui va être nettoyée.`
+      );
     }
   }
 

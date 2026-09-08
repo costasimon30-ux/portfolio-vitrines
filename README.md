@@ -43,11 +43,18 @@ Ce qui entre dans l'artefact est déclaré explicitement dans
 d'ajouter son chemin au manifeste. `dist/` n'est jamais versionné.
 
 Le manifeste ne peut pas tout déclarer. Sont refusés, avant tout nettoyage :
-les chemins cachés, le manifeste et les fichiers de configuration, les sorties
-générées (`dist/`), les archives, sourcemaps et templates, les pages HTML hors
-de `pages`, les noms réservés à l'assembleur (`robots.txt`, `_headers`,
+les chemins cachés, le manifeste et les fichiers de configuration, tout segment
+interne au dépôt (`dist/`, `docs/`, `Claude outputs/`, `scripts/`,
+`node_modules/`, `.git/`), les archives, sourcemaps et templates, les pages HTML
+hors de `pages`, les noms réservés à l'assembleur (`robots.txt`, `_headers`,
 `sitemap.xml`, le dossier `shared/`), ainsi que toute collision de destination,
-y compris entre un fichier et un répertoire ou entre deux variantes de casse.
+y compris entre un fichier et un répertoire. Une source située dans la sortie
+est refusée elle aussi : le nettoyage détruirait sa propre entrée.
+
+Ces comparaisons sont faites sur une forme normalisée en minuscules. Le refus
+ne dépend donc pas du système de fichiers : `PUBLICATION.JSON`, `DIST/old.txt`,
+`SITEMAP.XML`, `_HEADERS/x` et `Shared/y` sont refusés aussi bien sur un volume
+sensible à la casse que sur un volume insensible.
 
 **Convention des notices publiques.** Un fichier déclaré reçoit
 automatiquement son type MIME `text/plain` et son exception d'indexation dans
