@@ -4,6 +4,24 @@
 */
 
 /* ---------- Header / navigation ---------- */
+
+/*
+  L'en-tête est sticky : sans compensation, une arrivée par ancre place la
+  cible sous l'en-tête, qui en recouvre le haut (cf. docs/QA-coiffeur-mixte.md,
+  HQA-02). `scroll-padding-top` sur l'élément de défilement décale toutes les
+  arrivées par fragment — clic interne, lien interpage, accès direct avec
+  fragment, retour arrière — sans JavaScript et sans toucher au rendu.
+
+  --header-h est la hauteur réelle de l'en-tête : 48px de contrôle + deux fois
+  --space-2 de padding vertical + 1px de filet inférieur. Elle est identique à
+  toutes les largeurs, le menu desktop n'étant pas plus haut que le bouton
+  mobile. Cette valeur est couplée à `.site-header` ci-dessous : toute
+  modification de sa hauteur impose de la revoir, faute de quoi les ancres
+  redeviennent trop hautes ou trop basses.
+*/
+:root { --header-h: calc(48px + var(--space-2) * 2 + 1px); }
+html { scroll-padding-top: calc(var(--header-h) + var(--space-1)); }
+
 .site-header {
   position: sticky;
   top: 0;
