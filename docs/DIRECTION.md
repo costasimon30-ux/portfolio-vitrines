@@ -70,6 +70,32 @@ Le maintien de P06 est acté : aucune nouvelle recherche ou modification de cett
 
 Claude fournit l'URL réelle, le commit déployé, le résultat du build, les réglages non secrets et les éventuelles limites. Une publication réussie ne vaut pas validation finale de l'hébergement : QA doit encore contrôler HTTPS, en-têtes et non-indexation réellement servis, redirections, statut 404, ressources, liens et affichage sur l'URL réelle avant mise en avant auprès de prospects. Aucun de ces contrôles n'est déclaré réalisé aujourd'hui.
 
+### Arbitrage après première publication — Workers statique et recette hébergée
+
+**État livré selon le compte rendu de Claude transmis par Simon :** Créa’Tif est publié à l'adresse [démo Créa’Tif](https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/) sur un **Cloudflare Worker servant des assets statiques**, alimenté par dépôt manuel de la sortie déjà assemblée. Ce n'est pas un projet Pages connecté à Git. Révision source déclarée : `619d931` (code validé `ad0aa8a`) ; build local sous Node 22.23.2 avec `node scripts/assemble-site.mjs coiffeur-mixte --environment production`, sortie `sites/coiffeur-mixte/dist/`, 42 fichiers, empreinte shell déclarée `c6ddb471aa4a6337754b8dd886866c1b2446587cedec2b3582ae2943a573be9d`. Aucun dépôt connecté, build distant ou preview par branche n'est déclaré actif. L'identifiant de version/déploiement Cloudflare reste à joindre si disponible pour relier la révision déclarée à la publication réelle.
+
+Le compte personnel gratuit et la remise d'une fiche privée sans secrets sont rapportés par Claude. Cela ne prouve pas à soi seul que la double authentification, la sauvegarde des codes de secours et la reconnexion autonome ont été vérifiées ; confirmer uniquement leur statut avec Simon, sans demander leurs valeurs ni exposer ses identifiants privés.
+
+#### Décisions de direction
+
+1. **Conserver l'hébergement statique actuel pour cette première démo, sous réserve de la recette hébergée.** Pas de migration vers Pages ni de changement d'URL demandé pour aligner la réalité sur une proposition initiale. Le contrat produit reste : sortie isolée, démo autonome, rendu inchangé, non-indexation, sans backend applicatif ni service payant. Cet arbitrage ne généralise pas automatiquement Workers à tous les futurs sites.
+2. **Maintenir les publications manuelles avec accord explicite de Simon pour chaque version à mettre en ligne.** Un commit ou push, y compris une correction demandée par QA, n'autorise pas sa publication. Aucun raccordement Git, déclencheur permanent ou preview automatique à activer. L'automatisation pourra être réexaminée au deuxième site ou sur demande de Simon ; elle devra distinguer tests/builds et mise en production avec validation humaine. Le maintien manuel relève de la maîtrise des versions, pas d'une condition nouvelle imposée à P06.
+3. **Faire actualiser `docs/ARCHITECTURE.md` par l'Architecte**, sans code ni réglage externe : décrire Workers Static Assets et le dépôt manuel comme état effectif, les étapes locales nécessaires et une procédure de retour à une version connue (documenter, ne pas exécuter). Conserver Pages + Git comme proposition historique/alternative non activée. Réviser les mentions dépendantes dans la section 5, y compris limites, variables d'environnement, prévisualisations, ajout d'un site et trajectoire du deuxième site ; ne pas transposer les quotas ou réglages Pages à Workers. Conserver les garanties de l'assembleur déjà auditées.
+
+Les deux décisions « produit d'hébergement » et « mode de déploiement » sont distinctes : Workers peut lui-même être raccordé à Git ; ce raccordement ne crée pas un projet Pages et ne rendrait pas automatiquement conforme l'ancien § 5.4. Sources officielles : [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/), [Workers Builds et connexion d'un Worker existant](https://developers.cloudflare.com/workers/ci-cd/builds/).
+
+#### Feu vert QA et périmètre
+
+**La recette QA sur l'URL publiée peut commencer sans attendre la mise à jour documentaire de l'Architecte.** Les contrôles de fumée rapportés par Claude (pages 200, 404 personnalisée, notices, robots, en-têtes, redirections 307, chargement initial) sont des observations de l'implémenteur, pas un verdict QA. Le Chef de projet n'a pas confirmé ces réponses HTTP ; son outil de consultation web n'a pas pu ouvrir l'URL et cette limite ne démontre aucune panne du site.
+
+- Relever date, URL, révision source annoncée et identifiant de déploiement si accessible, sans présumer que le HEAD Git est en ligne. Signaler toute impossibilité de rattacher la version publiée à la source.
+- Vérifier HTTPS, chaînes de redirection `.html` et variantes avec/sans slash, accès direct et rechargement des quatre pages, absence de boucle et conservation des ancres. Un statut 307 n'est pas à lui seul une anomalie : juger le comportement effectif attendu pour cette démo.
+- Contrôler de vraies 404 simples et imbriquées, leur retour vers l'accueil, CSS/photos/polices et MIME, notices et en-têtes `X-Robots-Tag`, metas et `robots.txt`. Vérifier l'absence de contenu interne sur des chemins ciblés (`/docs/`, `/publication.json`, configurations et autre site) ; une URL de preview inexistante est non applicable, pas validée.
+- Effectuer une non-régression hébergée sur les quatre pages à 320/375/768/1440 px, menu et clavier/focus/lien d'évitement, zoom 200 %, contact et crédits, affichage des photos et absence de débordement. Examiner le chargement à cache froid, les erreurs réseau/console et les mesures de performance accessibles, en distinguant mesures de laboratoire et données réelles indisponibles.
+- Conserver les validations antérieures dans leur périmètre : ne pas recommencer la revue du code d'assemblage, la sélection artistique ou la recherche de droits P06. Les règles `noindex` concernent l'indexation ; elles ne rendent pas la démo privée et ne lèvent pas la réserve P06. PUB-A1 reste différé.
+
+QA consigne preuves, navigateurs/viewports, limites et anomalies priorisées dans son propre rapport, sans correction ni republication. La mise en avant auprès de prospects reste en attente de cette recette. Aucun compte, réglage d'hébergement ou fichier du site n'est modifié par cet arbitrage documentaire.
+
 ## Sites
 
 ### coiffeur-mixte
