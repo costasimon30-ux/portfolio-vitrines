@@ -110,6 +110,38 @@ Simon confirme l'option A pour HQA-01 et autorise explicitement la publication d
 
 Cet ajout consigne l'accord et les réserves acceptées ; il ne constitue pas une annonce de mise en ligne déjà effectuée.
 
+### Publication de `edeeb30` et critère de clôture de Créa’Tif
+
+**État courant : correction publiée selon le compte rendu de Claude ; seule la recette ciblée HQA-02 reste à exécuter pour déclarer la démo livrée.** Les sections précédentes relatent les étapes antérieures ; elles ne demandent ni une nouvelle première publication, ni une nouvelle collecte des identifiants déjà transmis ci-dessous.
+
+#### Relevé de publication transmis par Claude
+
+- Publication manuelle sur le Worker existant le **8 septembre 2026 vers 21 h 45, Europe/Paris**, URL inchangée : [Créa’Tif](https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/).
+- Source : `edeeb30ece425bc8000a1aac806576a0efc3ccb4`. Version Cloudflare active **`ff687b8e`**, précédente conservée **`7fc82871`** (source déclarée `619d931`). Ces identifiants sont les formes courtes de **version** rapportées depuis le tableau de bord ; ne pas les présenter comme des identifiants complets ou un identifiant distinct de déploiement vérifié par le Chef de projet. Leur complétude n'est pas un nouveau blocage de livraison.
+- Assemblage local sous Node **22.23.2**, commande `node scripts/assemble-site.mjs coiffeur-mixte --environment production`. Claude rapporte **89 contrôles réussis**, 42 chemins identiques au précédent artefact et **seul `css/style.css` différent**.
+- Nouvel agrégat : `36e592349e451d73d9ab4c9feb0c1f5b96e4ff34ad8cd9ed0d233e53fa43918d`. Méthode déclarée, depuis la racine de l'artefact : `find . -type f | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256`. Méthode rejouée par Claude sur l'ancienne sauvegarde avec résultat `c6ddb471aa4a6337754b8dd886866c1b2446587cedec2b3582ae2943a573be9d`.
+- Sauvegardes rapportées dans `Downloads/creatif-publications/`, hors dépôt et hors `dist`, un dossier par version avec archive et inventaire SHA-256. Ce chemin relatif est celui fourni par Claude, pas un chemin absolu inspecté par le Chef de projet. Aucun déplacement ou nettoyage demandé.
+- Les contrôles de fumée rapportent le nouveau CSS servi, `scroll-padding-top: 89px`, des titres non recouverts, menu/focus et réponses HTTP attendus. **Limites : onglet d'arrière-plan, défilement instantané, une seule largeur en ligne (1680 px), deux images seulement vérifiées directement en HTTP.** Les 96 mesures locales ne remplacent pas le contrôle hébergé des quatre largeurs et du zoom.
+
+#### Recette terminale, courte et bornée — HQA-02 uniquement
+
+QA utilise l'URL actuelle et vérifie que le CSS reçu correspond au fichier de `edeeb30`, sans reconstruire tout l'artefact ni réauditer ses 42 fichiers. Le HEAD documentaire n'est pas supposé publié. Consigner la date, le navigateur, les dimensions et les preuves ciblées.
+
+À **320, 375, 768 et 1440 px**, ainsi qu'au **zoom natif 200 %**, vérifier les cibles `#univers`, les deux `#prestations` (Coiffure et Barbier), `#contact` et `#approche-title` : accès directs avec fragment, clics internes et liens interpages correspondants. Faire de vrais clics au premier plan, attendre la stabilisation du défilement et des médias ; ne pas substituer un déplacement forcé par script à la navigation testée. Les titres doivent rester lisibles sous l'en-tête après arrivée, sans recouvrement par celui-ci et sans défilement correctif nécessaire. Vérifier également les accès via `.html` avec fragment émis par les liens existants.
+
+Non-régression limitée au menu (ouverture, navigation, fermeture aux formats concernés) et au lien d'évitement (focus réel sur `main#main` sur les quatre pages). Pas de nouvelle campagne responsive, performance, sécurité, indexation, licences, revue artistique ou Code Review. Pas de reprise des scénarios locaux de JS retardé/bloqué. Ne pas rouvrir HQA-01, HQA-03, P06 ou PUB-A1 ; leurs décisions restent inchangées.
+
+**Critère de clôture explicite :** si le CSS attendu est servi et que cette matrice ciblée passe, **HQA-02 est CLOS et Créa’Tif est « démo de portfolio livrée », partageable par son URL HTTPS**, avec les réserves et limites déjà acceptées. Cette règle suffit au passage de statut : aucune nouvelle revue générale, nouvelle validation artistique, publication ou autorisation supplémentaire n'est requise pour cette clôture. QA peut porter cette conclusion dans son rapport ; le Chef de projet en consigne ensuite la référence, sans rouvrir le chantier. Il ne s'agit pas d'une certification exhaustive ni de la livraison d'un véritable service de salon collectant des données.
+
+En cas de défaut reproduit dans cette matrice, corriger et retester uniquement le scénario concerné et ses dépendances directes. Si l'environnement empêche un contrôle, le marquer non exécuté plutôt que réussi ; compléter seulement ce contrôle. Une observation mineure hors périmètre va au backlog sans remettre la clôture en cause. Un incident réellement bloquant ou critique découvert fortuitement doit être signalé, pas ignoré au nom du périmètre.
+
+#### Règle après livraison et suite
+
+- **Pas de republication pour une amélioration de confort isolée.** Regrouper ces idées dans un lot ultérieur ; pas de campagne générale automatique à chaque suggestion.
+- Une nouvelle livraison se justifie par un incident bloquant/critique (parcours principal inutilisable, exposition sensible ou obligation de retrait, notamment), ou une décision produit explicite de Simon, y compris un lot d'améliorations choisi. Cela autorise l'examen du besoin, pas une intervention distante de sa propre initiative : chaque publication ou rollback conserve l'accord explicite de Simon sur la version ciblée.
+- Aucun changement d'hébergement, connexion Git, automatisation, domaine ou achat demandé. L'architecture `e2a3d37` reste la procédure de référence ; son tableau de première publication est historique, le présent suivi fournit les versions actualisées. Aucune nouvelle mission Architecte n'est nécessaire pour recopier ces identifiants.
+- **Prochaine étape recommandée : cadrer la page d'accueil du portfolio professionnel**, pour présenter Simon, son offre et cette première réalisation clairement identifiée comme concept. Le cadrage reste distinct de sa construction et du choix du deuxième site vitrine ; ne pas créer de pages, de campagne commerciale ou de migration technique dans cette clôture. Après résultat QA favorable, Créa’Tif peut servir de première référence sans attendre plusieurs démos.
+
 ## Sites
 
 ### coiffeur-mixte
