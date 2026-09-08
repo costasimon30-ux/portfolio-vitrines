@@ -96,6 +96,20 @@ Les deux décisions « produit d'hébergement » et « mode de déploiement » s
 
 QA consigne preuves, navigateurs/viewports, limites et anomalies priorisées dans son propre rapport, sans correction ni republication. La mise en avant auprès de prospects reste en attente de cette recette. Aucun compte, réglage d'hébergement ou fichier du site n'est modifié par cet arbitrage documentaire.
 
+### Autorisation de publication ciblée — correction des ancres `edeeb30`
+
+Simon confirme l'option A pour HQA-01 et autorise explicitement la publication de **`edeeb30ece425bc8000a1aac806576a0efc3ccb4`**, limitée à la correction CSS des arrivées par ancre de Créa’Tif. Le Chef de projet a vérifié le diff : seul `sites/coiffeur-mixte/css/style.css` change. Les 96 mesures sans défaut et le build de 42 fichiers sont rapportés par Claude ; ils ne sont pas une contre-vérification indépendante ni une preuve de publication. La version en ligne avant cette action reste celle déclarée au niveau `619d931`.
+
+- **HQA-01 : réserve mineure acceptée pour cette démo, non corrigée.** Conserver Workers Static Assets sans changement distant de redirection, code Worker ou domaine. Le préchargement HSTS de `.dev` est un facteur atténuant pour les navigateurs qui le respectent, pas une redirection du serveur : les clients qui ne l'appliquent pas restent concernés par la réponse HTTP observée par QA. Partager l'URL HTTPS. Réexaminer cette tolérance avant une collecte de données ou un changement d'hébergement/domaine. [Google Registry — préchargement HSTS de .dev](https://www.registry.google/domains/dev/).
+- **HQA-03 : favicon implicite de la notice différé et accepté pour cette livraison.** Ne pas changer la notice, les crédits ou ajouter de média dans cette passe. P06 et sa réserve documentaire, ainsi que PUB-A1, restent inchangés.
+- **Tests navigateur : pas de nouvelle dépendance de développement ni de harnais à versionner pour cette passe.** Les scénarios documentés permettent une contre-vérification ciblée par QA ; le script exact de Claude n'est pas indispensable. La suite Node d'assemblage reste distincte de ces contrôles navigateur.
+- **Périmètre exact de l'accord :** assembler depuis une copie propre de `edeeb30` avec Node 22.23.2 ; exiger les contrôles locaux réussis et 42 fichiers. Comparer les empreintes individuelles avec l'artefact précédent : seule `css/style.css` doit différer. Consigner l'empreinte du nouvel artefact et sa méthode, sans réutiliser celle de la version précédente. Si cette comparaison ou les tests ne sont pas conformes, arrêter avant publication et soumettre l'écart à Simon. Ne pas publier automatiquement le HEAD documentaire ou d'autres corrections.
+- Sauvegarder l'artefact précédent connu et le candidat hors du dépôt et du `dist/` nettoyable, puis publier manuellement le candidat contrôlé sur le **Worker existant**, à URL inchangée. Cet accord autorise ce dépôt précis une fois les conditions remplies, sans nouvelle demande redondante pour la même action. Il n'autorise ni connexion Git, ni automatisation, ni changement de mode de publication, ni achat, ni rollback ultérieur sans accord.
+- Relever les identifiants de version et de déploiement Cloudflare si accessibles, la date, la révision source et le résultat. Simon effectue lui-même toute authentification nécessaire ; aucun secret dans les échanges ou le dépôt. Ne pas republier uniquement pour obtenir un identifiant manquant.
+- Après publication, Claude effectue les contrôles de fumée sur l'URL réelle et remet le handoff. **QA contre-vérifie ensuite HQA-02** : ancres internes/interpages et accès directs aux quatre largeurs et au zoom 200 %, menu, focus du lien d'évitement ; contrôles HTTP/ressources ciblés de non-régression. Pas de nouvelle revue générale ni de réouverture de P06. HQA-02 reste « corrigé dans les sources, contre-vérification hébergée en attente » jusqu'au résultat QA.
+
+Cet ajout consigne l'accord et les réserves acceptées ; il ne constitue pas une annonce de mise en ligne déjà effectuée.
+
 ## Sites
 
 ### coiffeur-mixte
