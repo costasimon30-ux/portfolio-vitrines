@@ -535,12 +535,18 @@ function appliquerBaliseRobots(html, contenu, etiquette) {
 
   // Les métas d'un <template> sont inertes : elles ne comptent pas et ne
   // doivent pas être réécrites (PUB-08).
-  const metas = (masque, source) =>
-    balises(masque, etiquette)
-      .filter((b) => b.nom === "meta" && !estInerte(b.index, doc.zonesInertes))
+  //
+  // L'extraction prend le document ANALYSÉ en paramètre, masque et zones
+  // inertes compris. Une version antérieure fermait sur les zones du document
+  // d'origine : après une transformation qui change la longueur du HTML, les
+  // indices venaient du nouveau masque et les intervalles d'inertie de
+  // l'ancien, et une balise de template était comptée comme active.
+  const metasActives = (docAnalyse, source) =>
+    balises(docAnalyse.masque, etiquette)
+      .filter((b) => b.nom === "meta" && !estInerte(b.index, docAnalyse.zonesInertes))
       .map((b) => ({ b, attrs: analyserAttributs(source.slice(b.index, b.fin), etiquette) }));
 
-  const actives = metas(doc.masque, html);
+  const actives = metasActives(doc, html);
   const robots = actives.filter(({ attrs }) => (attrs.get("name") || "").toLowerCase() === "robots");
   const specifiques = actives.filter(({ attrs }) =>
     ["googlebot", "googlebot-news", "bingbot", "slurp", "duckduckbot"].includes((attrs.get("name") || "").toLowerCase())
@@ -573,7 +579,7 @@ function appliquerBaliseRobots(html, contenu, etiquette) {
   // Contrôle d'effectivité indépendant, sur le document reconstruit.
   const docFinal = analyserDocument(resultat);
   const bornes = bornesHead(docFinal.masque);
-  const effectives = metas(docFinal.masque, resultat).filter(
+  const effectives = metasActives(docFinal, resultat).filter(
     ({ attrs }) => (attrs.get("name") || "").toLowerCase() === "robots"
   );
   if (effectives.length !== 1) {

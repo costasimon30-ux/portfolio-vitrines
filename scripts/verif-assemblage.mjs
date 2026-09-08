@@ -501,48 +501,112 @@ async function principal() {
   /* ---------------- PUB-05 ---------------- */
   groupe("PUB-05. Exclusions imposées par le manifeste");
 
+  // Chaque cas prépare UNIQUEMENT ce dont il a besoin. Aucune écriture
+  // inconditionnelle : sur un volume insensible à la casse, écrire
+  // « PUBLICATION.JSON » écrasait le manifeste et faisait échouer la
+  // préparation avant même d'atteindre l'assembleur (PUB-05).
   const casExclusions = [
-    ["manifeste déclaré public", { publicFiles: ["publication.json"] }, /manifeste, configuration ou outillage exclu/],
-    ["fichier caché déclaré public", { publicFiles: [".env"] }, /caché exclu/],
-    ["ancienne sortie déclarée publique", { publicFiles: ["dist/old.txt"] }, /contenu interne au dépôt/],
-    ["page HTML hors de « pages »", { publicFiles: ["extra.html"] }, /doivent être déclarées dans « pages »/],
-    ["sourcemap déclarée publique", { publicFiles: ["css/style.css.map"] }, /extension exclue/],
-    ["template déclaré public", { publicFiles: ["gabarit.njk"] }, /extension exclue/],
-    // Contre-exemples de la contre-vérification 8c63d4c : variantes de casse et
-    // segments internes.
-    ["manifeste en majuscules", { publicFiles: ["PUBLICATION.JSON"] }, /manifeste, configuration ou outillage exclu/],
-    ["ancienne sortie en majuscules", { publicFiles: ["DIST/old.txt"] }, /contenu interne au dépôt/],
-    ["segment docs/ interne", { publicFiles: ["docs/review.md"] }, /contenu interne au dépôt/],
-    ["segment « Claude outputs/ » interne", { publicFiles: ["Claude outputs/internal.txt"] }, /contenu interne au dépôt/],
+    ["manifeste déclaré public", "publication.json", /manifeste, configuration ou outillage exclu/, null],
+    ["manifeste en majuscules", "PUBLICATION.JSON", /manifeste, configuration ou outillage exclu/, null],
+    ["fichier caché déclaré public", ".env", /caché exclu/, "FACTICE=1\n"],
+    ["page HTML hors de « pages »", "extra.html", /doivent être déclarées dans « pages »/, "<!doctype html><title>x</title>\n"],
+    ["sourcemap déclarée publique", "css/style.css.map", /extension exclue/, "{}\n"],
+    ["template déclaré public", "gabarit.njk", /extension exclue/, "x\n"],
+    ["archive déclarée publique", "archive.zip", /extension exclue/, "PK\n"],
+    ["ancienne sortie déclarée publique", "dist/old.txt", /contenu interne au dépôt/, null],
+    ["ancienne sortie en majuscules", "DIST/old.txt", /contenu interne au dépôt/, null],
+    ["segment docs/ interne", "docs/review.md", /contenu interne au dépôt/, "interne\n"],
+    ["segment « Claude outputs/ » interne", "Claude outputs/internal.txt", /contenu interne au dépôt/, "interne\n"],
   ];
 
-  for (const [nom, patch, motif] of casExclusions) {
+  /**
+   * Crée un fichier de fixture en création EXCLUSIVE. Si le chemin existe déjà
+   * — cas d'un alias de casse sur volume insensible — on ne l'écrase pas et on
+   * le signale, au lieu de détruire silencieusement la cible.
+   */
+  async function creerFixtureExclusive(chemin, contenu) {
+    await fs.mkdir(path.dirname(chemin), { recursive: true });
+    try {
+      await fs.writeFile(chemin, contenu, { flag: "wx" });
+      return "créé";
+    } catch (e) {
+      if (e.code !== "EEXIST") throw e;
+      return "déjà présent (alias de casse), non réécrit";
+    }
+  }
+
+  for (const [nom, entree, motif, contenu] of casExclusions) {
     await test(`refus : ${nom}`, async () => {
       const d = await preparerCopie(`depot-excl-${nom.replace(/[^a-z]+/gi, "-").toLowerCase()}`);
       const site = path.join(d, "sites/coiffeur-mixte");
-      // Les fichiers existent réellement : le refus doit venir de la règle, pas de l'absence.
-      await fs.writeFile(path.join(site, ".env"), "FACTICE=1\n");
-      await fs.writeFile(path.join(site, "extra.html"), "<!doctype html><title>x</title>\n");
-      await fs.writeFile(path.join(site, "gabarit.njk"), "x\n");
-      await fs.writeFile(path.join(site, "css/style.css.map"), "{}\n");
+      const mp = path.join(site, "publication.json");
+
+      // Sortie préexistante et sentinelles : elles doivent survivre au refus.
       await fs.mkdir(path.join(site, "dist"), { recursive: true });
       await fs.writeFile(path.join(site, "dist/old.txt"), "ancien\n");
       await fs.writeFile(path.join(site, "dist/sentinelle.txt"), "intacte");
-      await fs.writeFile(path.join(site, "PUBLICATION.JSON"), "{}\n").catch(() => {});
-      await fs.mkdir(path.join(site, "docs"), { recursive: true });
-      await fs.writeFile(path.join(site, "docs/review.md"), "interne\n");
-      await fs.mkdir(path.join(site, "Claude outputs"), { recursive: true });
-      await fs.writeFile(path.join(site, "Claude outputs/internal.txt"), "interne\n");
-      const mp = path.join(site, "publication.json");
+
+      let etatFixture = "non requise (le refus est lexical, avant tout accès disque)";
+      if (contenu !== null) etatFixture = await creerFixtureExclusive(path.join(site, entree), contenu);
+
+      // Le manifeste est écrit APRÈS la fixture, et sa validité est contrôlée :
+      // une préparation abîmée ne peut pas passer pour un refus de l'assembleur.
       const m = JSON.parse(await fs.readFile(mp, "utf8"));
-      m.publicFiles = [...m.publicFiles, ...(patch.publicFiles || [])];
-      await fs.writeFile(mp, JSON.stringify(m, null, 2));
+      m.publicFiles = [...m.publicFiles, entree];
+      await fs.writeFile(mp, JSON.stringify(m, null, 2) + "\n");
+
+      const relu = JSON.parse(await fs.readFile(mp, "utf8"));
+      affirmer(Array.isArray(relu.publicFiles), "préparation invalide : publicFiles n'est pas une liste");
+      affirmer(relu.publicFiles.includes(entree), `préparation invalide : « ${entree} » absent du manifeste`);
+      affirmer(relu.kind === "demo", "préparation invalide : kind perdu");
+      const empreinteManifeste = await empreinteFichier(mp);
+
       await refus(d, "coiffeur-mixte", motif);
-      // Le refus intervient AVANT nettoyage : l'ancienne sortie survit.
+
+      affirmer(
+        (await empreinteFichier(mp)) === empreinteManifeste,
+        "le manifeste a été modifié par l'assemblage"
+      );
       affirmer(await existe(path.join(site, "dist/old.txt")), "ancienne sortie détruite malgré le refus");
       affirmer(await existe(path.join(site, "dist/sentinelle.txt")), "sentinelle de l'ancienne sortie détruite");
+      return `fixture : ${etatFixture}`;
     });
   }
+
+  await test("préparation : un alias de casse n'écrase jamais le manifeste", async () => {
+    // Régression permanente du défaut PUB-05 relevé dans daf8281. Sur un volume
+    // insensible à la casse, « PUBLICATION.JSON » EST le manifeste ; sur un
+    // volume sensible, un lien physique reproduit exactement la propriété
+    // signalée par la revue (même inode : écrire l'un modifie l'autre). Le
+    // contrôle vaut donc dans les deux environnements.
+    const d = await preparerCopie("depot-excl-alias-casse");
+    const site = path.join(d, "sites/coiffeur-mixte");
+    const mp = path.join(site, "publication.json");
+    const alias = path.join(site, "PUBLICATION.JSON");
+
+    let nature;
+    if (await existe(alias)) {
+      nature = "alias natif (volume insensible à la casse)";
+    } else {
+      await fs.link(mp, alias);
+      nature = "lien physique équivalent (volume sensible à la casse)";
+    }
+    const avant = await empreinteFichier(mp);
+
+    const etat = await creerFixtureExclusive(alias, "{}\n");
+    affirmer(/déjà présent/.test(etat), `la préparation a écrit sur l'alias : ${etat}`);
+    affirmer((await empreinteFichier(mp)) === avant, "le manifeste a été écrasé par la préparation");
+
+    const m = JSON.parse(await fs.readFile(mp, "utf8"));
+    affirmer(Array.isArray(m.publicFiles), "manifeste corrompu après préparation");
+    m.publicFiles = [...m.publicFiles, "PUBLICATION.JSON"];
+    await fs.writeFile(mp, JSON.stringify(m, null, 2) + "\n");
+    const empreinteAvantBuild = await empreinteFichier(mp);
+
+    await refus(d, "coiffeur-mixte", /manifeste, configuration ou outillage exclu/);
+    affirmer((await empreinteFichier(mp)) === empreinteAvantBuild, "manifeste modifié par l'assemblage");
+    return nature;
+  });
 
   await test("champ de manifeste inconnu → refus", async () => {
     const d = await preparerCopie("depot-champ-inconnu");
@@ -754,6 +818,48 @@ async function principal() {
     affirmer(/<template>\s*<meta name=robots content=index>/.test(html), "le contenu du template a été réécrit");
     return "template inerte préservé";
   });
+
+  // Les trois variantes du rapport daf8281 : la transformation déplace le
+  // template, dont la balise doit rester inerte. Plus deux contrôles positifs
+  // sans changement de longueur.
+  const TEMPLATE = `<template><meta name=robots content=index></template>`;
+  const casTemplates = [
+    ["template dans le body, insertion dans le head (décalage vers l'arrière)",
+     `<!doctype html><html lang="fr"><head><meta charset="UTF-8"><title>t</title></head><body>${TEMPLATE}<a href="/">a</a></body></html>\n`],
+    ["remplacement qui raccourcit la balise, template après elle",
+     `<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name="robots" content="noindex, nofollow, nosnippet, noarchive">${TEMPLATE}<title>t</title></head><body><a href="/">a</a></body></html>\n`],
+    ["remplacement qui allonge la balise, template après elle",
+     `<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name=robots><template><meta name=robots></template><title>t</title></head><body><a href="/">a</a></body></html>\n`],
+    ["contrôle positif : template seul dans le head",
+     `<!doctype html><html lang="fr"><head><meta charset="UTF-8">${TEMPLATE}<title>t</title></head><body><a href="/">a</a></body></html>\n`],
+    ["contrôle positif : balise déjà identique, sans changement de longueur",
+     `<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name="robots" content="index, follow">${TEMPLATE}<title>t</title></head><body><a href="/">a</a></body></html>\n`],
+  ];
+
+  for (const [nom, page] of casTemplates) {
+    await test(`template inerte — ${nom}`, async () => {
+      const d = await preparerCopie(`depot-tpl-${nom.replace(/[^a-z]+/gi, "-").toLowerCase().slice(0, 40)}`);
+      await fixtureSite(d, "fixture-tpl", { kind: "portfolio", index: page });
+      const r = await assembler(d, "fixture-tpl", ["--environment", "production"]);
+      affirmer(r.code === 0, `refusé à tort (code ${r.code}) : ${(r.stderr || "").split("\n")[0].slice(0, 200)}`);
+
+      const html = await fs.readFile(path.join(d, "sites/fixture-tpl/dist/index.html"), "utf8");
+      const templates = html.match(/<template>[\s\S]*?<\/template>/gi) || [];
+      affirmer(templates.length === 1, `${templates.length} template(s) dans la sortie`);
+
+      const horsTemplate = html.replace(/<template>[\s\S]*?<\/template>/gi, "");
+      const actives = horsTemplate.match(/<meta\s+name="robots"[^>]*>/gi) || [];
+      affirmer(actives.length === 1, `${actives.length} balise(s) robots active(s) hors template`);
+      affirmer(/content="index, follow"/.test(actives[0]), `politique inattendue : ${actives[0]}`);
+
+      // La balise active doit être dans le <head>, et le template intact.
+      const tete = html.slice(html.search(/<head\b/i), html.search(/<\/head\s*>/i));
+      affirmer(tete.includes(actives[0]), "la balise active n'est pas dans le <head>");
+      const attendu = page.match(/<template>[\s\S]*?<\/template>/i)[0];
+      affirmer(templates[0] === attendu, `contenu du template modifié : ${templates[0]}`);
+      return "1 balise active, template préservé";
+    });
+  }
 
   await test("refus : balise robots hors du <head>", async () => {
     const d = await preparerCopie("depot-robots-hors-head");
