@@ -388,3 +388,86 @@ Ces informations sont **les résultats déclarés par Claude**, pas des résulta
 Pour prononcer la clôture, il faut soit récupérer le résultat indépendant existant avec sa révision et ses preuves, soit autoriser une contre-vérification ciblée si ce résultat n’existe pas. La publication du présent rapport dans Git n’est pas bloquée.
 
 PUB-A1 reste facultatif et différé. Les cinq autres constats précédemment clos ne sont pas rouverts. Les vérifications HTTP sur l’hébergement restent réservées à QA et sont distinctes de cette absence de preuve locale. Aucun code modifié, aucun test relancé, aucun compte, connexion Cloudflare ou déploiement.
+
+---
+
+## Contre-vérification exécutée — livraison `63246ad` — 8 septembre 2026
+
+Livraison auditée : **`63246ad6ca07c90f218bc8768a999761398f235a`**. Références : rapport initial `930dd6f`, contre-vérification de `8cedeb3` publiée dans `8c63d4c`, puis consignation d’absence de preuves `74f44d2`. Simon a explicitement levé la restriction « sans relancer les tests ». Cette section remplace le statut d’attente de la section précédente, sans en effacer l’historique.
+
+### Verdict et statut des cinq réserves
+
+**Validation complète de la livraison bloquée par deux défauts P2 reproduits : PUB-05 côté suite de tests et PUB-08 côté transformateur robots.** PUB-03, PUB-06 et PUB-07 sont clos dans leur périmètre résiduel. Aucun P0 ou P1 résiduel établi sur ces cinq points. Le site réel s’assemble et son artefact est inchangé ; cela ne suffit pas à valider l’outillage générique ni les 82 contrôles annoncés.
+
+| Réserve | Statut | Preuves indépendantes sur `63246ad` et limites |
+| --- | --- | --- |
+| PUB-03 — ancien P1 | **Résolu** | Après des assemblages réels réussis, injection de sorties muettes 0 puis d’échecs 73 : absence de `dist` avant chaque appel ciblé et échec explicite des assertions concernées. Le deuxième build du contrôle de déterminisme, neutralisé seul, est également détecté. La conclusion ne repose pas sur le seul code final de la suite, déjà non nul à cause de PUB-05. |
+| PUB-05 — P2 | **Partiellement résolu** | Les dix exclusions testées indépendamment sont refusées pour le bon motif, avec manifeste et sentinelle conservés, notamment `PUBLICATION.JSON`, `DIST/old.txt`, `docs/review.md` et `Claude outputs/internal.txt`. La correction de l’assembleur est confirmée ; la préparation livrée écrase toutefois son propre manifeste sur le volume insensible à la casse et empêche les dix contrôles d’atteindre l’assembleur. |
+| PUB-06 — ancien P2 | **Résolu** | Sept variantes indépendantes de collisions sont refusées avec code 1 avant nettoyage, sentinelle intacte : `robots.txt/child.txt`, `robots.txt`, `ROBOTS.TXT`, `_headers`, `_HEADERS/child.txt`, `SITEMAP.XML`, `Shared/intrus.css`. Les contrôles de collisions de la suite passent aussi. |
+| PUB-07 — ancien P2 | **Résolu** | Scripts absents/distants, URL CSS absentes/distantes dans un bloc style, racine utilisée comme image et attribut `src` dupliqué : refus 1. Retrait de `js/main.js` du manifeste réel copié : refus 1 signalant les quatre pages qui le référencent. Apostrophe française, lien de crédit distant, navigation racine et ressources script/style présentes : acceptés 0. |
+| PUB-08 — P2 | **Partiellement résolu** | Entités dans le nom de googlebot et dans noindex, ainsi que doublon de `name` : refus 1. Commentaire et template simple du rapport précédent : HTML correct, code 0. Trois variantes déplaçant les templates pendant la transformation échouent à tort avec « 2 balise(s) robots effective(s) après transformation, 1 attendue ». |
+
+### Corrections indispensables restantes
+
+#### PUB-05 — P2 — La fixture `PUBLICATION.JSON` détruit son manifeste sur un volume insensible à la casse
+
+**Fichier / lignes :** `scripts/verif-assemblage.mjs:519-540`, particulièrement **531** et **538**. Les corrections de l’assembleur (`scripts/assemble-site.mjs:232-262,908-918`) ne sont pas remises en cause par ce défaut de test.
+
+**Scénario reproduit :** dans un dossier jetable sur le volume macOS utilisé, `publication.json` et `PUBLICATION.JSON` existent sous les deux graphies et ont le même inode. Écrire `{}\n` dans le second fait lire `{}\n` dans le premier. C’est exactement l’écriture inconditionnelle de la ligne 531, répétée dans les dix fixtures d’exclusions. Elle réussit : le `.catch(() => {})` ne protège donc rien. La lecture JSON suivante produit `{}`, puis l’étalement de `m.publicFiles` échoue avant l’appel à `refus`.
+
+**Résultat de la suite inchangée : 71 réussis, 11 échecs, code 1**, et non 82 réussis. Dix erreurs portent le message `m.publicFiles is not iterable`. Le onzième échec est l’auto-test concurrent, avec deux codes enfants 1. Deux exécutions enfants supplémentaires, lancées indépendamment en parallèle, confirment chacune **67 réussis / 10 échecs**, exclusivement les mêmes préparations d’exclusions, dans des bacs distincts. Ce résultat ne démontre pas une collision entre processus.
+
+**Contre-épreuve sans écrasement :** préparer un manifeste valide dont `publicFiles` contient `PUBLICATION.JSON`, sans réécrire ce chemin lorsqu’il désigne déjà le manifeste. Vérifier que la ressource existe avant le build, puis comparer le manifeste et la sentinelle avant/après. Résultat observé : code 1, motif « manifeste, configuration ou outillage exclu », manifeste inchangé et ancienne sortie intacte. Les neuf autres exclusions préparées séparément donnent également les refus attendus, avec conservation des données factices.
+
+**Conséquence :** la suite de référence est inutilisable comme validation verte sur ce volume et n’exerce pas les règles qu’elle prétend tester. Les auto-tests d’injection qui se contentent d’un code enfant non nul ne suffisent pas, dans cette situation, à prouver l’effet de leur injection. Les dégâts observés restent confinés aux manifestes temporaires ; aucun manifeste du dépôt de travail n’a été modifié.
+
+**Correction recommandée :** préparer uniquement les entrées nécessaires à chaque cas. Pour la variante de casse, utiliser l’alias existant sans l’écrire ; si un fichier distinct doit être créé sur volume sensible à la casse, employer une création exclusive et traiter explicitement le cas d’existence. Contrôler que le manifeste valide a été conservé et que le refus vient de l’exclusion attendue. Rejouer ensuite la suite inchangée sur les deux types de volumes. Ne pas convertir cette erreur de préparation en succès attendu ou en test ignoré.
+
+#### PUB-08 — P2 — Le contrôle final robots utilise les anciennes positions des templates
+
+**Fichier / lignes :** `scripts/assemble-site.mjs:538-541,567-581` ; capture de **`doc.zonesInertes` à la ligne 540**, réutilisée lors de l’appel final **576**.
+
+**Scénarios reproduits**, sur un site factice `kind=portfolio`, en production, avec `index.html` et `404.html` déclarés :
+
+1. Pas de robots initial dans le head ; le body contient `<template><meta name=robots content=index></template>`. L’insertion dans le head décale le template du body.
+2. Le head contient `<meta name="robots" content="noindex, nofollow, nosnippet, noarchive"><template><meta name=robots content=index></template>`. Le remplacement raccourcit la première balise et décale le template vers le début.
+3. Le head contient `<meta name=robots><template><meta name=robots></template>`. Le remplacement allonge la première balise et décale le template vers la fin.
+
+Les trois assemblages retournent **1**, avec **« 2 balise(s) robots effective(s) après transformation, 1 attendue »**. La balise du template est pourtant inerte. En contrôle positif, le template seul dans le head, suivi de l’insertion robots, passe ; une balise initiale déjà égale à `<meta name="robots" content="index, follow">` suivie du même template passe aussi. Le contenu inerte est préservé et une unique balise active est présente dans les HTML positifs examinés.
+
+**Cause :** `docFinal` recalcule correctement les positions sur le document reconstruit, mais `metas` ferme sur `doc.zonesInertes`, issu du HTML avant modification. Ses indices de balises viennent du nouveau masque, ses intervalles d’inertie de l’ancien. Après changement de longueur, une meta inerte est comptée comme active.
+
+**Conséquence :** un HTML valide fait échouer la publication en fonction de la position et de la longueur de ses balises. La correction du cas template initial ne couvre pas la transformation générale. Aucun contournement supplémentaire d’indexation n’est revendiqué sur ces variantes : le défaut reproduit est un faux refus de build. Les templates concernés ne sont pas présents dans le site réel comparé ci-dessous.
+
+**Correction recommandée :** faire dépendre l’extraction des metas du document analysé transmis à chaque appel, y compris de ses propres `zonesInertes`. Au contrôle final, utiliser exclusivement le masque, les intervalles et la source du document final. Ajouter les trois variantes ci-dessus et les contrôles sans changement de longueur ; vérifier une unique meta active dans le head tout en conservant le template intact.
+
+### Preuves complémentaires de clôture de PUB-03
+
+Localisation : `scripts/verif-assemblage.mjs:185-194,380-396,789-803`. La suite livrée n’a pas été corrigée pour ces essais. Un préambule injecté uniquement dans une copie de l’assembleur compte les appels du site réel dans le bac principal `depot`, laisse les premiers appels fonctionner normalement, puis neutralise les appels à partir du septième. Les autres fixtures restent exécutées par le véritable assembleur.
+
+- **Succès muet après succès :** appels 7 à 10 observés, chacun avec `distExists: false` avant retour 0. Les contrôles déterminisme, isolation, notice et inventaire échouent explicitement avec « l’assembleur a retourné 0 sans produire de sortie ». Le deuxième appel du test de déterminisme n’a pas lieu lorsque le premier échoue, d’où quatre appels neutralisés dans ce rejeu, et non les cinq de l’ancien défaut.
+- **Échec non nul après succès :** même ciblage, retour 73 ; ces quatre contrôles signalent explicitement le code 73. Les lectures ultérieures de ressources/robots échouent aussi faute de sortie, au lieu de relire un ancien artefact.
+- **Deuxième assemblage seul :** neutralisation du seul appel 8, après réussite de l’appel 7 du déterminisme. Le test de déterminisme échoue pour absence de sortie ; les contrôles de production suivants repassent. Résultat enfant : 66 réussis / 11 échecs, dont les dix erreurs indépendantes de préparation PUB-05.
+
+Pour les deux injections continues, résultat enfant **61 réussis / 16 échecs** : dix échecs de préparation déjà présents sans injection, quatre assertions de production et deux lectures dépendantes. Les premiers assemblages production/preview sont explicitement réussis dans les journaux. C’est cette différence de résultats et l’observation de la sortie supprimée, non le seul code final 1 ni le succès déclaré des auto-tests, qui étayent la clôture de PUB-03.
+
+### Rejeu, artefact réel et limites
+
+Conventions relues et `git pull --ff-only` effectué avant écriture. Diff correctif et scripts inspectés avant exécution. Tous les essais ont utilisé **Node officiel Darwin arm64 `v22.23.2`**, identique à `.node-version`, avec le binaire déjà vérifié lors de la précédente contre-vérification. Aucun runtime alternatif n’a servi à ces conclusions.
+
+Les copies proviennent de `git archive` et les fixtures sont entièrement factices, sous le répertoire temporaire unique **`/private/tmp/review-publication-63246ad.aX5kVQ`**. Le rejeu complet conservé est dans **`run-z5qyjQ/`** : `results.json`, `observations.json`, `suite-nominal.log`, journaux des injections, `followup-results.json` et journaux des deux enfants concurrents. Les harnais indépendants `verify.mjs` et `followup.mjs` sont à la racine de ce dossier temporaire. `TMPDIR` est borné à son sous-dossier `temp/` ; celui-ci est vide à l’issue des essais. L’inventaire et les empreintes de la copie source utilisée par le rejeu principal sont inchangés. Aucun script n’a été exécuté dans le dépôt de travail.
+
+Un premier passage du harnais indépendant s’est arrêté sur une erreur de chemin dans son propre comparateur : il cherchait une ressource commune sous `dist/design-system/` au lieu de `dist/shared/design-system/`. Seul ce harnais temporaire a été ajusté et le passage complet ci-dessus a été relancé dans un nouveau sous-dossier unique. Cette erreur de préparation n’est ni un défaut de la livraison ni une comparaison d’artefact réussie.
+
+| Comparaison indépendante | Résultat observé |
+| --- | --- |
+| Assemblages réels des révisions `33d71b4`, `8cedeb3`, `63246ad`, chacun en production et preview | Six codes 0 sous Node 22.23.2 |
+| Inventaire attendu par le manifeste | Exactement 42 fichiers à chaque fois : 5 pages, 28 publics, 7 partagés, `robots.txt`, `_headers` ; aucun ajout ou manque |
+| Ressources copiées | 35 fichiers identiques octet pour octet aux sources de leur révision, dont photos, fontes et notices |
+| Comparaison des sorties | Mêmes chemins et mêmes SHA-256 individuels pour les 42 fichiers des six artefacts, HTML compris |
+
+L’agrégat SHA-256 du dictionnaire JSON trié des chemins vers leurs SHA-256 est à nouveau **`61baa3bee04b5a01a478f29523b052453ed26c0ebec90a64dd1da0e9f72838c4`**. Cette méthode est celle de la précédente contre-vérification indépendante ; elle ne doit pas être confondue avec l’agrégat shell annoncé par Claude.
+
+Limites : exécution sur le volume macOS **insensible à la casse**, propriété vérifiée par alias de fichier et inode ; aucun rejeu sur volume sensible à la casse ou Linux n’est revendiqué. La suite complète exécute ses contrôles existants, notamment son test d’interruption, mais les constats déjà clos ne sont pas rouverts. Les journaux temporaires ne sont pas versionnés et pourront disparaître ; les scénarios, résultats et limites utiles sont consignés ici. La comparaison confirme l’absence de régression de l’artefact actuel, pas une preuve exhaustive de tous les HTML/CSS possibles.
+
+**Suite requise :** corriger la préparation de PUB-05 et les positions utilisées dans PUB-08, puis contre-vérifier ces deux réserves et obtenir une suite complète verte sur le volume concerné. PUB-A1 reste facultatif et différé. Aucun ancien contrôle fonctionnel, point P06 ou avis artistique rouvert. Les vérifications HTTP effectives (statut 404, redirections, en-têtes, HTTPS, règles d’hôte) restent distinctes, réservées à QA sur l’hébergement après autorisation. Aucun compte, connexion Cloudflare ou déploiement ; seul ce rapport est modifié dans le dépôt.
