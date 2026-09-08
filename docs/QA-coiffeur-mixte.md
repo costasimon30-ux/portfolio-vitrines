@@ -1,143 +1,278 @@
 # QA / Audit — coiffeur-mixte
 
-## Verdict actuel — 7 septembre 2026
+## Verdict actuel — recette hébergée du 8 septembre 2026
 
-**CR2-04 clôturé sur `9f60163` : réserve locale de chargement levée.** Sur les quatre pages à 320/375/768 px, le menu reste stable et le contenu est effectivement visible avant la libération de `main.js`, retardé de 1 500 ms. Le menu natif fonctionne aussi avec le script bloqué ou JavaScript désactivé. Les contrôles clavier, d’accessibilité du déclencheur, de navigation desktop et du lien d’évitement passent. Aucune anomalie locale ouverte dans ce périmètre ciblé ; la publication publique reste soumise aux contrôles de déploiement listés plus bas.
+**Avis QA favorable avec réserves mineures pour la démonstration de portfolio à l’URL HTTPS ci-dessous. Aucun défaut bloquant ou majeur identifié dans le périmètre exécuté.** Trois anomalies restent ouvertes : HTTP non redirigé vers HTTPS (HQA-01), titres occultés à l’arrivée sur certaines ancres (HQA-02), requête automatique de favicon en 404 à l’ouverture des crédits (HQA-03). Elles ne rendent pas les parcours principaux inutilisables ; leur acceptation pour la mise en avant relève de Simon.
 
-**Commit contrôlé :** `9f601636ce459d3cc78ab3951a27222abb1975d0` (`9f60163`, livraison de Claude sur `main`). `git pull --ff-only` effectué le 7 septembre avant cette passe : dépôt à jour.
+Les contrôles autrefois en attente de l’hébergement sont désormais réalisés : accès et rechargements, redirections, vraies 404, distribution des ressources, polices locales, notices, directives de non-indexation et absence de traceurs observée. **QA-07 et QA-08 sont clôturés sur la cible observée. CR2-04 reste clôturé**, sans prétendre avoir rejoué aujourd’hui les retards artificiels du 7 septembre.
 
-**Périmètre du 7 septembre :** CR2-04 et non-régression directe du menu `details/summary`, du clavier, de la navigation desktop et du lien d’évitement sur les quatre pages. Les autres constats corrigés restent issus de la passe du 5 septembre sur `5827a14` ; ils ne sont pas présentés comme un nouvel audit complet. Le présent verdict remplace la réserve de chargement de cette passe.
+**URL auditée :** [Créa’Tif — Worker public](https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/). Recette indépendante le **8 septembre 2026**, observations HTTP et navigateur entre **17 h 51 et 18 h 09 UTC** (19 h 51–20 h 09, Europe/Paris). Ce verdict est un instantané, pas une surveillance permanente ni une autorisation de correction ou de republication.
 
-**Référentiel :** `CLAUDE.md`, `docs/WORKFLOW.md`, `docs/AGENTS.md`, `docs/DIRECTION.md`, `docs/ARCHITECTURE.md` et `docs/CODE-REVIEW-coiffeur-mixte.md` (passe 2, publiée dans `dcdadb9`).
+### Version annoncée et version effectivement vérifiable
 
-## État de chaque anomalie
+| Élément | Constat |
+| --- | --- |
+| Source annoncée par le handoff | `619d931cf972e6c5df816587a705ddb932690c51` |
+| Code validé par le Reviewer | `ad0aa8ad21a5f373caddb71b329eef2d9f5e0b43` |
+| Référentiel produit | `docs/DIRECTION.md`, arbitrage Workers de `0154069` |
+| Référentiel architecture | Mise à jour Workers manuels de `e2a3d37`, intégrée pendant cette recette |
+| Synchronisation | `git pull --ff-only` au début et avant rédaction ; `main` à `e2a3d37` avant ce rapport. Aucun changement des sources publiables entre `619d931` et ce HEAD. |
+| Mode de publication déclaré | Workers Static Assets, dépôt manuel de l’artefact, sans Git connecté ni build distant |
+| Preuve indépendante sur les octets | **41/41 fichiers publics**, corps HTTP décompressés, SHA-256 identiques aux fichiers correspondants de l’artefact de référence validé sur `ad0aa8a` |
+| Version / déploiement Cloudflare | Identifiants non fournis et non exposés dans les réponses consultées ; **non vérifiés** |
+| Previews distantes | Aucune déclarée active : **non applicable**, et non « validée » |
 
-Les priorités rappellent la gravité initiale. Les identifiants CR2 correspondent, dans l’ordre, aux quatre constats P2 de la seconde Code Review. QA-02, QA-05, QA-06, CR2-01 et CR2-04 sont contre-vérifiés le 7 septembre ; les autres résultats locaux sont conservés depuis le 5 septembre.
+L’artefact de référence conservé par la Code Review contient 42 fichiers : cinq HTML, 35 ressources, `robots.txt` et `_headers`. Son inventaire a été relu et son agrégat recalculé : SHA-256 du JSON compact du dictionnaire **chemins relatifs triés → SHA-256 des octets**, soit :
 
-| Identifiant | Priorité | État actuel | Preuve / portée de la vérification |
-| --- | --- | --- | --- |
-| QA-01 — Coordonnées fictives actionnables | Majeur | Corrigé, correction conservée | Aucun lien `tel:` ou `mailto:` dans les quatre pages. Les coordonnées du Salon sont du texte, explicitement fictif et non actionnable. Le CTA conduit au bloc Contact. |
-| QA-02 — Navigation mobile sans JavaScript | Majeur | Corrigé, nouveau mécanisme vérifié | Quatre pages × trois largeurs × quatre scénarios : menu natif replié au repos, utilisable avant le script, après son rejet et sans JavaScript ; aucun débordement horizontal. |
-| QA-03 — Médias et portraits fictifs | Majeur | Corrigé, correction conservée | Contrôle statique : compositions `.deco` décoratives avec `aria-hidden="true"`, absence des anciennes grilles de portraits et galeries. |
-| QA-04 — Structures Coiffure / Barbier | Majeur | Corrigé, correction conservée | Contenus et ordre des sections comparés à la direction ; structure et titres Barbier vérifiés dans le DOM et l’arbre d’accessibilité Chromium. |
-| QA-05 — Menu restant ouvert sur l’ancre Contact | Mineur | Corrigé avec JS ; repli manuel sans JS | Après chargement du script, l’activation de Contact ferme `details`, y compris sur Salon. Sans script, l’ancre fonctionne mais le menu reste ouvert sur la page courante ; fermeture native avec Entrée/Espace sur « Menu ». |
-| QA-06 — Focus du lien d’évitement | Mineur | Corrigé, non-régression vérifiée | Tab → Entrée place réellement le focus sur `main#main` sur les quatre pages, en mobile et desktop ; Tab suivant continue dans le contenu en mobile. |
-| QA-07 — Indexabilité et configuration finale | Mineur | En attente du déploiement | URL, choix d’indexation et configuration de l’hébergeur non disponibles. Aucun résultat de production ne peut être déduit du serveur local. |
-| QA-08 — Dépendance Google Fonts | Mineur | Corrigé localement ; livraison des assets à confirmer sur l’hébergeur | Les quatre WOFF2 locaux répondent 200 et sont chargés sur chaque page ; aucune requête tierce observée. Seuil obligatoire : **avant la première publication publique**, selon ARCHITECTURE. |
-| QA-09 — Grille CSS inutilisée | Mineur | Corrigé, correction conservée | Contrôle statique : anciennes règles `.grid`, `.team-grid` et `.gallery` absentes. |
-| CR2-01 — Focus Salon | Mineur (P2) | Corrigé | Même vérification que QA-06 ; `salon.html:37` possède `tabindex="-1"`. |
-| CR2-02 — Étapes Barbier non ordonnées | Mineur (P2) | Corrigé dans le DOM et Chromium | `barbier.html:85-101` : `ol.steps` et trois `li`, dans l’ordre Échanger → Dessiner → Entretenir ; l’arbre d’accessibilité expose une liste et trois éléments. |
-| CR2-03 — « Entre deux visites » en h3 | Mineur (P2) | Corrigé | `barbier.html:109` : `h2`, également exposé au niveau 2 dans l’arbre d’accessibilité. |
-| CR2-04 — Flash du menu au chargement | Mineur (P2) | **Clôturé le 7 septembre** | 24 observations avant réponse du script : contenu visible avant `DOMContentLoaded`, en-tête stable à 81 px et état du menu conservé après libération ou rejet. Voir le protocole et les résultats ci-dessous. |
+```text
+61baa3bee04b5a01a478f29523b052453ed26c0ebec90a64dd1da0e9f72838c4
+```
 
-## Contre-vérification de CR2-04 — 7 septembre
+Les 41 fichiers servis sont tous identiques individuellement à cette référence. `_headers` est une configuration non publique : son URL retourne 404, mais ses effets sont vérifiés dans les réponses. L’empreinte shell annoncée par Claude (`c6ddb471aa4a6337754b8dd886866c1b2446587cedec2b3582ae2943a573be9d`) utilise une autre méthode ; elle n’est pas assimilée à cet agrégat.
 
-### Méthode et preuve avant libération du script
+**Portée de la preuve :** équivalence des contenus publics avec l’artefact validé, pas identification unique d’un commit ou du déploiement actif dans le compte Cloudflare. Plusieurs commits peuvent produire les mêmes octets ; le HEAD documentaire n’est pas présenté comme publié. Aucun nouvel assemblage ni rejeu de la suite de publication n’a été effectué.
 
-Tests indépendants avec Playwright et **Google Chrome 152.0.7977.77 (Chromium)**, en mode headless, sur un serveur HTTP local temporaire servant la racine du dépôt. Contextes neufs, cache HTTP désactivé par le serveur, largeur en pixels CSS et hauteur de 900 px.
+## Méthode et couverture
 
-Pour les scénarios retardés, seule la requête `**/js/main.js` est interceptée et retenue par un temporisateur de 1 500 ms, puis libérée ou rejetée. Le délai mesuré est de 1 500 à 1 502 ms. HTML, CSS et polices restent disponibles. Un scénario séparé rejette immédiatement le script ; un autre désactive JavaScript au niveau du navigateur.
+Conventions `CLAUDE.md`, `docs/WORKFLOW.md`, `docs/AGENTS.md`, DIRECTION, ARCHITECTURE et rapports QA / Code Review / UX existants lus. Les validations d’assemblage, de direction artistique et la réserve P06 ne sont pas rouvertes. **PUB-A1 reste facultatif et différé.**
 
-**L’observation pendant l’attente n’attend pas DOMContentLoaded.** La navigation initiale attend seulement l’engagement de la réponse HTML (`waitUntil: "commit"`). Pendant que la requête du script est toujours retenue, le test relève le rectangle et la visibilité du H1, vérifie qu’il n’est pas occulté, mesure l’en-tête, inspecte l’arbre d’accessibilité, prend une capture du viewport et actionne le menu au clavier.
+Requêtes GET indépendantes avec suivi explicite des redirections, validation TLS active, inspection des en-têtes et comparaison des corps. Parcours avec **Google Chrome 152.0.7977.77**, piloté par Playwright en mode headless sur macOS, contextes isolés. Viewports en pixels CSS ; contrôle du DOM, du focus réel, de l’arbre d’accessibilité Chromium, des dimensions, décodage des images et captures examinées. Préférence de mouvement réduit dans les essais navigateur.
 
-Sur les **24 cas retardés** (12 libérations + 12 rejets après attente) :
+### Quatre pages sur quatre formats
 
-- Le contenu est observé **53 à 205 ms après l’interception**, avec `domContentLoadedEventStart === 0` dans tous les cas et la réponse du script toujours retenue.
-- Les captures sont terminées **87 à 271 ms après l’interception**, donc bien avant les 1 500 ms ; elles montrent le titre et le contenu du hero, pas seulement un élément présent dans le DOM.
-- Le suivi par trames de rendu relève un en-tête de **81 px pendant toute l’observation**, avant et après la réponse, y compris pendant l’ouverture volontaire du menu.
-- Le menu est initialement fermé. Entrée/Espace l’actionnent avant l’exécution du script ; laissé ouvert pendant sa libération ou son rejet, il reste ouvert. La position verticale du H1 ne change pas.
-- Le contenu principal existe dès la première trame échantillonnée. Les observations et captures avant réponse, et non cette seule présence DOM, fondent la clôture du défaut d’affichage.
+Chaque cellule couvre accès direct, rechargement, rendu, images, fontes, absence de débordement horizontal, menu/navigation, clavier et lien d’évitement, arrivée au Contact et consultation de la notice depuis le footer.
 
-### Matrice mobile
-
-Chaque cellule couvre Accueil, Coiffure, Barbier et Salon. Total : **48 cas**, tous conformes aux comportements décrits ici.
-
-| Largeur CSS | main.js retardé de 1 500 ms puis chargé | main.js bloqué immédiatement | JavaScript désactivé | main.js retardé de 1 500 ms puis bloqué |
+| Page | 320 × 568 | 375 × 667 | 768 × 1024 | 1440 × 900 |
 | --- | --- | --- | --- | --- |
-| 320 px | 4/4 | 4/4 | 4/4 | 4/4 |
-| 375 px | 4/4 | 4/4 | 4/4 | 4/4 |
-| 768 px | 4/4 | 4/4 | 4/4 | 4/4 |
+| Accueil | Conforme* | Conforme* | Conforme* | Conforme* |
+| Coiffure | Conforme* | Conforme* | Conforme* | Conforme* |
+| Barbier | Conforme* | Conforme* | Conforme* | Conforme* |
+| Le salon | Conforme* | Conforme* | Conforme* | Conforme* |
 
-Dans les quatre scénarios, le contenu est visible, le menu reste replié au repos et ses cinq liens rentrent dans le viewport à l’ouverture. `scrollWidth === innerWidth` menu fermé et ouvert. Aucune exception JavaScript ni échec réseau inattendu dans ces parcours ; les rejets du script sont volontaires.
+**16/16 parcours passent leurs contrôles fonctionnels.** *« Conforme » ne signifie pas absence de toute réserve : le positionnement des titres après une ancre fait l’objet de HQA-02 ; le favicon de la notice fait l’objet de HQA-03.*
 
-### Clavier, état accessible et relation à la navigation
+Après défilement de toute la page, toutes les images visibles sont décodées (`naturalWidth > 0`), les quatre fontes sont chargées, `scrollWidth === innerWidth` et aucun élément visible de `main` ou du footer ne dépasse horizontalement. Les captures et les mesures ne constituent pas une nouvelle appréciation artistique.
 
-Sur les 48 cas mobiles :
+### Clavier, menu et évitement
 
-- Tab atteint le lien d’évitement, le logo puis `summary`, avec un focus visible sur le déclencheur.
-- Entrée ouvre le menu ; Espace le ferme puis le rouvre. Tab passe du déclencheur au premier lien, puis parcourt Accueil, Coiffure, Barbier, Le salon et Nous contacter dans cet ordre.
-- L’arbre d’accessibilité expose `summary` comme un contrôle natif `DisclosureTriangle`, nommé **« Menu »**, avec `expanded: false` fermé et `expanded: true` ouvert. L’absence d’un attribut HTML `aria-expanded` n’entraîne donc pas ici une absence d’état accessible.
-- À l’ouverture, la relation `controls` pointe effectivement vers le nœud `primary-nav`, exposé comme repère **« Navigation principale »**. La navigation est un frère de `details` dans le DOM ; sa relation avec le contrôle n’a pas été supposée à partir de la seule proximité visuelle.
-- Fermée, la navigation principale est absente de l’arbre d’accessibilité. Ouverte, elle et ses liens sont accessibles ; le prochain Tab atteint directement le premier lien.
+- Sur les 16 parcours : premier Tab sur « Aller au contenu principal », Entrée place **réellement** `document.activeElement` sur `main#main`, puis Tab continue dans le contenu.
+- À 320/375/768 px : menu initialement replié, focus visible sur « Menu », Entrée ouvre, Espace ferme et rouvre, Tab atteint les liens. Avec JS, Échap ferme et rend le focus au déclencheur ; Contact referme le menu.
+- À 1440 px : navigation affichée, déclencheur mobile masqué, liens accessibles dans l’ordre au clavier.
+- Relevé complémentaire à 375 px sur les quatre pages : Tab parcourt **Accueil → Coiffure → Barbier → Le salon → Nous contacter**, contours de focus visibles ; Entrée sur ce dernier lien atteint `/salon#contact`.
+- L’arbre d’accessibilité expose le contrôle natif `DisclosureTriangle`, nommé « Menu », état `expanded: false/true`. Ouvert, sa relation `controls` référence effectivement `primary-nav`, repère « Navigation principale ». Fermé, ce repère est absent de l’arbre accessible. L’absence d’un attribut HTML `aria-expanded` n’est pas traitée comme un défaut lorsque l’état natif est bien exposé.
+- **Sans JavaScript : quatre pages à 375 × 667**, accès, rechargement, contenu, menu natif, clavier, lien d’évitement, Contact et notice passent. Fermeture manuelle sans JS toujours acceptée ; pas de promesse d’Échap ou de fermeture automatique.
+- Aucun scénario de `main.js` retardé/bloqué n’est rejoué sur l’hébergement : sa validation antérieure reste bornée à la passe locale documentée plus bas.
 
-**Différence de comportement à conserver explicitement :** Échap et la fermeture automatique après un lien sont des améliorations de `main.js`. Après son chargement, Échap ferme le menu et rend le focus à « Menu » ; Contact ferme aussi le menu sur Salon. Pendant l’attente, après rejet ou sans JavaScript, Échap ne ferme pas le menu et l’ancre Contact de la page Salon le laisse ouvert. Il reste refermable nativement avec Entrée/Espace sur « Menu », accessible par Maj+Tab depuis les liens. Ce repli fonctionnel est acceptable pour la démo et ne reproduit pas CR2-04.
+### Zoom natif 200 %
 
-Ces constats valident les informations exposées à Chromium. Ils ne constituent pas une vérification de leur annonce vocale exacte par VoiceOver/Safari ou NVDA.
+Le réglage **200 % de Chrome** est appliqué dans un profil temporaire isolé, pas simulé par une transformation CSS ou un zoom tactile. Fenêtre de 1440 px : largeur intérieure de **1440 → 720 px CSS**, `devicePixelRatio: 1 → 2`, hauteur intérieure à 200 % de 456 px, `visualViewport.scale: 1`.
 
-### Contrôles brefs desktop et lien d’évitement
+Sur les quatre pages : contenu redistribué, `scrollWidth = 720`, aucun débordement mesuré dans le contenu/footer ; menu, focus du lien d’évitement, Échap et accès Contact fonctionnent. Captures viewport natives contrôlées ; les captures « full page » rognées par l’outil à ce zoom ne sont pas retenues comme preuve visuelle. La réserve d’ancres reste distincte de la redistribution correcte à 200 %. Pas de certification du zoom sur Safari/iOS ou Firefox.
 
-**24 cas desktop :** quatre pages × 1024/1440 px × JS actif/script bloqué/JS désactivé. Navigation visible, liens dans le viewport, déclencheur mobile masqué et absent de l’arbre d’accessibilité une fois la navigation achevée. Tab atteint directement les liens après le logo ; un changement de page vers Coiffure est activé par Entrée, y compris un rechargement depuis Coiffure. Le repère « Navigation principale » reste exposé.
+## Résultats HTTP, ressources et indexation
 
-Sur les quatre pages, en mobile comme en desktop, Tab → Entrée sur le lien d’évitement place `document.activeElement` sur `main#main`. Le Tab suivant continue dans le contenu en mobile. Pas de régression du correctif QA-06 / CR2-01.
+### HTTPS, routes et redirections
 
-### Décision de clôture
+Connexion HTTPS acceptée sans ignorer les erreurs de certificat : **TLS 1.3**, certificat Google Trust Services WE1, SAN couvrant `*.costa-simon30.workers.dev`, valide du 8 septembre au 7 décembre 2026. HTTP/2 observé avec curl et HTTP/3 dans Chrome. L’accès HTTPS fonctionne ; l’entrée en HTTP reste un défaut séparé (HQA-01).
 
-**CR2-04 est clôturé.** Le correctif repose sur `details/summary` et le sélecteur CSS de l’état `[open]`, indépendants du chargement de `main.js` ; le script est désormais `defer` (`*.html:35`). Les essais avant sa libération prouvent que ce changement supprime le flash développé → replié et l’attente du contenu constatés sur `5827a14`.
+Tous les chemins ci-dessous sont relatifs à l’origine auditée.
 
-Aucune correction supplémentaire n’est demandée au titre de CR2-04. La fermeture manuelle de secours et les limites de couverture des navigateurs restent documentées ci-dessus.
+| Requête | Résultat observé |
+| --- | --- |
+| `/`, `/coiffure`, `/barbier`, `/salon` | 200 ; accès direct et rechargement fonctionnels |
+| `/index.html`, `/index` | 307 vers `/`, puis 200 |
+| `/coiffure.html`, `/barbier.html`, `/salon.html` | 307 vers la route sans extension, puis 200 |
+| `/coiffure/`, `/barbier/`, `/salon/` | 307 vers la route sans slash final, puis 200 |
+| `/index/` | 307 vers `/index`, puis 307 vers `/`, puis 200 ; pas de boucle |
+| `/salon.html?qa=hosted#contact` et `/salon/?qa=hosted#contact` dans Chrome | Arrivée `/salon?qa=hosted#contact`, paramètres et fragment conservés, y compris après rechargement |
+| `/index.html#univers` | Arrivée `/#univers`, fragment conservé |
+| `/index.html/`, `/coiffure.html/` | 404 ; variantes mal formées, non émises par les liens du site |
+| `/404.html` | 307 vers `/404`, puis 200 pour l’accès direct au document d’erreur ; ne préjuge pas des vraies URL inconnues |
 
-## Résultats antérieurs conservés — passe du 5 septembre
+**Le statut 307 n’est pas une anomalie ici.** Les liens relatifs actuels fonctionnent après normalisation ; aucune boucle ni dégradation HTTPS → HTTP n’a été observée dans ces chaînes.
 
-Les constats sur les coordonnées fictives, les compositions décoratives, les séquences et titres Barbier, le CSS inutilisé et l’auto-hébergement des polices proviennent de la contre-vérification de `5827a14`, publiée dans `474b3e8`. Leur détail demeure dans cette version Git du rapport. La présente passe ne renouvelle pas ces audits.
+### Vraies 404 et absence ciblée de contenu interne
 
-Les polices locales avaient répondu HTTP 200 sur les quatre pages : Cormorant Garamond 600 et DM Sans 400/600/700, quatre WOFF2 totalisant 66 088 octets, avec `font-display: swap`, sans requête tierce et avec un repli système lisible. Aucun changement de `shared/design-system/` n’est présent entre les deux livraisons.
+`/inexistant-qa-20260908`, `/dossier/inexistant-qa-20260908` et `/dossier/profond/inexistant.html` retournent **HTTP 404**, sans repli 200 vers l’accueil. Le corps correspond à la 404 personnalisée (SHA-256 `f79a363d3468fda9553d2519461bb8f7b627bb1a4d0a2b8771f55743fec2dad6`). CSS, fontes utilisées et favicon SVG restent accessibles depuis la route imbriquée.
 
-**Seuil inchangé, conforme à ARCHITECTURE : auto-hébergement obligatoire avant la première publication publique du portfolio**, pas seulement avant une production commerciale. Sa distribution sur la cible reste à confirmer.
+Tests navigateur à 375 × 667 sur les deux premiers chemins : message lisible, premier lien atteint avec Tab, Entrée sur le retour mène à `/` et affiche le H1 d’accueil. Aucune ressource requise en échec.
 
-## Contrôles restant hors de cette passe
+**17 chemins internes ciblés : tous 404 avec la page d’erreur, sans restitution du fichier recherché.**
 
-### Dépendants du déploiement ou de sa configuration
+```text
+/docs/
+/docs/QA-coiffeur-mixte.md
+/docs/DIRECTION.md
+/docs/captures/coiffeur-mixte/1d59fef/accueil-375x667-page.png
+/publication.json
+/sites/coiffeur-mixte/publication.json
+/CLAUDE.md
+/README.md
+/.git/config
+/.env
+/.node-version
+/scripts/assemble-site.mjs
+/wrangler.jsonc
+/wrangler.toml
+/sites/restaurant-le-jardin/index.html
+/package.json
+/_headers
+```
 
-- **QA-07 — URL et indexation :** définir puis vérifier les URL canoniques, le choix d’indexer ou non la démo, `robots.txt` et le sitemap au niveau réellement publié. L’absence de configuration finale ne prouve pas à elle seule une impossibilité d’indexation.
-- **Distribution des ressources partagées :** les chemins `../../shared/design-system/` fonctionnent dans l’arborescence locale servie. Confirmer que le déploiement indépendant du site embarque CSS et fontes au bon emplacement ; publier uniquement le dossier du site sans adaptation ne suffit pas.
-- **Hébergement :** HTTPS, redirections, réponses 404, compression, cache, types MIME et éventuelle CSP restent à vérifier sur l’hébergeur retenu. Les réponses 200 du serveur temporaire ne valident pas ces réglages de production.
-- **Performance publique :** pas de score Lighthouse publié ni de mesure terrain des Core Web Vitals dans cette passe. Le retard contrôlé de 1,5 s est un scénario de diagnostic, pas une mesure de latence réelle.
-- **Cookies sur la version publiée :** aucune écriture de cookie ou de stockage dans le code inspecté et aucun cookie document ni appel tiers observé localement. Vérifier les éventuels ajouts de l’hébergeur sur l’URL finale avant de conclure pour la version publique.
+Cette liste est une vérification bornée, pas un inventaire exhaustif des secrets ou un audit de sécurité du compte. Le chemin d’un autre site est un test de non-exposition, pas l’affirmation que ce site existe dans le dépôt. Le dépôt Git public n’est pas rendu privé par ces réponses.
 
-### Non exécutés, mais possibles avant déploiement
+### Ressources et types MIME
 
-Safari/iOS, Firefox, appareils physiques et lecture vocale VoiceOver/NVDA n’ont pas été testés ici. Les contrastes complets, les très grands écrans et la revue visuelle générale n’ont pas été recommencés ; le contrôle desktop du 7 septembre se limite à la navigation et au lien d’évitement à 1024/1440 px. Ces limites sont distinctes des contrôles qui attendent réellement un hébergement ; elles ne sont pas présentées comme des validations acquises.
+**41 fichiers publics sur 41 : statut final 200 et octets identiques à la référence.**
 
-## Checklist de livraison actualisée
+| Famille | Nombre | MIME réellement servi |
+| --- | --- | --- |
+| Pages, 404 comprise | 5 | `text/html` |
+| CSS du site, tokens et fontes | 3 | `text/css` |
+| Script principal | 1 | `application/javascript` |
+| Images photographiques | 24 | `image/webp` |
+| Fontes locales | 4 | `font/woff2` |
+| Favicon déclaré | 1 | `image/svg+xml` |
+| Notices photo et polices | 2 | `text/plain; charset=utf-8` |
+| `robots.txt` | 1 | `text/plain` |
 
-### Avant la mise en avant définitive
+Les quatre WOFF2 (Cormorant Garamond 600 ; DM Sans 400/600/700) sont chargés depuis la même origine sur les quatre pages. Aucun retour à Google Fonts ni CDN tiers. **Seuil d’architecture : auto-hébergement avant publication publique**, désormais confirmé sur l’URL publique et pas seulement localement.
 
-- [x] Navigation à 320/375/768 px utilisable avec JS actif, désactivé et script bloqué.
-- [x] Liens de navigation et CTA Contact activables au clavier et au clic.
-- [x] Lien d’évitement fonctionnel sur les quatre pages.
-- [x] Séquence et titres Barbier corrigés.
-- [x] Coordonnées fictives sans action téléphone/e-mail.
-- [x] Clore CR2-04 : menu stable et contenu effectivement visible avant libération ou rejet du script, sur les quatre pages à 320/375/768 px.
-- [x] Contrôler l’état accessible de « Menu », sa relation à la navigation et le repli natif sans JavaScript.
-- [x] Vérifier brièvement la navigation desktop et le lien d’évitement.
+Les notices `/assets/photos/NOTICE.md` et `/shared/design-system/fonts/NOTICE.md` restent lisibles et inchangées. Le lien « Crédits et licences photographiques » fonctionne depuis les quatre footers, le retour navigateur aussi. Les **sept URL sources distinctes** des crédits (six Shopify/Burst, une Unsplash) répondent 200 lors du contrôle de disponibilité. Aucun réexamen des droits ou de P06 n’est déduit de ce statut HTTP.
 
-### Avant la première publication publique
+### Non-indexation réellement servie
 
-- [x] Auto-héberger les polices conformément à ARCHITECTURE ; contrôle local réalisé.
-- [ ] Confirmer sur la cible que CSS et WOFF2 partagés sont bien distribués, sans retour à un CDN de polices.
-- [ ] Finaliser QA-07 et vérifier la configuration HTTP, HTTPS, cache et indexation sur la cible.
-- [ ] Vérifier les éventuels cookies ou services ajoutés lors du déploiement.
+- Les cinq HTML possèdent une unique meta `robots` avec **`noindex, follow`**.
+- Les 41 réponses finales de fichiers publics, y compris images, fontes et notices, ainsi que les 404 ciblées, portent **`X-Robots-Tag: noindex, follow`**. Le 307 observé de `/coiffure.html` le porte également.
+- `/robots.txt` répond 200 avec exactement `User-agent: *` puis `Allow: /`. Pas de blocage global empêchant la lecture des consignes de non-indexation.
+- `/sitemap.xml` répond 404 : conforme au contrat de démo non indexable. Ni sitemap de démo ni canonique fictive à réclamer.
+- Titres des quatre pages distincts, descriptions présentes, `lang="fr"`, un H1 par page.
+- La directive est bien distribuée ; son application future par chaque moteur ou une désindexation effective ne sont pas vérifiées. **Noindex ne rend pas le site privé** et ne modifie pas la réserve P06.
 
-### Acceptable pour la démonstration de portfolio
+## Contact, stockage, console et performance
 
-- [x] Réserve locale de chargement levée ; contenu et menu disponibles pendant l’attente du script.
-- [x] Sans JavaScript, fermeture manuelle du menu avec Entrée/Espace ; absence d’Échap et de fermeture automatique sur une ancre de la page courante acceptée comme dégradation de confort.
-- [x] Compositions CSS provisoires décoratives, sans fausse attribution photographique.
-- [x] Coordonnées clairement fictives et non actionnables ; aucune réservation ou collecte simulée.
-- [x] Absence de données structurées de salon réel tant que les informations sont fictives.
-- [x] Aucun bandeau cookies artificiel dans le site statique actuellement testé.
-- [x] Shell dupliqué temporairement pour ce premier site, Eleventy différé au deuxième selon ARCHITECTURE.
+### Contact et consentement
 
-## Traçabilité
+Les CTA atteignent le bloc Contact de la page Salon. Coordonnées clairement fictives, aucun lien `tel:` ou `mailto:`, aucun formulaire ni réservation/collecte simulée. L’absence d’un formulaire est conforme au périmètre, pas un formulaire « testé en envoi ».
 
-Audit initial : `ef194f7` sur `3774de9`. Première contre-vérification : `840c396` sur `e2187ce`. Le détail historique des anomalies corrigées reste consultable dans ces versions Git du rapport. Contre-vérification du 5 septembre : `474b3e8` sur `5827a14`, CR2-04 encore ouvert. Passe ciblée du 7 septembre : `9f60163` testé, CR2-04 clôturé avec observation du contenu avant la réponse du script. Les validations locales ne remplacent pas les contrôles de déploiement.
+Sur les parcours hébergés : aucun cookie dans le contexte navigateur ni `document.cookie`, aucun `Set-Cookie` sur les réponses contrôlées, stockage local et de session vides. Aucun appel tiers automatique observé ; les liens sortants des crédits ne sont pas des traceurs intégrés. **Aucun besoin technique de bandeau de consentement identifié dans cette version observée.** Ce constat n’est pas un audit juridique général ni une garantie sur de futurs services ajoutés.
+
+### Erreurs console et réseau
+
+Aucune exception JavaScript, requête échouée ou réponse 4xx/5xx sur les ressources déclarées nécessaires aux quatre pages. Les 404 provoquées volontairement sont attendues et ne sont pas comptées comme pannes.
+
+Une erreur console 404 a été reproduite et attribuée via le journal réseau Chrome à **`/favicon.ico`**, demandé automatiquement lors de l’ouverture de la notice texte. Le favicon SVG déclaré par les pages fonctionne. Voir HQA-03 : ne pas annoncer une console absolument sans erreur.
+
+### Chargement à cache navigateur froid
+
+Contexte neuf pour chaque page/format et cache navigateur désactivé via le protocole Chrome. Mesures avant les interactions et avant le défilement de chargement complet ; attente de chargement et de fontes, puis échantillonnage après 800 ms supplémentaires. Navigation/Resource Timing et observateurs de peinture, LCP et déplacements sans interaction récente.
+
+**Laboratoire non bridé** : pas de simulation de mobile lent, pas de ralentissement CPU/réseau. Le cache du CDN n’a pas été purgé (`CF-Cache-Status: HIT` observé), DNS/connexion système potentiellement chauds. « Cache froid » désigne ici le navigateur, pas toute la chaîne réseau.
+
+| Page | 375 px : TTFB / FCP / LCP (ms) | 375 px : CLS / transfert initial | 1440 px : LCP / CLS / transfert initial |
+| --- | --- | --- | --- |
+| Accueil | 47 / 284 / 300 | 0,031 / 90 690 o | 268 ms / 0,010 / 178 044 o |
+| Coiffure | 54 / 284 / 284 | 0,028 / 90 407 o | 256 ms / 0,004 / 159 900 o |
+| Barbier | 54 / 320 / 320 | 0,056 / 92 242 o | 280 ms / < 0,001 / 133 352 o |
+| Salon | 40 / 228 / 228 | 0,035 / 111 363 o | 276 ms / < 0,001 / 205 437 o |
+
+Sur les 16 échantillons : LCP **228–1 008 ms**, le maximum étant Accueil à 320 px ; CLS observé **0–0,056**. Les transferts additionnent `transferSize` de la navigation et des ressources déjà chargées, avec l’estimation d’en-têtes du navigateur ; ils ne représentent pas toutes les images différées de la page.
+
+Compression Brotli/gzip observée sur les ressources textuelles ; politique `Cache-Control: public, max-age=0, must-revalidate`, compatible avec les noms de fichiers non versionnés. Aucun défaut de chargement bloquant ni poids initial excessif mis en évidence par ces essais. Ce n’est **ni un score Lighthouse, ni un percentile terrain des Core Web Vitals, ni une mesure d’INP**. Un seul passage par combinaison, pas de médiane ni de validation 4G lente.
+
+## Anomalies ouvertes de cette recette
+
+### HQA-01 — Mineur — L’entrée HTTP n’est pas forcée vers HTTPS
+
+**Reproduction :** effectuer un GET explicite sur `http://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/` avec curl, sans mécanisme d’auto-upgrade du navigateur. Réponse **200**, sans `Location`. Pour `http://…/salon.html?qa=hosted`, réponse **307** avec `Location: /salon?qa=hosted`, suivie d’un **200 toujours en HTTP**. Confirmé indépendamment par fetch et curl ; le certificat HTTPS reste valide.
+
+**Impact :** une personne arrivant par une URL HTTP peut lire la démo sur une connexion non chiffrée, donc susceptible d’altération en transit. Gravité mineure dans le périmètre actuel : site de démonstration statique sans authentification, formulaire ni transmission de coordonnées. Cela ne serait pas une tolérance adaptée à une future collecte de données.
+
+**Recommandation :** faire appliquer une redirection HTTP → HTTPS sur cette cible, en conservant chemin et paramètres, puis vérifier son interaction avec la normalisation HTML et les ancres. L’absence d’HSTS est également observée, sans ouvrir un défaut distinct. Aucun réglage modifié par QA.
+
+**État : ouvert ; réserve non bloquante pour un partage de la démo par son URL HTTPS, à traiter avant tout élargissement sensible du périmètre.**
+
+### HQA-02 — Mineur — Titres masqués par l’en-tête après navigation par ancre
+
+**Reproduction à 375 × 667 :**
+
+1. Sur Accueil, activer « Découvrir le salon » (`#univers`) ; sur Coiffure ou Barbier, « Voir les prestations » (`#prestations`).
+2. Ou ouvrir `/salon.html?qa=hosted#contact`.
+3. Sur Salon, activer le lien « Accueil » du contenu, qui mène à `/#approche-title`.
+
+**Preuve :** en-tête fixe visuellement en haut, bord inférieur à **81 px**. Après arrivée, les titres des sections Univers / Prestations / Contact commencent vers **63,5–64,3 px** : leur haut est recouvert d’environ 17 px. Pour `#approche-title`, le H2 est entre **−0,5 et 31,7 px**, donc entièrement derrière l’en-tête. L’identifiant cible existe et l’URL/section correcte est atteinte ; ce n’est pas une ancre cassée.
+
+**Impact :** repère de lecture partiellement ou totalement perdu à l’arrivée, particulièrement gênant en mobile. Le contenu reste accessible par défilement ; cela ne remet pas en cause le transfert de focus fonctionnel du lien d’évitement.
+
+**Recommandation :** tenir compte de l’en-tête sticky dans le défilement vers les cibles, par exemple avec `scroll-margin-top` sur les cibles concernées ou `scroll-padding-top` adapté. Contre-vérifier liens internes et accès directs, aux quatre largeurs et à 200 %. Aucune correction appliquée.
+
+**État : ouvert ; non bloquant pour cette démo, amélioration de navigation recommandée.**
+
+### HQA-03 — Mineur — Favicon implicite absent sur la notice texte
+
+**Reproduction :** dans un contexte Chrome neuf, ouvrir une page puis « Crédits et licences photographiques ». Examiner le journal console/réseau : requête automatique `GET /favicon.ico`, réponse **404**, alors que la notice répond 200. Le diagnostic complémentaire associe explicitement l’erreur console à cette URL.
+
+**Impact :** bruit dans la console et éventuelle icône d’onglet générique pour la notice ; aucun impact sur sa lecture, les crédits, le retour ou le favicon SVG des pages.
+
+**Recommandation :** accepter explicitement cette requête de confort pour le portfolio, ou prévoir un favicon racine valide dans une livraison ultérieure. Ne pas convertir la notice ni modifier ses octets uniquement pour ce motif.
+
+**État : ouvert ; facultatif, non bloquant.**
+
+## État des constats antérieurs
+
+| Identifiant | État actuel / portée |
+| --- | --- |
+| QA-01 — Coordonnées fictives | Correction confirmée sur l’hébergement ; aucun appel/e-mail actionnable |
+| QA-02 — Navigation sans JS | Correction confirmée à 375 px sur les quatre pages ; matrice locale élargie conservée |
+| QA-03 — Médias et portraits fictifs | Ancien état « compositions seules » remplacé par la passe photographique validée dans DIRECTION/UX ; pas de réouverture artistique ou P06 |
+| QA-04 — Structures Coiffure / Barbier | Correction antérieure conservée ; pas de nouvelle revue éditoriale |
+| QA-05 — Fermeture du menu sur Contact | Confirmée avec JS dans la matrice hébergée ; fermeture manuelle de secours sans JS acceptée |
+| QA-06 / CR2-01 — Focus du lien d’évitement | Confirmé sur les quatre pages et les quatre largeurs, ainsi qu’à 200 % |
+| QA-07 — Indexation finale | **Clôturé sur la cible** : politique de démo réellement servie ; ne garantit pas l’état des moteurs |
+| QA-08 — Polices tierces | **Clôturé sur la cible** : quatre WOFF2 locaux chargés, obligation avant publication publique satisfaite |
+| QA-09 — Ancienne grille CSS inutilisée | Correction antérieure conservée ; aucune nouvelle analyse de couverture CSS |
+| CR2-02 / CR2-03 — Séquence et titre Barbier | Clôtures antérieures conservées, non réauditées aujourd’hui |
+| CR2-04 — Flash/attente du menu et du contenu | **Reste clôturé** : preuve locale du 7 septembre conservée ; non-régression hébergée normale et sans JS réalisée |
+| PUB-01 à PUB-10 | Statuts de la dernière Code Review conservés ; aucune revue d’assemblage rejouée |
+| PUB-A1 | Facultatif et différé, inchangé |
+| P06 | Arbitrage et réserve documentaire de DIRECTION inchangés ; non traités par cette recette |
+
+**Historique conservé dans Git :** audit initial `ef194f7` sur `3774de9`, contre-vérification `840c396` sur `e2187ce`, passe du 5 septembre `474b3e8` sur `5827a14`, puis rapport local du 7 septembre `6b88919` sur `9f601636ce459d3cc78ab3951a27222abb1975d0`.
+
+La clôture locale CR2-04 reposait sur **48 cas mobiles** (quatre pages × trois largeurs × quatre scénarios : délai de 1 500 ms puis libération/rejet, blocage immédiat, JS désactivé), et 24 cas desktop. Pour les 24 cas retardés, observation du contenu **53–205 ms après interception**, captures **87–271 ms**, `domContentLoadedEventStart === 0` et script encore retenu ; en-tête stable à 81 px, état du menu conservé. Cette preuve avant réponse du script reste disponible dans le rapport historique, sans être présentée comme une nouvelle mesure sur Workers.
+
+## Limites et checklist de mise en avant
+
+### Contrôles effectivement acquis
+
+- [x] Correspondance des 41 fichiers publics avec l’artefact validé ; distinction explicite entre révision annoncée et identifiant Cloudflare non vérifié.
+- [x] HTTPS valide, pages directes/rechargées, redirections sans boucle, paramètres et fragments conservés.
+- [x] Vraies 404 simples et imbriquées, retour clavier vers l’accueil.
+- [x] Ressources, images, fontes locales, notices et types MIME vérifiés.
+- [x] Non-indexation réelle des pages et ressources ; robots conforme ; absence de sitemap de démo.
+- [x] Absence de contenu interne sur les 17 chemins ciblés.
+- [x] Quatre pages à 320/375/768/1440 px ; clavier, menu, évitement et zoom natif 200 %.
+- [x] Contact fictif sans collecte ; crédits consultables ; absence observée de cookies/stockage/appels tiers automatiques.
+- [x] Console/réseau examinés et performance mesurée à cache navigateur froid, avec limites explicites.
+
+### Limites restantes, pas des validations implicites
+
+- [ ] Joindre les identifiants de version/déploiement Cloudflare si accessibles. Le compte, la sauvegarde d’artefact, les droits d’accès, le mode Git déclaré et la procédure de rollback n’ont pas été inspectés ou exercés par QA ; aucune raison de republier uniquement pour créer cette preuve.
+- [ ] Vérifications complémentaires Safari/iOS, Firefox, appareils physiques et annonce vocale VoiceOver/NVDA non exécutées. L’arbre Chromium ne prouve pas le rendu vocal des lecteurs d’écran.
+- [ ] Pas de nouvelle certification WCAG/RGAA, ni audit exhaustif des contrastes/lecteurs d’écran ; pas de très grand écran au-delà de 1440 px dans cette recette ciblée.
+- [ ] Pas de mesure terrain, d’INP, de série statistique, de cache CDN purgé ou de scénario réseau mobile lent ; disponibilité future et indexation effective non garanties.
+- [ ] Réévaluer les garanties si un domaine personnalisé, des previews réelles, de nouveaux traceurs, un formulaire ou une autre version sont publiés. **Previews inexistantes : non applicables aujourd’hui.**
+
+### Décision de livraison pour le portfolio
+
+**Aucun blocage QA établi dans le périmètre exécuté.** L’avis est favorable à la mise en avant de cette démo HTTPS sous réserve d’acceptation des trois anomalies mineures et des limites ci-dessus par Simon. Ce n’est pas un feu vert pour un véritable service de salon collectant des données.
+
+Acceptables pour ce portfolio : coordonnées fictives non actionnables, pas de formulaire, démo non indexable mais publique, fermeture manuelle du menu sans JS, notice texte, absence de previews/Git connecté, favicon implicite manquant. L’amélioration des ancres et la redirection HTTP → HTTPS restent recommandées, sans transformer cette recette en commande de correction.
+
+**Aucun code, archive, dossier `sources/`, artefact publié ou réglage Cloudflare modifié. Aucun déploiement.** Toute livraison suivante, correction ou retour arrière exige un nouvel accord explicite de Simon ; ce commit documentaire et son push n’en constituent pas un.
+
+### Conservation des preuves
+
+Preuves de travail non versionnées sous `/private/tmp/creatif-hosted-qa.fKlg7Z/` : `http-results.json` (chaînes, en-têtes, inventaire SHA-256), `browser-results.json` (16 parcours, 4 sans JS, 404, timing), `zoom-results.json`, `final-checks-results.json` (arbre accessible, clavier, ancres, stockage), `console-results.json`, `links-zoom-results.json`, scripts de reproduction et captures. Référence d’artefact consultée en lecture seule sous `/private/tmp/review-publication-ad0aa8a.AXFfGZ/artifact-ad0aa8a/sites/coiffeur-mixte/dist/`.
+
+Ces dossiers temporaires pourront disparaître ; les scénarios, résultats, mesures, dates et empreintes déterminants sont consignés dans ce rapport versionné. Les captures de zoom natives, notamment le menu focalisé de Barbier (`zoom-last-false.png`), complètent les dimensions et actions testées ; les captures rognées ou incomplètes de l’outil ne fondent aucun constat de défaut du site.
