@@ -112,7 +112,9 @@ Cet ajout consigne l'accord et les réserves acceptées ; il ne constitue pas un
 
 ### Publication de `edeeb30` et critère de clôture de Créa’Tif
 
-**État courant : correction publiée selon le compte rendu de Claude ; seule la recette ciblée HQA-02 reste à exécuter pour déclarer la démo livrée.** Les sections précédentes relatent les étapes antérieures ; elles ne demandent ni une nouvelle première publication, ni une nouvelle collecte des identifiants déjà transmis ci-dessous.
+**État courant : Créa’Tif est une démo de portfolio livrée, avec réserves acceptées. HQA-02 est CLOS.** La recette ciblée du 8 septembre 2026 est livrée dans le rapport QA, commit `daa2dd2` : 105 scénarios d'ancres et 20 contrôles complémentaires menu / lien d'évitement réussis, sans scénario demandé en défaut ou non exécuté. Le CSS servi est confirmé identique à celui de `edeeb30`. Le critère de clôture de `10f86bc` est satisfait ; la démo est partageable par son URL HTTPS, sans nouvelle revue ni autorisation supplémentaire de clôture. Les sections précédentes relatent les étapes antérieures ; elles ne demandent ni une nouvelle première publication, ni une nouvelle collecte des identifiants déjà transmis ci-dessous.
+
+**Portée de la clôture :** preuves indépendantes de QA sous Chrome sur macOS à 320/375/768/1440 px et au zoom natif 200 %, avec clics réels au premier plan et stabilisation des médias/défilements. Elles ne sont pas des tests rejoués par le Chef de projet, une certification exhaustive ou une validation de navigateurs non testés. HQA-01 et HQA-03 restent acceptés ; P06 et sa réserve documentaire, PUB-A1 et les limites précédentes restent inchangés. La matrice ci-dessous décrit le critère désormais rempli, pas une demande de recommencer les tests. Aucune action corrective, nouvelle publication ou sollicitation d'agent n'est requise pour terminer cette livraison.
 
 #### Relevé de publication transmis par Claude
 
@@ -147,6 +149,8 @@ En cas de défaut reproduit dans cette matrice, corriger et retester uniquement 
 ### coiffeur-mixte
 
 #### Statut et objectif
+
+**Livré — 8 septembre 2026.** Version source publiée `edeeb30`, version Cloudflare rapportée `ff687b8e`, clôture QA `daa2dd2`. [Ouvrir la démo HTTPS](https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/). Le suivi ci-dessous conserve l'historique des étapes ; les réserves acceptées et règles de maintenance sont celles du suivi de clôture ci-dessus.
 
 Premier projet du portfolio : une vitrine statique de démonstration, pensée pour montrer une intégration front-end premium, responsive et accessible. Il ne s'agit pas d'un site commercial prêt à recevoir de vrais rendez-vous.
 
