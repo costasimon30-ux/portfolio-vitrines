@@ -350,3 +350,41 @@ Les effets de casse ont été reproduits sur le volume macOS insensible à la ca
 Il reste à corriger et contre-vérifier **PUB-03, PUB-05, PUB-06, PUB-07 et PUB-08**. Les autres constats sont clos pour le périmètre et les preuves indiqués. Les 62 contrôles actuels ne suffisent pas à clore ces cinq variantes résiduelles. **PUB-A1 demeure facultatif et différé.**
 
 Les contrôles HTTP réels — statut 404 sur URL simple/imbriquée, redirections, en-têtes effectivement servis, HTTPS et règles d’hôte — restent réservés à QA sur l’hébergement après autorisation. Ils sont distincts des cinq corrections locales ci-dessus et ne sont pas utilisés pour maintenir artificiellement un constat local ouvert.
+
+---
+
+## Consignation de statut — livraison `63246ad` — 8 septembre 2026
+
+Livraison : `63246ad6ca07c90f218bc8768a999761398f235a`. Rapport indépendant précédent : `8c63d4c7e380c8e8b85ecb08f959b572e7c2080c`, portant sur **`8cedeb3`**, et non sur cette nouvelle livraison.
+
+### Résultat de la recherche des conclusions
+
+Après `git pull --ff-only` et relecture des conventions, aucun rapport indépendant achevé ni résultat d’exécution du Reviewer sur **`63246ad`** n’a été retrouvé dans l’historique accessible de cette tâche, le rapport versionné ou les dossiers locaux de preuves de publication. La dernière réponse finale retrouvée est celle publiant `8c63d4c`, qui laisse cinq réserves sur `8cedeb3`. Le statut « terminé » de la tâche ne prouve donc pas l’existence d’une contre-vérification de `63246ad`.
+
+**Aucun test n’a été relancé dans cette intervention**, conformément à la demande. Le présent ajout consigne les preuves disponibles et leur limite ; il ne reconstitue pas artificiellement un verdict ou des exécutions manquantes. La lecture ciblée des corrections ci-dessous est nouvelle, mais n’est pas un rejeu de leurs scénarios.
+
+### Statut des cinq réserves sur la nouvelle livraison
+
+Dans ce tableau, **« non clos — à contre-vérifier »** signifie que la correction est visible dans le code, mais que sa validation indépendante sur cette livraison n’est pas disponible. Ce statut ne signifie pas que le défaut observé sur `8cedeb3` a été reproduit sur `63246ad`.
+
+| Réserve | Statut de clôture indépendant | Correction visible à la lecture de `63246ad` | Preuve encore manquante pour la clôture |
+| --- | --- | --- | --- |
+| PUB-03 — P1 | **Non clos — à contre-vérifier** | `verif-assemblage.mjs:185-194` supprime la sortie avant le build et exige sa recréation non vide ; les contrôles de production utilisent `assemblerNeuf`. Auto-test du succès muet après succès ajouté aux lignes 886-920. | Résultat indépendant du scénario muet après un premier build réussi, avec rejet final et absence de réutilisation trompeuse. |
+| PUB-05 — P2 | **Non clos — à contre-vérifier** | `assemble-site.mjs:232-262` normalise les exclusions en minuscules et refuse les segments internes. Contrôle supplémentaire des sources sous la sortie aux lignes 908-918, avant nettoyage. | Reproduction indépendante des variantes `PUBLICATION.JSON`, `DIST/old.txt` et des chemins internes, avec préservation des sentinelles sur volume insensible à la casse. |
+| PUB-06 — P2 | **Non clos — à contre-vérifier** | `assemble-site.mjs:831-863,895-905` utilise la normalisation pour les noms réservés et les conflits de préfixes. | Refus indépendant des variantes `_HEADERS/child.txt`, `SITEMAP.XML`, `Shared/intrus.css`, avant suppression de l’ancienne sortie. |
+| PUB-07 — P2 | **Non clos — à contre-vérifier** | `assemble-site.mjs:374-397` conserve les balises script/style et collecte leur CSS ; lignes 409-457 : analyse des délimiteurs et refus des attributs dupliqués ; lignes 641-644 et 689-694 : contrôle du CSS et distinction de la racine selon le type de référence. | Résultats indépendants pour les scripts et styles absents/distants, le retrait de `js/main.js` du manifeste réel copié, les doublons, la racine comme ressource et le cas positif avec apostrophe. |
+| PUB-08 — P2 | **Non clos — à contre-vérifier** | `assemble-site.mjs:346-358,388-401,426-455` ajoute le décodage des entités, le repérage des zones de template et le refus des doublons d’attributs. | Contrôle indépendant du HTML produit : entités dans les directives, doublons et robots dans un template ; présence d’une unique balise réellement effective. |
+
+### Ce que rapporte l’auteur de la livraison
+
+Le message du commit **`63246ad`**, signé `Agent: claude-cowork`, annonce **82 contrôles réussis sous Node 22.23.2**, un contrôle croisé sous 22.22.2 et un artefact de **42 fichiers inchangé**, d’empreinte `c6ddb471aa4a6337754b8dd886866c1b2446587cedec2b3582ae2943a573be9d`. Il précise que ses systèmes de fichiers d’essai sont sensibles à la casse.
+
+Ces informations sont **les résultats déclarés par Claude**, pas des résultats exécutés ou confirmés indépendamment par le Reviewer sur cette révision. Les preuves indépendantes du rapport précédent concernent `8cedeb3` et ne sont pas transférables par simple changement de hash.
+
+### Blocage précis et suite
+
+**La clôture indépendante des cinq réserves reste en attente de preuves sur `63246ad`.** Le blocage de cette consignation est documentaire : aucune conclusion indépendante antérieure sur ce commit n’a été retrouvée, et aucun nouveau test n’est exécuté sur instruction de Simon. Aucun nouveau défaut technique n’est déclaré établi par cette intervention ; les anciennes gravités restent rappelées uniquement pour assurer la traçabilité.
+
+Pour prononcer la clôture, il faut soit récupérer le résultat indépendant existant avec sa révision et ses preuves, soit autoriser une contre-vérification ciblée si ce résultat n’existe pas. La publication du présent rapport dans Git n’est pas bloquée.
+
+PUB-A1 reste facultatif et différé. Les cinq autres constats précédemment clos ne sont pas rouverts. Les vérifications HTTP sur l’hébergement restent réservées à QA et sont distinctes de cette absence de preuve locale. Aucun code modifié, aucun test relancé, aucun compte, connexion Cloudflare ou déploiement.
