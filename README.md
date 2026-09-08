@@ -42,6 +42,20 @@ Ce qui entre dans l'artefact est déclaré explicitement dans
 `sites/<slug>/publication.json` : ajouter une photo ou une dépendance implique
 d'ajouter son chemin au manifeste. `dist/` n'est jamais versionné.
 
+Le manifeste ne peut pas tout déclarer. Sont refusés, avant tout nettoyage :
+les chemins cachés, le manifeste et les fichiers de configuration, les sorties
+générées (`dist/`), les archives, sourcemaps et templates, les pages HTML hors
+de `pages`, les noms réservés à l'assembleur (`robots.txt`, `_headers`,
+`sitemap.xml`, le dossier `shared/`), ainsi que toute collision de destination,
+y compris entre un fichier et un répertoire ou entre deux variantes de casse.
+
+**Convention des notices publiques.** Un fichier déclaré reçoit
+automatiquement son type MIME `text/plain` et son exception d'indexation dans
+`_headers` si son nom, extension retirée, est `NOTICE`, `LICENSE`, `LICENCE`,
+`COPYING` ou `CREDITS`, avec une extension `.md`, `.txt` ou aucune. Une licence
+au format texte est donc traitée comme une notice, et non plus seulement les
+fichiers `.md`.
+
 Pour regarder le résultat, servir **uniquement** la sortie — servir le dépôt
 masquerait une dépendance sortante :
 
@@ -54,11 +68,19 @@ Le site source reste par ailleurs consultable depuis la racine du dépôt
 (`python3 -m http.server`, puis `/sites/coiffeur-mixte/`), sans passer par
 l'assemblage.
 
-Les contrôles locaux de la section 5.6 sont rejouables :
+Les contrôles locaux sont rejouables. Ils n'exigent que Node — ni Bash, ni
+Python, ni utilitaire externe — et travaillent exclusivement dans un répertoire
+temporaire unique dont ils sont propriétaires : le dépôt de travail n'est
+jamais modifié.
 
 ```sh
-bash scripts/verif-assemblage.sh
+node scripts/verif-assemblage.mjs
 ```
+
+La suite refuse de démarrer si la version de Node en cours n'est pas celle
+figée dans `.node-version` ; activez-la d'abord (`nvm use`, `fnm use`). Pour un
+contrôle croisé sur une autre version, `--runtime-alternatif` l'autorise en
+signalant explicitement que le résultat ne vaut pas rejeu sur la version figée.
 
 Un serveur statique local ne reproduit ni le fichier `_headers`, ni les
 redirections `.html`, ni un vrai statut 404 : ces comportements relèvent de
