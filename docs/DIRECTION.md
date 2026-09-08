@@ -8,7 +8,7 @@ Le portfolio professionnel présentera plusieurs projets ; **Créa’Tif est une
 
 ### Cadrage de publication — décisions produit du 7 septembre 2026
 
-**Statut : organisation retenue pour préparer l'architecture, non implémentée et non déployée.** L'étude de Claude est une base de travail ; ses essais locaux ne valent ni configuration d'hébergement livrée, ni recette de l'environnement public. Les décisions ci-dessous ne donnent aucune autorisation de création de compte, de connexion GitHub à un hébergeur, d'achat de domaine ou de mise en ligne.
+**Statut historique au 7 septembre : organisation retenue pour préparer l'architecture, non implémentée et non déployée à cette date.** L'étude de Claude est une base de travail ; ses essais locaux ne valent ni configuration d'hébergement livrée, ni recette de l'environnement public. Ce cadrage initial ne donnait aucune autorisation de création de compte, de connexion GitHub à un hébergeur, d'achat de domaine ou de mise en ligne. L'autorisation limitée du 8 septembre ci-dessous actualise ce statut ; les formulations préparatoires de cette section restent l'historique du cadrage.
 
 #### Séparation du portfolio et des démos
 
@@ -48,6 +48,27 @@ Les futures mises à jour doivent distinguer un changement du site, de ses dépe
 4. **QA, après publication autorisée et avant mise en avant auprès de prospects :** recette ciblée sur l'URL réelle et la révision déployée : HTTPS, accès direct aux quatre pages, liens/ancre de contact et notice, CSS/polices/photos sans erreur, absence des fichiers internes et autres sites, règles d'indexation réellement servies, affichage mobile/desktop et chargement des ressources. Distinguer les observations de cette recette des validations antérieures et des points non testés.
 
 Le maintien de P06 est acté : aucune nouvelle recherche ou modification de cette image n'est demandée. La réserve reste documentée ; elle n'est ni levée par ce cadrage, ni transformée en autorisation de mise en ligne. L'accord de publication sera distinct et portera sur la version retenue avec sa réserve connue.
+
+### Première publication de Créa’Tif et maîtrise du compte — décision du 8 septembre 2026
+
+**Assemblage local validé dans le périmètre audité ; première publication autorisée, non exécutée par le Chef de projet.** La livraison `ad0aa8a` est contre-vérifiée dans `docs/CODE-REVIEW-coiffeur-mixte.md`, commit `9d6bac7` : PUB-05 et PUB-08 clos, autres constats maintenus clos, PUB-A1 facultatif et différé. Le Reviewer rapporte 89 contrôles réussis sous Node 22.23.2 sur volume macOS insensible à la casse et 42 fichiers de sortie inchangés. Ce sont ses preuves indépendantes, pas des tests rejoués par le Chef de projet ni une recette HTTP.
+
+#### Autorisation et limites
+
+- Simon autorise l'utilisation ou la création de son compte Cloudflare, la connexion GitHub limitée au dépôt `portfolio-vitrines` et la première mise en ligne de **Créa’Tif uniquement**, comme démo autonome sur une URL gratuite de plateforme. Aucun achat de domaine, moyen de paiement ou service payant n'est autorisé. Ne pas créer de compte en doublon si Simon en possède déjà un.
+- Publier seulement la sortie isolée prévue par `docs/ARCHITECTURE.md` § 5, à partir du code validé ; relever la révision réellement déployée. Ni le futur portfolio ni une autre vitrine ne sont à construire ou publier. Conserver le rendu, les médias et les règles de non-indexation de la démo. Le maintien de P06 et sa réserve documentaire connue restent inchangés ; l'accord porte sur la mise en ligne de cette version sans nouvelle recherche de droits.
+- La connexion Git peut provoquer cette première publication, désormais autorisée. **Le mode des publications suivantes reste à arbitrer** : ne pas considérer cet accord comme une autorisation permanente de republier à chaque push ou de créer des previews automatiques. Préparer les contrôles permettant de limiter les publications à l'action autorisée ; si le flux choisi ne permet pas cette limitation, demander l'arbitrage avant la connexion. Documenter les réglages réellement retenus.
+
+#### Accès et récupération sous le contrôle de Simon
+
+- Avant toute création, demander à Simon l'adresse qu'il veut utiliser et lui faire confirmer le compte ciblé. Il reste propriétaire et administrateur ; aucun compte appartenant à un agent ou utilisant une adresse inventée. La connexion Cloudflare et l'autorisation GitHub sont deux opérations distinctes.
+- Simon saisit lui-même le mot de passe et les codes de vérification dans l'interface officielle, et valide les autorisations GitHub. Ne lui demander aucun mot de passe, code à usage unique, secret de double authentification ou code de secours dans la conversation. Conserver les secrets dans son gestionnaire de mots de passe, jamais dans Git, les rapports, journaux ou captures.
+- Faire vérifier l'adresse électronique avant d'activer la double authentification ; accompagner Simon pour sa configuration et la sauvegarde privée des codes de secours. Vérifier qu'il sait se reconnecter de façon autonome avant de considérer la remise du compte comme terminée. Références : [création du compte](https://developers.cloudflare.com/fundamentals/account/create-account/), [double authentification et codes de secours](https://developers.cloudflare.com/fundamentals/user-profiles/2fa/).
+- Remettre une **fiche d'accès privée, hors dépôt**, contenant l'URL du tableau de bord, l'adresse de connexion et le mode d'authentification retenus, le nom du compte et du projet Pages, l'URL publique de la démo, le dépôt connecté, le mode des publications et le chemin de récupération d'accès. Indiquer où Simon a sauvegardé ses secrets sans recopier leur contenu. L'adresse de connexion et les informations privées du compte n'ont pas leur place dans ce dépôt public.
+
+#### Handoff après publication
+
+Claude fournit l'URL réelle, le commit déployé, le résultat du build, les réglages non secrets et les éventuelles limites. Une publication réussie ne vaut pas validation finale de l'hébergement : QA doit encore contrôler HTTPS, en-têtes et non-indexation réellement servis, redirections, statut 404, ressources, liens et affichage sur l'URL réelle avant mise en avant auprès de prospects. Aucun de ces contrôles n'est déclaré réalisé aujourd'hui.
 
 ## Sites
 
