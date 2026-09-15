@@ -1,6 +1,6 @@
 # portfolio-vitrines
 
-Portfolio de sites vitrine (monorepo), développé avec Claude, direction produit avec Codex (ChatGPT).
+Portfolio de sites vitrine (monorepo), développé avec Claude. Chaque rôle — direction produit, direction artistique, architecture, revue de code, recette, implémentation — est tenu par une conversation distincte ; voir `docs/AGENTS.md`.
 
 Voir `CLAUDE.md` pour les conventions du projet, et `docs/DIRECTION.md` pour le brief / cahier des charges.
 

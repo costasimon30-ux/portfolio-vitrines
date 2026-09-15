@@ -13,7 +13,7 @@ Monorepo regroupant plusieurs sites vitrine (portfolio freelance). Ce fichier es
 portfolio-vitrines/
 ├── CLAUDE.md              # ce fichier
 ├── docs/
-│   └── DIRECTION.md       # brief / cahier des charges, alimenté par Codex (ChatGPT) + Simon
+│   └── DIRECTION.md       # brief / cahier des charges, alimenté par le Chef de projet + Simon
 ├── shared/
 │   ├── design-system/     # CSS variables, composants HTML réutilisables, fonts communes
 │   └── assets/            # logos, images communes au portfolio
@@ -27,12 +27,14 @@ portfolio-vitrines/
 - Dossiers de sites en kebab-case dans `sites/` (ex: `coiffeur-mixte`, `restaurant-le-jardin`).
 - Un site autonome contient au minimum `index.html`, `css/`, `assets/`.
 
-## Workflow à trois (Simon / Codex / Claude)
+## Workflow multi-agents
 
-- **Codex (ChatGPT)** pose la direction produit : positionnement, contenu, choix fonctionnels. Ces décisions sont consignées dans `docs/DIRECTION.md`.
-- **Claude** implémente à partir de ce brief : intégration HTML/CSS/JS, structure de fichiers, respect du design system partagé.
+Le repo est travaillé par plusieurs conversations Claude tenant chacune un rôle, plus Simon. Le registre des rôles est dans `docs/AGENTS.md`, le cycle de travail dans `docs/WORKFLOW.md`.
+
+- Le **Chef de projet** pose la direction produit : positionnement, contenu, choix fonctionnels. Ces décisions sont consignées dans `docs/DIRECTION.md`.
+- L'**implémentation** part de ce brief : intégration HTML/CSS/JS, structure de fichiers, respect du design system partagé.
 - **Simon** arbitre et valide.
-- Toute décision de direction qui n'est pas encore dans `docs/DIRECTION.md` doit y être ajoutée avant implémentation, pour que les deux IA travaillent à partir de la même source de vérité.
+- Toute décision de direction qui n'est pas encore dans `docs/DIRECTION.md` doit y être ajoutée avant implémentation, pour que tous les agents travaillent à partir de la même source de vérité.
 
 ## État actuel
 
