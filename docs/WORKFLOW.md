@@ -21,7 +21,7 @@ Règle simple : si un agent doit sortir de son périmètre, on en parle d'abord 
 - Branche unique : `main` (pas de branches séparées pour l'instant, le projet est petit et le périmètre de fichiers évite déjà les conflits)
 - Avant d'écrire : toujours `git pull` pour récupérer les derniers changements des autres agents.
 - Convention de commit : préfixer par `docs:` pour les mises à jour de direction/architecture/revue, `site(nom-du-site):` pour l'implémentation d'un site, `chore:` pour le reste.
-- **Trailer d'agent obligatoire** : chaque commit se termine par une ligne `Agent: <identifiant>` reprenant l'identifiant défini dans `docs/AGENTS.md` (ex: `Agent: claude-qa`). Les agents côté Codex partagent la même identité Git et la même clé SSH — ce trailer est le seul moyen de savoir, après coup, quel agent précis a fait un commit donné.
+- **Trailer d'agent obligatoire** : chaque commit se termine par une ligne `Agent: <identifiant>` reprenant l'identifiant défini dans `docs/AGENTS.md` (ex: `Agent: claude-qa`). Tous les commits portent le même auteur Git, quel que soit l'agent et quelle que soit la voie utilisée — ce trailer est le seul moyen de savoir, après coup, quel agent précis a fait un commit donné.
 
 ## Cycle de travail
 
