@@ -222,6 +222,110 @@ Vérifiables par quelqu’un qui n’a pas participé à cette spécification, s
 10. Le manifeste de ce site, une fois créé, déclare `kind: "portfolio"` ; aucun manifeste ni dossier `sites/portfolio/` n’est créé par cette spécification elle-même.
 11. Rien dans cette spécification ni son implémentation ne rouvre P06 sur le fond (pas de nouvelle recherche de droits, pas de retrait ou remplacement de photographie sur Créa’Tif), et rien n’engage d’achat de domaine ou de choix d’hébergement.
 
+#### Direction artistique
+
+**Parti pris.** La page doit se lire comme l’atelier d’un développeur front-end, pas comme la vitrine chaleureuse d’un commerce. Le registre visé est sobre, technique et direct : peu de couleur, une seule teinte d’accent réservée à l’action, une typographie unique jouée sur le poids plutôt que sur un mélange serif/sans-serif. C’est délibérément l’inverse du registre artisanal et chaleureux de Créa’Tif (ivoire, cuivre, sauge, empattements de Cormorant Garamond) : là où Créa’Tif évoque un salon, cette page doit évoquer la rigueur d’un métier technique — ce qui est aussi l’argument de vente de Simon (accessibilité, performance, attention au détail). La générosité vient de l’espace (respiration verticale entre les blocs), pas de la décoration.
+
+##### Palette et rôle des couleurs
+
+Cinq jetons, un seul rôle chacun, aucun ne reprend un nom ou une valeur de la palette Créa’Tif (ivoire `#FBF8F2`, cuivre `#A84F3A`/`#8F3F2F`, sauge `#61766D`, sable `#E6DDD0`, pêche `#D4A68C`) :
+
+- `--color-ink` `#14181C` — texte principal, quasi-noir neutre (ni chaud ni franchement froid). Contraste sur le fond papier : **16,6:1**.
+- `--color-paper` `#F6F7F9` — fond par défaut, gris-blanc froid (à distinguer visuellement de l’ivoire crème de Créa’Tif).
+- `--color-paper-alt` `#EEF0F3` — fond des blocs alternés (voir composition), même famille que le papier, un cran plus foncé, pas une deuxième couleur.
+- `--color-accent` `#2451E0` — bleu unique : liens, CTA, focus, éléments interactifs. Aucun autre usage. Contraste sur `--color-paper` : **5,88:1** ; texte blanc sur cet accent : **6,31:1**.
+- `--color-accent-dark` `#1B3BA8` — état survol/appui/focus de l’accent. Texte blanc dessus : **9,39:1** ; contre `--color-paper` (visibilité du contour de focus) : **8,76:1**.
+- `--color-muted` `#52606B` — texte secondaire (légendes, métadonnées, dates). Contraste sur `--color-paper` : **6,04:1** — au-dessus du seuil AA même en texte courant, pas seulement en grand texte.
+- `--color-border` `#E2E5EA` — séparations et contours décoratifs uniquement ; jamais seul porteur d’une information (jamais, par exemple, la seule indication qu’un champ est en erreur).
+
+Ratios calculés selon la formule de luminance relative du WCAG (sRGB linéarisé), à revérifier par quiconque implémente avant mise en ligne — ce sont des valeurs de départ, pas une garantie a posteriori.
+
+Usage : l’accent bleu n’apparaît que sur le CTA, les liens et les états de focus — jamais en fond de bloc large, pour qu’il garde sa valeur de signal. Pas de dégradé, pas de couleur de « décoration » supplémentaire.
+
+##### Typographie et hiérarchie
+
+Une seule famille, trois graisses — pour respecter la limite de familles/graisses d’`ARCHITECTURE.md` § 2 et parce qu’une seule famille jouée en poids renforce le parti pris « atelier technique » plutôt que « duo serif/sans élégant » (le schéma justement utilisé par Créa’Tif).
+
+Proposition : **Manrope** (licence OFL 1.1, self-hostable, distincte de Cormorant Garamond et DM Sans), en 400 (texte courant), 600 (boutons, nav, sous-titres, légende en capitales), 800 (H1, H2). Trois fichiers `.woff2` à servir — un de moins que le duo Cormorant/DM Sans actuel (deux familles, cinq graisses). `--font-heading` et `--font-body` pointent alors vers la même famille ; seul le poids et la taille distinguent les niveaux. Si Simon préfère une autre famille, la contrainte reste : une famille, 3 graisses maximum, OFL ou licence équivalente vérifiée, origine et notice consignées dans `shared/design-system/fonts/NOTICE.md` comme le prévoit déjà `ARCHITECTURE.md` § 2.
+
+Hiérarchie de titres, à respecter à la lettre (accessibilité, pas esthétique) :
+
+- **H1** une seule fois sur la page, dans le hero (nom/activité de Simon).
+- **H2** pour chacun des titres de bloc : À propos, Réalisations, Ce que je fais, Contact. Pas de bloc sans H2, pas de H2 utilisé comme simple effet de style ailleurs.
+- **H3** pour les sous-entrées à l’intérieur d’un bloc : l’entrée Créa’Tif dans Réalisations, chaque prestation dans Ce que je fais.
+- Aucun niveau sauté (pas de H1 direct vers H3). Le pied de page n’a pas besoin de titre visible ; si un repère de structure est nécessaire, un H2 visuellement masqué (`.visually-hidden`, déjà dans `tokens.css`) suffit.
+
+Échelle reprise telle quelle de `tokens.css` (elle est neutre, pas liée à Créa’Tif) : H1 `clamp(2.25rem, 4vw + 1rem, 3.5rem)`, H2 `clamp(1.75rem, 2vw + 1rem, 2.5rem)`, H3 `clamp(1.25rem, 1vw + 1rem, 1.5rem)`. Seul le poids change par rapport à la règle partagée actuelle : 800 pour H1/H2 au lieu de 600 (une seule famille a besoin d’un poids plus marqué pour créer la même hiérarchie qu’un changement de police).
+
+Confort de lecture : largeur de paragraphe limitée à 65–75 caractères (`max-width: 38rem` environ sur les blocs de texte courant), interligne `1.55` déjà fixé par `tokens.css` — conservé.
+
+##### Échelle d’espacements
+
+Aucun changement à l’échelle 8px déjà partagée (`--space-1` 8px à `--space-8` 128px) — elle est structurelle, pas une signature Créa’Tif. Usage recommandé pour cette page :
+
+- Padding horizontal du conteneur : `--space-2` (16px) en mobile, `--space-3` (24px) au-delà de 640px — `--container-max` (1200px) inchangé.
+- Écart vertical entre blocs : `--space-5` (48px) en mobile, `--space-7` (96px) en tablette, `--space-8` (128px) à partir de 1024px — c’est cet espace, pas la couleur, qui doit faire sentir le rythme entre Hero / À propos / Réalisations / Ce que je fais / Contact / Pied de page.
+- Écart interne entre éléments d’un même bloc (titre, texte, CTA) : `--space-2` à `--space-3`.
+
+##### Traitement du hero
+
+Purement typographique par défaut, conformément à la spécification produit (aucune photo de Simon n’existe encore) : une courte étiquette en capitales au-dessus du H1 (« [texte réservé — ex. « Développeur front-end indépendant »] », `--color-muted`, `--space-1` de letter-spacing), le H1 (nom/activité), une phrase de positionnement en paragraphe courant, puis le CTA principal. Pas de portrait à défaut ; si Simon fournit une photo plus tard (point ouvert de la spécification produit, section 5), elle vient en complément du texte, pas en remplacement du texte par une image seule.
+
+Pour éviter un hero entièrement nu, un motif graphique géométrique en SVG (grille de points, lignes fines ou forme abstraite simple), tracé dans `--color-accent` à faible opacité, sans photographie ni illustration figurative : léger, vectoriel donc pas de poids d’image supplémentaire, et réutilisable comme le « visuel neutre » exigé pour présenter Créa’Tif (spécification produit § 3) — un seul système graphique pour les deux usages, cohérence garantie sans dépendre d’un stock d’images.
+
+Disposition : deux colonnes à partir de 1024px (texte à gauche, motif graphique à droite, environ 55/45), une seule colonne empilée en dessous, motif graphique déplacé après le texte ou réduit à un bandeau décoratif fin en bas de hero — jamais avant le texte en mobile, pour que le H1 reste la première chose lue par un lecteur d’écran comme par un lecteur visuel.
+
+##### Boutons et appel à l’action
+
+Un seul style de bouton primaire visible sur toute la page (répété en haut et en bas, jamais concurrencé — conforme au critère produit n° 2). Gabarit repris de `tokens.css` (`--radius-btn` 8px, `--btn-height` 48px en **hauteur minimale**, pas fixe — important pour le zoom 200 %, voir accessibilité) :
+
+- Fond `--color-accent`, texte blanc, poids 600.
+- Survol et focus : fond `--color-accent-dark` — même changement pour les deux états, pas de traitement séparé, transition `background-color .2s ease`.
+- Un bouton secondaire (texte seul, `--color-ink`, soulignement au survol) peut exister pour un lien de second plan (« Voir la démo » de Créa’Tif, retour en haut de page) mais ne doit jamais avoir le même poids visuel que le CTA de contact — pas de bordure pleine ni de fond, pour qu’il n’entre pas en concurrence avec le critère produit n° 2 (aucun CTA secondaire ne doit rivaliser visuellement avec le CTA principal).
+- 48px de hauteur minimale respecte déjà la cible tactile recommandée (44–48px) sans changement nécessaire.
+
+##### Composition et rythme des blocs
+
+Alternance `--color-paper` / `--color-paper-alt` entre blocs successifs (Hero sur papier, À propos sur papier-alt, Réalisations sur papier, etc.) pour donner un repère visuel de rythme sans introduire de nouvelle couleur. Le bloc Réalisations est conçu en grille/liste dès cette première version (une seule carte aujourd’hui, pour Créa’Tif) afin d’accueillir une deuxième entrée sans refonte visuelle, conformément à la spécification produit § 2 — la carte Créa’Tif doit donc déjà porter la structure d’une carte de grille (visuel neutre en tête, titre, court texte, lien), pas un bloc de mise en page unique câblé en dur. Le bloc « Ce que je fais » se présente comme une liste de 3 à 5 prestations courtes, en grille à partir de 768px (2 colonnes) puis 1024px (3 colonnes), en pile simple avant.
+
+##### Comportement responsive
+
+Trois paliers, en px pour rester vérifiable :
+
+- **≤ 640px** : une colonne partout, conteneur `--space-2` de marge, hero en pile (texte puis motif graphique), grilles (Réalisations, Ce que je fais) en une colonne.
+- **641–1023px** : conteneur `--space-3` de marge, grille « Ce que je fais » en 2 colonnes, hero toujours en pile mais motif graphique proportionnellement plus grand.
+- **≥ 1024px** : hero en deux colonnes, grille « Ce que je fais » en 3 colonnes, `--container-max` (1200px) atteint, écarts verticaux à `--space-8`.
+
+Aucune image ni bloc à hauteur fixe : les cartes et le hero doivent s’ajuster à leur contenu pour éviter tout texte tronqué en cas de contenu plus long que prévu ou de zoom.
+
+##### États de focus et de survol
+
+Le focus visible n’est jamais supprimé (pas de `outline: none` sans remplacement) : reprendre et garder tel quel le `:focus-visible` déjà défini dans `tokens.css` (`outline: 3px solid var(--color-accent-dark); outline-offset: 2px;` une fois le jeton renommé, voir plus bas), appliqué uniformément aux liens, boutons et champs de formulaire — pas seulement au CTA. Le survol ne repose jamais sur la couleur seule : les liens gagnent un soulignement (ou un renforcement de soulignement existant) au survol et au focus, pas uniquement un changement de teinte, pour rester lisible en cas de daltonisme ou de contraste d’écran dégradé. Transition courte (150–200ms, `ease`) sur les propriétés de couleur/fond uniquement, jamais sur `outline` (le focus doit apparaître instantanément).
+
+##### Accessibilité — valeurs vérifiables
+
+- Contrastes (calcul détaillé en tête de section Palette) : texte principal sur papier 16,6:1 ; texte secondaire (`--color-muted`) sur papier 6,04:1 ; texte blanc sur accent 6,31:1 ; texte blanc sur accent-dark 9,39:1. Tous au-delà du seuil AA (4.5:1 texte courant, 3:1 grand texte/UI) avec marge, à recontrôler avec un outil de contraste une fois les vraies couleurs de rendu (écran, gamma) en place.
+- Hiérarchie de titres : un seul H1, un H2 par bloc, H3 pour les sous-entrées, aucun niveau sauté (détail dans la section Typographie).
+- Focus : jamais supprimé, contour 3px toujours visible, y compris au clavier sur les liens du footer et le lien « Voir la démo ».
+- Zoom 200 % : aucune hauteur fixe (le bouton utilise `min-height`, pas `height` — déjà le cas dans `tokens.css`), aucun `overflow: hidden` sur un conteneur de texte, largeur de paragraphe en unités relatives (`ch`/`rem`) pour que le texte reflue sans se chevaucher ni sortir du cadre.
+- Cible tactile : 48px de hauteur minimale sur le CTA, déjà conforme sans changement.
+- Mouvement : le motif graphique du hero est statique par défaut ; toute animation éventuelle doit respecter `prefers-reduced-motion` déjà géré globalement dans `tokens.css`.
+
+##### Résolution du conflit avec `shared/design-system/tokens.css`
+
+Point de vigilance signalé dans la mission, confirmé à la lecture du fichier : `tokens.css` porte aujourd’hui, sous des noms qui se veulent génériques, les valeurs réelles de la marque Créa’Tif — `--color-ivory` `#FBF8F2`, `--color-copper` `#A84F3A`/`#8F3F2F`, `--color-sage` `#61766D`, `--color-sand` `#E6DDD0`, `--color-peach` `#D4A68C`, et `--font-heading: "Cormorant Garamond"` / `--font-body: "DM Sans"`. Si le portfolio importe ce fichier sans modification, il hérite littéralement de l’identité de Créa’Tif — ce qui viole directement le critère d’acceptation n° 9. Ma proposition, à valider par l’Architecte Front-end puisqu’elle touche à l’organisation de `shared/` :
+
+1. **Séparer la mécanique du thème.** Garder dans `tokens.css` (ou un fichier renommé, au choix de l’Architecte) uniquement ce qui est réellement neutre et commun : l’échelle d’espacement, `--container-max`, `--radius-btn`, `--btn-height`, le reset, le mécanisme `:focus-visible` (mais en le faisant pointer vers un jeton `--color-focus-ring` défini par le thème, pas vers une couleur en dur), les squelettes de classes (`.btn`, `.container`, `.skip-link`, `.visually-hidden`) sans aucune valeur de couleur ou de police fixée en dur à l’intérieur.
+2. **Sortir les valeurs de marque dans un fichier de thème par site.** Chaque site déclare ses propres valeurs pour le même contrat de variables (`--color-ink`, `--color-paper`, `--color-accent`, `--color-accent-dark`, `--font-heading`, `--font-body`, etc.) dans un fichier qui lui est propre (par exemple `sites/coiffeur-mixte/css/theme.css` et `sites/portfolio/css/theme.css`), chargé après le fichier structurel partagé. Le site Créa’Tif garde son rendu actuel à l’identique en reportant ses valeurs actuelles dans son propre fichier de thème — aucune régression visuelle sur ce site.
+3. **Renommer les jetons de couleur actuels pour qu’ils ne portent plus le nom de la marque Créa’Tif.** `--color-ivory`, `--color-copper`, `--color-sage`, `--color-sand`, `--color-peach` sont des noms de marque, pas des noms de rôle ; un futur site ne doit pas avoir à réutiliser un nom qui sous-entend une couleur cuivre ou sauge. Des noms de rôle neutres (`--color-surface`, `--color-accent`, `--color-accent-alt`, `--color-surface-alt`…) au niveau du contrat partagé, chaque site leur donnant sa propre valeur.
+4. **Appliquer la même séparation à `fonts.css`.** `ARCHITECTURE.md` § 2 prévoit déjà que `fonts.css` déclare les `@font-face` et soit chargé avant `tokens.css` : si ce fichier reste unique et partagé, le portfolio téléchargerait aussi Cormorant Garamond et DM Sans sans jamais s’en servir. Un fichier de polices par site (ou par famille, importé seulement par les sites qui en ont besoin) évite ce poids inutile et évite, de fait, que la police de Créa’Tif s’affiche par défaut si le thème d’un nouveau site oublie de la redéfinir.
+
+Cette réorganisation ne change rien au rendu visuel de Créa’Tif si elle est bien reportée ; c’est un déplacement de fichiers et un renommage de variables, pas une nouvelle décision de contenu ou de marque. Je la propose ici parce qu’elle conditionne directement le critère d’acceptation n° 9, mais l’arbitrage technique définitif (faut-il vraiment renommer, où couper le fichier, comment nommer les nouveaux jetons) revient à l’Architecte Front-end — je ne modifie pas `ARCHITECTURE.md` ni `shared/` moi-même.
+
+##### Remarque sur les décisions déjà actées
+
+Je n’ai rien trouvé, dans les trois points déjà tranchés par le Chef de projet (page unique, CTA unique, Créa’Tif présenté par un lien et un visuel neutre sans capture ni photo, aucun tarif chiffré), qui soit incompatible avec une bonne direction artistique — je le dis explicitement plutôt que d’inventer une objection. Le visuel neutre exigé pour Créa’Tif est même une contrainte utile : il m’oblige à construire un système graphique propre au portfolio (le motif géométrique du hero, réemployé ici) plutôt que de dépendre d’une capture d’écran, ce qui renforce justement la séparation d’identité exigée par le critère n° 9.
+
 ## Sites
 
 ### coiffeur-mixte
