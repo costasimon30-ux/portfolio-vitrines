@@ -1,16 +1,16 @@
-# Workflow multi-agents (Codex + Claude)
+# Workflow multi-agents
 
 Ce repo est travaillé par plusieurs agents IA + Simon. Pour éviter les conflits, chacun a un périmètre de fichiers clair. La liste complète des agents actifs, leur rôle et leur identifiant est dans `docs/AGENTS.md` — ce fichier-ci décrit les règles et le cycle, `AGENTS.md` décrit qui elles concernent.
 
 ## Répartition
 
-- **Codex — Chef de projet** : lit et écrit uniquement dans `docs/DIRECTION.md` (hors sous-section « Direction artistique »). Positionnement, contenu, arborescence, fonctionnalités, parcours utilisateur, contraintes, critères de réussite — une section par site.
-- **Codex — UI/UX & Direction artistique** : écrit la sous-section « Direction artistique » de `docs/DIRECTION.md` en amont, et un rapport `docs/UX-REVIEW-<site>.md` en aval, une fois le site rendu par Claude.
-- **Codex — Architecte Front-end** : intervient en amont sur un nouveau site ou un changement structurel important. Écrit dans `docs/ARCHITECTURE.md` (notes valables pour tout le portfolio, pas un fichier par site). N'implémente pas.
-- **Codex — Code Reviewer** : intervient après une implémentation de Claude. Écrit un rapport dans `docs/CODE-REVIEW-<site>.md`. Ne corrige pas lui-même.
-- **Codex — QA / Audit** : dernière étape avant mise en avant du site dans le portfolio. Écrit un rapport dans `docs/QA-<site>.md`. Ne corrige pas lui-même.
-- **Codex — Freelance Business** : n'écrit jamais dans ce repo (voir `docs/AGENTS.md` § Confidentialité).
-- **Claude (implémentation)** : lit `docs/DIRECTION.md` et tous les rapports `docs/UX-REVIEW*.md`, `docs/CODE-REVIEW*.md`, `docs/QA-*.md` avant de travailler. Écrit dans `sites/`, `shared/`, et les fichiers de config à la racine (`.gitignore`, `README.md`, `CLAUDE.md`).
+- **Chef de projet** : lit et écrit uniquement dans `docs/DIRECTION.md` (hors sous-section « Direction artistique »). Positionnement, contenu, arborescence, fonctionnalités, parcours utilisateur, contraintes, critères de réussite — une section par site.
+- **UI/UX & Direction artistique** : écrit la sous-section « Direction artistique » de `docs/DIRECTION.md` en amont, et un rapport `docs/UX-REVIEW-<site>.md` en aval, une fois le site rendu par Claude.
+- **Architecte Front-end** : intervient en amont sur un nouveau site ou un changement structurel important. Écrit dans `docs/ARCHITECTURE.md` (notes valables pour tout le portfolio, pas un fichier par site). N'implémente pas.
+- **Code Reviewer** : intervient après une implémentation de Claude. Écrit un rapport dans `docs/CODE-REVIEW-<site>.md`. Ne corrige pas lui-même.
+- **QA / Audit** : dernière étape avant mise en avant du site dans le portfolio. Écrit un rapport dans `docs/QA-<site>.md`. Ne corrige pas lui-même.
+- **Freelance Business** : n'écrit jamais dans ce repo (voir `docs/AGENTS.md` § Confidentialité).
+- **Implémentation** : lit `docs/DIRECTION.md` et tous les rapports `docs/UX-REVIEW*.md`, `docs/CODE-REVIEW*.md`, `docs/QA-*.md` avant de travailler. Écrit dans `sites/`, `shared/`, et les fichiers de config à la racine (`.gitignore`, `README.md`, `CLAUDE.md`).
 - **Simon** : arbitre, décide, et peut écrire n'importe où.
 
 Règle simple : si un agent doit sortir de son périmètre, on en parle d'abord avec Simon.
