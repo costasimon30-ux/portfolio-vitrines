@@ -144,6 +144,84 @@ En cas de défaut reproduit dans cette matrice, corriger et retester uniquement 
 - Aucun changement d'hébergement, connexion Git, automatisation, domaine ou achat demandé. L'architecture `e2a3d37` reste la procédure de référence ; son tableau de première publication est historique, le présent suivi fournit les versions actualisées. Aucune nouvelle mission Architecte n'est nécessaire pour recopier ces identifiants.
 - **Prochaine étape recommandée : cadrer la page d'accueil du portfolio professionnel**, pour présenter Simon, son offre et cette première réalisation clairement identifiée comme concept. Le cadrage reste distinct de sa construction et du choix du deuxième site vitrine ; ne pas créer de pages, de campagne commerciale ou de migration technique dans cette clôture. Après résultat QA favorable, Créa’Tif peut servir de première référence sans attendre plusieurs démos.
 
+### Page portfolio — spécification produit (16 septembre 2026)
+
+**Statut : spécification de contenu, écrite par le Chef de projet. Aucun code, aucune maquette, aucun fichier créé.** Elle applique les décisions déjà actées par l’Architecte dans `docs/ARCHITECTURE.md` § 5 et ne les rouvre pas : emplacement réservé `sites/portfolio/`, manifeste `kind: "portfolio"`, publication indépendante de Créa’Tif, Créa’Tif jamais copié comme accueil du portfolio, aucun achat de domaine engagé — l’hébergement de cette page reste une décision séparée de Simon, à prendre le moment venu. Cette spécification répond au constat du suivi de clôture de Créa’Tif : la démo existe mais reste en `noindex`, sans rien qui présente Simon ni ne transforme la démo en argument commercial.
+
+#### 1. Public visé et action attendue
+
+Le public visé est un **prospect professionnel** cherchant un site vitrine statique pour son activité (commerce, profession libérale, petite structure) — le type de client que Créa’Tif illustre. Ce n’est ni un recruteur cherchant un salarié, ni un grand compte avec appel d’offres. Le ton et le contenu s’adressent donc à quelqu’un qui doit décider rapidement s’il fait confiance à Simon pour son propre site.
+
+**Action unique attendue : une prise de contact qualifiée**, formulée comme une demande de devis ou d’échange sur un projet (« Discutons de votre projet », pas « Réserver un appel » ni un autre engagement que Simon ne peut pas encore tenir). Un seul CTA principal, répété en haut et en bas de page ; pas de CTA secondaire concurrent (pas de newsletter, pas de réseaux sociaux mis en avant comme objectif). Tant qu’aucune solution de prise de rendez-vous réelle n’existe, le contact reste un moyen simple et réel (e-mail ou formulaire qui envoie effectivement un message), jamais un simulateur.
+
+#### 2. Une page unique, structurée en blocs
+
+**Décision : une seule page (one-page), pas plusieurs pages, tant qu’une seule réalisation (Créa’Tif) est présentable.** Plusieurs pages supposeraient plusieurs réalisations à montrer et une navigation à maintenir pour un contenu qui n’existe pas encore ; une seule page bien structurée sert mieux une action de contact unique. Revoir cette décision quand un deuxième site vitrine sera publié et présentable (cf. trajectoire du deuxième site, `docs/ARCHITECTURE.md` § 3).
+
+Arborescence de la page, dans l’ordre, chaque bloc ancré pour permettre des liens internes (`#a-propos`, `#realisations`, `#contact`, etc.) :
+
+1. **Hero** — nom/activité de Simon, une phrase de positionnement (développeur front-end indépendant, sites vitrines statiques), CTA principal vers le bloc Contact.
+2. **À propos** — bloc « Informations sur Simon », voir section 4.
+3. **Réalisations** — une seule entrée à ce jour : Créa’Tif, traitée en section 3. La structure du bloc doit accepter plusieurs entrées sans refonte quand un deuxième site existera (liste/grille, pas un bloc unique câblé en dur).
+4. **Ce que je fais** — compétences et prestations, en lien direct avec ce que Créa’Tif démontre : sites vitrines statiques, responsive, accessibles, performants. Pas de liste de technologies déconnectée de preuves.
+5. **Contact** — moyens de contact réels (section 4), CTA principal répété, éventuellement un court formulaire si une solution d’envoi réelle existe ; sinon un lien `mailto:` direct.
+6. **Pied de page** — mentions légales minimales si nécessaires (statut, réservé à Simon de préciser), lien de retour en haut, pas de réseaux sociaux fictifs.
+
+Pas de blog, pas de page « projets » séparée, pas de tarification en page dédiée : tout tient sur cette seule page pour cette première version.
+
+#### 3. Présentation de Créa’Tif — traitement du point P06
+
+**Le point est traité ici, pas ignoré.** La réserve P06 documentée plus haut dans ce fichier (décision de maintien du 7 septembre 2026) n’est pas levée et n’est pas rouverte par cette spécification. Elle porte sur une photographie affichée sur la page Barbier de Créa’Tif, où l’anonymat du modèle ne peut pas être présumé. Tant que la démo restait en `noindex`, cette exposition restait limitée. Une page portfolio est indexable en production (`docs/ARCHITECTURE.md` § 5.5) : y afficher une capture qui inclut cette photographie ferait porter la réserve sur un contenu public et indexé, ce qui change la nature du risque.
+
+**Décision retenue : lien seul vers la démo, sans capture d’écran de Créa’Tif.** Le bloc Réalisations présente Créa’Tif par un **visuel neutre** (illustration ou composition graphique dans l’identité du portfolio, sans photographie issue du site), un court texte de présentation, et un lien explicite « Voir la démo » vers l’URL publique actuelle. Motif du choix : c’est l’option la plus simple à vérifier (« aucune photographie de Créa’Tif n’apparaît sur la page portfolio ») et elle évite d’avoir à auditer, à chaque évolution du site ou de la page portfolio, quelles zones d’une capture excluent bien la photographie concernée. Les options écartées et leur raison :
+
+- *Capture excluant les photos concernées* : suppose de garantir dans la durée qu’aucune future capture ne réintroduit la photographie visée ; fragile à chaque mise à jour de la démo ou de la page portfolio.
+- *Capture avec toutes les photos* : expose la réserve à un contenu indexé ; écartée sans discussion.
+- *Report de la mise en avant de Créa’Tif* : écarté pour cette spécification, car Créa’Tif reste la seule réalisation démontrable et le prospect a besoin d’une preuve concrète pour agir ; reporter priverait la page de son seul argument tangible.
+
+Texte de présentation à écrire (contenu, pas un ton à improviser en implémentation) : nommer Créa’Tif comme un **concept de salon fictif réalisé en démonstration** — reprendre la mention déjà utilisée sur le site lui-même (« concept de salon fictif », « photographies d’illustration ») plutôt qu’une nouvelle formulation qui laisserait croire à un client réel. Ne pas afficher de logo, nom de domaine ou élément qui suggérerait un établissement existant.
+
+Cette décision peut être révisée si P06 est levée ou si Simon en décide autrement ; jusque-là, elle s’applique telle quelle.
+
+#### 4. Informations sur Simon
+
+- **Parcours et compétences :** un court texte de présentation (quelques phrases, pas un CV complet) centré sur ce que le prospect doit savoir pour décider de le contacter : ce que Simon construit (sites vitrines statiques, front-end), pour qui, et ce qui le différencie (accessibilité, performance, attention portée au détail — cohérent avec le standard démontré par Créa’Tif). Contenu à fournir par Simon (section 5) ; ne pas inventer un parcours.
+- **Compétences affichées :** une liste courte et concrète (HTML/CSS/JavaScript, accessibilité, performance, responsive), pas une liste exhaustive de technologies sans lien avec ce qui est montré. Correspondre à ce que Créa’Tif démontre réellement.
+- **Disponibilité :** un indicateur simple et non engageant (par exemple « Disponible pour de nouveaux projets » / « Prochaines disponibilités : [mois] »), à tenir à jour par Simon — pas un calendrier de réservation.
+- **Tarifs : décision retenue, pas de montant chiffré affiché.** Le bloc Contact ou Prestations indique « Sur devis, adapté à chaque projet » plutôt qu’une grille tarifaire. Motif : les tarifs dépendent du périmètre de chaque projet et un montant publié sur une page indexée est difficile à faire évoluer sans donner l’impression d’un changement de prix ; un CTA de demande de devis capte mieux une décision de contact qu’une grille encore incertaine. Simon peut revenir sur ce choix explicitement s’il préfère afficher une fourchette.
+- **Moyens de contact :** réels et fonctionnels uniquement — une adresse e-mail réelle au minimum (lien `mailto:`), éventuellement un formulaire s’il existe une solution d’envoi réellement connectée. Pas de numéro de téléphone, réseau social ou messagerie tant que Simon ne les a pas confirmés comme canaux qu’il veut exposer publiquement.
+
+#### 5. Contenus manquants à fournir par Simon
+
+Cette spécification ne peut pas être implémentée telle quelle : les éléments suivants n’existent nulle part dans le dépôt et ne doivent pas être inventés par un agent.
+
+- Le texte de présentation de Simon (parcours, quelques phrases).
+- La liste définitive des compétences/prestations à afficher.
+- L’indicateur de disponibilité actuel.
+- La confirmation du choix « sur devis » ou une fourchette tarifaire à afficher à la place.
+- L’adresse e-mail réelle à exposer (et, le cas échéant, les paramètres d’un formulaire déjà connecté à un service réel).
+- Toute mention légale requise pour une page professionnelle publique (statut, SIRET si applicable) — à confirmer par Simon, pas à déduire.
+- Une éventuelle photo ou élément visuel personnel, si Simon souhaite en inclure un ; à défaut, le hero reste typographique.
+- Le nom exact à afficher (nom complet, nom commercial, ou les deux) et un éventuel favicon distinct de celui des démos.
+
+Tant que ces éléments ne sont pas fournis, l’implémentation ne doit pas commencer avec des valeurs inventées, y compris à titre de placeholder réaliste : un espace réservé doit rester visiblement un espace réservé, comme déjà pratiqué pour les informations pratiques de Créa’Tif.
+
+#### Critères d’acceptation
+
+Vérifiables par quelqu’un qui n’a pas participé à cette spécification, sans consulter le raisonnement ci-dessus :
+
+1. La page portfolio est une page unique (un seul fichier HTML de contenu), pas plusieurs pages liées par une navigation multi-page.
+2. La page contient un unique CTA principal orienté prise de contact, présent au moins en haut et en bas de page ; aucun autre CTA ne lui fait concurrence visuelle.
+3. Le bloc Réalisations mentionne Créa’Tif et contient un lien fonctionnel vers son URL publique actuelle.
+4. **Aucun fichier image issu de `sites/coiffeur-mixte/assets/photos/` n’apparaît sur la page portfolio**, et aucune capture d’écran du site Créa’Tif n’y figure — vérifiable en listant les images chargées par la page et en les comparant aux fichiers de ce dossier.
+5. Le texte présentant Créa’Tif le nomme explicitement comme un concept ou une démonstration, jamais comme un salon réel.
+6. Aucun montant tarifaire chiffré n’apparaît sur la page, sauf si Simon a explicitement fourni une fourchette à afficher à la place du texte « sur devis ».
+7. Le seul moyen de contact actif est réel et fonctionnel (lien `mailto:` valide vers une adresse fournie par Simon, ou formulaire réellement connecté) ; aucun formulaire qui ne fait qu’illusion de soumission.
+8. Aucune information sur Simon (parcours, compétences, disponibilité, tarifs, contact) n’est affichée sans avoir été fournie par lui ; aucun contenu de la section 5 n’est inventé ou déduit.
+9. La page ne réutilise à aucun endroit le nom, la palette ou l’identité visuelle propres à la marque Créa’Tif comme identité du portfolio lui-même.
+10. Le manifeste de ce site, une fois créé, déclare `kind: "portfolio"` ; aucun manifeste ni dossier `sites/portfolio/` n’est créé par cette spécification elle-même.
+11. Rien dans cette spécification ni son implémentation ne rouvre P06 sur le fond (pas de nouvelle recherche de droits, pas de retrait ou remplacement de photographie sur Créa’Tif), et rien n’engage d’achat de domaine ou de choix d’hébergement.
+
 ## Sites
 
 ### coiffeur-mixte
