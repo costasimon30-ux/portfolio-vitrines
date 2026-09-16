@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Simon COSTA">
+  <rect width="64" height="64" rx="14" fill="#14181C"/>
+  <g fill="#2451E0">
+    <circle cx="18" cy="18" r="3"/>
+    <circle cx="32" cy="18" r="3"/>
+    <circle cx="46" cy="18" r="3"/>
+    <circle cx="18" cy="32" r="3"/>
+    <circle cx="18" cy="46" r="3"/>
+  </g>
+  <path d="M18 46 L32 32 L42 40 L52 26" fill="none" stroke="#2451E0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

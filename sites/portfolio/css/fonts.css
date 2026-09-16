@@ -1,0 +1,37 @@
+/*
+  Polices auto-hébergées — portfolio
+  Voir assets/fonts/NOTICE.md pour la source, l'auteur et la licence
+  (SIL OFL 1.1) de chaque fichier.
+
+  Ce site déclare ses propres polices plutôt que d'utiliser
+  shared/design-system/fonts.css : ce fichier partagé sert Cormorant Garamond
+  et DM Sans, c'est-à-dire l'identité de Créa'Tif, que le portfolio ne doit pas
+  reprendre (critère d'acceptation n° 9). Voir la note de mise en œuvre dans
+  css/style.css.
+
+  Une seule famille, trois graisses : la hiérarchie se joue sur le poids.
+*/
+
+@font-face {
+  font-family: "Manrope";
+  src: url("../assets/fonts/manrope/manrope-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: url("../assets/fonts/manrope/manrope-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: url("../assets/fonts/manrope/manrope-800.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
