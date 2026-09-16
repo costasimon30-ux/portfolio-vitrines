@@ -23,7 +23,7 @@ Tous les agents ci-dessous **ne travaillent pas à chaque site** : le Chef de pr
 
 ## Accès GitHub (clés SSH)
 
-- **Cowork bridge - portfolio-vitrines** : clé utilisée par Claude (Cowork) pour l'implémentation (`sites/`, `shared/`, config racine).
+- **Cowork bridge - portfolio-vitrines** : clé utilisée par le rôle Implémentation (`sites/`, `shared/`, config racine).
 - Il n'y a plus d'environnement Codex CLI, donc plus de clé partagée unique pour les rôles qui n'écrivent que du Markdown (Chef de projet, UI/UX, Architecte Front-end, Code Reviewer, QA). Ces rôles committent soit par l'interface web de GitHub (aucune clé nécessaire, la session GitHub de Simon suffit), soit, s'ils doivent exécuter du code localement, en générant leur propre paire de clés pour la conversation et en transmettant la clé publique à Simon, qui la dépose en *deploy key*.
 
 ## Pourquoi un trailer de commit ?
