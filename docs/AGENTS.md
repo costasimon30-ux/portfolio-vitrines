@@ -1,6 +1,6 @@
 # Registre des agents — portfolio-vitrines
 
-Ce repo est travaillé par plusieurs agents IA (côté Codex et côté Claude) en plus de Simon. Comme les agents côté Codex partagent une même identité Git et une même clé SSH, `git log` seul ne suffit pas à savoir qui a fait quoi : ce fichier + un trailer de commit (voir `docs/WORKFLOW.md`) servent de registre.
+Ce repo est travaillé par plusieurs agents IA en plus de Simon. Tous les commits portent le même auteur Git, quel que soit l'agent et quelle que soit la voie utilisée, donc `git log` seul ne suffit pas à savoir qui a fait quoi : ce fichier + un trailer de commit (voir `docs/WORKFLOW.md`) servent de registre.
 
 Tous les agents ci-dessous **ne travaillent pas à chaque site** : le Chef de projet et l'UI/UX interviennent systématiquement ; Architecte Front-end, Code Reviewer et QA interviennent en renfort quand le site le justifie (nouveau pattern technique, doute sur la qualité du code, mise en ligne définitive). Business n'écrit jamais dans ce repo (voir plus bas).
 
@@ -9,13 +9,13 @@ Tous les agents ci-dessous **ne travaillent pas à chaque site** : le Chef de pr
 | Agent | Rôle | Écrit dans | Trailer de commit |
 | --- | --- | --- | --- |
 | Simon | Product owner, arbitrage | Tout | — |
-| Codex — Chef de projet | Transforme une idée en spécifications implémentables : arborescence, pages, fonctionnalités, parcours utilisateur, contenu nécessaire, contraintes, critères de réussite. Ne code pas. | `docs/DIRECTION.md` | `Agent: claude-chef-de-projet` |
-| Codex — UI/UX & Direction artistique | Propose la direction artistique en amont (couleurs, typo, espacements, composition, hiérarchie visuelle, boutons, navigation, responsive, animations, cohérence) **et** critique sans complaisance ce que Claude a produit, une fois rendu. Ne code pas. | Sous-section « Direction artistique » de `docs/DIRECTION.md` (en amont) + `docs/UX-REVIEW-<site>.md` (en aval) | `Agent: claude-ui-ux` |
-| Codex — Architecte Front-end | Réfléchit à la structure technique avant construction : organisation des fichiers/composants, gestion des données, réutilisation entre sites du portfolio, dépendances, performance. Conseille, n'implémente pas. | `docs/ARCHITECTURE.md` (notes valables pour tout le portfolio) | `Agent: claude-architecte-frontend` |
-| Codex — Code Reviewer | Revue de code sévère après implémentation par Claude : bugs, mauvaises pratiques, duplication, sécurité, maintenabilité. Pas de complaisance, ne corrige pas lui-même. | `docs/CODE-REVIEW-<site>.md` | `Agent: claude-code-reviewer` |
-| Codex — QA / Audit | Inspection avant livraison : fonctionnel (liens, formulaires, navigation, erreurs), responsive (mobile/tablette/desktop/grand écran), accessibilité (clavier, contraste, labels, structure HTML, focus), SEO (titres, métadonnées, structure, indexabilité, données structurées), performance (images, JS, CSS, chargement, ressources inutiles). Ne corrige pas lui-même. | `docs/QA-<site>.md` | `Agent: claude-qa` |
-| Codex — Freelance Business | Conseil commercial : devis, prospection, facturation. Ne touche jamais au code ni à ce repo (voir « Confidentialité » ci-dessous). | — | — |
-| Claude (Cowork) | Implémentation front-end, corrige ce qui relève du code suite aux rapports UX/Reviewer/QA. | `sites/`, `shared/`, config racine | `Agent: claude-cowork` |
+| Chef de projet | Transforme une idée en spécifications implémentables : arborescence, pages, fonctionnalités, parcours utilisateur, contenu nécessaire, contraintes, critères de réussite. Ne code pas. | `docs/DIRECTION.md` | `Agent: claude-chef-de-projet` |
+| UI/UX & Direction artistique | Propose la direction artistique en amont (couleurs, typo, espacements, composition, hiérarchie visuelle, boutons, navigation, responsive, animations, cohérence) **et** critique sans complaisance ce que Claude a produit, une fois rendu. Ne code pas. | Sous-section « Direction artistique » de `docs/DIRECTION.md` (en amont) + `docs/UX-REVIEW-<site>.md` (en aval) | `Agent: claude-ui-ux` |
+| Architecte Front-end | Réfléchit à la structure technique avant construction : organisation des fichiers/composants, gestion des données, réutilisation entre sites du portfolio, dépendances, performance. Conseille, n'implémente pas. | `docs/ARCHITECTURE.md` (notes valables pour tout le portfolio) | `Agent: claude-architecte-frontend` |
+| Code Reviewer | Revue de code sévère après implémentation par Claude : bugs, mauvaises pratiques, duplication, sécurité, maintenabilité. Pas de complaisance, ne corrige pas lui-même. | `docs/CODE-REVIEW-<site>.md` | `Agent: claude-code-reviewer` |
+| QA / Audit | Inspection avant livraison : fonctionnel (liens, formulaires, navigation, erreurs), responsive (mobile/tablette/desktop/grand écran), accessibilité (clavier, contraste, labels, structure HTML, focus), SEO (titres, métadonnées, structure, indexabilité, données structurées), performance (images, JS, CSS, chargement, ressources inutiles). Ne corrige pas lui-même. | `docs/QA-<site>.md` | `Agent: claude-qa` |
+| Freelance Business | Conseil commercial : devis, prospection, facturation. Ne touche jamais au code ni à ce repo (voir « Confidentialité » ci-dessous). | — | — |
+| Implémentation | Implémentation front-end, corrige ce qui relève du code suite aux rapports UX/Reviewer/QA. | `sites/`, `shared/`, config racine | `Agent: claude-cowork` |
 
 ## Confidentialité — Freelance Business
 
