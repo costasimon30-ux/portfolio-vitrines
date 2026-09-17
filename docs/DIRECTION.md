@@ -222,6 +222,28 @@ Vérifiables par quelqu’un qui n’a pas participé à cette spécification, s
 10. Le manifeste de ce site, une fois créé, déclare `kind: "portfolio"` ; aucun manifeste ni dossier `sites/portfolio/` n’est créé par cette spécification elle-même.
 11. Rien dans cette spécification ni son implémentation ne rouvre P06 sur le fond (pas de nouvelle recherche de droits, pas de retrait ou remplacement de photographie sur Créa’Tif), et rien n’engage d’achat de domaine ou de choix d’hébergement.
 
+#### Mise à jour du contenu — décisions de Simon (17 septembre 2026)
+
+**Statut : contenus et arbitrages fournis par Simon, déjà repris dans l’implémentation (`ac485e9`, `sites/portfolio/index.html`) et consignés ici pour mémoire du dépôt.** Cette mise à jour complète la section 5 ci-dessus : les éléments qui y étaient listés comme manquants sont désormais fournis par Simon et fixés. Elle ne rouvre ni la sous-section « Direction artistique » qui suit (propre à l’UI/UX), ni les décisions déjà actées dans `docs/ARCHITECTURE.md` § 5.
+
+**Contenus fournis et fixés :**
+
+- **Nom affiché :** Simon COSTA.
+- **Phrase de positionnement :** « Des sites vitrines construits à partir de ce que vous dites vraiment. »
+- **Texte de présentation (« À propos ») :** trois paragraphes, centrés sur l’écoute. Le passé de Simon en support helpdesk y est présenté comme une compétence transposée (écoute active, reformulation, diagnostic), explicitement pas comme une reconversion subie. Le texte définitif vit dans `sites/portfolio/index.html`, bloc « À propos » ; il n’est pas dupliqué ici pour éviter une double source.
+- **Prestations retenues :** site vitrine, refonte de pages, application web, mise en ligne.
+- **Socle technique annoncé :** HTML, CSS, JavaScript, Git, publication statique — avec accessibilité et performance comme exigences affichées, pas comme mention isolée.
+- **React : volontairement non affiché.** Aucune réalisation livrée ne le démontre à ce jour, et l’afficher sans preuve contredirait le critère d’acceptation n° 8 (rien n’est affiché sans avoir été fourni ou démontré). À reconsidérer quand une réalisation le justifiera — pas avant.
+- **Outils de travail (éditeur, assistants IA) : volontairement non mentionnés.** Décision de Simon, pas un oubli.
+- **Disponibilité :** « Disponible pour de nouveaux projets. »
+- **Tarifs :** « sur devis » confirmé, sans montant chiffré affiché — conforme au critère d’acceptation n° 6.
+- **Contact :** lien `mailto:` en clair vers `costa.simon30@outlook.com`. Simon accepte l’exposition aux robots/spam qu’implique un `mailto:` en clair ; à revoir si le volume reçu devient gênant.
+- **Photo :** aucune pour l’instant. Hero typographique, avec un emplacement réservé prévu pour une photo future.
+
+**Point à traiter explicitement — mentions légales : publication bloquée.** Les mentions légales restent absentes ; la page porte un espace réservé visible qui l’indique, conformément à la règle de la section 5 (« un espace réservé doit rester visiblement un espace réservé »). **La publication de la page portfolio reste bloquée tant que Simon n’a pas fourni son statut, son SIRET le cas échéant, et son hébergeur.** Ce n’est ni au Chef de projet, ni à aucun autre agent, de deviner ou de déduire ces informations : elles engagent Simon personnellement et juridiquement.
+
+**Point à traiter explicitement — réorganisation de `shared/design-system/` : arbitrage en attente.** L’UI/UX a proposé, dans sa sous-section « Direction artistique » ci-dessous, une réorganisation de `shared/design-system/`. Cette réorganisation n’est pas appliquée à ce jour. Elle est consignée ici comme **arbitrage en attente de l’Architecte Front-end** ; le Chef de projet ne la tranche pas et n’en présume pas l’issue.
+
 #### Direction artistique
 
 **Parti pris.** La page doit se lire comme l’atelier d’un développeur front-end, pas comme la vitrine chaleureuse d’un commerce. Le registre visé est sobre, technique et direct : peu de couleur, une seule teinte d’accent réservée à l’action, une typographie unique jouée sur le poids plutôt que sur un mélange serif/sans-serif. C’est délibérément l’inverse du registre artisanal et chaleureux de Créa’Tif (ivoire, cuivre, sauge, empattements de Cormorant Garamond) : là où Créa’Tif évoque un salon, cette page doit évoquer la rigueur d’un métier technique — ce qui est aussi l’argument de vente de Simon (accessibilité, performance, attention au détail). La générosité vient de l’espace (respiration verticale entre les blocs), pas de la décoration.
