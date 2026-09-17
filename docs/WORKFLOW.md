@@ -2,6 +2,14 @@
 
 Ce repo est travaillé par plusieurs agents IA + Simon. Pour éviter les conflits, chacun a un périmètre de fichiers clair. La liste complète des agents actifs, leur rôle et leur identifiant est dans `docs/AGENTS.md` — ce fichier-ci décrit les règles et le cycle, `AGENTS.md` décrit qui elles concernent.
 
+## Point d’entrée des instructions
+
+Simon dit au **Chef de projet** ce qu’il veut. Le Chef de projet rédige le brief ou le prompt de l’agent concerné (voir `docs/BRIEFS-AGENTS.md`). Simon le transmet ensuite à cet agent, tel quel ou après ses propres ajustements.
+
+L’Implémentation ne rédige plus les briefs des autres agents ni les prompts que Simon leur transmet — elle l’a fait par le passé, y compris pour des rôles qui la relisent, ce qui n’était pas correct. Si Simon reçoit ou transmet un prompt venant de l’Implémentation pour un autre agent, il passe d’abord par le Chef de projet, qui le relit et le réécrit avant usage.
+
+Ça ne change rien au périmètre de l’Implémentation sur le code : elle continue de décider seule ce qui relève de l’implémentation pure, et de remonter le reste (voir `docs/AGENTS.md` § « Ce que l’Implémentation peut décider seule »).
+
 ## Répartition
 
 - **Chef de projet** : lit et écrit uniquement dans `docs/DIRECTION.md` (hors sous-section « Direction artistique »). Positionnement, contenu, arborescence, fonctionnalités, parcours utilisateur, contraintes, critères de réussite — une section par site.
