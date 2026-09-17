@@ -398,7 +398,14 @@ a:hover, a:focus-visible { color: var(--color-accent-dark); }
   .grille-prestations { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* 1024 px : hero en deux colonnes, prestations sur trois */
+/* 1024 px : hero en deux colonnes.
+   La grille des prestations RESTE à deux colonnes au-delà de 768px : le
+   nombre de colonnes suit le nombre réel d'entrées (quatre aujourd'hui, donc
+   2 x 2 sans ligne incomplète), il n'est pas fixé indépendamment du contenu.
+   Si le nombre de prestations change, revoir ce nombre selon la même règle
+   plutôt que de reconduire une valeur devenue inadaptée.
+   Cf. docs/DIRECTION.md, Direction artistique (b40b53a), et
+   docs/UX-REVIEW-portfolio.md § 2.1. */
 @media (min-width: 1024px) {
   .section { padding-block: var(--space-8); }
   .hero { padding-block: var(--space-8) var(--space-7); }
@@ -407,7 +414,6 @@ a:hover, a:focus-visible { color: var(--color-accent-dark); }
     align-items: center;
     gap: var(--space-6);
   }
-  .grille-prestations { grid-template-columns: repeat(3, 1fr); }
   .site-footer__inner {
     grid-template-columns: 1fr auto;
     align-items: start;
