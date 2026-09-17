@@ -262,7 +262,7 @@ Cinq jetons, un seul rôle chacun, aucun ne reprend un nom ou une valeur de la p
 
 Ratios calculés selon la formule de luminance relative du WCAG (sRGB linéarisé), à revérifier par quiconque implémente avant mise en ligne — ce sont des valeurs de départ, pas une garantie a posteriori.
 
-Usage : l’accent bleu n’apparaît que sur le CTA, les liens et les états de focus — jamais en fond de bloc large, pour qu’il garde sa valeur de signal. Pas de dégradé, pas de couleur de « décoration » supplémentaire.
+Usage : l’accent bleu n’apparaît que sur le CTA, les liens et les états de focus — jamais en aplat de fond de bloc large, pour qu’il garde sa valeur de signal. Exception explicite et unique à cette règle : le motif graphique décoratif du hero (voir Traitement du hero), tracé en traits fins à faible opacité dans `--color-accent`, et son réemploi à l’identique comme visuel neutre de la carte Créa’Tif dans le bloc Réalisations — un tracé vectoriel à faible opacité n’est pas un aplat de fond et ne dilue pas la valeur de signal de l’accent sur les éléments interactifs. En dehors du CTA, des liens, des états de focus et de ce motif, aucun autre usage de l’accent ; pas de dégradé, pas de couleur de « décoration » supplémentaire ailleurs.
 
 ##### Typographie et hiérarchie
 
@@ -308,7 +308,7 @@ Un seul style de bouton primaire visible sur toute la page (répété en haut et
 
 ##### Composition et rythme des blocs
 
-Alternance `--color-paper` / `--color-paper-alt` entre blocs successifs (Hero sur papier, À propos sur papier-alt, Réalisations sur papier, etc.) pour donner un repère visuel de rythme sans introduire de nouvelle couleur. Le bloc Réalisations est conçu en grille/liste dès cette première version (une seule carte aujourd’hui, pour Créa’Tif) afin d’accueillir une deuxième entrée sans refonte visuelle, conformément à la spécification produit § 2 — la carte Créa’Tif doit donc déjà porter la structure d’une carte de grille (visuel neutre en tête, titre, court texte, lien), pas un bloc de mise en page unique câblé en dur. Le bloc « Ce que je fais » se présente comme une liste de 3 à 5 prestations courtes, en grille à partir de 768px (2 colonnes) puis 1024px (3 colonnes), en pile simple avant.
+Alternance `--color-paper` / `--color-paper-alt` entre blocs successifs (Hero sur papier, À propos sur papier-alt, Réalisations sur papier, etc.) pour donner un repère visuel de rythme sans introduire de nouvelle couleur. Le bloc Réalisations est conçu en grille/liste dès cette première version (une seule carte aujourd’hui, pour Créa’Tif) afin d’accueillir une deuxième entrée sans refonte visuelle, conformément à la spécification produit § 2 — la carte Créa’Tif doit donc déjà porter la structure d’une carte de grille (visuel neutre en tête, titre, court texte, lien), pas un bloc de mise en page unique câblé en dur. Le bloc « Ce que je fais » se présente comme une liste de prestations courtes, en pile simple en mobile puis en grille au-delà — le nombre de colonnes doit être choisi selon le nombre réel d’entrées à afficher, pas fixé indépendamment du contenu. Pour les quatre prestations actuelles : deux colonnes fixes à partir de 768px (soit 2×2, aucune ligne incomplète). Si le nombre d’entrées change, revoir ce nombre de colonnes selon la même règle plutôt que de reconduire une valeur devenue inadaptée.
 
 ##### Comportement responsive
 
@@ -316,7 +316,7 @@ Trois paliers, en px pour rester vérifiable :
 
 - **≤ 640px** : une colonne partout, conteneur `--space-2` de marge, hero en pile (texte puis motif graphique), grilles (Réalisations, Ce que je fais) en une colonne.
 - **641–1023px** : conteneur `--space-3` de marge, grille « Ce que je fais » en 2 colonnes, hero toujours en pile mais motif graphique proportionnellement plus grand.
-- **≥ 1024px** : hero en deux colonnes, grille « Ce que je fais » en 3 colonnes, `--container-max` (1200px) atteint, écarts verticaux à `--space-8`.
+- **≥ 1024px** : hero en deux colonnes, grille « Ce que je fais » reste en 2 colonnes (le nombre de colonnes suit le nombre réel d’entrées, voir composition des blocs — pas de troisième colonne qui laisserait une carte seule sur une ligne incomplète pour les quatre prestations actuelles), `--container-max` (1200px) atteint, écarts verticaux à `--space-8`.
 
 Aucune image ni bloc à hauteur fixe : les cartes et le hero doivent s’ajuster à leur contenu pour éviter tout texte tronqué en cas de contenu plus long que prévu ou de zoom.
 
