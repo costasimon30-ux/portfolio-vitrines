@@ -17,6 +17,10 @@ Tous les agents ci-dessous **ne travaillent pas à chaque site** : le Chef de pr
 | Freelance Business | Conseil commercial : devis, prospection, facturation. Ne touche jamais au code ni à ce repo (voir « Confidentialité » ci-dessous). | — | — |
 | Implémentation | Implémentation front-end, corrige ce qui relève du code suite aux rapports UX/Reviewer/QA. | `sites/`, `shared/`, config racine | `Agent: claude-cowork` |
 
+## Rédaction des briefs
+
+Depuis le 17 septembre 2026, c’est le **Chef de projet** qui rédige les briefs des autres agents (`docs/BRIEFS-AGENTS.md`) et les prompts que Simon leur transmet — voir `docs/WORKFLOW.md` § « Point d’entrée des instructions ». Ce n’était pas le cas auparavant : l’agent d’implémentation avait rédigé les briefs des agents, y compris ceux des rôles qui le relisent (UI/UX, Code Reviewer, QA), et préparait les prompts que Simon transmettait. Cette situation n’était pas voulue ; elle est corrigée à cette date. Le fond déjà produit sous l’ancien dispositif — critères d’acceptation, directions artistiques — reste valable : ce sont les procédures et le cadrage qui changent de main, pas les jugements de fond déjà rendus.
+
 ## Confidentialité — Freelance Business
 
 **Ce repo est public.** Le Freelance Business (devis, tarifs, prospects, informations clients) ne doit jamais rien écrire ici : ces informations deviendraient visibles publiquement sur GitHub. Si Simon veut garder une trace de ces échanges, ça doit vivre ailleurs (note privée, repo privé séparé) — pas dans `portfolio-vitrines`.
@@ -25,6 +29,16 @@ Tous les agents ci-dessous **ne travaillent pas à chaque site** : le Chef de pr
 
 - **Cowork bridge - portfolio-vitrines** : clé utilisée par le rôle Implémentation (`sites/`, `shared/`, config racine).
 - Il n'y a plus d'environnement Codex CLI, donc plus de clé partagée unique pour les rôles qui n'écrivent que du Markdown (Chef de projet, UI/UX, Architecte Front-end, Code Reviewer, QA). Ces rôles committent soit par l'interface web de GitHub (aucune clé nécessaire, la session GitHub de Simon suffit), soit, s'ils doivent exécuter du code localement, en générant leur propre paire de clés pour la conversation et en transmettant la clé publique à Simon, qui la dépose en *deploy key*.
+
+## Plomberie technique (pont Mac, clés SSH, verrous Git, transferts de fichiers, migration du dépôt)
+
+Cette tâche n’est le périmètre formel d’aucun rôle du tableau ci-dessus. Elle échoit de fait à l’**Implémentation**, seule à disposer d’un pont vers le Mac de Simon (`mcp__remote-devices__*`) : générer des paires de clés SSH pour les autres rôles quand ils en ont besoin, nettoyer les verrous Git, transférer des fichiers binaires sans les altérer, recloner le dépôt hors d’un dossier synchronisé défaillant. Cette responsabilité de fait est nommée ici pour que le registre décrive ce qui se passe réellement ; elle n’est pas actée comme un rôle formel et pourrait être révisée.
+
+## Ce que l’Implémentation peut décider seule, et ce qu’elle doit remonter
+
+L’Implémentation peut trancher seule les choix techniques réversibles qui restent strictement à l’intérieur d’un site déjà spécifié : structure de fichiers internes au site, détails de balisage, choix d’implémentation qui n’engagent que `sites/<site>/`.
+
+Elle doit remonter au Chef de projet ou à l’Architecte Front-end avant de trancher tout choix qui touche une ressource partagée entre sites (`shared/`), qui s’écarte d’une direction déjà actée, ou dont un autre site ou un arbitrage en attente dépend. **Cas concret, non conforme à cette règle :** l’Implémentation a décidé seule que `sites/portfolio/` n’utiliserait aucun fichier de `shared/design-system/`, pour ne pas modifier l’artefact déjà publié de Créa’Tif. La décision se défend — elle est motivée et documentée en tête de `sites/portfolio/css/style.css` — mais elle touche directement l’arbitrage sur la réorganisation de `shared/design-system/` consigné comme en attente de l’Architecte Front-end dans `docs/DIRECTION.md` (17 septembre 2026) : elle aurait dû passer par le Chef de projet ou l’Architecte avant d’être appliquée, pas après. Elle reste en l’état, motif accepté a posteriori ; elle n’ouvre pas de précédent où l’Implémentation pourrait trancher seule ce type de choix à l’avenir.
 
 ## Pourquoi un trailer de commit ?
 
