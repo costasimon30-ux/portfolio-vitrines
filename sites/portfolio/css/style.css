@@ -364,17 +364,19 @@ a:hover, a:focus-visible { color: var(--color-accent-dark); }
 .site-footer__inner { display: grid; gap: var(--space-2); }
 .site-footer__nom { font-weight: 600; color: var(--color-ink); }
 
-/* Espace réservé assumé : il doit rester visible tant qu'il n'est pas rempli.
-   Il suit la mesure de lecture comme tout bloc de texte courant de la page
-   (cf. docs/UX-REVIEW-portfolio.md § 1.2). */
-.reserve {
+/* Mentions légales, renseignées le 18 septembre 2026 (docs/DIRECTION.md,
+   « Levée du blocage légal et hébergement »). Elles remplacent l'espace
+   réservé qui bloquait la publication : la bordure pointillée qui le
+   signalait n'a plus lieu d'être. Bloc de texte courant, borné à la mesure
+   de lecture comme le reste de la page (cf. docs/UX-REVIEW-portfolio.md § 1.2). */
+.mentions {
   max-width: var(--mesure);
-  padding: var(--space-2);
-  border: 1px dashed var(--color-muted);
-  border-radius: var(--radius-btn);
-  color: var(--color-ink);
+  margin-top: var(--space-1);
+  display: grid;
+  gap: var(--space-1);
 }
-.reserve strong { font-weight: 800; }
+.mentions__titre,
+.mentions strong { font-weight: 600; color: var(--color-ink); }
 
 /* ---------- 11. Page 404 ---------- */
 
