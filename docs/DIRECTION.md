@@ -244,6 +244,19 @@ Vérifiables par quelqu’un qui n’a pas participé à cette spécification, s
 
 **Point à traiter explicitement — réorganisation de `shared/design-system/` : arbitrage en attente.** L’UI/UX a proposé, dans sa sous-section « Direction artistique » ci-dessous, une réorganisation de `shared/design-system/`. Cette réorganisation n’est pas appliquée à ce jour. Elle est consignée ici comme **arbitrage en attente de l’Architecte Front-end** ; le Chef de projet ne la tranche pas et n’en présume pas l’issue.
 
+#### Levée du blocage légal et hébergement (18 septembre 2026)
+
+**Statut : informations fournies par Simon, critère de blocage du 17 septembre satisfait sur ce point.** Complète le point « mentions légales » ci-dessus, sans rouvrir la sous-section « Direction artistique » qui suit ni la spécification produit qui précède.
+
+- **Statut :** particulier, aucune entreprise (auto-entreprise ou autre) créée à ce jour.
+- **SIRET :** sans objet, en l'absence d'entreprise créée.
+- **Objectif à noter pour une prochaine revue de contenu, non traité ici :** le portfolio vise aussi une recherche d'emploi salarié, pas uniquement des clients en freelance. Ce point n'est pas arbitré dans cette entrée ; il est consigné pour que le Chef de projet l'examine avant toute nouvelle évolution du contenu, notamment la pertinence du bloc tarifs « sur devis » (section 4 de la spécification ci-dessus) face à une activité non créée.
+- **Hébergeur :** Cloudflare, même compte que celui utilisé pour Créa'Tif (Workers Static Assets, § 5.4 de `docs/ARCHITECTURE.md`). Aucun nouveau compte à créer ; aucune connexion Git à activer.
+
+**Mentions légales à intégrer par l'Implémentation, en remplacement de l'espace réservé actuel :** nom affiché (Simon COSTA), statut ci-dessus (particulier, pas d'activité commerciale déclarée), contact `costa.simon30@outlook.com`, identification de l'hébergeur (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, États-Unis — information publique sur l'hébergeur, non fournie par Simon et non liée à son statut personnel). N'ajouter aucune autre mention non listée ici.
+
+**Conséquence :** le critère de blocage du 17 septembre (statut, SIRET le cas échéant, hébergeur) est satisfait. La publication reste soumise à la procédure de `docs/ARCHITECTURE.md` § 5.4, notamment l'accord explicite de Simon sur l'artefact précis avant tout dépôt.
+
 #### Direction artistique
 
 **Parti pris.** La page doit se lire comme l’atelier d’un développeur front-end, pas comme la vitrine chaleureuse d’un commerce. Le registre visé est sobre, technique et direct : peu de couleur, une seule teinte d’accent réservée à l’action, une typographie unique jouée sur le poids plutôt que sur un mélange serif/sans-serif. C’est délibérément l’inverse du registre artisanal et chaleureux de Créa’Tif (ivoire, cuivre, sauge, empattements de Cormorant Garamond) : là où Créa’Tif évoque un salon, cette page doit évoquer la rigueur d’un métier technique — ce qui est aussi l’argument de vente de Simon (accessibilité, performance, attention au détail). La générosité vient de l’espace (respiration verticale entre les blocs), pas de la décoration.
