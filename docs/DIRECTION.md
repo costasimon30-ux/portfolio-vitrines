@@ -242,6 +242,8 @@ Vérifiables par quelqu’un qui n’a pas participé à cette spécification, s
 
 **Point à traiter explicitement — mentions légales : publication bloquée.** Les mentions légales restent absentes ; la page porte un espace réservé visible qui l’indique, conformément à la règle de la section 5 (« un espace réservé doit rester visiblement un espace réservé »). **La publication de la page portfolio reste bloquée tant que Simon n’a pas fourni son statut, son SIRET le cas échéant, et son hébergeur.** Ce n’est ni au Chef de projet, ni à aucun autre agent, de deviner ou de déduire ces informations : elles engagent Simon personnellement et juridiquement.
 
+**Clos le 18 septembre 2026.** Simon a fourni les trois éléments (voir « Levée du blocage légal et hébergement » ci-dessous, commits `2cb4d96` et `89602b9`), les mentions légales ont été intégrées (`385dab1`, `a5d0395`) et la page est publiée : `https://portfolio-simon-costa.costa-simon30.workers.dev/`, révision `a5d0395`, journal complet dans `docs/PUBLICATION-portfolio.md`. Ce paragraphe reste tel quel comme constat historique du blocage ; il n'est pas réécrit.
+
 **Point à traiter explicitement — réorganisation de `shared/design-system/` : arbitrage en attente.** L’UI/UX a proposé, dans sa sous-section « Direction artistique » ci-dessous, une réorganisation de `shared/design-system/`. Cette réorganisation n’est pas appliquée à ce jour. Elle est consignée ici comme **arbitrage en attente de l’Architecte Front-end** ; le Chef de projet ne la tranche pas et n’en présume pas l’issue.
 
 #### Levée du blocage légal et hébergement (18 septembre 2026)
@@ -256,6 +258,12 @@ Vérifiables par quelqu’un qui n’a pas participé à cette spécification, s
 **Mentions légales à intégrer par l'Implémentation, en remplacement de l'espace réservé actuel :** nom affiché (Simon COSTA), statut ci-dessus (particulier, pas d'activité commerciale déclarée), contact `costa.simon30@outlook.com`, identification de l'hébergeur (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, États-Unis — information publique sur l'hébergeur, non fournie par Simon et non liée à son statut personnel). N'ajouter aucune autre mention non listée ici.
 
 **Conséquence :** le critère de blocage du 17 septembre (statut, SIRET le cas échéant, hébergeur) est satisfait. La publication reste soumise à la procédure de `docs/ARCHITECTURE.md` § 5.4, notamment l'accord explicite de Simon sur l'artefact précis avant tout dépôt.
+
+#### Contact des mentions légales et balises Open Graph — décisions du 18 septembre 2026
+
+**Lien `mailto:` dans les mentions légales : non, l'adresse reste en texte simple.** Le CTA de contact unique (section 4 de la spécification, rappelé ci-dessus) vise toute action de contact, pas seulement celles du corps de page ; un second lien `mailto:` dans le pied de page, même discret, reste une seconde façon d'initier le contact et entre en concurrence avec le bouton principal. L'obligation légale (adresse visible) est satisfaite par le texte seul, sans lien. Décision consignée pour éviter un nouvel arbitrage au cas par cas ; confirme le choix déjà fait par l'Implémentation au commit `a5d0395`.
+
+**`og:url`, `canonical`, `og:image` : toujours volontairement absents.** La page est désormais publiée sur `https://portfolio-simon-costa.costa-simon30.workers.dev/`, mais son caractère définitif n'est pas tranché — `docs/ARCHITECTURE.md` § 5.1 réserve la possibilité d'un domaine personnalisé ultérieur. Émettre ces balises vers une URL qui serait ensuite remplacée créerait un canonical faux, pire que son absence. **En attente d'une décision de Simon** sur le caractère définitif de l'URL `workers.dev` ; si elle est retenue comme définitive, il faudra aussi statuer sur une éventuelle image de partage (`og:image`), qu'aucune photo ne permet de fournir à ce jour.
 
 #### Direction artistique
 
