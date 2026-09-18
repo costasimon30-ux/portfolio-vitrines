@@ -315,7 +315,7 @@ Alternance `--color-paper` / `--color-paper-alt` entre blocs successifs (Hero su
 Trois paliers, en px pour rester vérifiable :
 
 - **≤ 640px** : une colonne partout, conteneur `--space-2` de marge, hero en pile (texte puis motif graphique), grilles (Réalisations, Ce que je fais) en une colonne.
-- **641–1023px** : conteneur `--space-3` de marge, grille « Ce que je fais » en 2 colonnes, hero toujours en pile mais motif graphique proportionnellement plus grand.
+- **641–1023px** : conteneur `--space-3` de marge, grille « Ce que je fais » en une colonne jusqu’à 767px puis en 2 colonnes à partir de 768px (seule largeur de palier pour cette grille, voir composition des blocs), hero toujours en pile mais motif graphique proportionnellement plus grand.
 - **≥ 1024px** : hero en deux colonnes, grille « Ce que je fais » reste en 2 colonnes (le nombre de colonnes suit le nombre réel d’entrées, voir composition des blocs — pas de troisième colonne qui laisserait une carte seule sur une ligne incomplète pour les quatre prestations actuelles), `--container-max` (1200px) atteint, écarts verticaux à `--space-8`.
 
 Aucune image ni bloc à hauteur fixe : les cartes et le hero doivent s’ajuster à leur contenu pour éviter tout texte tronqué en cas de contenu plus long que prévu ou de zoom.
