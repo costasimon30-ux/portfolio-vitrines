@@ -93,10 +93,16 @@
   --container-max: 1200px;
   /* Pilule : la forme, autant que la couleur, doit se lire comme chaleureuse. */
   --radius-btn: 999px;
-  /* Rayon des cartes : non spécifié par la direction artistique, choisi ici
-     pour accompagner la douceur des formes sans arrondir une carte comme un
-     bouton. À remonter à l'UI/UX si une valeur est arrêtée. */
-  --radius-carte: 16px;
+  /* Rayon des cartes, arrêté par l'UI/UX (docs/DIRECTION.md, commit 3bc8ee5)
+     après l'arbitrage demandé lors de la refonte : nettement en dessous des
+     999px de la pilule, pour que bouton et carte restent deux registres de
+     forme distincts, mais au-delà d'un rayon de carte technique ordinaire
+     (8–12px) pour tenir le même registre de douceur que les boutons et la
+     typographie arrondie. C'est aussi les trois quarts du padding interne de
+     la carte (--space-4), ce qui évite qu'un coin paraisse plus anguleux que
+     l'espace qui l'entoure. Le visuel intérieur en dérive par calcul, il suit
+     donc automatiquement toute révision de cette valeur. */
+  --radius-carte: 24px;
   /* min-height sur les boutons, jamais height (zoom 200 %). 52px dépasse la
      cible tactile recommandée de 44–48px. */
   --btn-height: 52px;
