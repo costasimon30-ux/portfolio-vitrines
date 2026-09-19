@@ -269,6 +269,20 @@ Vérifiables par quelqu’un qui n’a pas participé à cette spécification, s
 
 **Le portfolio n’est pas encore complet ; l’URL `https://portfolio-simon-costa.costa-simon30.workers.dev/` reste provisoire, migration possible plus tard si besoin.** Simon a confirmé qu’aucun nom de domaine personnalisé n’est décidé pour l’instant : le site continuera d’évoluer avant d’être considéré comme terminé, et une migration vers un domaine dédié reste envisageable une fois le contenu stabilisé. Cette précision confirme et prolonge la décision déjà consignée ci-dessus : `og:url`, `canonical` et `og:image` restent volontairement absents tant que l’URL définitive n’est pas fixée. Point à rouvrir lors de la finalisation du portfolio ou d’une éventuelle migration de domaine.
 
+#### Direction artistique — nouvelle orientation, décision du 19 septembre 2026
+
+**Simon veut une refonte complète de l’ambiance de la page, mise en page comprise.** Le parti pris « sobre, technique et direct » documenté ci-dessous ne correspond plus à ce qu’il veut : il veut que sa page personnelle reflète sa personnalité, avec une ambiance **boisée et cocooning**.
+
+Orientation retenue avec Simon :
+- **Bois foncé** (registre noyer / acajou) comme teinte dominante — ambiance feutrée et intime plutôt que claire et aérée.
+- **Anthracite / noir mat** en couleur d’accent, pour garder un rendu contemporain et éviter de basculer dans un registre daté.
+- **Typographie chaleureuse** (serif ou sans-serif arrondie), en rupture avec la typographie unique et sobre du parti pris actuel.
+- Refonte **complète** : palette, typographie et mise en page/composition sont toutes ouvertes à révision, pas seulement les couleurs.
+
+**Point de vigilance à transmettre à l’UI/UX.** Cette nouvelle ambiance est elle-même chaleureuse, ce qui rapproche le registre de celui de Créa’Tif (ivoire, cuivre, sauge). La contrainte de différenciation entre les deux sites reste d’actualité : bois foncé / anthracite doit rester visuellement distinct de la palette ivoire / cuivre / sauge de Créa’Tif, même si les deux registres sont désormais chaleureux l’un et l’autre.
+
+**Conséquence.** La section « Direction artistique » ci-dessous documente le parti pris précédent (sobre/technique) et reste conservée pour mémoire du choix initial. Elle est remplacée par la présente décision : elle sera réécrite par l’agent UI/UX en amont — palette, typographie, hero, boutons, composition et responsive compris.
+
 #### Direction artistique
 
 **Parti pris.** La page doit se lire comme l’atelier d’un développeur front-end, pas comme la vitrine chaleureuse d’un commerce. Le registre visé est sobre, technique et direct : peu de couleur, une seule teinte d’accent réservée à l’action, une typographie unique jouée sur le poids plutôt que sur un mélange serif/sans-serif. C’est délibérément l’inverse du registre artisanal et chaleureux de Créa’Tif (ivoire, cuivre, sauge, empattements de Cormorant Garamond) : là où Créa’Tif évoque un salon, cette page doit évoquer la rigueur d’un métier technique — ce qui est aussi l’argument de vente de Simon (accessibilité, performance, attention au détail). La générosité vient de l’espace (respiration verticale entre les blocs), pas de la décoration.
