@@ -108,10 +108,24 @@ servi, et ce qui a été observé le jour du dépôt.
    hébergée : paliers 320/375/768/1440, clavier, focus, lien d'évitement, zoom
    200 %, cache froid, erreurs réseau. **La mise en avant du portfolio auprès de
    prospects ou d'employeurs reste suspendue à cette recette.**
+5. **Divergence assumée entre la source et l'artefact déployé, sur `_headers`.**
+   L'arbitrage de l'Architecte du 18 septembre (commit `83ad43e`) demandait de
+   retirer de `_headers` la règle héritée du gabarit Pages
+   (`https://:version.:project.pages.dev/*`) et la règle `/404.html`
+   (réserves 2 et 3 ci-dessus). L'Architecte a tranché le 19 septembre : les
+   deux règles sont inertes sur ce Worker (aucune ne matche jamais une requête
+   réelle), leur retrait ne change donc aucun en-tête réellement reçu par un
+   visiteur ou un robot. Republier ce dépôt pour ce seul motif contredirait la
+   règle déjà actée « pas de republication pour une amélioration de confort
+   isolée » (`docs/DIRECTION.md`). Décision : le générateur (`scripts/
+   assemble-site.mjs`) est corrigé à la source pour un futur dépôt ; l'artefact
+   du dépôt n° 1 ci-dessus continue de contenir les deux règles inertes, sans
+   effet sur le comportement réellement servi. Écart connu et assumé, pas une
+   régression à corriger par une republication séparée.
 
 ### Suite
 
 - Passer la recette QA hébergée (§ 5.6, dernier paragraphe) avant toute
   diffusion de l'URL.
 - Compléter les identifiants Cloudflare dans le tableau ci-dessus.
-- Trancher les réserves 2 et 3 sur `_headers` — ressort de l'Architecte.
+- Réserves 2 et 3 sur `_headers` tranchées par l'Architecte le 19 septembre (voir réserve 5 ci-dessus) : écart assumé, pas de republication pour ce seul motif. Reste à faire : corriger `scripts/assemble-site.mjs` pour qu'un futur dépôt n'émette plus ces deux règles.
