@@ -1,11 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Simon COSTA">
-  <rect width="64" height="64" rx="14" fill="#14181C"/>
-  <g fill="#2451E0">
-    <circle cx="18" cy="18" r="3"/>
-    <circle cx="32" cy="18" r="3"/>
-    <circle cx="46" cy="18" r="3"/>
-    <circle cx="18" cy="32" r="3"/>
-    <circle cx="18" cy="46" r="3"/>
+  <rect width="64" height="64" rx="14" fill="#2B1B12"/>
+  <g fill="none" stroke="#F2E8DB" stroke-linecap="round" stroke-width="3">
+    <path d="M6 16 C20 12 30 20 44 17 C52 15 58 14 58 14" opacity="0.85"/>
+    <path d="M6 30 C18 27 24 38 32 38 C40 38 46 27 58 29" opacity="0.9"/>
+    <path d="M6 48 C20 45 30 52 44 49 C52 47 58 46 58 46" opacity="0.85"/>
   </g>
-  <path d="M18 46 L32 32 L42 40 L52 26" fill="none" stroke="#2451E0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="32" cy="38" rx="7" ry="4.5" fill="none" stroke="#F2E8DB" stroke-width="2.5" opacity="0.9"/>
 </svg>

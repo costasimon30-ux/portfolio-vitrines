@@ -9,9 +9,9 @@
     "css/style.css",
     "assets/favicon.svg",
     "assets/fonts/NOTICE.md",
-    "assets/fonts/manrope/manrope-400.woff2",
-    "assets/fonts/manrope/manrope-600.woff2",
-    "assets/fonts/manrope/manrope-800.woff2"
+    "assets/fonts/nunito/nunito-400.woff2",
+    "assets/fonts/nunito/nunito-700.woff2",
+    "assets/fonts/nunito/nunito-800.woff2"
   ],
   "sharedFiles": []
 }

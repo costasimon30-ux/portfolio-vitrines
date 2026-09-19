@@ -10,27 +10,31 @@
   css/style.css.
 
   Une seule famille, trois graisses : la hiérarchie se joue sur le poids.
+  Nunito remplace Manrope depuis la refonte « boisée et cocooning »
+  (docs/DIRECTION.md, commit c9266ab) : une sans-serif aux terminaisons
+  arrondies, pour que la rupture avec l'ancien parti pris technique se lise
+  dans la forme des lettres et pas seulement dans la couleur.
 */
 
 @font-face {
-  font-family: "Manrope";
-  src: url("../assets/fonts/manrope/manrope-400.woff2") format("woff2");
+  font-family: "Nunito";
+  src: url("../assets/fonts/nunito/nunito-400.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Manrope";
-  src: url("../assets/fonts/manrope/manrope-600.woff2") format("woff2");
-  font-weight: 600;
+  font-family: "Nunito";
+  src: url("../assets/fonts/nunito/nunito-700.woff2") format("woff2");
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Manrope";
-  src: url("../assets/fonts/manrope/manrope-800.woff2") format("woff2");
+  font-family: "Nunito";
+  src: url("../assets/fonts/nunito/nunito-800.woff2") format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
