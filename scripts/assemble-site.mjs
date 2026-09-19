@@ -783,20 +783,37 @@ function construireRobotsTxt() {
   return "User-agent: *\nAllow: /\n";
 }
 
+/* `_headers` ne porte que des règles qui peuvent réellement matcher une requête
+   sur un Worker. Deux règles héritées du gabarit Cloudflare Pages ont été
+   retirées le 19 septembre 2026 sur arbitrage de l'Architecte
+   (docs/PUBLICATION-portfolio.md, réserve n° 5) :
+
+   - `https://:version.:project.pages.dev/*` visait les URL versionnées de
+     Pages. Un Worker n'est jamais servi sur `pages.dev` : la règle ne matchait
+     jamais. La transposer au format Workers (`…workers.dev/*`) serait pire —
+     un placeholder d'hôte matche tout sauf le point, donc la règle couvrirait
+     aussi l'hôte de production du Worker et rendrait la page d'accueil du
+     portfolio non indexable, à l'encontre de son contrat.
+   - `/404.html` visait la page d'erreur. Workers Static Assets évalue
+     `_headers` sur le chemin de la requête entrante, puis réécrit en interne
+     vers `404.html` : le chemin d'une vraie 404 est arbitraire, la règle ne
+     matchait donc jamais non plus. La non-indexation de ces réponses repose
+     sur le statut 404 lui-même et sur la balise `<meta name="robots">` de la
+     page, toutes deux déjà en place.
+
+   La non-indexation des Preview URLs du Worker relève d'un réglage du tableau
+   de bord, pas de ce fichier. */
 function construireHeaders(politique, notices) {
   const blocs = [];
   if (politique.reglenoindexGlobale) {
     blocs.push("/*\n  X-Robots-Tag: noindex, follow");
-  } else {
-    blocs.push("https://:version.:project.pages.dev/*\n  X-Robots-Tag: noindex, follow");
-    blocs.push("/404.html\n  X-Robots-Tag: noindex, follow");
   }
   for (const notice of notices) {
     const lignes = [`/${notice}`, "  Content-Type: text/plain; charset=utf-8"];
     if (!politique.reglenoindexGlobale) lignes.push("  X-Robots-Tag: noindex, follow");
     blocs.push(lignes.join("\n"));
   }
-  return blocs.join("\n\n") + "\n";
+  return blocs.length ? blocs.join("\n\n") + "\n" : "";
 }
 
 /* ================================================================== *

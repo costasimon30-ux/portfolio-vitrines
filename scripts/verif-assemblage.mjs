@@ -363,8 +363,13 @@ async function principal() {
     affirmer(/content="noindex, follow"/.test(await fs.readFile(path.join(d, "404.html"), "utf8")), "404 indexable");
     const headers = await fs.readFile(path.join(d, "_headers"), "utf8");
     affirmer(!/^\/\*$/m.test(headers), "règle globale noindex présente à tort");
-    affirmer(/pages\.dev\/\*/.test(headers), "règle d'hôte versionnée absente");
-    affirmer(/^\/404\.html$/m.test(headers), "exception 404 absente");
+    // Les deux règles héritées du gabarit Pages sont retirées depuis
+    // l'arbitrage du 19 septembre 2026 (docs/PUBLICATION-portfolio.md,
+    // réserve n° 5) : aucune ne matchait jamais une requête sur un Worker.
+    // Ces assertions gardent désormais leur absence, pour qu'elles ne
+    // réapparaissent pas par recopie d'un gabarit Pages.
+    affirmer(!/pages\.dev/.test(headers), "règle d'hôte pages.dev réapparue");
+    affirmer(!/^\/404\.html$/m.test(headers), "règle /404.html réapparue");
   });
 
   await test("portfolio/preview : non indexable", async () => {
