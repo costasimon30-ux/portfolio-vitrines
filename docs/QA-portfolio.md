@@ -14,6 +14,14 @@
 
 Aucun défaut bloquant ou majeur constaté. Une anomalie mineure nouvelle est ouverte (PORT-04, type MIME des polices). PORT-01 et PORT-02 (rapport du 17 septembre) sont désormais closes, confirmé par lecture du dépôt. PORT-03 est partiellement traitée : balises Open Graph ajoutées, `canonical`/`og:url`/`og:image` toujours volontairement absentes, décision documentée dans `docs/DIRECTION.md`, non rouverte ici.
 
+## Verdict — 20 septembre 2026 (nouvelle apparence « boisée / cocooning », Dépôt n° 2)
+
+**Avis favorable sur la nouvelle apparence du portfolio, testée sur l'hébergement réel, à la révision `3dc3150` (Dépôt n° 2, `docs/PUBLICATION-portfolio.md`, commit de dépôt `8a0cc04`), URL `https://portfolio-simon-costa.costa-simon30.workers.dev/`.** Cette passe ne rejoue pas la recette du 18 septembre dans son détail : la palette, la typographie et les formes ont entièrement changé (nouvelle direction artistique « boisée / cocooning », `docs/DIRECTION.md` § « Page portfolio » → « Direction artistique — nouvelle orientation, décision du 19 septembre 2026 ») et sont donc recontrôlées ici indépendamment ; la structure, le contenu et les paliers responsive, qui n'ont pas bougé, restent couverts par la recette du 18 septembre et ne sont pas rejoués en détail (seulement recroisés, voir « Recette QA — nouvelle apparence » ci-dessous).
+
+Aucun défaut bloquant constaté sur les points explicitement demandés pour cette passe (contrastes, focus clavier réel sur les deux fonds, boutons pilule à rendu inversé, police Nunito, favicon, absence de débordement/troncature aux cinq paliers, non-régression, indexation). PORT-04 (type MIME incorrect sur les fichiers de police) se reproduit à l'identique sur les nouvelles polices Nunito — ce n'est pas une nouvelle anomalie, seulement la même cause hébergeur déjà documentée. La réserve d'indexation des URL de prévisualisation, déjà actée dans `docs/PUBLICATION-portfolio.md`, est reconfirmée telle quelle depuis l'extérieur : toujours inconcluante par ce canal, non résolue par cette passe.
+
+Ne sont pas rouverts, conformément à la demande : l'absence volontaire de `og:url`/`canonical`/`og:image` (PORT-03), le rayon des cartes à 24 px, et l'arbitrage de l'Architecte sur le fond de l'écart `_headers`.
+
 ## Identification du commit audité
 
 - **Dépôt :** [costasimon30-ux/portfolio-vitrines](https://github.com/costasimon30-ux/portfolio-vitrines) (public).
@@ -299,6 +307,111 @@ Contrairement au 17 septembre (Playwright headed, serveur statique local), cette
 
 **Lien externe Créa'Tif : désormais vérifié joignable.** Contrairement au 17 septembre (réseau sortant du conteneur cloud bloqué), une navigation réelle vers `https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/` depuis le navigateur réel de cette session aboutit à un chargement complet (`<title>Créa'Tif — Salon de coiffure mixte | Accueil</title>`, page rendue). Ceci lève ce point précis de la liste « non vérifié » du 17 septembre.
 
+## Recette QA — nouvelle apparence « boisée / cocooning » — 20 septembre 2026 (Dépôt n° 2)
+
+### Identification
+
+- **Dépôt :** [costasimon30-ux/portfolio-vitrines](https://github.com/costasimon30-ux/portfolio-vitrines).
+- **Document de dépôt :** `docs/PUBLICATION-portfolio.md`, « Dépôt n° 2 — 19 septembre 2026 ».
+- **Commit de dépôt :** `8a0cc04`. **Révision source :** `3dc3150` (`3dc315082e2290fb877dc3cce2effeecb14d33de` d'après l'identification complète du document de dépôt).
+- **URL testée :** `https://portfolio-simon-costa.costa-simon30.workers.dev/`.
+- **Lectures obligatoires effectuées avant contrôle**, depuis les URL `raw` de `main` : `docs/BRIEFS-AGENTS.md` § 4 (méthodologie QA), `docs/DIRECTION.md` § « Page portfolio » → « Direction artistique » (état après `3dc3150`), `docs/PUBLICATION-portfolio.md` (Dépôt n° 2 en entier), `docs/QA-portfolio.md` (recette du 18 septembre, pour ce qui reste valable).
+
+### Contrastes — recalculés indépendamment sur le rendu réel
+
+Jetons lus directement sur `:root` du document réel (pas recopiés de `docs/DIRECTION.md`), luminance relative WCAG calculée par un script exécuté dans la page (pas une estimation) :
+
+| Jeton | Hex |
+| --- | --- |
+| `--color-wood` | `#2B1B12` |
+| `--color-wood-alt` | `#3C2A1D` |
+| `--color-cream` | `#F2E8DB` |
+| `--color-ink` | `#211710` |
+| `--color-accent` | `#33302C` |
+| `--color-accent-dark` | `#221F1C` |
+| `--color-cream-dark` | `#E4D5C1` |
+
+| Couple | Ratio calculé | Seuil applicable |
+| --- | --- | --- |
+| Accent sur crème (texte de bouton/lien) | **10,84 : 1** | ≥ 4,5 : 1 (texte normal) — largement conforme |
+| Crème sur bois (texte principal) | **13,67 : 1** | ≥ 4,5 : 1 — largement conforme |
+| Encre sur crème | **14,51 : 1** | ≥ 4,5 : 1 — largement conforme |
+| Accent foncé sur crème | **13,54 : 1** | ≥ 4,5 : 1 — largement conforme |
+| Crème sur bois alternatif (bandeau) | **11,25 : 1** | ≥ 4,5 : 1 — largement conforme |
+| Focus — contour crème sur fond bois | **13,67 : 1** | ≥ 3 : 1 (composant d'interface) — largement conforme |
+| Focus — contour accent sur fond crème | **10,84 : 1** | ≥ 3 : 1 — largement conforme |
+
+Contrôle croisé : valeurs échantillonnées à la fois au niveau des variables CSS déclarées et au niveau du style effectivement calculé (`getComputedStyle`) sur des éléments réels du DOM (fond du `body`, couleur du `H1`, fond/couleur du bouton CTA, fond/couleur d'une carte) — les deux niveaux concordent exactement avec les jetons déclarés. **État : CLOS.**
+
+### Focus au clavier réel — fond bois et fond crème
+
+Interaction réelle (`isTrusted`, touches `Tab`/`Shift+Tab` effectivement pressées, pas de `.focus()` programmatique) :
+
+- **Lien d'évitement** (« Aller au contenu principal », fond bois) : contour visible dès la prise de focus réelle, `outline: 3px solid rgb(242, 232, 219)` (`#F2E8DB`, crème), `outline-offset: 2px` — confirmé aussi visuellement par capture d'écran.
+- **Bouton CTA** « Discutons de votre projet » (fond bois) : `outline: 3px solid #F2E8DB`, `outline-offset: 2px`.
+- **Lien « Voir la démo »** (fond crème, carte de réalisation) : contour `outline: 3px solid rgb(51, 48, 44)` (`#33302C`, accent), `outline-offset: 2px` — couleur de contour bien adaptée au fond clair, distincte de celle utilisée sur fond bois.
+
+Le contour change bien de couleur selon le fond (crème sur bois, accent sur crème), conformément à la règle de `docs/DIRECTION.md`. **État : CLOS.**
+
+### Boutons — forme pilule, rendus inversés
+
+Sur le contenu réellement présent aujourd'hui sur la page, **trois éléments** ont un rayon de bordure de pilule (`border-radius: 999px`, hauteur minimale `52px`) : le lien d'évitement et les deux boutons `.btn.btn--primary` (« Discutons de votre projet », section héros ; « M'écrire par e-mail », section contact) — **les deux sur fond bois**, tous deux rendus correctement en **crème sur bois** (fond `#F2E8DB`, texte `#33302C`).
+
+**Point de méthode à signaler :** le rendu inverse (**accent sur crème**, bouton plein sur une carte ou un bloc clair) n'est exercé par **aucun bouton pilule réellement présent** dans le contenu actuel de la page — les deux cartes de réalisation utilisent un lien discret (`.lien-discret`, pas `.btn`) pour « Voir la démo ». Le fichier `css/style.css` documente lui-même ce point dans un commentaire : la règle `.carte-projet .btn--primary, .prestation .btn--primary, .sur-creme .btn--primary, .btn--primary.btn--sur-creme` est *« spécifiée même si le cas n'existe pas encore »* pour un futur bloc clair. Pour vérifier que cette règle CSS bien réelle (lue dans le fichier servi, pas recopiée) produit effectivement la bonne combinaison si elle s'appliquait, un élément de test (`<a class="btn btn--primary">` inséré dans un conteneur `.carte-projet` temporaire, retiré aussitôt après lecture) a été inséré dans le DOM réel de la page hébergée pour lire son style calculé : `background: #33302C`, `color: #F2E8DB`, `border-radius: 999px`, `min-height: 52px` — la règle produit bien le rendu inversé attendu.
+
+**État : CLOS pour le rendu effectivement présent sur la page (crème sur bois, 3 occurrences) ; conforme mais non exercé par du contenu réel pour le second rendu (accent sur crème) — vérifié uniquement par lecture de la règle CSS servie et injection de test, pas par une occurrence visible sur la page actuelle.** Ce n'est pas un défaut : le second rendu n'a simplement pas encore de cas d'usage dans le contenu présent.
+
+### Police Nunito — chargement et absence de référence résiduelle à Manrope
+
+`document.fonts` (API réelle du navigateur) : les trois graisses Nunito (400, 700, 800) sont toutes `status: "loaded"`, aucun repli sur une police système constaté visuellement. Recherche du terme « Manrope » dans le HTML servi, dans `css/style.css` et dans `css/fonts.css` : **aucune référence active** — la seule occurrence est un commentaire de `css/fonts.css` expliquant que « Nunito remplace Manrope ». Sur un rechargement propre de la page avec suivi réseau actif dès le chargement : **zéro requête vers un chemin `manrope`**, zéro fichier 404 lié aux polices.
+
+**Point de méthode :** une requête `GET /assets/fonts/manrope/manrope-400.woff2` en `404` était apparue plus tôt dans le journal réseau cumulé de l'onglet de cette session (onglet réutilisé depuis une passe QA antérieure sur l'ancienne apparence) ; après effacement du journal et rechargement propre, elle ne se reproduit pas — c'est un résidu de l'historique de navigation de l'onglet, pas une requête émise par la page dans son état actuel. Signalé par souci de transparence de méthode, ce n'est pas une anomalie du site.
+
+**État : CLOS.**
+
+### Favicon
+
+`<link rel="icon" href="/assets/favicon.svg">` présent ; contenu SVG récupéré et inspecté directement (pas seulement le nom du fichier) : utilise bien les couleurs de la nouvelle palette (`fill="#2B1B12"`, `stroke="#F2E8DB"`). **État : CLOS.**
+
+### Paliers 320/375/768/1024/1440 — troncature et débordement
+
+Mesure par `<iframe>` de même origine chargée dans un onglet réel (le redimensionnement réel de fenêtre s'est révélé inexploitable dans cette session pour les petites largeurs : une tentative à 320×700 a produit un `innerWidth` incohérent de 4255 px ; retour à la technique d'`<iframe>`, déjà validée lors de la passe du 18 septembre, avec compensation de +4 px pour la barre de défilement propre à l'`<iframe>`).
+
+| Largeur demandée | `innerWidth` réel obtenu | Débordement horizontal | Éléments tronqués (cartes, héros, titres, paragraphes) | Colonnes grille « Ce que je fais » |
+| --- | --- | --- | --- | --- |
+| 320 px | 324 px | Aucun | 0 | 1 |
+| 375 px | 379 px | Aucun | 0 | 1 |
+| 768 px | 772 px | Aucun | 0 | 2 |
+| 1024 px | 1028 px | Aucun | 0 | 3 |
+| 1440 px | 1444 px | Aucun | 0 | 3 |
+
+Aucune carte ni le héros ne tronque de texte à aucun des cinq paliers. **État : CLOS.**
+
+### Zoom 200 % — sans chevauchement
+
+**Point de méthode explicite :** aucun vrai zoom navigateur (pinch ou `Ctrl`/`Cmd` + `+`) disponible dans cet environnement de session ; approximation par doublement du `font-size` racine dans les mêmes `<iframe>` que ci-dessus — méthode déjà documentée comme approximation lors des passes précédentes, reconduite à l'identique, pas un vrai zoom navigateur.
+
+Aucun chevauchement de contenu constaté à aucun des cinq paliers (vérifié par un test de superposition : au centre de chaque bouton/lien, l'élément visuellement au premier plan est bien le bouton/lien lui-même, jamais un élément voisin qui le recouvrirait). À 320 px, cette approximation par `font-size` produit un débordement horizontal et une troncature de texte sur trois éléments (le titre « Réalisations » et le texte d'une carte de réalisation) ; à 375 px, un débordement horizontal sans troncature de texte ; à 768/1024/1440 px, aucun débordement. Ce constat à 320 px est cohérent avec les limites déjà documentées de cette approximation (une largeur de 320 px doublée en `font-size` équivaut à une zone de contenu réelle d'environ 160 px, bien en-deçà du plancher de 320 px CSS que retient le critère de réadaptation WCAG 1.4.10 pour un vrai zoom à 400 %) — ce n'est pas assimilable à un vrai débordement de zoom navigateur à 200 % sur un contenu de 320 px de large.
+
+**État : CLOS pour l'absence de chevauchement (le point explicitement demandé) ; observation transmise sur la troncature à 320 px en zoom-`font-size`, imputable à la méthode d'approximation, non bloquante.**
+
+### Non-régression — structure, contenu, CTA, mentions légales, grille des prestations
+
+- **Structure :** les grilles héros et « Ce que je fais » basculent aux mêmes paliers pixel exacts qu'avant la refonte visuelle, avec des proportions de colonnes mesurées identiques (parité déjà établie lors du contrôle du 18 septembre sur cette même architecture, non remise en cause par un changement de palette/typographie/formes qui ne touche ni la grille ni les points de rupture).
+- **CTA :** deux boutons `.btn.btn--primary` sur la page — « Discutons de votre projet » (héros, ancre vers `#contact`) et « M'écrire par e-mail » (section contact, `mailto:`) — un seul mécanisme de contact effectif (le `mailto`), le premier bouton y menant. Décompte et destinations inchangés par rapport à ce qui était déjà validé.
+- **Mentions légales :** section pied de page présente et visible, texte inchangé (« Éditeur du site : Simon COSTA, particulier… Hébergeur : Cloudflare, Inc… »).
+- **Grille des prestations :** 4 éléments présents dans la grille « Ce que je fais », bascule 1→2 colonnes à 768 px conforme au comportement déjà validé.
+
+**État : CLOS.**
+
+### Indexation — `noindex` en prévisualisation, `index, follow` en production
+
+**Production :** balise `<meta name="robots">` lue directement dans le DOM réel de `https://portfolio-simon-costa.costa-simon30.workers.dev/` → **`index, follow`**. Conforme à l'attendu pour la production.
+
+**Prévisualisation :** contrôle indépendant, depuis l'extérieur, de l'alias documenté dans `docs/PUBLICATION-portfolio.md` (`https://d3806c5f-portfolio-simon-costa.costa-simon30.workers.dev/`) — requête réelle : **`404`**, page générique Cloudflare (« Page not found »), aucune balise `robots` exploitable, aucun contenu du portfolio servi à cette adresse. **Ce résultat reproduit à l'identique la réserve déjà actée dans `docs/PUBLICATION-portfolio.md` (Réserve n° 1)** : ce canal de contrôle reste inconcluant, indépendamment de qui l'exécute. La vérification en amont par l'Implémentation (paramètre « Preview URLs » du tableau de bord Cloudflare) n'a pas pu être recontrôlée depuis l'extérieur par ce moyen.
+
+**État : CLOS pour la production (`index, follow` confirmé indépendamment). Réserve reconduite, non résolue, pour la prévisualisation — pas une nouvelle réserve, la même que celle déjà documentée le 19 septembre.**
+
 ## Anomalies ouvertes
 
 ### PORT-01 — Mineur — Incohérence interne à `docs/DIRECTION.md` sur le palier d'entrée en 2 colonnes de la grille « Ce que je fais »
@@ -349,6 +462,8 @@ Contrairement au 17 septembre (Playwright headed, serveur statique local), cette
 
 **État : ouvert, non bloquant.**
 
+**Mise à jour du 20 septembre 2026 : reconduite à l'identique sur les nouvelles polices Nunito.** Même requête réelle sur `/assets/fonts/nunito/nunito-400.woff2`, `-700.woff2`, `-800.woff2` → `Content-Type: application/octet-stream` sur les trois. Même cause (plateforme d'hébergement, Cloudflare Workers Static Assets), pas une anomalie nouvellement introduite par le changement de police. **État inchangé : ouvert, non bloquant.**
+
 ## Ce qui n'a pas été vérifié, ou seulement partiellement
 
 Cette section est obligatoire au standard de preuve du dépôt (`docs/BRIEFS-AGENTS.md` § 4) et liste les limites réelles de ce protocole, pas une liste vide de convention.
@@ -377,6 +492,19 @@ Limites propres à cette passe hébergée, non silencieusement ignorées :
 - **Aucune mesure de performance de type Lighthouse ou Core Web Vitals de terrain** sur l'hébergement réel : la compression (`Content-Encoding: zstd`) et les en-têtes de cache ont été vérifiés comme réellement actifs, mais aucun score ni mesure de terrain n'a été produit dans cette passe.
 - **Aucune certification WCAG/RGAA formelle**, toujours pas délivrée par cet audit.
 - **Esthétique, contenu et réserve P06 non rouverts**, conformément au périmètre donné pour cette passe.
+
+## Ce qui n'a pas été vérifié — complément du 20 septembre 2026
+
+Cette passe porte uniquement sur la nouvelle apparence (Dépôt n° 2) ; les limites déjà listées les 17 et 18 septembre restent valables et ne sont pas répétées ici sauf évolution.
+
+- **Zoom navigateur réel toujours indisponible** dans cette session : approximation par `font-size` doublée, reconduite à l'identique — voir la réserve de méthode explicite dans la section « Zoom 200 % » ci-dessus (troncature à 320 px imputable à la méthode, pas confirmée comme un vrai débordement au zoom navigateur réel).
+- **Redimensionnement de fenêtre réel non exploitable** dans cette session pour les petites largeurs : une tentative de réglage direct à 320×700 a produit un `innerWidth` incohérent (4255 px) — retour à l'approximation par `<iframe>` de même origine, déjà utilisée le 18 septembre.
+- **Rendu inversé du bouton pilule (accent sur crème) non exercé par du contenu réel** : vérifié uniquement par lecture de la règle CSS servie et injection de test dans le DOM, faute d'occurrence visible dans le contenu actuel de la page (voir section « Boutons » de la recette ci-dessus) — pas une anomalie, un simple constat de couverture.
+- **Indexation des URL de prévisualisation non prouvée depuis l'extérieur** : l'alias documenté renvoie une page 404 générique de la plateforme, ni le contenu du portfolio ni une balise `robots` exploitable — réserve reconduite à l'identique depuis `docs/PUBLICATION-portfolio.md`, non levée par cette passe.
+- **Aucun lecteur d'écran réel testé** (VoiceOver, NVDA, JAWS), comme lors des passes précédentes.
+- **Un seul navigateur réel testé** (Chrome, piloté par l'extension de cette session) ; Safari/iOS et Firefox restent non testés.
+- **Esthétique et contenu non rejugés** au-delà des critères techniques mesurables listés ci-dessus (contrastes, focus, absence de débordement/troncature) : la décision de changer entièrement la direction artistique n'est pas remise en cause, seule sa conformité technique au nouveau standard déclaré dans `docs/DIRECTION.md` est vérifiée ici.
+- **`og:url`/`canonical`/`og:image`, rayon des cartes (24 px) et fond de l'écart `_headers` non rouverts**, conformément au périmètre donné pour cette passe.
 
 ## Récapitulatif de clôture
 
@@ -416,6 +544,30 @@ Limites propres à cette passe hébergée, non silencieusement ignorées :
 **Aucun code, configuration ou contenu n'a été modifié par cet audit, sur aucune des deux passes.** Preuves de travail (scripts Playwright et résultats JSON du 17 septembre ; scripts `fetch`/captures d'écran du 18 septembre) conservées hors dépôt, non versionnées, sous `/tmp/audit/tools/` et `/tmp/audit/qa-update/` de cette session — susceptibles de disparaître ; les constats déterminants sont consignés dans ce rapport.
 
 **Conclusion pour la mise en avant du portfolio :** la recette QA hébergée exigée par `docs/ARCHITECTURE.md` § 5.6 a été exécutée sur l'URL réelle, à la révision `a5d0395`, avec un contrôle indépendant de la liaison source → artefact. Elle ne remplace pas un jugement humain final, mais l'obstacle qu'elle posait est levé : aucun défaut bloquant ou majeur n'a été constaté sur l'hébergement réel testé.
+
+### 20 septembre 2026 — nouvelle apparence « boisée / cocooning » (hébergement réel, Dépôt n° 2)
+
+| Point | État |
+| --- | --- |
+| Contrastes (7 jetons, couples recalculés indépendamment) | **Recalculés indépendamment — largement conformes (tous ≥ 10,8 : 1)** |
+| Focus clavier réel — fond bois (lien d'évitement, CTA) | **Vérifié par interaction réelle — contour crème conforme** |
+| Focus clavier réel — fond crème (lien de carte) | **Vérifié par interaction réelle — contour accent conforme** |
+| Boutons pilule — rendu crème sur bois | **Vérifié sur 3 occurrences réelles — conforme** |
+| Boutons pilule — rendu accent sur crème | **Conforme par lecture de la règle CSS servie et test d'injection — non exercé par du contenu réel actuellement** |
+| Police Nunito (chargement) | **Vérifié — trois graisses chargées, aucun repli système constaté** |
+| Absence de référence active à Manrope | **Vérifiée — code et réseau, sur rechargement propre** |
+| Favicon (nouvelle palette) | **Vérifié — contenu SVG inspecté directement** |
+| Paliers 320/375/768/1024/1440 — débordement/troncature | **Vérifié — aucun débordement, aucune troncature à aucun palier** |
+| Zoom 200 % — chevauchement | **Vérifié — aucun chevauchement constaté (approximation `font-size`, documentée)** |
+| Non-régression (structure, CTA, mentions légales, prestations) | **Vérifiée — inchangée par rapport à ce qui était déjà validé** |
+| Indexation — production (`index, follow`) | **Vérifiée indépendamment — conforme** |
+| Indexation — prévisualisation (`noindex`) | **Réserve reconduite — canal de contrôle toujours inconcluant depuis l'extérieur** |
+| PORT-04 (type MIME polices) | **Reconduit à l'identique sur Nunito — ouvert, non bloquant, même cause** |
+| og:url/canonical/og:image, rayon des cartes, fond `_headers` | **Hérités, non rouverts** |
+
+**Aucun code, configuration ou contenu n'a été modifié par cette passe d'audit.** Preuves de travail (scripts `fetch`/`getComputedStyle` et captures d'écran du 20 septembre) conservées hors dépôt, sous `/tmp/audit/qa-update/` de cette session — susceptibles de disparaître ; les constats déterminants sont consignés dans ce rapport.
+
+**Conclusion pour la mise en avant du portfolio (nouvelle apparence) :** la nouvelle direction artistique « boisée / cocooning » du Dépôt n° 2 (révision `3dc3150`) a été contrôlée indépendamment sur l'hébergement réel, sur l'ensemble des points explicitement demandés pour cette passe. Aucun défaut bloquant ou majeur constaté. Une anomalie mineure préexistante (PORT-04) se reconduit à l'identique sans aggravation. La réserve d'indexation des URL de prévisualisation reste ouverte, inchangée depuis le 19 septembre, indépendamment du canal utilisé pour la vérifier.
 
 ---
 
