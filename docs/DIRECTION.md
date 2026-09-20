@@ -269,6 +269,35 @@ Vérifiables par quelqu’un qui n’a pas participé à cette spécification, s
 
 **Le portfolio n’est pas encore complet ; l’URL `https://portfolio-simon-costa.costa-simon30.workers.dev/` reste provisoire, migration possible plus tard si besoin.** Simon a confirmé qu’aucun nom de domaine personnalisé n’est décidé pour l’instant : le site continuera d’évoluer avant d’être considéré comme terminé, et une migration vers un domaine dédié reste envisageable une fois le contenu stabilisé. Cette précision confirme et prolonge la décision déjà consignée ci-dessus : `og:url`, `canonical` et `og:image` restent volontairement absents tant que l’URL définitive n’est pas fixée. Point à rouvrir lors de la finalisation du portfolio ou d’une éventuelle migration de domaine.
 
+#### Fond bois — texture, précision du 20 septembre 2026
+
+**Simon veut un fond bois texturé, pas un aplat de couleur.** La teinte reste
+celle déjà validée et publiée (bois foncé, registre noyer/acajou,
+`--color-wood` / `--color-wood-alt`) — ce n'est pas une réouverture de la
+palette. Ce qui change : le rendu doit laisser deviner un grain, un veinage,
+une matière, comme un vrai fond en bois, pas une couleur plate.
+
+Deux précisions actées avec Simon pour cadrer la suite :
+- **Teinte inchangée**, uniquement la texture est en jeu.
+- **Motif dessiné (SVG/procédural), pas une photo achetée.** Cohérent avec le
+  motif de veinage déjà créé pour le hero (`.hero__motif`), gratuit, léger,
+  sans question de licence ni de poids d'image à optimiser.
+
+**Lien avec l'observation de QA du 19 septembre** (`docs/QA-portfolio.md`) :
+QA notait que le motif du hero, en suivant la lettre de la spécification
+(bois-alt sur bois, faible opacité), se lit « de justesse » et se demandait
+si un veinage plus présent était l'intention. Réponse : oui. Cette précision
+répond à cette remarque et l'étend au-delà du hero.
+
+**Ce qui reste à faire, hors de mon périmètre.** Étendre ou intensifier le
+traitement du veinage — sur le hero et sur les autres blocs en fond bois
+(À propos, Contact, pied de page) — est une décision de direction
+artistique, pas une décision de contenu : je ne fixe pas ici l'opacité, la
+densité ou le tracé exact. Cela revient à l'agent UI/UX, en gardant à
+l'esprit les contraintes déjà actées (accessibilité — le texte crème sur
+bois doit rester lisible même avec une texture plus marquée derrière ;
+performance — un motif procédural reste préférable à toute image bitmap).
+
 #### Direction artistique — nouvelle orientation, décision du 19 septembre 2026
 
 **Simon veut une refonte complète de l’ambiance de la page, mise en page comprise.** Le parti pris « sobre, technique et direct » documenté ci-dessous ne correspond plus à ce qu’il veut : il veut que sa page personnelle reflète sa personnalité, avec une ambiance **boisée et cocooning**.
