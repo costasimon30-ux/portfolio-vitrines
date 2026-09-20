@@ -322,6 +322,7 @@ Sept jetons, un seul rôle chacun, aucun ne reprend un nom ou une valeur de la p
 
 - `--color-wood` `#2B1B12` — bois foncé (registre noyer/acajou), teinte dominante : fond par défaut de la page (Hero, À propos, Contact, pied de page). Luminance relative très basse (**0,013**) — c’est cette obscurité qui porte l’ambiance feutrée et intime demandée par Simon, à l’opposé de la clarté de l’ivoire de Créa’Tif (luminance relative **0,941**, soit environ 72 fois plus lumineux).
 - `--color-wood-alt` `#3C2A1D` — bois un ton plus clair, pour les blocs alternés (voir composition) ; même famille que le bois, pas une deuxième couleur.
+- `--color-wood-grain` `#4A3324` — traits de veinage (grain de bois) : jamais utilisé comme fond de bloc, réservé aux tracés de texture (voir « Texture du bois » ci-dessous). Un ton distinct de `--color-wood-alt`, choisi pour que le grain se lise clairement, pas seulement pour l'alternance de blocs.
 - `--color-cream` `#F2E8DB` — crème chaude : texte sur fond bois, et fond des cartes de contenu (Réalisations, Ce que je fais) — les « poches de lumière » de la métaphore d’ensemble. Distincte de l’ivoire de Créa’Tif par une teinte plus dorée et une luminance sensiblement plus basse (**0,817** contre 0,941) — un écart vérifiable côte à côte, pas seulement sur le papier.
 - `--color-ink` `#211710` — texte à l’intérieur des cartes crème (rôle inverse de `--color-cream`, jamais utilisé ailleurs). Contraste sur `--color-cream` : **14,51:1**.
 - `--color-accent` `#33302C` — anthracite mat : boutons, liens et focus. Aucun autre usage — jamais en fond de bloc large, pas de dégradé. Contraste sur `--color-cream` : **10,84:1**.
@@ -367,6 +368,21 @@ Motif décoratif : remplace le quadrillage géométrique du parti pris précéde
 
 Disposition inchangée : deux colonnes à partir de 1024px (texte à gauche, motif à droite, environ 55/45), une seule colonne empilée en dessous, motif déplacé après le texte ou réduit à un bandeau en bas de hero en mobile — le H1 reste la première chose lue, comme avant.
 
+##### Texture du bois — grain et veinage, précision du 20 septembre 2026
+
+**Réponse à l’observation de QA du 19 septembre et à la précision de Simon du 20 septembre (voir décision ci-dessus) : le fond bois doit se lire comme une matière, pas comme un aplat — et cela vaut sur tous les blocs en fond bois, pas seulement le hero.** Deux couches, un seul vocabulaire graphique :
+
+1. **Grain de fond (nouveau) — une tuile SVG répétée, posée sur chaque bloc en fond bois** (Hero, À propos, Contact, pied de page — tous les blocs en `--color-wood` ou `--color-wood-alt`, pas seulement le hero). Motif : trois lignes ondulées horizontales par tuile, tracées dans un ton dédié `--color-wood-grain` (voir Palette ci-dessus), `stroke-linecap: round` — même vocabulaire de courbes que le motif du hero existant, pour rester un seul système graphique. Taille de tuile : `160 × 96px`. Densité : une ligne principale (`stroke-width: 2px`, opacité `55%`) et deux lignes secondaires plus fines (`stroke-width: 1px`, opacité `35%`) — même principe de hiérarchie que le motif hero actuel (`.motif__veine` / `.motif__veine--fine`), densité doublée. Raccord de tuile : chaque ligne entre et sort à la même hauteur à gauche et à droite (déjà pratiqué dans le motif hero), pour un raccord invisible à la répétition horizontale ; décaler légèrement l’origine du motif entre deux blocs consécutifs pour éviter un effet de grille trop régulier verticalement.
+2. **Motif du hero (existant, conservé comme illustration focale)** : le tracé plus grand (vagues et nœud, `.hero__motif`) reste réservé au hero et à sa reprise sur la carte Créa’Tif — l’élément décoratif ponctuel, pas la texture ambiante. Il passe du ton `--color-wood-alt` au nouveau `--color-wood-grain`, pour la même raison de lisibilité (voir plus bas) ; sa disposition, sa réutilisation et son statut décoratif (`aria-hidden`, aucune information portée) restent inchangés.
+
+**Choix technique pour l’Implémentation : un pattern SVG tuilé (`<pattern>` en `background-image`, encodé en data-URI CSS), pas une image bitmap ni un fichier séparé à charger — aucun poids réseau supplémentaire, conforme à la contrainte de performance déjà actée.** Une classe utilitaire commune (par exemple `.fond-bois` / `.fond-bois-alt`) porte ce `background-image` en plus de la couleur de fond déjà en place ; elle s’applique à chaque bloc concerné, sans dupliquer le motif dans le balisage de chaque page.
+
+**Pourquoi le motif actuel se lisait « de justesse » (calcul à l’appui) : le nouveau ton corrige la cause, pas seulement l’opacité.** `--color-wood-alt` sur `--color-wood` ne donne qu’un contraste de **1,22:1** — les deux tons sont trop proches en luminosité pour qu’un tracé dans cette seule paire se voie franchement, quelle que soit son opacité. Le nouveau `--color-wood-grain` porte ce contraste à **1,41:1** sur `--color-wood` (**1,16:1** sur `--color-wood-alt`) : toujours discret — ce n’est pas un motif graphique appuyé, c’est un grain — mais nettement plus présent, combiné à une densité de traits doublée.
+
+**Accessibilité — recalcul avec la texture, pas seulement la couleur de fond moyenne.** Cas le plus défavorable : un trait de veinage à pleine opacité passe directement derrière du texte crème. Contraste `--color-cream` sur `--color-wood-grain` à `100%` d’opacité : **9,69:1** — plus du double du seuil AA (4,5:1), alors même que ce cas reste exceptionnel puisque les traits restent fins (1–2px) et espacés (tuile de 96px de haut). Aux opacités réellement prévues (35–55%), le contraste réel mesuré reste au-dessus de **10,3:1**. Cette valeur devient, pour les blocs désormais texturés, le cas de référence à vérifier — elle remplace le pire cas implicite de la section Accessibilité ci-dessous.
+
+**Cohérence avec Créa’Tif.** Le grain reste un jeu de lignes ondulées dans la famille brun-bois déjà actée (`--color-wood-grain` en dérive directement, même teinte que `--color-wood`/`--color-wood-alt`, seulement plus clair) — aucune parenté avec la palette ivoire/cuivre/sauge/sable/pêche de Créa’Tif, ni avec un motif floral, artisanal ou photographique. Motif procédural (SVG), toujours dessiné, jamais une photo ou une texture bitmap achetée — contrainte déjà actée, non rouverte.
+
 ##### Boutons et appel à l’action
 
 Un seul style de bouton, mais à **deux rendus selon le fond qui l’accueille** — parce que l’anthracite ne fonctionne jamais directement sur le bois (voir Palette) :
@@ -408,7 +424,7 @@ Le focus visible n’est jamais supprimé (pas de `outline: none` sans remplacem
 
 Tous les ratios ci-dessous sont calculés selon la formule de luminance relative du WCAG (sRGB linéarisé), à recontrôler avec un outil de contraste une fois les vraies couleurs de rendu (écran, gamma) en place :
 
-- Texte crème sur fond bois : **13,67:1**. Texte crème sur fond bois-alt : **11,25:1**.
+- Texte crème sur fond bois (sans texture) : **13,67:1**. Texte crème sur fond bois-alt (sans texture) : **11,25:1**. Avec la texture de grain (précision du 20 septembre 2026 ci-dessus) : pire cas mesuré **9,69:1**, cas réel aux opacités prévues au-dessus de **10,3:1** — voir « Texture du bois » pour le détail.
 - Texte ink sur carte crème : **14,51:1**.
 - Accent (boutons/liens) sur crème : **10,84:1** ; état survol/appui (accent-dark) sur crème : **13,54:1**.
 - Crème (bouton inversé sur bois) sur bois : **13,67:1** ; état survol/appui (cream-dark) sur bois : **11,50:1**, sur bois-alt : **9,47:1**.
