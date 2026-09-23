@@ -1,5 +1,41 @@
 # QA / Audit — portfolio
 
+## Contre-vérification ciblée — 23 septembre 2026 — source a23cc25
+
+**Verdict actuel sur les critères ciblés : non conforme.** Le reflow et les survols contrôlés passent, mais le lien d’évitement est illisible au focus dans les deux thèmes (PORT-05, majeur) et des anneaux de focus sont rognés à 320/375 px de largeur initiale avec zoom natif 200 % (PORT-06, mineur). Ces deux constats empêchent de déclarer la matrice ciblée close. Ce rapport ne vaut pas autorisation de déploiement. Les verdicts datés plus bas restent des historiques relatifs à leurs révisions et périmètres propres ; ils ne décrivent pas la révision testée ici.
+
+### Périmètre et protocole
+
+- **Source vérifiée :** commit exact `a23cc25065b17869246acff4c6857b5413a9132e`, extrait par `git archive`, puis `scripts/assemble-site.mjs portfolio --environment production`. Seul `sites/portfolio/dist/` a été servi en local sur `http://127.0.0.1:8765/`. L’URL publique mentionnée dans les anciennes recettes n’a pas été utilisée pour juger cette révision ; aucune équivalence avec une version en ligne n’est postulée.
+- **Zoom réellement utilisé :** réglage Zoom de Chrome à `200 %` dans `chrome://settings/appearance` (valeur `2`), vérifié dans la page par `devicePixelRatio = 2` et par la division de la largeur CSS mesurée. Ce n’est pas une approximation par `font-size` ou transform CSS. Les paliers 768 et 1440 px sont des fenêtres Chrome de ces largeurs (`innerWidth` à 200 % : 384 et 720 px). Chrome impose ici une fenêtre minimale de 500 px : pour les paliers 320/375, la largeur du viewport à 100 % a d’abord été fixée à 320/375 px par émulation, puis le zoom natif appliqué ; `innerWidth` mesuré à 200 % : 160/187 px. Ce sont donc des viewport mobiles émulés combinés à un vrai zoom navigateur, **pas** des fenêtres physiques Chrome de 320/375 px.
+- **Actions :** navigation et activation par clic des CTA/ancres, parcours `Tab` sur l’accueil et la 404, attente de 1,6 s après chaque focus pour laisser finir le défilement doux, survol par pointeur des cinq contrôles à 1440 px dans chaque thème. Thème constaté par `document.documentElement.dataset.theme` après chaque chargement, sans supposer l’état initial mémorisé. Captures et mesures réalisées le 23 septembre 2026 ; les fichiers de travail en `/private/tmp/portfolio-qa-a23cc25.wuj84Y/` sont temporaires et ne sont pas des preuves pérennes du dépôt.
+
+### Testé et passé
+
+| Largeur initiale | `innerWidth` réel à 200 % | Accueil / 404 : largeur défilable | Reflow (clair et sombre) |
+| ---: | ---: | ---: | --- |
+| 320 px, viewport émulé | 160 px | 160 / 160 px | Passé en clair et sombre |
+| 375 px, viewport émulé | 187 px | 187 / 187 px | Passé en clair et sombre |
+| 768 px, fenêtre réelle | 384 px | 384 / 384 px | Passé en clair et sombre |
+| 1440 px, fenêtre réelle | 720 px | 720 / 720 px | Passé en clair et sombre |
+
+Sur `/` et `/404.html`, à chaque largeur et dans les deux thèmes : aucun rectangle de texte hors du viewport et aucun chevauchement mesuré sur les blocs contrôlés ; pas de défilement horizontal. Sur l’accueil, le titre, l’accroche, le CTA du hero, l’adresse `costa.simon30@outlook.com`, les mentions et le pied de page restent lisibles, avec retour à la ligne quand nécessaire. Sur la 404, le titre, le message, le CTA de retour et le pied de page restent lisibles. Sur l’accueil, clic sur « Discutons de votre projet » → `/#contact`, clic sur « Retour en haut de page » → `/#main`. Sur la 404, `Tab` jusqu’à « Revenir à l’accueil », puis `Entrée` → `/`. Le bouton de thème fonctionne. Après stabilisation du défilement, les cinq autres focus séquentiels de l’accueil ont un contour calculé de 3 px + décalage 3 px entièrement dans le viewport. Le retour 404 passe à 320/768/1440 px initiaux, mais son anneau est coupé en bas à 375 px (PORT-06). Le lien d’évitement est exclu de cette réussite (voir anomalies). Le serveur local renvoie `200` pour le fichier `/404.html` : seul son rendu et son retour ont été testés, pas un vrai statut HTTP 404 d’hébergeur.
+
+Survol rendu au pointeur, à 1440 px, **clair et sombre** : CTA hero et contact (fond clair : `rgb(32,34,35)` → `rgb(54,58,60)` ; fond sombre : `rgb(244,245,243)` → `rgb(221,226,223)`), bascule de thème (`245,245,243` → `236,237,235` en clair ; `27,29,30` → `44,48,50` en sombre), « Voir la démo » et « Retour en haut » (couleur modifiée et soulignement 1 → 2 px). Les rectangles largeur/hauteur sont inchangés entre repos et survol pour les dix cas. Les contrastes texte/fond calculés au survol sont au minimum 8,72:1 pour les liens, 11,49:1 pour les CTA et 12,18:1 pour la bascule ; captures avant/après examinées. Aucun déplacement ni perte de lisibilité observé.
+
+### En défaut
+
+**PORT-05 — majeur — lien d’évitement illisible au focus.** Pages `/` et `/404.html`, thème clair puis sombre, viewport initial 320 px et zoom Chrome 200 % (`innerWidth = 160`). Reproduction : charger la page, presser une fois `Tab`. Résultat observé : l’élément reçoit bien le focus et un contour, mais son texte devient `rgb(36,77,62)` sur fond `rgb(32,34,35)` en clair, soit **1,68:1**, et `rgb(209,232,221)` sur `rgb(244,245,243)` en sombre, soit **1,18:1**. Les captures de focus montrent le texte presque confondu avec son fond ; la même règle de focus est globale, mais les ratios ci-dessus ont été mesurés sur ces pages/largeur. **Impact :** lien de saut difficile ou impossible à lire pour les personnes au clavier et malvoyantes, sur l’accueil comme sur la 404. **Correction recommandée :** préserver au focus la couleur de texte contrastée du lien sur son fond, sans supprimer l’anneau ; recontrôler au moins 4,5:1 dans les deux thèmes et sur les deux pages.
+
+**PORT-06 — mineur — anneaux de focus coupés à 200 %.** Pages `/` et `/404.html` (même composant), thèmes clair et sombre ; constat de géométrie détaillé sur l’accueil, aux viewports initiaux 320 et 375 px. Reproduction : régler le zoom Chrome à 200 %, charger la page et presser `Tab`. Résultat : à 320 px initiaux, `innerWidth = 160`, bord droit du lien = `160` ; à 375 px, `innerWidth = 187`, bord droit = `187,5`. L’outline de 3 px avec `outline-offset: 3px` dépasse donc d’au moins 6 px le bord droit visible (captures de focus à 320/375) ; la mesure est identique dans les deux thèmes. À 768/1440 px initiaux, l’anneau du lien d’évitement est entier. Sur `/404.html`, à 375 px initiaux, presser un deuxième `Tab` pour focaliser « Revenir à l’accueil » : après stabilisation, le viewport mesure 187 × 450 px CSS, le bouton se termine à `y = 450,19` et son anneau déborde sous le bas de l’écran (capture dans les deux thèmes). À 320/768/1440 px initiaux, le contour du retour 404 est entier. **Impact :** l’indicateur de focus n’est pas intégralement visible au zoom demandé, même si le lien reste atteignable. **Correction recommandée :** réserver l’espace nécessaire aux contours horizontal du lien et vertical du retour 404 ; retester au clavier, en zoom natif 200 %, sur les deux thèmes et pages.
+
+### Non testé / réserves antérieures
+
+Ni appareil mobile physique, ni version publique correspondant à `a23cc25`, ni comportement HTTP/CDN de la 404, ni campagne SEO/performance ou recette générale n’ont été contrôlés dans cette passe. L’assemblage a réussi avec Node 24.19.0 alors que `.node-version` annonce 22.23.2 : équivalence d’exécution sur Node 22 non prouvée. Les constats et réserves antérieurs du rapport (dont PORT-04, indexation des previews et P06) ne sont ni requalifiés ni rouverts. Les deux anomalies ci-dessus portent uniquement sur le commit et l’artefact local indiqués.
+
+---
+
+
 ## Verdict — 17 septembre 2026
 
 **Avis favorable, avec réserves mineures, sur le périmètre effectivement testé : la sortie assemblée servie en local.** Aucun défaut bloquant ou majeur constaté sur le fonctionnel, le responsive, l'accessibilité au clavier, la structure SEO et le poids des ressources. Trois anomalies mineures sont ouvertes (PORT-01, PORT-02, PORT-03), aucune ne remet en cause l'usage de la page dans son état actuel.
