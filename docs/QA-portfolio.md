@@ -2,7 +2,9 @@
 
 ## Prépublication ciblée — 23 septembre 2026 — source 52584f0
 
-**Verdict : bloqué pour la décision de publication.** La recette locale du code source demandé passe sur le périmètre ciblé, mais l’empreinte du candidat préparé est encore le marqueur « [À REMPLACER PAR L’EMPREINTE DE CLAUDE] » et son inventaire n’a pas été communiqué. La comparaison indépendante exigée entre l’artefact testé et celui destiné au dépôt est donc **non testée**, et aucun feu vert n’est possible. Ce blocage ne signale pas un défaut du site. Le Worker `portfolio-simon-costa` reste sur une ancienne version ; aucune assertion ci-dessous ne concerne la nouvelle version en ligne. Aucun déploiement n’a été effectué.
+**Verdict : candidat prêt pour décision de Simon.** Le dossier exact destiné au dépôt a été comparé à l’assemblage indépendant du commit source indiqué ci-dessous : les 17 chemins et tous leurs SHA-256 sont identiques, ainsi que l’empreinte agrégée. Aucune fiche de suivi ni fichier caché ne figure dans le dossier. Ce verdict porte sur le candidat local comparé ; il ne certifie pas la version hébergée et n’autorise pas son déploiement.
+
+
 
 ### Source, assemblage et comparaison
 
@@ -10,7 +12,8 @@
 - Node prescrit par `.node-version` : **22.23.2**, binaire officiel contrôlé par la somme SHA-256 publiée. `node scripts/verif-assemblage.mjs` : **90 réussis, 0 échec**. `node scripts/assemble-site.mjs portfolio --environment production` : deux assemblages réussis, mêmes 17 fichiers et même empreinte ; poids annoncé **202,1 Kio**. Aucun autre runtime n’est utilisé pour cette conclusion.
 - Empreinte indépendante de `sites/portfolio/dist/` : **`fdced2eb7caf9bc8ec812b772f4567022275e01134177ee443c309d624bf3d4c`**. Méthode contractuelle, depuis ce dossier : `find . -type f | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256`. L’inventaire réel est identique, chemin par chemin, à `publication.json` plus `_headers` et `robots.txt` ; les 13 fichiers publics copiés sont identiques octet pour octet aux sources. Aucune source, configuration, documentation interne ni ressource d’un autre site dans `dist/`.
 - Inventaire de l’artefact local (17 chemins) : `404.html`, `_headers`, `robots.txt`, `index.html`, `css/style.css`, `css/fonts.css`, `assets/favicon.svg`, `assets/images/NOTICE.md`, `assets/images/creatif-hero-desktop-16-9.webp`, `assets/images/creatif-hero-mobile-3-2.webp`, `assets/fonts/NOTICE.md`, `assets/fonts/inter/LICENSE.txt`, `assets/fonts/inter/inter-400.woff2`, `assets/fonts/inter/inter-600.woff2`, `assets/fonts/inter/inter-800.woff2`, `assets/fonts/ibm-plex-mono/LICENSE.txt`, `assets/fonts/ibm-plex-mono/ibm-plex-mono-400.woff2`. SHA-256 des nouveaux médias : desktop `6bd019f9ca615468e0ec79f81bb6fa0333ffa1366805e786aeeef944c8c1b329` ; mobile `c0f79a10ccd238ec5828c6d11d854c47d1be6d15090de842eb8d9048b8a7aff1` ; notice `ddeee23b3e9743dbe72cde367fd391bbe184893151f14b1bf798ad0c2532a1c6`.
-- **Non testé / bloquant :** aucune empreinte calculée sur le paquet réellement préparé par Claude, aucune liste de ses chemins/fichiers. Le hash local ne peut donc être présenté comme égal au hash du candidat. Obtenir l’empreinte selon la même méthode et l’inventaire du paquet, expliquer tout écart avant décision.
+
+- **Comparaison du paquet de dépôt — identique.** Dossier contrôlé : `/Users/simoncosta/Sites/artefacts/portfolio-simon-costa-candidat-52584f0-depot`. Comparaison de la liste triée chemin/SHA-256 au contenu de `sites/portfolio/dist/` : zéro différence, 17 fichiers, mêmes octets. L’empreinte agrégée calculée depuis la racine du dossier est `fdced2eb7caf9bc8ec812b772f4567022275e01134177ee443c309d624bf3d4c`, identique à l’assemblage indépendant. Aucun chemin supplémentaire ou manquant. Recherche récursive : aucun fichier caché, `INVENTAIRE*`, `EMPREINTE*` ou `README*` dans le dossier de dépôt ; les fiches de suivi annoncées restent dans le dossier parent de sauvegarde, hors du candidat. Vérification limitée aux fichiers locaux fournis et au répertoire exact indiqué ; aucun test visuel, fonctionnel, hébergé ni déploiement relancé.
 
 ### Contrôles locaux ciblés — testé et passé
 
@@ -22,7 +25,7 @@
 
 ### Limites et fumée après un dépôt autorisé
 
-**Non testé :** comparaison à l’artefact préparé faute de hash/inventaire ; nouvelle version hébergée ; en-têtes réellement servis, vraie 404, comportement CDN/cache et absence de fichiers internes sur le Worker ; appareils physiques, Safari/Firefox et lecteur d’écran. Les réserves déjà acceptées, PORT-05/06, P06, droits photographiques et esthétique ne sont pas réouverts. Ce rapport ne constitue ni autorisation de déploiement ni recette hébergée.
+**Non testé :** version hébergée du candidat, en-têtes réellement servis, vraie 404, comportement CDN/cache, absence de fichiers internes sur le Worker, appareils physiques, Safari/Firefox et lecteur d’écran. La comparaison de paquet est consignée plus haut. Les réserves déjà acceptées, PORT-05/06, P06, droits photographiques et esthétique ne sont pas réouvertes. Ce rapport ne constitue ni autorisation de déploiement ni recette hébergée.
 
 Après une éventuelle décision de Simon et un dépôt autorisé : (1) attester la révision et l’empreinte/inventaire du paquet effectivement déposé ; (2) à cache froid, confirmer en HTTPS accueil, 404, lien démo, CTA/contact, thème et lien d’évitement au clavier ; (3) vérifier les deux images, polices, CSS/JS et notices en `200` avec MIME corrects, sans erreur console/réseau ; (4) contrôler les vrais statuts, `robots.txt`, metas et `X-Robots-Tag` — accueil indexable, 404/notices noindex — ainsi que le refus des chemins internes ; (5) refaire une fumée Clair/Sombre aux largeurs ciblées. Aucun de ces résultats futurs n’est déclaré passé ici.
 
