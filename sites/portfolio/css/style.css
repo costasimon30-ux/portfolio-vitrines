@@ -172,8 +172,14 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  /* Compense l'ancre : aucun en-tête fixe ici, une marge de confort suffit. */
+  /* Compense l'ancre : aucun en-tête fixe ici, une marge de confort suffit.
+     Le bas est réservé pour la même raison que PORT-06 : l'anneau de focus
+     (3px de contour + 3px de décalage) est tracé hors de la boîte, alors que
+     le défilement déclenché par le focus n'amène que la boîte dans le champ.
+     Sans cette réserve, un contrôle proche du bas voit son anneau rogné —
+     constaté sur le retour de la 404 entre 430 et 490px de hauteur visible. */
   scroll-padding-top: var(--e-24);
+  scroll-padding-bottom: var(--e-24);
   background-color: var(--c-fond);
 }
 
@@ -269,6 +275,12 @@ p { margin: 0; }
   left: var(--e-16);
   top: calc(-1 * var(--e-128));
   z-index: 100;
+  /* PORT-06 : l'anneau de focus déborde de 6px à droite de la boîte. Aux
+     largeurs très étroites (160 et 187px CSS, soit un zoom 200 % sur petit
+     écran), le lien s'étirait jusqu'au bord et l'anneau sortait du champ.
+     16px à gauche + 12px à droite laissent 6px de marge au-delà de l'anneau,
+     de chaque côté. Le libellé revient à la ligne, il n'est jamais tronqué. */
+  max-width: calc(100% - var(--e-16) - var(--e-12));
   padding: var(--e-12) var(--e-24);
   background-color: var(--c-cta-fond);
   color: var(--c-cta-texte);
@@ -277,6 +289,18 @@ p { margin: 0; }
   border-radius: var(--rayon-bouton);
 }
 .skip-link:focus { top: var(--e-16); }
+/* PORT-05 : la règle générale `a:hover, a:focus-visible` porte la couleur
+   d'accent et l'emporte, par spécificité, sur `.skip-link` (0,1,1 contre
+   0,1,0). Au focus, le texte du lien passait donc à l'accent sur le fond
+   sombre du CTA : 1,68:1 en clair, 1,18:1 en sombre. Ces trois sélecteurs
+   rendent au lien la couleur de texte de son fond, sans toucher à l'anneau.
+   Même piège déjà neutralisé sur `.btn:focus-visible`. */
+.skip-link:hover,
+.skip-link:focus,
+.skip-link:focus-visible {
+  color: var(--c-cta-texte);
+  text-decoration: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
