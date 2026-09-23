@@ -314,132 +314,170 @@ Orientation retenue avec Simon :
 
 #### Direction artistique
 
-**Parti pris.** La page doit se lire comme un intérieur : un bureau chaleureux et feutré où l’on se sent bien, pas une salle d’exposition claire et aérée. Le registre visé est **boisé et cocooning**, à l’image de la personnalité de Simon — proche, chaleureux, mais toujours contemporain et professionnel, jamais rustique ou daté. La composition entière repose sur une métaphore unique : la page est une pièce en bois foncé, et les contenus (réalisations, prestations) apparaissent comme des îlots de lumière chaude posés dans cette pièce, pas un fond clair uniforme. Ce principe remplace intégralement le parti pris « atelier technique, sobre et direct » documenté jusqu’ici (voir la décision du 19 septembre 2026 ci-dessus) : la générosité ne vient plus seulement de l’espace, mais aussi de la matière (bois) et de la douceur des formes (typographie arrondie, coins de bouton très arrondis).
+##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
 
-##### Palette et rôle des couleurs
+**Statut : proposition amont à valider par Simon avant implémentation ; aucun rendu nouveau validé.** Périmètre exclusif : `sites/portfolio/`. Base documentaire et contenu relus sur `main` à `9d6c64cc468c08ce7244fc46298dc8f70b74ca5d` : conventions, brief UI/UX, section portfolio, architecture pertinente et contenu existant. Les deux captures Clair/Sombre de « Grand Livre » fournies par Simon ont été examinées : elles servent de référence visuelle, pas de maquette à reproduire. Aucune capture ni donnée personnelle de cette application n'est à verser au dépôt public.
 
-Sept jetons, un seul rôle chacun, aucun ne reprend un nom ou une valeur de la palette Créa’Tif (ivoire `#FBF8F2`, cuivre `#A84F3A`/`#8F3F2F`, sauge `#61766D`, sable `#E6DDD0`, pêche `#D4A68C`) :
+**Acté dans la nouvelle demande de Simon :** abandon de l'ambiance boisée/cocooning et présence de deux thèmes avec un bouton de bascule. La présente proposition remplace les prescriptions artistiques bois, grain, cuivre et surfaces feutrées de cette sous-section ; elle ne doit pas être cumulée avec elles. Les décisions bois des 19–20 septembre conservées ailleurs dans le document, dont la texture spécifiée au commit `02b0665`, sont l'historique de l'orientation précédente. Leur présence ne demande pas de réintroduire le grain dans cette nouvelle direction. Les sections produit, réservées au Chef de projet, ne sont pas réécrites ici.
 
-- `--color-wood` `#2B1B12` — bois foncé (registre noyer/acajou), teinte dominante : fond par défaut de la page (Hero, À propos, Contact, pied de page). Luminance relative très basse (**0,013**) — c’est cette obscurité qui porte l’ambiance feutrée et intime demandée par Simon, à l’opposé de la clarté de l’ivoire de Créa’Tif (luminance relative **0,941**, soit environ 72 fois plus lumineux).
-- `--color-wood-alt` `#3C2A1D` — bois un ton plus clair, pour les blocs alternés (voir composition) ; même famille que le bois, pas une deuxième couleur.
-- `--color-wood-grain` `#4A3324` — traits de veinage (grain de bois) : jamais utilisé comme fond de bloc, réservé aux tracés de texture (voir « Texture du bois » ci-dessous). Un ton distinct de `--color-wood-alt`, choisi pour que le grain se lise clairement, pas seulement pour l'alternance de blocs.
-- `--color-cream` `#F2E8DB` — crème chaude : texte sur fond bois, et fond des cartes de contenu (Réalisations, Ce que je fais) — les « poches de lumière » de la métaphore d’ensemble. Distincte de l’ivoire de Créa’Tif par une teinte plus dorée et une luminance sensiblement plus basse (**0,817** contre 0,941) — un écart vérifiable côte à côte, pas seulement sur le papier.
-- `--color-ink` `#211710` — texte à l’intérieur des cartes crème (rôle inverse de `--color-cream`, jamais utilisé ailleurs). Contraste sur `--color-cream` : **14,51:1**.
-- `--color-accent` `#33302C` — anthracite mat : boutons, liens et focus. Aucun autre usage — jamais en fond de bloc large, pas de dégradé. Contraste sur `--color-cream` : **10,84:1**.
-- `--color-accent-dark` `#221F1C` — état survol/appui de l’accent quand il est en texte ou en fond sur une carte crème. Contraste sur `--color-cream` : **13,54:1**.
-- `--color-cream-dark` `#E4D5C1` — état survol/appui du crème quand il sert de fond de bouton sur fond bois (voir Boutons). Contraste sur `--color-wood` : **11,50:1** ; sur `--color-wood-alt` : **9,47:1**.
+**Invariants :** une page unique, ordre Hero → À propos → Réalisations → Ce que je fais → Contact → pied de page ; textes, mentions légales, disponibilité, ancres et destinations des liens conservés. Le contenu sert à la fois les clients freelance et les employeurs. Pas de nouvelle promesse, de chiffres commerciaux, de témoignages, de CV, de formulaire ou de projet ajouté. Grand Livre n'est pas ajouté aux réalisations par cette mission. Créa’Tif et sa réserve P06 restent hors intervention.
 
-Ratios calculés selon la formule de luminance relative du WCAG (sRGB linéarisé), à revérifier par quiconque implémente avant mise en ligne — ce sont des valeurs de départ, pas une garantie a posteriori.
+##### 1. Transposition visuelle, sans transformer le portfolio en application
 
-**Point de vigilance transmis par le Chef de projet : différenciation avec Créa’Tif.** Les deux registres sont désormais chaleureux l’un et l’autre, mais leur différence ne tient pas à la chaleur de la teinte : elle tient à la valeur (clair/sombre). Créa’Tif est un intérieur clair et aéré, l’ivoire domine (luminance 0,941) ; le portfolio est un intérieur sombre et feutré, le bois domine (luminance 0,013) — un écart qui se voit au premier coup d’œil, avant même de comparer les teintes précises. Aucun nom ni valeur de jeton n’est partagé entre les deux sites.
+L'identité repose sur une **composition éditoriale nette**, pas sur un décor : grands titres sans empattement, surfaces mates, alignements communs, marges généreuses et filets horizontaux. Clair évoque une feuille de travail précise ; Sombre conserve exactement cette structure sur anthracite. Les deux sont des versions de même importance, pas une inversion automatique approximative.
 
-**Règle d’usage critique — l’accent anthracite ne fonctionne jamais directement sur le bois.** `--color-accent` sur `--color-wood` donne un contraste de **1,26:1** (`--color-accent` sur `--color-wood-alt` : **1,04:1**) — illisible, les deux étant sombres. L’accent n’apparaît donc jamais en texte ou en aplat directement sur un fond bois : il n’est utilisé qu’à l’intérieur des cartes crème, ou inversé — voir Boutons et États de focus ci-dessous.
+| Qualité observable dans Grand Livre | Transposition au portfolio |
+| --- | --- |
+| Titres noirs/blancs très affirmés | Nom de Simon en grand, H2 courts denses, accroche lisible immédiatement |
+| Petits libellés monospace espacés | Sur-titre métier et mention « Démonstration », pas les paragraphes ni les CTA |
+| Grandes surfaces calmes, grille alignée | Hero typographique ouvert, blocs éditoriaux et réalisation unique pleine largeur |
+| Cartes presque rectangulaires, filets fins | Cadre sobre du projet et cartes de prestations ; pas d'ombre portée décorative |
+| Détails colorés parcimonieux | Un vert minéral pour liens et petits repères, sans palette de statuts financiers |
+| Bouton de changement de thème explicite | Bouton texte + icône, libellé indiquant le thème de destination |
 
-##### Typographie et hiérarchie
+Ne reprendre ni logo/monogramme de Grand Livre, ni graphiques, montants, compteurs, onglets numérotés, jauges ou état « synchronisé ». Aucun faux écran d'application. Retirer les références visuelles au bois : texture, veinage, patine, brun dominant et lueurs. Ni dégradé spectaculaire, ni verre translucide, ni fonds illustrés omniprésents. La personnalité vient des rapports de taille et de la précision des espacements, non d'un catalogue d'effets.
 
-Une seule famille, trois graisses — même logique de sobriété technique que le parti pris précédent sur le nombre de fichiers à servir, appliquée à un choix radicalement différent d’ambiance : au lieu d’une sans-serif géométrique et froide, une **sans-serif arrondie et chaleureuse**, pour que la rupture avec l’« atelier technique » se voie dans la forme même des lettres, pas seulement dans la couleur.
+##### 2. Palette proposée et couples autorisés
 
-Proposition : **Nunito** (licence OFL 1.1, self-hostable, terminaisons arrondies, sans lien avec Cormorant Garamond, DM Sans ou Manrope), en 400 (texte courant), 700 (boutons, nav, sous-titres), 800 (H1, H2). Trois fichiers `.woff2`, conformément à `ARCHITECTURE.md` § 2 (auto-hébergement avant toute publication publique — déjà le cas ici puisque le portfolio est publié — et limitation du nombre de familles et de graisses). Si Simon préfère une autre famille, la contrainte reste : une famille, 3 graisses maximum, serif ou sans-serif arrondie, OFL ou licence équivalente vérifiée, origine et notice consignées dans une notice de polices propre au site.
+Les valeurs suivantes sont **des choix de conception**, pas des couleurs prétendument échantillonnées à l'identique dans les captures. Utiliser des surfaces opaques et des rôles locaux au portfolio ; ne pas modifier les couleurs partagées de Créa’Tif.
 
-Hiérarchie de titres, inchangée dans sa logique (accessibilité, pas esthétique) :
+| Rôle | Clair | Sombre | Usage |
+| --- | --- | --- | --- |
+| Fond de page | `#F5F5F3` | `#1B1D1E` | Hero, sections ouvertes, footer |
+| Surface | `#FFFFFF` | `#232628` | Cartes |
+| Surface alternative | `#ECEDEB` | `#2C3032` | Contact, état survol des contrôles secondaires |
+| Texte principal | `#202223` | `#F4F5F3` | Titres, paragraphes, contrôles |
+| Texte secondaire | `#585D60` | `#BDC2BF` | Sur-titre, disponibilité, mentions et footer |
+| Accent | `#2F6651` | `#ABD1BE` | Liens soulignés, petit trait décoratif |
+| Accent au survol / activation | `#244D3E` | `#D1E8DD` | Liens, avec changement de soulignement |
+| Filet décoratif | `#D0D3D2` | `#42484A` | Séparateurs et cadres de cartes non interactives uniquement |
+| Contour de contrôle | `#737A78` | `#858E8A` | Bouton de thème et éventuel contrôle secondaire existant |
+| Focus clavier | `#245FCC` | `#A8C8FF` | Anneau visible, jamais seul au survol |
+| Fond CTA principal | `#202223` | `#F4F5F3` | Action principale neutre, fortement contrastée |
+| Texte CTA principal | `#FFFFFF` | `#1B1D1E` | Inchangé au survol et à l'activation |
+| Fond CTA survol | `#363A3C` | `#DDE2DF` | Survol |
+| Fond CTA activation | `#111314` | `#C7CFCA` | Pendant la pression |
 
-- **H1** une seule fois sur la page, dans le hero.
-- **H2** pour chacun des titres de bloc : À propos, Réalisations, Ce que je fais, Contact.
-- **H3** pour les sous-entrées à l’intérieur d’un bloc.
-- Aucun niveau sauté.
+La très grande majorité des surfaces reste neutre. Le vert n'est ni un grand aplat de section ni une couleur de titre systématique. Il ne reprend pas la Sauge de Créa’Tif : pas de palette Ivoire/Cuivre/Sable, pas de serif de salon. Le bleu du focus est une couleur utilitaire distincte, pas un second accent décoratif.
 
-Échelle de taille reprise telle quelle (neutre, indépendante de la police) : H1 `clamp(2.25rem, 4vw + 1rem, 3.5rem)`, H2 `clamp(1.75rem, 2vw + 1rem, 2.5rem)`, H3 `clamp(1.25rem, 1vw + 1rem, 1.5rem)`. Poids 800 pour H1/H2, 700 pour H3.
+**Contrastes calculés le 23 septembre, sur couleurs sRGB opaques**, avec luminance relative et rapport `(L claire + 0,05) / (L sombre + 0,05)`. Les triplets ci-dessous suivent l'ordre **fond de page / surface / surface alternative**. Arrondis à deux décimales ; les décisions de seuil utilisent les valeurs non arrondies.
 
-Tenue de ligne : interlignage un peu plus généreux que le parti pris précédent — `1.6` au lieu de `1.55` — et lettrage neutre, sans resserrement sur les titres (pas de `letter-spacing` négatif) : une police arrondie et chaleureuse se resserre mal, le resserrement technique de l’ancien parti pris (`-0.01em`) contredirait l’intention. Largeur de paragraphe inchangée, 65–75 caractères (`max-width: 38rem` environ).
+| Couple | Clair | Sombre |
+| --- | --- | --- |
+| Texte principal sur les trois fonds | 14,64 / 15,98 / 13,60 | 15,47 / 13,92 / 12,18 |
+| Texte secondaire sur les trois fonds | 6,11 / 6,67 / 5,68 | 9,37 / 8,43 / 7,38 |
+| Accent sur les trois fonds | 6,13 / 6,69 / 5,69 | 10,15 / 9,13 / 7,99 |
+| Accent survol sur les trois fonds | 8,72 / 9,52 / 8,10 | 13,13 / 11,82 / 10,34 |
+| Contour de contrôle sur les trois fonds | 4,02 / 4,39 / 3,74 | 5,02 / 4,52 / 3,96 |
+| Focus sur les trois fonds | 5,37 / 5,86 / 4,99 | 9,97 / 8,97 / 7,85 |
+| Texte du CTA sur son fond : repos / survol / activation | 15,98 / 11,49 / 18,63 | 15,47 / 12,91 / 10,64 |
 
-##### Échelle d’espacements
+Tous les textes prescrits dépassent **4,5:1**, y compris petits libellés et mentions. Contours utiles et anneaux dépassent **3:1** contre les fonds prévus. Les filets décoratifs n'atteignent pas nécessairement 3:1 : ils ne servent donc ni à identifier seuls un bouton, ni à signifier sélection ou focus. Pas de texte en couleur de filet, de texte rendu pâle par opacité, de mélange de palette entre thèmes ou de texte sur une illustration. Les mêmes couples s'appliquent au Contact, sans exception « bandeau sombre ». Références : [WCAG — contraste du texte](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html), [contraste non textuel](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html). Ces calculs ne certifient pas une implémentation future.
 
-Aucun changement à l’échelle 8px déjà en place (`--space-1` 8px à `--space-8` 128px) — elle est structurelle, indépendante de l’ambiance. Ce qui change, c’est son usage : le cocooning vient d’un espacement généreux à l’intérieur des cartes crème, pas seulement du rythme vertical entre blocs.
+##### 3. Typographies et hiérarchie
 
-- Padding horizontal du conteneur : `--space-2` (16px) en mobile, `--space-3` (24px) au-delà de 640px — inchangé.
-- Écart vertical entre blocs : `--space-5` (48px) en mobile, `--space-7` (96px) en tablette, `--space-8` (128px) à partir de 1024px — inchangé, ce rythme reste indépendant de l’ambiance.
-- Padding interne des cartes crème (Réalisations, Ce que je fais) : `--space-4` (32px) minimum, `--space-5` (48px) à partir de 768px — plus généreux qu’un padding de carte ordinaire, pour qu’aucun contenu ne touche son bord.
+**Proposition : Inter + IBM Plex Mono.** Inter assure titres, texte et commandes ; IBM Plex Mono est réservé aux très courts libellés. Ce choix restitue le contraste sans/mono visible dans les références, sans prétendre identifier leurs polices. Pas de serif, de police « terminal » pour les paragraphes ou de faux caractères gras.
 
-##### Traitement du hero
+- Inter : graisses 400, 600 et 800 ; 800 pour le nom et les H2, 600 pour H3 et boutons, 400 pour le corps.
+- IBM Plex Mono : 400 uniquement, petits libellés à 13 px équivalents, interlettrage 0,10 em, interligne 1,5. Capitales réservées à ces libellés courts.
+- Polices locales WOFF2, caractères français complets et repli lisible sans blocage du texte. Inter peut être livré en variable ou en fichiers limités aux graisses utiles ; ne pas charger toute la famille. Replis : sans-serif système / Arial et monospace système. Ne pas étendre ces familles aux démos.
+- Sources vérifiées : [Inter, site de l'auteur et licence OFL 1.1](https://rsms.me/inter/), [IBM Plex, licence OFL 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt). Conserver les notices avec les fichiers distribués ; les polices gardent leur licence propre. Aucun fichier téléchargé ou intégré dans cette mission.
 
-Fond `--color-wood`, texte `--color-cream` — le point d’entrée dans la métaphore de la pièce sombre. Une courte étiquette en capitales au-dessus du H1 (`--color-cream` à opacité réduite pour la distinguer du H1 sans changer de teinte), le H1 (nom/activité de Simon), une phrase de positionnement en paragraphe courant, puis le CTA principal — traité en bouton « inversé » (fond crème, texte anthracite, voir Boutons) puisqu’il est posé directement sur le bois. Pas de portrait par défaut ; si Simon fournit une photo plus tard, elle vient en complément du texte, jamais en remplacement.
+| Usage | Mobile, moins de 768 px | Tablette, 768–1023 px | Desktop, dès 1024 px | Règles |
+| --- | --- | --- | --- | --- |
+| H1 « Simon COSTA » | 2,5 rem / 40 px | 4 rem / 64 px | 5 rem / 80 px | 800 ; interligne 1,05 ; approche −0,03 em ; casse du nom conservée |
+| Accroche du hero | 1,5 rem / 24 px | 1,75 rem / 28 px | 2 rem / 32 px | 400 ; interligne 1,35 ; largeur max. 32 caractères environ |
+| H2 | 1,75 rem / 28 px | 2 rem / 32 px | 2,5 rem / 40 px | 800 ; interligne 1,2 ; approche −0,02 em |
+| H3 | 1,25 rem / 20 px | 1,375 rem / 22 px | 1,5 rem / 24 px | 600 ; interligne 1,3 |
+| Corps | 1 rem / 16 px | 1 rem / 16 px | 1,125 rem / 18 px | 400 ; interligne 1,65 ; max. 65 caractères par ligne |
+| CTA et bascule | 1 rem / 16 px | 1 rem / 16 px | 1 rem / 16 px | 600 ; interligne 1,4 ; casse de phrase |
+| Mentions et footer | 0,875 rem / 14 px | 0,875 rem / 14 px | 0,875 rem / 14 px | Inter 400 ; interligne 1,6 |
+| Libellés courts | 0,8125 rem / 13 px | Identique | Identique | Mono ; texte secondaire, jamais atténué par opacité |
 
-Motif décoratif : remplace le quadrillage géométrique du parti pris précédent (qui évoquait la rigueur technique) par un **tracé organique évoquant le veinage du bois** — lignes courbes fines et irrégulières, superposées, dans `--color-wood-alt` à faible opacité sur le fond `--color-wood` : léger, vectoriel (SVG), sans photographie ni texture bitmap. Ce motif reste réutilisable comme le « visuel neutre » exigé pour la carte Créa’Tif du bloc Réalisations (spécification produit § 3, décision déjà actée que cette révision ne rouvre pas) — un seul système graphique pour les deux usages, mais un langage visuel entièrement renouvelé : veinage de bois organique plutôt que grille de points géométrique, pour que la carte Créa’Tif elle-même porte la nouvelle ambiance.
+Les équivalents px supposent une base navigateur de 16 px ; exprimer les tailles de texte en unités relatives, sans verrouiller la préférence utilisateur. H2 courts (« À propos », « Réalisations », « Ce que je fais ») peuvent être affichés en capitales ; **« Discutons de votre projet » reste en casse de phrase**, comme l'accroche et les CTA. Pas d'interlettrage excessif appliqué au texte courant. Autoriser les retours naturels, notamment entre prénom et nom ; aucun titre forcé sur une seule ligne.
 
-Disposition inchangée : deux colonnes à partir de 1024px (texte à gauche, motif à droite, environ 55/45), une seule colonne empilée en dessous, motif déplacé après le texte ou réduit à un bandeau en bas de hero en mobile — le H1 reste la première chose lue, comme avant.
+##### 4. Grille, espaces et surfaces
 
-##### Texture du bois — grain et veinage, précision du 20 septembre 2026
+- Conteneur commun : **1 200 px maximum**. Marges extérieures : 16 px sous 768 px, 24 px de 768 à 1023 px, au moins 32 px dès 1024 px, centrage au-delà. Les titres, filets, cartes et footer partagent cet axe.
+- Grille de composition : 12 colonnes desktop, 8 tablette, une colonne de lecture mobile. Gouttières : 32 / 24 / 16 px. Les colonnes sont des repères d'alignement, pas des blocs visibles.
+- Échelle d'espacement : 4, 8, 12, 16, 24, 32, 48, 64, 96, 128 px. Les 4/8/12 servent aux détails ; 16/24/32 aux groupes ; 64/96/128 au rythme vertical.
+- Entre sections : 64 px mobile, 96 px tablette, 128 px desktop. Titre → texte : 24 px ; paragraphes : 16 px ; texte → CTA : 24 px. Un filet de 1 px peut marquer une limite de section, sans cumuler deux énormes marges de part et d'autre.
+- Cartes : bordure décorative 1 px ; rayon **2 px** ; padding **20 px mobile, 24 px tablette, 32 px desktop**. Les 20 px sont une subdivision de la base 4 px.
+- Boutons : rayon **4 px**, padding horizontal 24 px, vertical au moins 12 px, hauteur minimale 48 px mais **jamais hauteur fixe**. Pas de pilules, d'ombres flottantes ou d'élévation au survol.
+- Pas de fond grainé, de transparence derrière du texte, de cadre arrondi autour de toute la page, ni de hauteur de section calée sur le viewport. Les contenus longs déterminent la hauteur.
 
-**Réponse à l’observation de QA du 19 septembre et à la précision de Simon du 20 septembre (voir décision ci-dessus) : le fond bois doit se lire comme une matière, pas comme un aplat — et cela vaut sur tous les blocs en fond bois, pas seulement le hero.** Deux couches, un seul vocabulaire graphique :
+##### 5. Traitement précis des sections conservées
 
-1. **Grain de fond (nouveau) — une tuile SVG répétée, posée sur chaque bloc en fond bois** (Hero, À propos, Contact, pied de page — tous les blocs en `--color-wood` ou `--color-wood-alt`, pas seulement le hero). Motif : trois lignes ondulées horizontales par tuile, tracées dans un ton dédié `--color-wood-grain` (voir Palette ci-dessus), `stroke-linecap: round` — même vocabulaire de courbes que le motif du hero existant, pour rester un seul système graphique. Taille de tuile : `160 × 96px`. Densité : une ligne principale (`stroke-width: 2px`, opacité `55%`) et deux lignes secondaires plus fines (`stroke-width: 1px`, opacité `35%`) — même principe de hiérarchie que le motif hero actuel (`.motif__veine` / `.motif__veine--fine`), densité doublée. Raccord de tuile : chaque ligne entre et sort à la même hauteur à gauche et à droite (déjà pratiqué dans le motif hero), pour un raccord invisible à la répétition horizontale ; décaler légèrement l’origine du motif entre deux blocs consécutifs pour éviter un effet de grille trop régulier verticalement.
-2. **Motif du hero (existant, conservé comme illustration focale)** : le tracé plus grand (vagues et nœud, `.hero__motif`) reste réservé au hero et à sa reprise sur la carte Créa’Tif — l’élément décoratif ponctuel, pas la texture ambiante. Il passe du ton `--color-wood-alt` au nouveau `--color-wood-grain`, pour la même raison de lisibilité (voir plus bas) ; sa disposition, sa réutilisation et son statut décoratif (`aria-hidden`, aucune information portée) restent inchangés.
+**Hero.** Un court rail utilitaire en haut accueille uniquement la bascule alignée à droite du conteneur ; ce n'est pas une nouvelle barre de navigation. Rail dans le flux, non fixe, padding vertical 16 px. Aucun logo dérivé de « GR. LV. », onglet applicatif ou indicateur d'état ajouté. Le lien d'évitement existant reste le premier accès clavier.
 
-**Choix technique pour l’Implémentation : un pattern SVG tuilé (`<pattern>` en `background-image`, encodé en data-URI CSS), pas une image bitmap ni un fichier séparé à charger — aucun poids réseau supplémentaire, conforme à la contrainte de performance déjà actée.** Une classe utilitaire commune (par exemple `.fond-bois` / `.fond-bois-alt`) porte ce `background-image` en plus de la couleur de fond déjà en place ; elle s’applique à chaque bloc concerné, sans dupliquer le motif dans le balisage de chaque page.
+Sous ce rail : sur-titre métier existant → nom « Simon COSTA » → accroche existante → CTA « Discutons de votre projet » → disponibilité. Espaces : 16 px entre sur-titre et nom, 24 px entre nom et accroche ; 24 px avant CTA, 12 px avant disponibilité. Départ du contenu après le rail : 32 px mobile, 48 px tablette, 64 px desktop. Après le hero, laisser 64 / 96 / 128 px selon le format.
 
-**Pourquoi le motif actuel se lisait « de justesse » (calcul à l’appui) : le nouveau ton corrige la cause, pas seulement l’opacité.** `--color-wood-alt` sur `--color-wood` ne donne qu’un contraste de **1,22:1** — les deux tons sont trop proches en luminosité pour qu’un tracé dans cette seule paire se voie franchement, quelle que soit son opacité. Le nouveau `--color-wood-grain` porte ce contraste à **1,41:1** sur `--color-wood` (**1,16:1** sur `--color-wood-alt`) : toujours discret — ce n’est pas un motif graphique appuyé, c’est un grain — mais nettement plus présent, combiné à une densité de traits doublée.
+Dès 1024 px, le nom utilise la largeur disponible ; sous lui, répartir l'accroche sur 8 colonnes et le groupe CTA/disponibilité sur 4, aligné au début de l'accroche. Sous 1024 px, empiler selon l'ordre de lecture ci-dessus. À 320/375 px, le CTA prend la largeur utile et peut passer sur deux lignes. La disponibilité demeure du texte, pas une pastille de synchronisation. **Retirer la grande composition boisée à droite sans lui substituer un panneau vide ou un faux dashboard.** Le hero est complet sans photo ; aucune photo, aucun faux emplacement visible ne sont ajoutés. La possibilité d'une photo future reste hors de cette passe.
 
-**Accessibilité — recalcul avec la texture, pas seulement la couleur de fond moyenne.** Cas le plus défavorable : un trait de veinage à pleine opacité passe directement derrière du texte crème. Contraste `--color-cream` sur `--color-wood-grain` à `100%` d’opacité : **9,69:1** — plus du double du seuil AA (4,5:1), alors même que ce cas reste exceptionnel puisque les traits restent fins (1–2px) et espacés (tuile de 96px de haut). Aux opacités réellement prévues (35–55%), le contraste réel mesuré reste au-dessus de **10,3:1**. Cette valeur devient, pour les blocs désormais texturés, le cas de référence à vérifier — elle remplace le pire cas implicite de la section Accessibilité ci-dessous.
+**À propos.** Conserver les trois paragraphes. Desktop : H2 dans 4 colonnes et texte dans 8, limité à 65 caractères par ligne ; tablette/mobile : H2 puis texte. Aucun encart de statistiques ou portrait fictif. Section ouverte sur fond de page, sans transformer chaque paragraphe en carte.
 
-**Cohérence avec Créa’Tif.** Le grain reste un jeu de lignes ondulées dans la famille brun-bois déjà actée (`--color-wood-grain` en dérive directement, même teinte que `--color-wood`/`--color-wood-alt`, seulement plus clair) — aucune parenté avec la palette ivoire/cuivre/sauge/sable/pêche de Créa’Tif, ni avec un motif floral, artisanal ou photographique. Motif procédural (SVG), toujours dessiné, jamais une photo ou une texture bitmap achetée — contrainte déjà actée, non rouverte.
+**Réalisations.** Conserver l'introduction, la seule entrée Créa’Tif, son titre, sa mention « Démonstration », son texte complet et son lien « Voir la démo ». Carte pleine largeur ; dès 1024 px, visuel neutre à gauche (environ 40 %) et contenu à droite ; en dessous, visuel puis contenu. Ne pas réserver une case vide pour un deuxième projet ni inventer une réalisation. Pas de titre tronqué ou de nombre de lignes maximal.
 
-##### Boutons et appel à l’action
+Le visuel neutre reste conforme à la décision P06 : **aucune photographie ni capture de Créa’Tif**. Remplacer son habillage boisé par une seule composition éditoriale décorative au format 16:9 : fond alternatif, deux rectangles de surface décalés, un filet vertical et un petit trait d'accent horizontal de 48 px. Pas de faux texte, de barre d'outils, de graphique, de vignette « image manquante » ou de capture de Grand Livre. Ce cadre n'est pas une preuve du rendu du projet ; le vrai titre et le statut de concept restent hors illustration. La preuve consultable reste le lien vers la démo. Décor ignoré des technologies d'assistance ; pas de traitement animé.
 
-Un seul style de bouton, mais à **deux rendus selon le fond qui l’accueille** — parce que l’anthracite ne fonctionne jamais directement sur le bois (voir Palette) :
+**Ce que je fais.** Conserver les quatre prestations : Site vitrine, Refonte de pages, Application web, Mise en ligne, leurs descriptions et le socle technique. Grille 2 × 2 dès 768 px ; une colonne en dessous. Cartes sobres sur surface, titres alignés en haut, pas de pictogrammes de jauges ou de faux boutons. Le socle technique reste un texte sous la grille, pas un nuage de badges. Cartes non interactives : aucun effet de clic ou de survol.
 
-- **Sur fond crème** (à l’intérieur d’une carte) : fond `--color-accent`, texte `--color-cream`, poids 700.
-- **Sur fond bois** (Hero, Contact, pied de page) : fond `--color-cream`, texte `--color-accent` — mêmes deux couleurs, rôles inversés.
-- Survol et appui : `--color-accent-dark` remplace `--color-accent` en fond crème ; `--color-cream-dark` remplace `--color-cream` en fond bois — même mécanique dans les deux cas, transition `background-color .2s ease`.
-- Forme : coins très arrondis (`--radius-btn` 999px, effet pilule) au lieu des 8px techniques du parti pris précédent — la forme, autant que la couleur, doit se lire comme chaleureuse. Hauteur minimale `--btn-height` 52px (au-dessus de la cible tactile recommandée 44–48px), pas fixe — important pour le zoom 200 %.
-- Un bouton secondaire (texte seul, souligné au survol, dans la couleur de texte du fond qui l’accueille — crème sur bois, anthracite sur crème) peut exister pour un lien de second plan (« Voir la démo », retour en haut de page), sans jamais avoir le même poids visuel que le CTA principal — aucun CTA secondaire ne doit rivaliser avec le CTA de contact (critère produit déjà acté, non rouvert par cette révision).
+**Contact.** Conserver H2, introduction, bouton « M'écrire par e-mail » et adresse affichée. Surface alternative dans les deux thèmes, un filet supérieur et padding 32 px mobile / 48 px tablette / 64 px desktop. Texte limité à 65 caractères ; CTA sous le texte, avec espace 24 px. Ne pas transformer le bloc clair en bandeau noir isolé : la cohérence appartient au thème global. À moins de 768 px, bouton pleine largeur disponible. Adresse copiable, retour à la ligne autorisé si nécessaire, jamais ellipsis. Pas de formulaire, calendrier, réservation ou second canal de contact inventé.
 
-##### Composition et rythme des blocs
+**Footer.** Fond de page et filet supérieur ; padding vertical 32 px mobile / 48 px desktop. Identité et mentions légales existantes à gauche, retour en haut à droite lorsque la largeur suffit ; sinon empilement avec 24 px d'écart. Les mentions restent du vrai texte lisible à 14 px équivalents minimum, sans accordéon ni opacité réduite. L'adresse des mentions légales reste du texte simple conformément à la décision produit ; ne pas ajouter un second lien mailto.
 
-La métaphore porte la composition : la page est une pièce en bois foncé (`--color-wood`, alterné avec `--color-wood-alt` d’un bloc à l’autre pour le repère de rythme — même mécanique qu’avant, teintes différentes), et les blocs à base de grille/liste — Réalisations, Ce que je fais — sont traités en **cartes crème** (`--color-cream`, texte `--color-ink`) : ce sont les poches de lumière de la pièce, pas un simple changement de fond de section. Hero, À propos, Contact et pied de page restent en pleine page sur fond bois, texte crème, sans traitement en carte, pour que le contraste entre les deux traitements (pleine page sombre / carte claire) reste net et lisible comme un principe de composition, pas comme un accident.
+##### 6. États des actions, navigation et focus
 
-**Rayon des cartes — arbitrage demandé par l’Implémentation (commit `0b925b6`) : je fixe `--radius-carte` à `24px`, pas `16px`.** Une carte n’est pas un bouton : son rayon reste nettement inférieur aux `999px` de la pilule, pour que les deux formes restent lisibles comme deux registres différents (bouton = action, carte = contenu posé). Mais `24px` va au-delà d’un rayon de carte technique ordinaire (souvent 8–12px dans un design system générique) pour rester dans le même registre de douceur que les boutons et la typographie arrondie — c’est aussi les trois quarts du padding interne de la carte (`--space-4`, 32px), une proportion qui évite qu’un coin paraisse plus anguleux que l’espace qui l’entoure. Le rayon du visuel neutre intérieur (`calc(var(--radius-carte) - 6px)`, déjà posé par l’Implémentation) reste cohérent avec cette valeur : `18px`.
+| Élément | Repos | Survol | Activation et focus |
+| --- | --- | --- | --- |
+| CTA principal, hero et Contact | Fond/texte CTA du thème ; rayon 4 px | Fond « CTA survol », texte inchangé | Fond « CTA activation » pendant la pression ; anneau de focus |
+| Lien « Voir la démo », retour en haut et autres liens existants | Accent, soulignement permanent 1 px décalé de 3 px | Accent survol, soulignement 2 px sans déplacement du texte | Même couleur renforcée ; anneau au clavier ; état visité discret avec contraste conservé |
+| Bascule de thème | Fond de page, texte principal, contour de contrôle 1 px | Fond alternatif, contour conservé | Fond alternatif et libellé souligné pendant la pression ; anneau au clavier |
+| Carte de projet / service | Bordure décorative et contenu | Aucun effet sur la carte | Seul le lien réel reçoit le focus ; pas de carte entièrement cliquable ajoutée |
 
-Le bloc Réalisations garde sa structure de carte de grille dès cette version (une seule entrée aujourd’hui, Créa’Tif), conformément à la spécification produit § 2 — la carte devient crème, mais sa structure interne (visuel neutre en tête, titre, texte court, lien) ne change pas. Le bloc « Ce que je fais » reste une liste de prestations en cartes crème, en pile simple en mobile puis en grille au-delà — le nombre de colonnes reste celui déjà harmonisé dans cette même sous-section (deux colonnes fixes à partir de 768px pour les quatre prestations actuelles, le nombre suivant le nombre réel d’entrées). Cette révision ne rouvre pas ce point : elle ne change que la couleur et la texture des cartes, pas leur grille.
+Le lien de démo reste secondaire visuellement ; ne pas le convertir en deuxième gros CTA plein. Tous les libellés et destinations sont préservés. Aucune nouvelle navigation à onglets ni menu mobile ne sont demandés.
 
-##### Comportement responsive
+Focus commun : **contour continu de 3 px, décalage extérieur de 3 px** laissant un intervalle de la couleur du support. Il reste visible autour d'un bouton plein comme d'un lien. Préserver au moins 6 px libres autour du contrôle pour ne pas couper cet anneau ; aucun conteneur ne le masque. Le focus n'est jamais supprimé au profit d'une seule variation de couleur. Le lien d'évitement doit être visible quand il reçoit le focus. Cibles isolées : au moins 44 × 44 px ; CTA et bascule : au moins 48 px de haut. Espacer les cibles voisines d'au moins 8 px.
 
-Les trois paliers déjà validés par l’implémentation et par QA (`docs/QA-portfolio.md`) sont conservés à l’identique — cette révision porte sur l’ambiance visuelle, pas sur l’architecture responsive déjà vérifiée : rouvrir les seuils obligerait à une nouvelle recette complète pour un gain nul sur la demande de Simon.
+##### 7. Bascule Clair / Sombre
 
-- **≤ 640px** : une colonne partout, conteneur `--space-2` de marge, hero en pile (texte puis motif), cartes (Réalisations, Ce que je fais) en une colonne.
-- **641–1023px** : conteneur `--space-3` de marge, cartes « Ce que je fais » en une colonne jusqu’à 767px puis en 2 colonnes à partir de 768px, hero toujours en pile mais motif proportionnellement plus grand.
-- **≥ 1024px** : hero en deux colonnes, cartes « Ce que je fais » restent en 2 colonnes, `--container-max` (1200px) atteint, écarts verticaux à `--space-8`.
+**Traitement recommandé :** un seul bouton bordé, moins dominant que les CTA, largeur minimale 7 rem, hauteur minimale 48 px, sans largeur maximale bloquante. En thème clair : icône lune monochrome + **« Sombre »** ; en sombre : icône soleil + **« Clair »**. Le mot annonce donc la destination, comme dans la référence. Icône de 16 px décorative, jamais seule, pas d'emoji dépendant de la plateforme. Nom accessible explicite « Activer le thème sombre/clair », comprenant le libellé visible. Utiliser la sémantique d'un bouton à action nommée, sans mélange ambigu entre libellé de destination et état de switch.
 
-Aucune image ni carte à hauteur fixe : les cartes crème et le hero s’ajustent à leur contenu, pour éviter tout texte tronqué en cas de contenu plus long que prévu ou de zoom.
+- Position identique dans les deux thèmes et à toutes les largeurs : haut du flux, alignement à droite. Au zoom, autoriser l'agrandissement et le retour à la ligne du libellé ; aucun contrôle flottant sur les textes. Pas de duplication dans le footer.
+- Activation au clic, Entrée et Espace ; focus conservé sur le bouton. Texte, surfaces, traits et décors basculent ensemble, sans déplacement des éléments, rechargement, changement d'ancre ou perte de position de lecture.
+- **Thème initial proposé :** choix explicite mémorisé en priorité ; sinon préférence clair/sombre du système ; sinon Clair. Sans choix explicite, une évolution de la préférence système peut être suivie. Après un choix manuel, elle ne l'écrase plus.
+- Mémoriser uniquement la valeur clair/sombre, dans un stockage local propre au portfolio, jusqu'au prochain choix ou à l'effacement du stockage. Aucun compte, cookie de suivi ni synchronisation entre appareils. Ne pas modifier le thème de Créa’Tif ou d'une autre application. Si le stockage est indisponible, la bascule fonctionne pour la page courante ; au prochain chargement, appliquer le système puis Clair.
+- À l'ouverture, viser l'application du thème résolu avant affichage pour éviter un éclair blanc en mode sombre. Si JavaScript n'est pas disponible, conserver un thème lisible suivant le système et ne pas afficher un bouton inopérant. Ces comportements restent à implémenter et tester.
+- Transition de couleur/fond de 120 à 160 ms maximum, sans fondu du texte, rotation d'icône, translation ou animation d'entrée. Préférence de réduction des mouvements : bascule immédiate et défilement non animé. Aucun effet ne conditionne l'accès au contenu.
 
-##### États de focus et de survol
+##### 8. Vérification sur le papier : responsive, zoom et limites
 
-Le focus visible n’est jamais supprimé (pas de `outline: none` sans remplacement). Sa couleur s’adapte au fond qui l’entoure, pour rester lisible partout — l’anthracite ne fonctionnant pas sur le bois (voir Palette) :
+**Ce qui a été fait :** lecture des références et des contenus, calcul des contrastes ci-dessus, vérification arithmétique des largeurs utiles et définition d'un comportement de repli. **Ce qui n'a pas été fait :** aucune implémentation, maquette rendue, mesure réelle des retours de ligne, activation clavier, persistance, comparaison de thèmes ou test navigateur à 200 %. La lisibilité finale demeure à vérifier avec les polices effectivement livrées.
 
-- Sur fond crème (cartes) : `outline: 3px solid var(--color-accent); outline-offset: 2px;`.
-- Sur fond bois (Hero, À propos, Contact, pied de page) : `outline: 3px solid var(--color-cream); outline-offset: 2px;`.
-- Le survol ne repose jamais sur la couleur seule : les liens gagnent un soulignement au survol et au focus, en plus du changement de teinte, quel que soit le fond.
-- Transition courte (150–200ms, `ease`) sur les propriétés de couleur/fond uniquement, jamais sur `outline` — le focus doit apparaître instantanément.
+| Viewport CSS de référence à 100 % | Largeur utile calculée | Composition attendue |
+| --- | --- | --- |
+| 320 × 568 | 288 px (marges 16 px) | Une colonne ; nom peut revenir à la ligne ; CTA sur plusieurs lignes si besoin ; services pleine largeur ; texte intérieur d'une carte environ 246 px après padding et bordures |
+| 375 × 667 | 343 px (marges 16 px) | Même ordre ; respiration conservée ; aucun décor à droite du hero |
+| 768 × 1024 | 720 px (marges 24 px) | Hero et projet empilés ; services : deux cartes de 348 px, gouttière 24 px, contenu intérieur environ 298 px |
+| 1440 × 900 | 1 200 px (marges résultantes 120 px) | Hero 8/4, À propos 4/8, projet horizontal 40/60, services 2 × 2 |
 
-##### Accessibilité — valeurs vérifiables
+Ces largeurs sont des hypothèses de grille à zoom 100 %, pas des mesures du site. Elles sont compatibles sur le papier avec les textes extensibles, mais **ne garantissent pas un nombre exact de lignes**. Ne pas réduire les polices pour tenir dans un premier écran. Sur une petite hauteur, le défilement naturel est accepté : nom, activité et accroche précèdent l'action ; rien n'est masqué pour forcer le CTA au-dessus de la ligne de flottaison.
 
-Tous les ratios ci-dessous sont calculés selon la formule de luminance relative du WCAG (sRGB linéarisé), à recontrôler avec un outil de contraste une fois les vraies couleurs de rendu (écran, gamma) en place :
+**Zoom 200 % :** conserver la taille de texte relative, supprimer toute hauteur fixe, autoriser les retours de ligne des titres, CTA, bascule, e-mail et mentions. La composition se replie selon la largeur CSS effective, pas selon une étiquette « appareil desktop ». À titre d'anticipation, une fenêtre offrant 1440 px à 100 % offre environ 720 px CSS à 200 %, 768 environ 384 ; les cas 375/320 peuvent devenir bien plus étroits. Ne pas poser de largeur minimale de page à 320 px : dessous, conserver une colonne, réduire les paddings des cartes à 12 px et les marges extérieures à 12 px si nécessaire, laisser les mots très longs se couper en dernier recours. Aucun masquage par débordement pour dissimuler un problème. Le résultat précis dépend du navigateur et devra être mesuré, pas présumé.
 
-- Texte crème sur fond bois (sans texture) : **13,67:1**. Texte crème sur fond bois-alt (sans texture) : **11,25:1**. Avec la texture de grain (précision du 20 septembre 2026 ci-dessus) : pire cas mesuré **9,69:1**, cas réel aux opacités prévues au-dessus de **10,3:1** — voir « Texture du bois » pour le détail.
-- Texte ink sur carte crème : **14,51:1**.
-- Accent (boutons/liens) sur crème : **10,84:1** ; état survol/appui (accent-dark) sur crème : **13,54:1**.
-- Crème (bouton inversé sur bois) sur bois : **13,67:1** ; état survol/appui (cream-dark) sur bois : **11,50:1**, sur bois-alt : **9,47:1**.
-- Tous ces couples dépassent largement le seuil AA (4,5:1 texte courant, 3:1 grand texte/UI) — aucun n’est un minimum juste atteint.
-- Hiérarchie de titres : un seul H1, un H2 par bloc, H3 pour les sous-entrées, aucun niveau sauté.
-- Focus : jamais supprimé, contour 3px toujours visible, couleur adaptée au fond (voir États de focus).
-- Zoom 200 % : aucune hauteur fixe (`min-height`, pas `height`, sur les boutons et les cartes), aucun `overflow: hidden` sur un conteneur de texte, largeur de paragraphe en unités relatives (`ch`/`rem`).
-- Cible tactile : 52px de hauteur minimale sur les boutons, au-dessus de la cible recommandée (44–48px).
-- Mouvement : le motif décoratif du hero est statique par défaut ; toute animation éventuelle respecte `prefers-reduced-motion`.
+Exigences de recette future, **dans les deux thèmes**, sur les quatre viewports ci-dessus puis au zoom natif 200 % dans les mêmes fenêtres : aucun texte tronqué, aucun chevauchement, aucune perte de contrôle ni défilement horizontal de la page ; ordre visuel et clavier cohérent ; focus entier et visible ; coordonnées copiables ; mentions intégrales. Compléter par l'agrandissement du texte seul à 200 % si disponible, et vérifier que les préférences de taille/interlignage ne coupent pas le contenu. Références : [WCAG — redimensionnement du texte](https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html), [redistribution du contenu](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html). Le zoom 200 % demandé ici ne constitue pas, à lui seul, une certification de tous les critères WCAG.
 
-##### Remarque sur les décisions déjà actées
+##### 9. Décisions restantes et passage à l'implémentation
 
-Rien, dans les points déjà tranchés et non rouverts par cette révision (structure et ordre des blocs, contenu textuel, CTA de contact unique, mentions légales, double cible freelance/employeurs), ne me paraît incompatible avec cette nouvelle ambiance boisée et cocooning — je le dis explicitement plutôt que d’inventer une objection. Un point mérite d’être signalé au Chef de projet sans que je le tranche moi-même : la mention légale de l’hébergeur et le lien « Voir la démo » vers Créa’Tif se liront désormais dans une ambiance sombre et feutrée plutôt que sobre et technique — cela ne change rien à leur contenu ni à leur fonction, mais si le pied de page devait un jour porter davantage de mentions, leur lisibilité sur fond bois foncé devra être vérifiée au cas par cas plutôt que supposée.
+**Simon doit confirmer la proposition d'ensemble**, en particulier ces trois choix recommandés :
 
-Je n’ai pas non plus réécrit la section « Résolution du conflit avec `shared/design-system/tokens.css` » de la version précédente : le portfolio reste autoportant (voir la note d’implémentation de `sites/portfolio/css/style.css`), sans dépendance à ce fichier partagé ; ma proposition de réorganisation de `shared/` reste valable mais n’est pas réactivée par cette révision de l’ambiance.
+1. **Palette neutre et accent vert minéral**, CTA neutres inversés entre les thèmes, plutôt qu'une déclinaison bois ou un CTA coloré.
+2. **Inter + IBM Plex Mono, hero uniquement typographique**, et composition neutre éditoriale pour Créa’Tif, sans capture ni photo.
+3. **Initialisation sur le système, puis priorité au choix mémorisé**, avec bouton indiquant le thème à activer.
+
+L'abandon du bois, l'existence de deux thèmes et la conservation du contenu sont déjà demandés : ce ne sont pas des arbitrages à rouvrir. La réorganisation historique de `shared/design-system/` reste un sujet d'architecture distinct, non activé ni tranché par cette proposition ; isoler visuellement le portfolio suffit au périmètre présent. Les modalités techniques de chargement des polices et de résolution initiale du thème appartiennent à l'implémentation, sous réserve des résultats attendus ci-dessus.
+
+Après accord de Simon : le Chef de projet peut transmettre un brief d'implémentation borné à cette direction. La validation du **brief** ne vaudra pas validation du **rendu** : une mission aval séparée devra identifier un commit précis et examiner les deux thèmes réellement affichés, les viewports, le zoom et les états interactifs. La validation finale du rendu et toute autorisation de publication restent à Simon. Aucun code, asset, réglage d'hébergement ou rapport de revue n'est modifié dans cette intervention.
 
 ## Sites
 
