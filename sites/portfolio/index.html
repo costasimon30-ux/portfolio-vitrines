@@ -161,16 +161,18 @@
 
       <ul class="grille-projets">
         <li class="carte carte-projet">
-          <!-- Composition éditoriale décorative, conforme à la décision P06 :
-               ni photographie ni capture du site présenté. Elle ne prouve rien
-               du rendu du projet ; la preuve reste le lien vers la démo. -->
-          <div class="visuel-projet" aria-hidden="true">
-            <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" role="presentation" focusable="false">
-              <rect class="visuel__bloc" x="36" y="30" width="148" height="56"></rect>
-              <rect class="visuel__bloc" x="84" y="72" width="164" height="62"></rect>
-              <line class="visuel__filet" x1="268" y1="24" x2="268" y2="156"></line>
-              <line class="visuel__accent" x1="36" y1="150" x2="84" y2="150"></line>
-            </svg>
+          <!-- Aperçu réel de Créa'Tif, conforme à l'arbitrage produit du
+               23 septembre 2026 (docs/DIRECTION.md) qui déroge, pour ce seul
+               emplacement, à la décision P06 d'origine : capture honnête du
+               hero d'accueil de la démo, deux cadrages de la même prise
+               (3:2 à 1024px pour mobile, 16:9 à 1200px pour desktop), aucune
+               retouche, aucun filtre, aucun faux cadre de navigateur. Détails
+               de provenance et de cadrage dans assets/images/NOTICE.md. -->
+          <div class="visuel-projet">
+            <picture>
+              <source media="(min-width: 1024px)" srcset="assets/images/creatif-hero-desktop-16-9.webp">
+              <img src="assets/images/creatif-hero-mobile-3-2.webp" width="720" height="480" alt="Bandeau d’accueil de Créa’Tif : le titre « Le geste juste, pour chaque histoire de cheveux » à côté d’une coupe aux ciseaux, peigne en main." loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="carte-projet__corps">
             <p class="libelle">Démonstration</p>

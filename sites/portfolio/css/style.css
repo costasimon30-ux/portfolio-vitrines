@@ -499,22 +499,21 @@ a:visited:hover { color: var(--c-accent-actif); }
 .carte-projet__corps h3 { margin-top: var(--e-04); }
 .carte-projet__lien { margin-top: var(--e-04); }
 
-/* Visuel éditorial neutre — décision P06 : aucune photographie ni capture de
-   Créa'Tif, et aucune capture d'une autre application. Composition décorative
-   au format 16:9, ignorée des technologies d'assistance, sans animation. Ce
-   cadre ne prouve rien du rendu du projet : la preuve reste le lien vers la
-   démo. */
+/* Aperçu réel de Créa'Tif (arbitrage du 23 septembre 2026, docs/DIRECTION.md) :
+   filet neutre de 1px, sans fond visible une fois l'image chargée. Cadre 3:2
+   par défaut (capture à 1024px, carte mobile) ; 16:9 à partir de 1024px de
+   large (capture à 1200px, carte desktop), où .carte-projet passe en deux
+   colonnes ci-dessous. background-color reste un simple aplat de secours
+   avant chargement, pas un habillage décoratif. */
 .visuel-projet {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
   background-color: var(--c-surface-alt);
   border: 1px solid var(--c-filet);
   border-radius: var(--rayon-carte);
   margin-bottom: var(--e-16);
 }
-.visuel-projet svg { width: 100%; height: 100%; }
-.visuel__bloc { fill: var(--c-surface); }
-.visuel__filet { stroke: var(--c-filet); stroke-width: 1; }
-.visuel__accent { stroke: var(--c-accent); stroke-width: 3; stroke-linecap: butt; }
+.visuel-projet img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ---------- 09. Ce que je fais ---------- */
 
@@ -680,5 +679,5 @@ a:visited:hover { color: var(--c-accent-actif); }
     gap: var(--e-32);
     align-items: start;
   }
-  .visuel-projet { margin-bottom: 0; }
+  .visuel-projet { aspect-ratio: 16 / 9; margin-bottom: 0; }
 }
