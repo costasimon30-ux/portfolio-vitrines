@@ -66,3 +66,38 @@ Le CTA du haut de page (« Discutons de votre projet », ancre vers #contact) et
 - **Contenu du placeholder (mentions légales) :** je n'ai pas jugé le texte du placeholder lui-même, seulement sa présentation visuelle (voir 1.2).
 
 Agent: claude-ui-ux
+
+
+---
+
+# Revue visuelle indépendante — « Clarté et structure » (23 septembre 2026)
+
+**Commit audité :** `a23cc25065b17869246acff4c6857b5413a9132e` (checkout isolé exact). **Référence :** validation produit et sous-section « Direction artistique » du portfolio dans [DIRECTION.md](DIRECTION.md). Ancienne revue ci-dessus : état historique, non applicable à cette livraison.
+
+**Méthode :** assemblage local `node scripts/assemble-site.mjs portfolio --environment preview`, serveur statique local, inspection du rendu dans Chromium. Thèmes Clair et Sombre observés à 320×568, 375×667, 768×1024 et 1440×900 px ; sections parcourues jusqu'au footer. La page 404 assemblée a été ouverte directement. L'URL publique n'a pas servi à juger ce commit ; aucun compte rendu de l'implémenteur n'a été utilisé.
+
+## Verdict
+
+**Conforme avec réserves.** L'ensemble transpose les références Grand Livre en langage éditorial sobre : grandes surfaces mates, nom très affirmé, sur-titre mono, filets et cartes fins, accent vert rare. Aucun graphique, montant, onglet ou faux état applicatif n'apparaît. Le portfolio conserve une expression professionnelle propre à une présentation freelance. **Aucune correction visuelle indispensable identifiée sur les écrans observés.** La validation esthétique finale revient à Simon. La recette du zoom natif à 200 % et des survols reste ouverte, sans être qualifiée ici de réussie.
+
+## Constats visuels vérifiés
+
+- **Accueil / deux thèmes / 320, 375, 768 et 1440 px :** le nom, l'activité, l'accroche et le CTA restent hiérarchisés et lisibles ; CTA pleine largeur sur mobile, composition 8/4 sur desktop, section À propos alignée et texte non tronqué. Le sur-titre revient sur deux lignes à 320 px sans collision. Aucun débordement horizontal constaté aux quatre largeurs (largeur document = viewport mesuré).
+- **Réalisations et services / deux thèmes / 320–1440 px :** la carte unique Créa’Tif occupe la largeur prévue, avec composition neutre en tête sur mobile et à gauche sur desktop ; mention « Démonstration », titre, avertissement de salon fictif et lien demeurent visibles. Les quatre services passent de 1 colonne à 320/375 à 2 colonnes à 768/1440, sans orphelin.
+- **Contact et footer / deux thèmes / 320, 768 et 1440 px :** bandeau alternatif distinct du fond, CTA fortement lisible, adresse affichée et mentions légales présentes. À 320 px l'adresse et le texte se replient ; à 1440 px le retour en haut reste à droite. Le footer demeure lisible malgré la taille plus discrète de ses mentions.
+- **404 / Clair et Sombre / 375×667 px :** titre, explication, retour à l'accueil et signature lisibles ; le thème choisi sur l'accueil est repris. L'absence de bascule sur cette page, le nouveau favicon (trois traits sur carré anthracite) et la casse de phrase des H2 respectent les arbitrages produit ; aucun défaut concret relevé sur ces trois points.
+- **Focus / thème Clair / 1440 px :** tabulation sur le CTA hero : anneau extérieur bleu continu et non rogné. La bascule change bien de thème au clic, à Entrée et à Espace, conserve son focus et annonce le thème à activer. Ces observations d'interaction sont des contrôles QA ponctuels, pas une certification de l'ensemble du parcours clavier.
+
+## Réserve esthétique et arbitrage Simon — préférence, non défaut de conformité
+
+**Accueil > Réalisations / deux thèmes / 320 et 1440 px / gravité faible.** La vignette de Créa’Tif (deux rectangles et deux traits) lit davantage comme un placeholder graphique que comme une preuve visuelle du site ; en sombre à 320 px, ses deux formes se fondent presque dans la surface. Le titre, la mention de concept et le lien compensent ce manque : on comprend ce qui est présenté, mais la carte vend moins immédiatement la qualité de la réalisation. **Ce traitement a été explicitement approuvé dans DIRECTION.md (P06 : ni photo ni capture), donc aucune modification n'est exigée de l'implémenteur.** Si Simon souhaite plus tard une preuve visuelle directe, il doit d'abord rouvrir cet arbitrage ; sinon conserver la composition actuelle.
+
+## Contrôles non validés — QA distincte de l'avis visuel
+
+- **Zoom navigateur natif à 200 % : non vérifié.** L'interface de contrôle du chrome natif n'a pas permis de confirmer un niveau de zoom de 200 %. Les essais de largeur responsive ne le remplacent pas. Faire une recette manuelle Clair/Sombre à 200 % sur 320, 375, 768 et 1440 px : reflow, aucun défilement horizontal, texte/CTA/footer/404/focus entièrement visibles.
+- **Survol réel des liens et boutons : non conclu.** Focus clavier observé, mais pas de comparaison visuelle fiable repos/survol sur CTA, bascule, lien de démo et retour haut. À reprendre par QA à la souris dans les deux thèmes ; ne pas présenter leurs états hover comme validés par cette revue.
+- **Thème initial selon préférence système, stockage indisponible, sans JavaScript, et vrai statut HTTP 404 sur hébergement : non testés.** La persistance du choix a seulement été vue lors d'un changement de page local ; le serveur statique ne simule pas l'hébergeur.
+
+**Suite proposée au Chef de projet :** confier uniquement les contrôles QA manquants à l'agent QA ou à Simon, puis lui soumettre l'arbitrage facultatif de la vignette. Ne lancer ni refonte ni déploiement sur la base de cette revue.
+
+Agent: claude-ui-ux
