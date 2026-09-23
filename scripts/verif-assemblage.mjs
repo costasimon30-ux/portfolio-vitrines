@@ -729,6 +729,35 @@ async function principal() {
     return "script référencé mais non publié";
   });
 
+  /* Une data-URI embarque son contenu : aucune requête réseau, aucun tiers,
+     aucun fichier à retrouver dans la sortie. Un contrôle par schéma la prenait
+     pour une ressource distante et refusait l'assemblage du portfolio, dont le
+     grain de fond bois est un motif SVG inline (docs/DIRECTION.md, « Texture du
+     bois », commit 02b0665). Les deux assertions vont ensemble : la seconde
+     garde le contrôle qui, lui, doit rester en place. */
+  await test("accepté : data-URI en url() CSS, refus maintenu pour un vrai tiers", async () => {
+    const d = await preparerCopie("depot-ref-data-uri");
+    const tuile = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M0 4h8' stroke='%234A3324'/%3E%3C/svg%3E";
+    await fixtureSite(d, "fixture-data-uri", {
+      index: corpsPage(`<link rel="stylesheet" href="a.css"><p>x</p>`),
+      extra: { "a.css": `body{background-image:url("${tuile}")}\n` },
+      manifeste: { publicFiles: ["a.css"] },
+    });
+    const r = await assembler(d, "fixture-data-uri", ["--environment", "production"]);
+    affirmer(r.code === 0, `data-URI refusée à tort : ${(r.stderr || "").slice(0, 200)}`);
+    const css = await fs.readFile(path.join(d, "sites/fixture-data-uri/dist/a.css"), "utf8");
+    affirmer(css.includes(tuile), "la data-URI n'a pas été recopiée telle quelle");
+
+    const d2 = await preparerCopie("depot-ref-data-uri-tiers");
+    await fixtureSite(d2, "fixture-data-uri-tiers", {
+      index: corpsPage(`<link rel="stylesheet" href="a.css"><p>x</p>`),
+      extra: { "a.css": `body{background-image:url("https://example.invalid/t.svg")}\n` },
+      manifeste: { publicFiles: ["a.css"] },
+    });
+    await refus(d2, "fixture-data-uri-tiers", /chargée depuis un tiers/);
+    return "inline accepté, tiers toujours refusé";
+  });
+
   await test("accepté : apostrophe française dans un attribut valide", async () => {
     const d = await preparerCopie("depot-ref-apostrophe");
     await fixtureSite(d, "fixture-apostrophe", {

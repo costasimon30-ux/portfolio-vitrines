@@ -617,6 +617,17 @@ function estDistante(ref) {
   return /^(?:[a-zA-Z][a-zA-Z0-9+.-]*:|\/\/)/.test(ref);
 }
 
+/* Une data-URI n'est pas une référence : son contenu est déjà dans le fichier.
+   Aucune requête réseau, aucun tiers, aucun fichier à retrouver dans la sortie.
+   Le contrôle de références ne la concerne donc ni comme ressource distante —
+   ce qu'un test de schéma lui ferait conclure à tort — ni comme chemin local.
+   Elle est utilisée par le portfolio pour le grain du fond bois
+   (docs/DIRECTION.md, « Texture du bois », commit 02b0665), qui exige un motif
+   inline plutôt qu'un fichier séparé à charger. */
+function estInline(ref) {
+  return /^data:/i.test(ref);
+}
+
 /** Références d'un HTML, séparées en chargements automatiques et navigation. */
 function referencesHtml(html, etiquette) {
   const doc = analyserDocument(html);
@@ -669,6 +680,7 @@ async function controlerReferences(sortie, fichiers) {
   const problemes = [];
 
   const verifier = async (relatifSource, ref, origine, automatique) => {
+    if (estInline(ref)) return; // contenu embarqué : rien à charger, rien à résoudre
     if (estDistante(ref)) {
       if (automatique) {
         problemes.push(
