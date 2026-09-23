@@ -1,5 +1,37 @@
 # QA / Audit — portfolio
 
+## Contre-vérification ciblée — 23 septembre 2026 — source c7ace6a
+
+**Verdict actuel : PORT-05 CLOS et PORT-06 CLOS sur l’artefact local du commit c7ace6a6427698217186578add8d8f669b9d09b9.** Les 16 combinaisons demandées (2 pages × 2 thèmes × 4 largeurs) passent au clavier, avec zoom Chrome natif 200 %. Aucun défaut nouveau constaté dans la non-régression minimale. Cette conclusion ne prouve ni une publication de ce commit ni la conformité de l’URL publique ; elle n’autorise aucun déploiement. La section suivante, relative à a23cc25, conserve son verdict historique et ne décrit pas la source présente.
+
+### Source et protocole vérifiés
+
+- Commit source exact : c7ace6a6427698217186578add8d8f669b9d09b9, présent sur main au début de la passe. Clone temporaire isolé ; diff par rapport à fd763165 : seul sites/portfolio/css/style.css change. Assemblage production exécuté avec Node 24.19.0 : 14 fichiers, 135,7 Kio. Artefact servi uniquement sur 127.0.0.1:8766. La version publiée du Worker n’a pas été sollicitée.
+- Chrome : réglage réel de zoom « 200 % » dans chrome://settings/appearance (valeur 2). À 100 %, innerWidth = 320/375/768/1440 px ; à 200 %, innerWidth = 160/187/384/720 px, devicePixelRatio = 2. Les paliers 320/375 combinent un viewport émulé et le zoom natif ; les paliers 768/1440 correspondent à des fenêtres de ces largeurs. Aucun font-size ou transform CSS n’a servi d’approximation.
+- Sur chaque page et thème : premier Tab réel, lecture de document.activeElement, couleurs calculées, boîte getBoundingClientRect et contour calculé ; attente de 1,6 s pour stabiliser le défilement. Entrée sur le lien : vérification de l’URL #main **et** du focus réel sur main#main. Sur la 404 : rechargement, deux Tab réels, mesure du retour, puis Entrée vers la racine. Le contraste est recalculé à partir des couleurs rendues par la formule de luminance sRGB, indépendamment des commentaires CSS.
+
+### Matrice de clôture
+
+| Largeur initiale | innerWidth à 200 % | Clair : accueil / 404 / retour 404 | Sombre : accueil / 404 / retour 404 | Débordement horizontal |
+| ---: | ---: | --- | --- | --- |
+| 320 px, émulé | 160 px | passé / passé / passé | passé / passé / passé | aucun (scrollWidth 160) |
+| 375 px, émulé | 187 px | passé / passé / passé | passé / passé / passé | aucun (scrollWidth 187) |
+| 768 px, fenêtre réelle | 384 px | passé / passé / passé | passé / passé / passé | aucun (scrollWidth 384) |
+| 1440 px, fenêtre réelle | 720 px | passé / passé / passé | passé / passé / passé | aucun (scrollWidth 720) |
+
+**PORT-05 — CLOS sur c7ace6a.** Sur / et /404.html, premier Tab : « Aller au contenu principal » reçoit réellement le focus et conserve un contour plein de 3 px, décalé de 3 px. Clair : texte rgb(255,255,255) sur rgb(32,34,35), **15,98:1**. Sombre : rgb(27,29,30) sur rgb(244,245,243), **15,47:1**. Ces ratios, identiques aux quatre largeurs testées, dépassent 4,5:1. Entrée transfère dans les 16 cas le focus réel à main#main (et l’URL à #main). Le défaut de contraste 1,68:1 / 1,18:1 du commit précédent ne se reproduit pas.
+
+**PORT-06 — CLOS sur c7ace6a pour la matrice demandée.** L’anneau nécessite 6 px hors de la boîte (outline 3 px + offset 3 px). Sur les deux pages et thèmes : à 320 px initiaux, lien d’évitement x = 16–148 dans innerWidth 160 (marge droite 12 px) ; à 375 px, x = 16–175,5 dans 187 (marge 11,5 px). Aux paliers 768/1440, bord droit = 261,73 dans 384/720. Son bord supérieur est à 16 px : les quatre côtés gardent au moins 6 px dans le viewport. Sur /404.html à 375 px, après deuxième Tab et stabilisation, viewport 187 × 450, scrollY = 63 ; bouton « Revenir à l’accueil » x = 12–175,5 et bas = 426,19 px, soit 23,81 px de réserve en bas (> 6 px). Une contre-mesure en Chrome affiché donne bas = 425,94 px, toujours conforme. L’anneau calculé reste présent et entier par cette géométrie ; Entrée renvoie à / dans les huit scénarios 404. Aucun scroll horizontal relevé.
+
+**Non-régression minimale passée.** La bascule Clair → Sombre conserve le focus sur le bouton ; clic réel sur le CTA du hero → /#contact. Destinations présentes dans l’artefact : démo Créa’Tif, mailto de contact et retour #main inchangés ; retour 404 vérifié par Entrée. Aucun autre parcours n’a été rouvert.
+
+### Non testé / limites
+
+Cette passe n’a pas testé d’appareil mobile physique, Safari/Firefox, lecteur d’écran, en-têtes HTTP ou vrai statut 404 du Worker, ni la version publique de c7ace6a. Le serveur local renvoie 200 pour /404.html. Les captures Playwright au zoom utilisent la taille initiale du viewport et ne permettent pas de juger de façon fiable le bord inférieur : la conclusion de visibilité de l’anneau repose sur le focus réel, le style calculé et les coordonnées CSS mesurées après stabilisation, avec une contre-mesure Chrome affiché à 375 px. L’assemblage a utilisé Node 24.19.0, tandis que .node-version fixe 22.23.2 ; aucune équivalence de sortie entre ces runtimes n’est revendiquée. PORT-04, P06, previews, direction artistique et recette générale ne sont ni retestés ni requalifiés.
+
+---
+
+
 ## Contre-vérification ciblée — 23 septembre 2026 — source a23cc25
 
 **Verdict actuel sur les critères ciblés : non conforme.** Le reflow et les survols contrôlés passent, mais le lien d’évitement est illisible au focus dans les deux thèmes (PORT-05, majeur) et des anneaux de focus sont rognés à 320/375 px de largeur initiale avec zoom natif 200 % (PORT-06, mineur). Ces deux constats empêchent de déclarer la matrice ciblée close. Ce rapport ne vaut pas autorisation de déploiement. Les verdicts datés plus bas restent des historiques relatifs à leurs révisions et périmètres propres ; ils ne décrivent pas la révision testée ici.
