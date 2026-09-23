@@ -4,57 +4,71 @@ Ce site déclare ses propres polices dans `css/fonts.css` plutôt que d'utiliser
 `shared/design-system/fonts.css`. Ce dernier sert Cormorant Garamond et DM Sans,
 c'est-à-dire l'identité typographique de Créa'Tif, que le portfolio ne doit pas
 reprendre (critère d'acceptation n° 9 de la spécification produit). L'importer
-aurait aussi fait télécharger quatre fichiers jamais utilisés ici.
+aurait aussi fait télécharger des fichiers jamais utilisés ici.
 
-## Nunito
+Deux familles depuis la direction « Clarté et structure » (`docs/DIRECTION.md`,
+proposition `856f6f1`, validée par Simon au commit `87d2c5c`) : Inter pour les
+titres, le texte et les commandes, IBM Plex Mono pour les seuls libellés courts.
+Le contraste entre une sans-serif neutre et une monospace porte la hiérarchie.
+Elles remplacent Nunito, retirée du dépôt en même temps, qui servait l'ambiance
+boisée abandonnée.
 
-Nunito remplace Manrope depuis la refonte « boisée et cocooning » de la
-direction artistique (`docs/DIRECTION.md`, commit `c9266ab`) : le parti pris
-demande une sans-serif arrondie et chaleureuse, là où Manrope était une
-géométrique sobre au service de l'ancien registre « atelier technique ».
-Les fichiers Manrope ont été retirés du dépôt en même temps : ils n'étaient
-plus référencés nulle part.
+Le texte complet de la licence accompagne chaque famille, comme l'exige l'OFL
+pour toute redistribution : `inter/LICENSE.txt` et `ibm-plex-mono/LICENSE.txt`.
 
-- **Source :** Google Fonts (https://fonts.google.com/specimen/Nunito).
-  Fichiers WOFF2 récupérés le 19 septembre 2026 depuis le dépôt du projet
-  Fontsource, qui republie à l'identique les fichiers Google Fonts :
-  `https://raw.githubusercontent.com/fontsource/font-files/main/fonts/google/nunito/files/nunito-latin-<graisse>-normal.woff2`
-- **Auteurs :** The Nunito Project Authors (github.com/googlefonts/nunito) —
-  dessin original de Vernon Adams, poursuivi par Cyreal et Jacques Le Bailly.
-- **Licence :** SIL Open Font License, Version 1.1 (OFL-1.1).
-  Texte complet : https://scripts.sil.org/OFL
-  Vérifiée dans la table `name` de chaque fichier (identifiant 14) : elle y
-  pointe bien vers `https://scripts.sil.org/OFL`.
-- **Variantes conservées :** graisses 400, 700 et 800 (normal), sous-ensemble
-  latin. Couverture vérifiée fichier par fichier sur les caractères accentués
-  et typographiques réellement employés par la page (à â ç é è ê ë î ï ô ö ù û
-  ü œ, leurs capitales, ’ — « » …) : aucun caractère manquant, 230 glyphes par
-  fichier.
-- **Graisses vérifiées** et non supposées : `usWeightClass` vaut bien 400, 700
-  et 800, et l'épaisseur du fût du « I » croît en conséquence (82, 128 puis 155
-  unités pour 1000 unités par cadratin). Le nom interne de famille porté par
-  les fichiers Fontsource (« Nunito ExtraLight ») est un artefact de leur
-  procédé d'instanciation et n'a aucun effet : `css/fonts.css` déclare
-  lui-même la famille sous le nom `Nunito`.
-- **Fichiers et empreintes SHA-256 :**
+## Inter
+
+- **Source :** projet de l'auteur, <https://rsms.me/inter/> et
+  <https://github.com/rsms/inter>. Fichiers WOFF2 récupérés le 23 septembre 2026
+  depuis le dépôt du projet Fontsource, qui republie à l'identique les fichiers
+  publiés par Google Fonts :
+  `https://raw.githubusercontent.com/fontsource/font-files/main/fonts/google/inter/files/inter-latin-<graisse>-normal.woff2`
+- **Auteurs :** The Inter Project Authors (Rasmus Andersson et contributeurs).
+- **Licence :** SIL Open Font License, Version 1.1 (OFL-1.1), texte complet dans
+  `inter/LICENSE.txt`.
+- **Variantes conservées :** 400 (corps), 600 (H3, boutons, bascule), 800 (nom et
+  H2). Sous-ensemble latin. Aucune autre graisse n'est chargée : la famille
+  complète ne l'est jamais.
+
+## IBM Plex Mono
+
+- **Source :** <https://github.com/IBM/plex>. Fichier WOFF2 récupéré le
+  23 septembre 2026 depuis Fontsource :
+  `https://raw.githubusercontent.com/fontsource/font-files/main/fonts/google/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2`
+- **Auteurs :** IBM Corp., nom de police réservé « Plex ».
+- **Licence :** SIL Open Font License, Version 1.1 (OFL-1.1), texte complet dans
+  `ibm-plex-mono/LICENSE.txt`.
+- **Variante conservée :** 400 uniquement, sous-ensemble latin. Réservée aux
+  libellés courts en capitales (sur-titre du hero, mention « Démonstration ») —
+  jamais aux paragraphes ni aux boutons.
+
+## Vérifications faites sur les fichiers, et non supposées
+
+- **Graisses réelles :** `usWeightClass` vaut bien 400, 600 et 800 pour Inter, et
+  l'épaisseur du fût du « I » croît en conséquence (190, 267 puis 353 unités pour
+  2048 unités par cadratin). IBM Plex Mono est en 400 (fût 432 pour 1000).
+- **Couverture française :** aucun caractère manquant parmi les accentués et
+  signes typographiques employés par la page (à â ç é è ê ë î ï ô ö ù û ü œ,
+  leurs capitales, ’ — « » … €). 230 glyphes par fichier Inter, 229 pour Plex.
+- **Licence vérifiée dans la table `name`** de chaque fichier (identifiant 14),
+  et non seulement sur la page du projet.
 
 | Fichier | Octets | SHA-256 (16 premiers caractères) |
 | --- | --- | --- |
-| `nunito/nunito-400.woff2` | 16 316 | `a5906e15ceb68f73` |
-| `nunito/nunito-700.woff2` | 16 228 | `fa89300b9bbb3bd0` |
-| `nunito/nunito-800.woff2` | 16 520 | `2363d3ed037283eb` |
-
-- Ces trois graisses correspondent aux usages réels décrits par la direction
-  artistique : 400 pour le texte courant, 700 pour les boutons, sous-titres et
-  étiquettes, 800 pour les titres de niveau 1 et 2. Une seule famille est
-  utilisée : la hiérarchie se joue sur le poids, pas sur un second caractère.
+| `inter/inter-400.woff2` | 23 664 | `8909904ab6c872eb` |
+| `inter/inter-600.woff2` | 24 452 | `f9a06e79cd3a2a20` |
+| `inter/inter-800.woff2` | 24 400 | `a7d0a50f15d389ca` |
+| `ibm-plex-mono/ibm-plex-mono-400.woff2` | 14 708 | `08949f728dc52d52` |
 
 ## Note générale
 
-- Format WOFF2 uniquement, avec repli système déclaré dans `--font-base`
-  (`css/style.css`) si la police ne charge pas.
-- `font-display: swap` sur chaque `@font-face`.
+- Format WOFF2 uniquement, avec replis système déclarés dans `--font-sans` et
+  `--font-mono` (`css/style.css`) si une police ne charge pas.
+- `font-display: swap` sur chaque `@font-face` : le texte reste lisible pendant
+  le chargement, il n'est jamais masqué.
 - Aucune modification n'a été apportée aux fichiers ; seuls le renommage et le
   sous-ensemble déjà fournis par Fontsource ont été conservés.
+- Ces familles ne sont pas étendues aux démos : elles restent propres au
+  portfolio.
 - Avant d'ajouter une graisse ou une famille, vérifier sa licence et la
   documenter ici, conformément à `docs/ARCHITECTURE.md` § 2.

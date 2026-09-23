@@ -9,9 +9,12 @@
     "css/style.css",
     "assets/favicon.svg",
     "assets/fonts/NOTICE.md",
-    "assets/fonts/nunito/nunito-400.woff2",
-    "assets/fonts/nunito/nunito-700.woff2",
-    "assets/fonts/nunito/nunito-800.woff2"
+    "assets/fonts/inter/LICENSE.txt",
+    "assets/fonts/inter/inter-400.woff2",
+    "assets/fonts/inter/inter-600.woff2",
+    "assets/fonts/inter/inter-800.woff2",
+    "assets/fonts/ibm-plex-mono/LICENSE.txt",
+    "assets/fonts/ibm-plex-mono/ibm-plex-mono-400.woff2"
   ],
   "sharedFiles": []
 }

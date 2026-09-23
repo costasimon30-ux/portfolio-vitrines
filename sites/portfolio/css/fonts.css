@@ -1,7 +1,9 @@
 /*
   Polices auto-hébergées — portfolio
-  Voir assets/fonts/NOTICE.md pour la source, l'auteur et la licence
-  (SIL OFL 1.1) de chaque fichier.
+  Voir assets/fonts/NOTICE.md pour la source, les auteurs et la licence
+  (SIL OFL 1.1) de chaque famille, et assets/fonts/<famille>/LICENSE.txt pour
+  le texte complet de la licence, distribué avec les fichiers comme l'exige
+  l'OFL.
 
   Ce site déclare ses propres polices plutôt que d'utiliser
   shared/design-system/fonts.css : ce fichier partagé sert Cormorant Garamond
@@ -9,33 +11,41 @@
   reprendre (critère d'acceptation n° 9). Voir la note de mise en œuvre dans
   css/style.css.
 
-  Une seule famille, trois graisses : la hiérarchie se joue sur le poids.
-  Nunito remplace Manrope depuis la refonte « boisée et cocooning »
-  (docs/DIRECTION.md, commit c9266ab) : une sans-serif aux terminaisons
-  arrondies, pour que la rupture avec l'ancien parti pris technique se lise
-  dans la forme des lettres et pas seulement dans la couleur.
+  Deux familles depuis la direction « Clarté et structure » (docs/DIRECTION.md,
+  commits 856f6f1 et 87d2c5c), en remplacement de Nunito et de l'ambiance
+  boisée : Inter en 400/600/800 pour les titres, le texte et les commandes,
+  IBM Plex Mono en 400 pour les seuls libellés courts. Seules les graisses
+  réellement utilisées sont chargées.
 */
 
 @font-face {
-  font-family: "Nunito";
-  src: url("../assets/fonts/nunito/nunito-400.woff2") format("woff2");
+  font-family: "Inter";
+  src: url("../assets/fonts/inter/inter-400.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Nunito";
-  src: url("../assets/fonts/nunito/nunito-700.woff2") format("woff2");
-  font-weight: 700;
+  font-family: "Inter";
+  src: url("../assets/fonts/inter/inter-600.woff2") format("woff2");
+  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Nunito";
-  src: url("../assets/fonts/nunito/nunito-800.woff2") format("woff2");
+  font-family: "Inter";
+  src: url("../assets/fonts/inter/inter-800.woff2") format("woff2");
   font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("../assets/fonts/ibm-plex-mono/ibm-plex-mono-400.woff2") format("woff2");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }

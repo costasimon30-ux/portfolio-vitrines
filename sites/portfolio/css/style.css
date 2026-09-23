@@ -1,175 +1,254 @@
 /*
   Portfolio — Simon COSTA
-  Direction artistique : voir docs/DIRECTION.md § « Page portfolio » >
-  « Direction artistique » (refonte « boisée et cocooning », commit c9266ab).
-  Le parti pris précédent (« atelier technique, sobre et direct », commit
-  516b143) est remplacé intégralement : palette, typographie et formes.
+  Direction artistique : docs/DIRECTION.md § « Direction artistique » >
+  « Clarté et structure », Clair / Sombre — proposition UI/UX du commit 856f6f1,
+  validée par Simon au commit 87d2c5c.
+
+  Cette feuille remplace intégralement l'ambiance « boisée et cocooning »
+  (commits c9266ab, 02b0665, 9d6c64c) : palette, typographie, formes, texture.
+  Aucune couleur, aucun grain ni aucune surface boisée ne subsiste. Les
+  décisions bois restées ailleurs dans DIRECTION.md sont l'historique de
+  l'orientation précédente, pas une consigne à recombiner avec celle-ci.
 
   NOTE DE MISE EN ŒUVRE — pourquoi ce site n'utilise pas shared/design-system/
   Le fichier partagé shared/design-system/tokens.css porte aujourd'hui, sous des
   noms qui se veulent génériques, les valeurs réelles de la marque Créa'Tif
   (ivoire, cuivre, sauge, Cormorant Garamond, DM Sans). L'importer ici ferait
   hériter le portfolio de l'identité de Créa'Tif, ce qu'interdit le critère
-  d'acceptation n° 9 de la spécification produit.
-
-  L'agent UI/UX a proposé de réorganiser shared/ (séparer la mécanique commune
-  des valeurs de marque, renommer les jetons, scinder fonts.css). Cette
-  proposition reste valable et attend l'arbitrage de l'Architecte Front-end.
-  Elle n'est pas appliquée ici pour une raison précise : Créa'Tif est livré,
-  clos et publié, et il déclare ces fichiers partagés dans son manifeste.
-  Y toucher modifierait son artefact, donc imposerait une nouvelle autorisation
-  de publication et une nouvelle recette — pour un gain nul sur cette livraison.
-
-  Chaque site déclarant ses propres `sharedFiles`, le portfolio est simplement
-  autoportant : il ne déclare aucun fichier partagé et redéfinit ici le peu de
-  mécanique dont il a besoin.
+  d'acceptation n° 9 de la spécification produit. Le portfolio est autoportant :
+  il ne déclare aucun fichier partagé. La réorganisation de shared/ reste un
+  sujet d'architecture distinct, que cette direction n'active pas.
 
   Sommaire :
-    01. Jetons
+    01. Jetons et thèmes
     02. Base, reset, accessibilité
-    03. Conteneur et rythme des blocs
-    03 bis. Grain du bois
-    04. Boutons et liens
-    05. Hero et motif focal
-    06. À propos
-    07. Réalisations
-    08. Prestations
-    09. Contact
-    10. Pied de page
-    11. Page 404
+    03. Conteneur, grille et rythme
+    04. Rail utilitaire et bascule de thème
+    05. Boutons et liens
+    06. Hero
+    07. À propos
+    08. Réalisations
+    09. Ce que je fais
+    10. Contact
+    11. Pied de page
+    12. Page 404
+    13. Paliers responsive
 */
 
-/* ---------- 01. Jetons ---------- */
+/* ---------- 01. Jetons et thèmes ---------- */
+
+/*
+  Deux thèmes complets, pas une inversion automatique. Chaque rôle a sa valeur
+  dans chacun d'eux ; les deux jeux sont écrits en entier.
+
+  Mécanique, dans cet ordre précis :
+    1. :root porte le thème Clair — c'est le repli final.
+    2. La requête média applique Sombre quand le système le demande, SAUF si un
+       choix manuel « light » a été posé sur <html data-theme>.
+    3. :root[data-theme="dark"] applique Sombre quel que soit le système.
+  Sans JavaScript, seule l'étape 2 joue : le contenu suit le système et reste
+  lisible. Avec JavaScript, data-theme tranche.
+
+  Ratios de contraste recalculés lors de cette implémentation, et non recopiés
+  de la direction artistique (ordre : fond de page / surface / surface alt.) :
+                                    Clair                 Sombre
+    Texte principal .......... 14,64 / 15,98 / 13,60   15,47 / 13,92 / 12,18
+    Texte secondaire .......... 6,11 /  6,67 /  5,68    9,37 /  8,43 /  7,38
+    Accent .................... 6,13 /  6,69 /  5,69   10,15 /  9,13 /  7,99
+    Accent actif .............. 8,72 /  9,52 /  8,10   13,13 / 11,82 / 10,34
+    Contour de contrôle ....... 4,02 /  4,39 /  3,74    5,02 /  4,52 /  3,96
+    Focus ..................... 5,37 /  5,86 /  4,99    9,97 /  8,97 /  7,85
+    Texte CTA sur son fond (repos / survol / activation) :
+                              15,98 / 11,49 / 18,63   15,47 / 12,91 / 10,64
+
+  Le filet décoratif n'atteint pas 3:1 : il ne sert donc jamais seul à
+  identifier un contrôle, ni à signifier une sélection ou un focus.
+*/
 
 :root {
-  /* Couleurs — sept jetons, un rôle chacun, aucune valeur reprise de Créa'Tif
-     (ivoire #FBF8F2, cuivre #A84F3A/#8F3F2F, sauge #61766D, sable #E6DDD0,
-     pêche #D4A68C). La différence entre les deux sites ne tient pas à la
-     chaleur de la teinte — les deux registres sont chaleureux — mais à la
-     valeur : Créa'Tif est un intérieur clair (luminance de l'ivoire 0,941),
-     le portfolio un intérieur sombre et feutré (luminance du bois 0,013).
+  color-scheme: light;
 
-     Ratios de contraste (WCAG, luminance relative sRGB), recalculés lors de
-     cette implémentation et non recopiés de la direction artistique :
-       crème / bois ................ 13,67:1
-       crème / bois-alt ............ 11,25:1
-       ink / crème ................. 14,51:1
-       accent / crème .............. 10,84:1
-       accent-dark / crème ......... 13,54:1
-       cream-dark / bois ........... 11,50:1
-       cream-dark / bois-alt ........ 9,47:1
+  --c-fond: #F5F5F3;
+  --c-surface: #FFFFFF;
+  --c-surface-alt: #ECEDEB;
+  --c-texte: #202223;
+  --c-texte-doux: #585D60;
+  --c-accent: #2F6651;
+  --c-accent-actif: #244D3E;
+  --c-filet: #D0D3D2;
+  --c-contour: #737A78;
+  --c-focus: #245FCC;
+  --c-cta-fond: #202223;
+  --c-cta-texte: #FFFFFF;
+  --c-cta-survol: #363A3C;
+  --c-cta-actif: #111314;
 
-     RÈGLE CRITIQUE — l'accent anthracite n'est jamais posé sur le bois :
-       accent / bois ................ 1,26:1
-       accent / bois-alt ............ 1,04:1
-     Les deux sont sombres, le texte y serait illisible. L'accent ne sert donc
-     qu'à l'intérieur des cartes crème, ou inversé (fond crème, texte accent)
-     lorsqu'un bouton est posé sur le bois. */
-  --color-wood: #2B1B12;       /* fond dominant : hero, à propos, réalisations, contact */
-  --color-wood-alt: #3C2A1D;   /* même famille, pour l'alternance des blocs */
-  --color-cream: #F2E8DB;      /* texte sur bois, et fond des cartes de contenu */
-  --color-ink: #211710;        /* texte à l'intérieur des cartes crème, nulle part ailleurs */
-  --color-accent: #33302C;     /* anthracite mat : boutons, liens et focus sur crème */
-  --color-accent-dark: #221F1C;/* survol/appui de l'accent */
-  --color-cream-dark: #E4D5C1; /* survol/appui du crème quand il sert de fond de bouton */
-  /* Traits de veinage uniquement — jamais un fond de bloc. Plus clair que le
-     bois-alt : --color-wood-alt sur --color-wood ne donne que 1,22:1, trop
-     proche pour qu'un tracé s'y voie franchement quelle que soit son opacité,
-     alors que ce ton monte à 1,41:1 sur le bois (1,16:1 sur le bois-alt).
-     Toujours un grain discret, mais qui se lit. */
-  --color-wood-grain: #4A3324;
+  /* Typographie — Inter pour tout, IBM Plex Mono pour les seuls libellés
+     courts. Replis système lisibles : le texte n'est jamais bloqué. */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Typographie — une famille, trois graisses.
-     Nunito : sans-serif aux terminaisons arrondies, choisie pour que la
-     rupture avec l'ancien parti pris se lise dans la forme des lettres et pas
-     seulement dans la couleur. 400 texte courant, 700 boutons et sous-titres,
-     800 H1/H2. Voir assets/fonts/NOTICE.md. */
-  --font-base: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Échelle de tailles, en unités relatives : la préférence de taille du
+     navigateur reste respectée, rien n'est verrouillé en pixels.
+     Les valeurs changent aux paliers (voir 13). */
+  --t-h1: 2.5rem;
+  --t-accroche: 1.5rem;
+  --t-h2: 1.75rem;
+  --t-h3: 1.25rem;
+  --t-corps: 1rem;
+  --t-petit: 0.875rem;
+  --t-mono: 0.8125rem;
 
-  /* Espacements — échelle 8px, structurelle, inchangée par la refonte */
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
-  --space-5: 48px;
-  --space-6: 64px;
-  --space-7: 96px;
-  --space-8: 128px;
+  /* Échelle d'espacement 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 / 128 */
+  --e-04: 4px;
+  --e-08: 8px;
+  --e-12: 12px;
+  --e-16: 16px;
+  --e-24: 24px;
+  --e-32: 32px;
+  --e-48: 48px;
+  --e-64: 64px;
+  --e-96: 96px;
+  --e-128: 128px;
 
-  /* Layout */
-  --container-max: 1200px;
-  /* Pilule : la forme, autant que la couleur, doit se lire comme chaleureuse. */
-  --radius-btn: 999px;
-  /* Rayon des cartes, arrêté par l'UI/UX (docs/DIRECTION.md, commit 3bc8ee5)
-     après l'arbitrage demandé lors de la refonte : nettement en dessous des
-     999px de la pilule, pour que bouton et carte restent deux registres de
-     forme distincts, mais au-delà d'un rayon de carte technique ordinaire
-     (8–12px) pour tenir le même registre de douceur que les boutons et la
-     typographie arrondie. C'est aussi les trois quarts du padding interne de
-     la carte (--space-4), ce qui évite qu'un coin paraisse plus anguleux que
-     l'espace qui l'entoure. Le visuel intérieur en dérive par calcul, il suit
-     donc automatiquement toute révision de cette valeur. */
-  --radius-carte: 24px;
-  /* min-height sur les boutons, jamais height (zoom 200 %). 52px dépasse la
-     cible tactile recommandée de 44–48px. */
-  --btn-height: 52px;
-  --mesure: 38rem; /* largeur de lecture : environ 65–75 caractères */
+  /* Conteneur, gouttières et rythme vertical : redéfinis aux paliers (voir 13) */
+  --conteneur-max: 1200px;
+  --marge-ext: var(--e-16);
+  --gouttiere: var(--e-16);
+  --rythme-section: var(--e-32); /* deux sections voisines = 64px, voir 03 */
+  --carte-padding: 20px;         /* subdivision de la base 4px */
+
+  --rayon-carte: 2px;
+  --rayon-bouton: 4px;
+  --mesure: 65ch; /* largeur de lecture : 65 caractères au plus */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --c-fond: #1B1D1E;
+    --c-surface: #232628;
+    --c-surface-alt: #2C3032;
+    --c-texte: #F4F5F3;
+    --c-texte-doux: #BDC2BF;
+    --c-accent: #ABD1BE;
+    --c-accent-actif: #D1E8DD;
+    --c-filet: #42484A;
+    --c-contour: #858E8A;
+    --c-focus: #A8C8FF;
+    --c-cta-fond: #F4F5F3;
+    --c-cta-texte: #1B1D1E;
+    --c-cta-survol: #DDE2DF;
+    --c-cta-actif: #C7CFCA;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --c-fond: #1B1D1E;
+  --c-surface: #232628;
+  --c-surface-alt: #2C3032;
+  --c-texte: #F4F5F3;
+  --c-texte-doux: #BDC2BF;
+  --c-accent: #ABD1BE;
+  --c-accent-actif: #D1E8DD;
+  --c-filet: #42484A;
+  --c-contour: #858E8A;
+  --c-focus: #A8C8FF;
+  --c-cta-fond: #F4F5F3;
+  --c-cta-texte: #1B1D1E;
+  --c-cta-survol: #DDE2DF;
+  --c-cta-actif: #C7CFCA;
 }
 
 /* ---------- 02. Base, reset, accessibilité ---------- */
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* `hidden` doit l'emporter sur tout display déclaré plus bas : sans
+   JavaScript, la bascule reste masquée plutôt qu'affichée et inopérante. */
+[hidden] { display: none !important; }
+
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   /* Compense l'ancre : aucun en-tête fixe ici, une marge de confort suffit. */
-  scroll-padding-top: var(--space-3);
+  scroll-padding-top: var(--e-24);
+  background-color: var(--c-fond);
 }
 
-/* La page est une pièce en bois foncé : le fond par défaut est le bois, et le
-   texte courant le crème. Les cartes de contenu inversent ce rapport. */
 body {
   margin: 0;
-  font-family: var(--font-base);
+  font-family: var(--font-sans);
   font-weight: 400;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--color-cream);
-  /* background-color et non le raccourci : celui-ci remettrait à `none` la
-     tuile de grain posée par .fond-bois / .fond-bois-alt (voir 03 bis). */
-  background-color: var(--color-wood);
+  font-size: var(--t-corps);
+  line-height: 1.65;
+  color: var(--c-texte);
+  background-color: var(--c-fond);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Bascule de thème : seules les couleurs changent, de 140 ms, sur les
+   propriétés concernées. Aucun fondu de texte, aucune translation, aucune
+   animation d'entrée. Au premier affichage rien ne transitionne, le thème
+   étant déjà résolu avant le rendu. */
+body,
+.carte,
+.contact,
+.visuel-projet,
+.bascule {
+  transition: background-color .14s ease, border-color .14s ease, color .14s ease;
 }
 
 img, svg { max-width: 100%; display: block; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 button { font: inherit; }
 
-/* Pas de letter-spacing négatif : une police arrondie se resserre mal, et le
-   resserrement technique de l'ancien parti pris contredirait l'intention. */
-h1, h2, h3 {
-  margin: 0;
+/* Coupure de dernier recours : break-word ne coupe un mot que lorsqu'il ne
+   tient pas sur une ligne entiere. Sans cela, un mot long a grande taille
+   pousse la page horizontalement aux largeurs tres etroites (mesure a 160 et
+   187px CSS, c'est-a-dire un zoom 200 % sur un petit ecran). */
+h1, h2, h3, p, li { overflow-wrap: break-word; }
+
+h1, h2, h3 { margin: 0; }
+h1 {
+  font-size: var(--t-h1);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
 }
-h1 { font-size: clamp(2.25rem, 4vw + 1rem, 3.5rem); }
-h2 { font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem); }
-h3 { font-size: clamp(1.25rem, 1vw + 1rem, 1.5rem); font-weight: 700; }
+h2 {
+  font-size: var(--t-h2);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+h3 {
+  font-size: var(--t-h3);
+  font-weight: 600;
+  line-height: 1.3;
+}
 p { margin: 0; }
 
-/* Le focus n'est jamais supprimé, et sa couleur suit le fond qui l'entoure :
-   crème sur le bois, anthracite dans les cartes crème — l'anthracite sur le
-   bois serait invisible (1,26:1). Jamais de transition sur outline : le focus
-   doit apparaître instantanément. */
-:focus-visible {
-  outline: 3px solid var(--color-cream);
-  outline-offset: 2px;
+/* Libellé court en monospace : sur-titre métier, mention « Démonstration ».
+   Jamais un paragraphe, jamais un bouton. Couleur de texte secondaire pleine,
+   jamais une opacité réduite. */
+.libelle {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--c-texte-doux);
 }
-.carte-projet :focus-visible,
-.prestation :focus-visible,
-.sur-creme :focus-visible {
-  outline-color: var(--color-accent);
+
+/* Focus : contour continu de 3px, décalé de 3px vers l'extérieur, laissant
+   voir le support entre le contrôle et l'anneau. Jamais supprimé, jamais
+   remplacé par une simple variation de couleur, jamais mis en transition. */
+:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 3px;
 }
 
 .visually-hidden {
@@ -187,18 +266,17 @@ p { margin: 0; }
 
 .skip-link {
   position: absolute;
-  left: var(--space-2);
-  top: calc(-1 * var(--space-8));
+  left: var(--e-16);
+  top: calc(-1 * var(--e-128));
   z-index: 100;
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-cream);
-  color: var(--color-accent);
-  font-weight: 700;
+  padding: var(--e-12) var(--e-24);
+  background-color: var(--c-cta-fond);
+  color: var(--c-cta-texte);
+  font-weight: 600;
   text-decoration: none;
-  border-radius: var(--radius-btn);
-  transition: top .15s ease;
+  border-radius: var(--rayon-bouton);
 }
-.skip-link:focus { top: var(--space-2); }
+.skip-link:focus { top: var(--e-16); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -210,409 +288,373 @@ p { margin: 0; }
   }
 }
 
-/* ---------- 03. Conteneur et rythme des blocs ---------- */
+/* ---------- 03. Conteneur, grille et rythme ---------- */
 
 .container {
   width: 100%;
-  max-width: var(--container-max);
+  max-width: var(--conteneur-max);
   margin-inline: auto;
-  padding-inline: var(--space-2);
+  padding-inline: var(--marge-ext);
 }
 
-.section { padding-block: var(--space-5); }
-/* Alternance bois / bois-alt d'un bloc à l'autre : même mécanique de rythme
-   qu'avant la refonte, teintes différentes. */
-.section--alt { background-color: var(--color-wood-alt); }
+/* Rythme vertical : chaque section porte la moitié de l'écart, deux sections
+   voisines totalisent donc 64px en mobile, 96 en tablette, 128 en desktop —
+   sans cumuler deux marges entières de part et d'autre. */
+.section { padding-block: var(--rythme-section); }
 
-/* ---------- 03 bis. Grain du bois ---------- */
-
-/* Le fond bois doit se lire comme une matière, pas comme un aplat
-   (docs/DIRECTION.md, « Texture du bois — grain et veinage », commit 02b0665).
-
-   Une tuile SVG de 160 × 96px, répétée, posée en background-image par-dessus
-   la couleur de fond déjà en place : trois lignes ondulées horizontales, une
-   principale (2px, opacité 55 %) et deux secondaires (1px, opacité 35 %),
-   stroke-linecap arrondi — même vocabulaire de courbes que le motif focal du
-   hero, densité doublée. Aucun fichier à charger, aucun poids réseau : le
-   motif est encodé en data-URI.
-
-   RACCORD. Chaque ligne entre et sort à la même hauteur ET avec une tangente
-   horizontale (les deux points de contrôle de chaque extrémité sont à la même
-   ordonnée que le point qu'ils gouvernent) : la répétition est donc continue
-   en position comme en pente, sans couture visible, horizontalement comme
-   verticalement.
-
-   RACCOURCI `background` INTERDIT SUR CES BLOCS. Les fonds de bloc sont
-   déclarés en `background-color`, jamais avec le raccourci `background` : ce
-   dernier remet `background-image` à `none` et efface la tuile dès que sa règle
-   passe après celles-ci dans la feuille. Le pied de page est tombé dans ce
-   piège à la première écriture.
-
-   COULEUR EN DOUBLE. Une data-URI ne peut pas lire une variable CSS : la
-   valeur de --color-wood-grain est donc répétée en clair (%234A3324) dans les
-   deux motifs ci-dessous. Une révision de ce jeton doit être reportée ici à la
-   main — c'est le prix de la contrainte « pas de fichier séparé » du brief. */
-.fond-bois,
-.fond-bois-alt {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='96' viewBox='0 0 160 96'%3E%3Cg fill='none' stroke='%234A3324' stroke-linecap='round'%3E%3Cpath d='M0 18C42 18 42 30 84 30C122 30 122 18 160 18' stroke-width='2' opacity='.55'/%3E%3Cpath d='M0 57C34 57 34 47 68 47C114 47 114 57 160 57' stroke-width='1' opacity='.35'/%3E%3Cpath d='M0 73C48 73 48 83 96 83C128 83 128 73 160 73' stroke-width='1' opacity='.35'/%3E%3C/g%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 160px 96px;
+/* Colonnes de composition : repères d'alignement, jamais des blocs visibles.
+   Une seule colonne de lecture sous 1024px (voir 13 pour les paliers). */
+.grille {
+  display: grid;
+  gap: var(--gouttiere);
 }
-/* Origine décalée d'un bloc à l'autre : les blocs bois et bois-alt alternent,
-   donc deux blocs consécutifs ne présentent jamais la même amorce de tuile et
-   l'œil ne retrouve pas une grille régulière d'une section à l'autre. */
-.fond-bois { background-position: 0 0; }
-.fond-bois-alt { background-position: 53px 31px; }
 
-/* Texte secondaire sur fond bois : crème à opacité réduite plutôt qu'un
-   huitième jeton. 8,22:1 sur le bois, 7,01:1 sur le bois-alt — au-dessus du
-   seuil AA sur les deux fonds. La première déclaration sert de repli si
-   color-mix() n'est pas supporté : le texte est alors simplement plein. */
+.prose { max-width: var(--mesure); }
+.prose p + p { margin-top: var(--e-16); }
+
 .section__intro {
   max-width: var(--mesure);
-  margin-top: var(--space-2);
-  color: var(--color-cream);
-  color: color-mix(in srgb, var(--color-cream) 75%, transparent);
+  margin-top: var(--e-24);
+  color: var(--c-texte-doux);
 }
 
-/* ---------- 04. Boutons et liens ---------- */
+/* ---------- 04. Rail utilitaire et bascule de thème ---------- */
 
-/* Sur fond bois, un lien est crème ; dans une carte crème, il est anthracite.
-   Le survol ne repose jamais sur la couleur seule (voir .lien-discret). */
-a { color: var(--color-cream); }
-.carte-projet a,
-.prestation a,
-.sur-creme a { color: var(--color-accent); }
-.carte-projet a:hover, .carte-projet a:focus-visible,
-.prestation a:hover, .prestation a:focus-visible,
-.sur-creme a:hover, .sur-creme a:focus-visible { color: var(--color-accent-dark); }
+/* Court rail en haut du flux, dans le flux et non fixe : il n'accueille que la
+   bascule, alignée à droite du conteneur. Ce n'est pas une barre de navigation,
+   et rien n'y est ajouté. Le lien d'évitement le précède dans l'ordre clavier. */
+.rail { padding-block: var(--e-16); }
+.rail__inner {
+  display: flex;
+  justify-content: flex-end;
+}
 
+/* Bouton bordé, moins dominant que les CTA. Hauteur minimale et jamais fixe :
+   au zoom, le libellé peut grandir et revenir à la ligne. */
+.bascule {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-08);
+  /* 7rem des qu'il y a la place ; jamais plus que la largeur disponible, pour
+     qu'aucune largeur minimale de page ne soit imposee sous 320px. */
+  min-width: min(7rem, 100%);
+  min-height: 48px;
+  padding: var(--e-12) var(--e-16);
+  background-color: var(--c-fond);
+  color: var(--c-texte);
+  border: 1px solid var(--c-contour);
+  border-radius: var(--rayon-bouton);
+  font-size: var(--t-corps);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  cursor: pointer;
+}
+.bascule:hover { background-color: var(--c-surface-alt); }
+.bascule:active {
+  background-color: var(--c-surface-alt);
+  text-decoration: underline;
+}
+.bascule__icone {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Une seule icône visible : celle du thème que le bouton active. L'attribut
+   data-cible est posé par le script, en même temps que le libellé. */
+.bascule[data-cible="dark"] .bascule__icone--soleil,
+.bascule[data-cible="light"] .bascule__icone--lune { display: none; }
+
+/* ---------- 05. Boutons et liens ---------- */
+
+/* Liens : accent, soulignement permanent de 1px décalé de 3px. Au survol le
+   trait passe à 2px sans déplacer le texte (text-decoration n'occupe pas de
+   place dans le flux). L'état visité garde le contraste. */
+a {
+  color: var(--c-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+a:hover,
+a:focus-visible {
+  color: var(--c-accent-actif);
+  text-decoration-thickness: 2px;
+}
+a:visited { color: var(--c-accent); }
+a:visited:hover { color: var(--c-accent-actif); }
+
+/* CTA principal : neutre et fortement contrasté, inversé d'un thème à l'autre.
+   min-height, jamais height : le bouton grandit au zoom 200 %. Pas de pilule,
+   pas d'ombre, pas d'élévation au survol. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* min-height, jamais height : le bouton doit grandir au zoom 200 %. */
-  min-height: var(--btn-height);
-  padding: var(--space-1) var(--space-4);
+  min-height: 48px;
+  padding: var(--e-12) var(--e-24);
   border: 0;
-  border-radius: var(--radius-btn);
-  font-weight: 700;
+  border-radius: var(--rayon-bouton);
+  background-color: var(--c-cta-fond);
+  color: var(--c-cta-texte);
+  font-size: var(--t-corps);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color .2s ease, color .2s ease;
+  transition: background-color .14s ease;
 }
+/* Sous 768px, les CTA prennent la largeur utile et peuvent passer sur deux
+   lignes plutot que de deborder. Au-dela, ils reprennent leur largeur propre. */
+.hero__actions .btn,
+.contact__actions .btn { width: 100%; }
+@media (min-width: 768px) {
+  .hero__actions .btn,
+  .contact__actions .btn { width: auto; }
+}
+.btn:hover { background-color: var(--c-cta-survol); color: var(--c-cta-texte); }
+.btn:active { background-color: var(--c-cta-actif); color: var(--c-cta-texte); }
+.btn:focus-visible { color: var(--c-cta-texte); }
 
-/* Rendu par défaut : le bouton est posé sur le bois (hero, contact, 404), donc
-   il est inversé — fond crème, texte anthracite. C'est le cas des deux
-   occurrences actuelles de la page. */
-.btn--primary {
-  background: var(--color-cream);
-  color: var(--color-accent);
-}
-.btn--primary:hover,
-.btn--primary:focus-visible {
-  background: var(--color-cream-dark);
-  color: var(--color-accent);
-}
+/* ---------- 06. Hero ---------- */
 
-/* Rendu sur fond crème : mêmes deux couleurs, rôles inversés. Il s'applique
-   automatiquement à un bouton placé dans une carte, et peut être demandé
-   explicitement par `.btn--sur-creme` pour un futur bloc clair qui ne serait
-   pas une carte — le cas est spécifié même s'il n'existe pas encore. */
-.carte-projet .btn--primary,
-.prestation .btn--primary,
-.sur-creme .btn--primary,
-.btn--primary.btn--sur-creme {
-  background: var(--color-accent);
-  color: var(--color-cream);
-}
-.carte-projet .btn--primary:hover, .carte-projet .btn--primary:focus-visible,
-.prestation .btn--primary:hover, .prestation .btn--primary:focus-visible,
-.sur-creme .btn--primary:hover, .sur-creme .btn--primary:focus-visible,
-.btn--primary.btn--sur-creme:hover, .btn--primary.btn--sur-creme:focus-visible {
-  background: var(--color-accent-dark);
-  color: var(--color-cream);
-}
+.hero { padding-block: 0 var(--rythme-section); }
+/* Départ du contenu après le rail : 32 / 48 / 64px selon le palier. */
+.hero__inner { padding-top: var(--e-32); }
 
-/* Lien de second plan : jamais le poids visuel du CTA (critère produit n° 2).
-   Il prend la couleur de texte du fond qui l'accueille, et son soulignement
-   s'épaissit au survol et au focus — le changement n'est jamais porté par la
-   seule teinte. Il porte la pleine teinte de texte du fond qui l'accueille,
-   jamais la version atténuée : un élément interactif ne s'efface pas, même
-   dans un pied de page dont le texte courant est atténué. */
-.lien-discret {
-  display: inline-block;
-  font-weight: 700;
-  color: var(--color-cream);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
-}
-.lien-discret:hover,
-.lien-discret:focus-visible {
-  text-decoration-thickness: 3px;
-}
-.carte-projet .lien-discret,
-.prestation .lien-discret,
-.sur-creme .lien-discret { color: var(--color-accent); }
-.carte-projet .lien-discret:hover, .carte-projet .lien-discret:focus-visible,
-.prestation .lien-discret:hover, .prestation .lien-discret:focus-visible,
-.sur-creme .lien-discret:hover, .sur-creme .lien-discret:focus-visible {
-  color: var(--color-accent-dark);
-}
+.hero h1 { margin-top: var(--e-16); }
 
-/* ---------- 05. Hero et motif de veinage ---------- */
-
-.hero { padding-block: var(--space-6) var(--space-5); }
-
-.hero__inner { display: grid; gap: var(--space-4); }
-
-/* Étiquette au-dessus du H1 : crème à opacité réduite, pour se distinguer du
-   H1 sans introduire une autre teinte. */
-.hero__eyebrow {
-  margin-bottom: var(--space-2);
-  color: var(--color-cream);
-  color: color-mix(in srgb, var(--color-cream) 75%, transparent);
-  font-weight: 700;
-  font-size: .875rem;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
 .hero__accroche {
-  max-width: var(--mesure);
-  margin-top: var(--space-3);
-  font-size: 1.125rem;
+  margin-top: var(--e-24);
+  max-width: 32ch;
+  font-size: var(--t-accroche);
+  font-weight: 400;
+  line-height: 1.35;
 }
-.hero__actions { margin-top: var(--space-4); }
+
+.hero__actions { margin-top: var(--e-24); }
 
 .hero__dispo {
-  margin-top: var(--space-3);
-  color: var(--color-cream);
-  color: color-mix(in srgb, var(--color-cream) 75%, transparent);
-  font-size: .9375rem;
+  margin-top: var(--e-12);
+  color: var(--c-texte-doux);
+  font-size: var(--t-petit);
+  line-height: 1.6;
 }
 
-/* Le motif tient la place que prendrait un portrait : le jour où Simon fournit
-   une photo (point ouvert de docs/DIRECTION.md § 5), elle vient à cet
-   emplacement, en complément du texte et jamais à sa place — le H1 doit rester
-   le premier élément lu, en visuel comme au clavier. */
-.hero__motif {
-  max-width: 420px;
-  margin-inline: auto;
-}
+/* ---------- 07. À propos ---------- */
 
-/* Motif focal du hero — l'illustration ponctuelle, à distinguer du grain de
-   fond posé sur les blocs (voir 03 bis). Décor seul, aucune information
-   portée. Les couleurs sont déclarées ici et non dans le HTML, pour qu'un
-   changement de palette n'oblige pas à rouvrir le balisage.
-   Les tracés passent de --color-wood-alt à --color-wood-grain (docs/DIRECTION.md,
-   « Texture du bois », commit 02b0665) : la paire bois-alt / bois plafonnait à
-   1,22:1, le motif se lisait « de justesse » comme l'avait relevé QA. Sa
-   disposition, sa reprise sur la carte Créa'Tif et son statut décoratif ne
-   changent pas. */
-.motif { width: 100%; height: 100%; }
-.motif__fond { fill: var(--color-wood); }
-.motif__veine {
-  fill: none;
-  stroke: var(--color-wood-grain);
-  stroke-linecap: round;
-  stroke-width: 2.5;
-}
-.motif__veine--fine { stroke-width: 1.25; opacity: .6; }
-.motif__noeud {
-  fill: none;
-  stroke: var(--color-wood-grain);
-  stroke-width: 1.5;
-  opacity: .8;
-}
-
-/* ---------- 06. À propos ---------- */
-
-/* Le texte de présentation est le contenu principal de la page, pas une
-   légende : il garde la pleine couleur de texte, contrairement à
-   .section__intro. */
-.prose {
+.a-propos__texte {
   max-width: var(--mesure);
-  margin-top: var(--space-3);
-}
-.prose p + p { margin-top: var(--space-2); }
-
-/* ---------- 07. Réalisations ---------- */
-
-/* Grille dès cette version : une deuxième réalisation s'ajoute sans refonte.
-   `auto-fit` plutôt qu'un nombre de colonnes fixe : les pistes vides se
-   replient, donc une carte seule n'ouvre pas de colonne vide à sa droite
-   (cf. docs/UX-REVIEW-portfolio.md § 1.1). Tant qu'elle est seule, la carte
-   suit la même mesure de lecture que le reste de la page au lieu de s'étirer
-   sur toute la largeur. */
-.grille-projets {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
-.carte-projet:only-child { max-width: var(--mesure); }
-
-/* Poche de lumière dans la pièce sombre : la carte inverse le rapport
-   fond/texte du reste de la page. Pas de bordure — l'écart de valeur avec le
-   bois suffit largement à détacher la carte. */
-/* Padding généreux porté par la carte elle-même : le cocooning vient de
-   l'espace à l'intérieur des cartes, pas seulement du rythme entre les blocs. */
-.carte-projet {
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-4);
-  background: var(--color-cream);
-  color: var(--color-ink);
-  border-radius: var(--radius-carte);
+  margin-top: var(--e-24);
 }
 
-/* Le visuel neutre de la carte reprend le même veinage que le hero : un seul
-   système graphique, deux usages (docs/DIRECTION.md, « Traitement du hero »).
-   Il est encadré par le crème plutôt que collé aux bords de la carte : sur une
-   section au fond bois, un panneau bois à fleur du bord se confondrait avec la
-   page et la carte ne se lirait plus comme un objet posé dessus. */
-.carte-projet__visuel {
-  aspect-ratio: 16 / 9;
-  background: var(--color-wood);
-  border-radius: calc(var(--radius-carte) - 6px);
-  overflow: hidden;
-}
+/* ---------- 08. Réalisations ---------- */
 
+.grille-projets { margin-top: var(--e-32); }
+
+/* Carte pleine largeur : une seule réalisation, aucune case vide réservée pour
+   un second projet. */
+.carte {
+  background-color: var(--c-surface);
+  border: 1px solid var(--c-filet);
+  border-radius: var(--rayon-carte);
+}
+.carte-projet { padding: var(--carte-padding); }
 .carte-projet__corps {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
+  gap: var(--e-12);
 }
-.carte-projet__nature {
-  color: var(--color-ink);
-  color: color-mix(in srgb, var(--color-ink) 75%, transparent);
-  font-weight: 700;
-  font-size: .8125rem;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
-.carte-projet__lien { margin-top: auto; }
+.carte-projet__corps h3 { margin-top: var(--e-04); }
+.carte-projet__lien { margin-top: var(--e-04); }
 
-/* ---------- 08. Prestations ---------- */
+/* Visuel éditorial neutre — décision P06 : aucune photographie ni capture de
+   Créa'Tif, et aucune capture d'une autre application. Composition décorative
+   au format 16:9, ignorée des technologies d'assistance, sans animation. Ce
+   cadre ne prouve rien du rendu du projet : la preuve reste le lien vers la
+   démo. */
+.visuel-projet {
+  aspect-ratio: 16 / 9;
+  background-color: var(--c-surface-alt);
+  border: 1px solid var(--c-filet);
+  border-radius: var(--rayon-carte);
+  margin-bottom: var(--e-16);
+}
+.visuel-projet svg { width: 100%; height: 100%; }
+.visuel__bloc { fill: var(--c-surface); }
+.visuel__filet { stroke: var(--c-filet); stroke-width: 1; }
+.visuel__accent { stroke: var(--c-accent); stroke-width: 3; stroke-linecap: butt; }
+
+/* ---------- 09. Ce que je fais ---------- */
 
 .grille-prestations {
   display: grid;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
+  gap: var(--gouttiere);
+  margin-top: var(--e-32);
 }
-.prestation {
-  padding: var(--space-4);
-  background: var(--color-cream);
-  color: var(--color-ink);
-  border-radius: var(--radius-carte);
-}
+/* Cartes non interactives : aucun effet de survol ni de clic. Seuls les vrais
+   liens reçoivent le focus ; la carte n'est pas rendue cliquable. */
+.prestation { padding: var(--carte-padding); }
 .prestation p {
-  margin-top: var(--space-1);
-  color: var(--color-ink);
-  color: color-mix(in srgb, var(--color-ink) 75%, transparent);
+  margin-top: var(--e-08);
+  color: var(--c-texte-doux);
 }
 
+/* Socle technique : un texte sous la grille, pas un nuage de badges. */
 .socle {
-  margin-top: var(--space-4);
+  margin-top: var(--e-32);
   max-width: var(--mesure);
-  color: var(--color-cream);
-  color: color-mix(in srgb, var(--color-cream) 75%, transparent);
+  color: var(--c-texte-doux);
 }
 
-/* ---------- 09. Contact ---------- */
+/* ---------- 10. Contact ---------- */
 
-/* Pas de largeur réduite sur le conteneur lui-même : .container est centré,
-   le bloc entier basculerait au centre alors que toute la page est alignée à
-   gauche. La mesure de lecture est portée par les enfants. */
-.contact__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
+/* Surface alternative dans les deux thèmes, filet supérieur, padding propre —
+   jamais un bandeau noir isolé du reste de la page. */
+.contact {
+  background-color: var(--c-surface-alt);
+  border-top: 1px solid var(--c-filet);
+  padding-block: var(--e-32);
 }
+.contact__actions { margin-top: var(--e-24); }
 .contact__adresse {
-  color: var(--color-cream);
-  color: color-mix(in srgb, var(--color-cream) 75%, transparent);
+  margin-top: var(--e-16);
+  color: var(--c-texte-doux);
+  /* Adresse copiable : jamais d'ellipsis, retour à la ligne autorisé. */
+  overflow-wrap: anywhere;
 }
 
-/* ---------- 10. Pied de page ---------- */
+/* ---------- 11. Pied de page ---------- */
 
-/* Le pied de page prend le bois-alt : il prolonge l'alternance des blocs et se
-   détache ainsi de la section Contact qui le précède, sans filet de séparation
-   — un filet sur fond bois serait soit invisible, soit une teinte de plus. */
 .site-footer {
-  padding-block: var(--space-5);
-  background-color: var(--color-wood-alt);
-  color: var(--color-cream);
-  color: color-mix(in srgb, var(--color-cream) 75%, transparent);
-  font-size: .9375rem;
+  border-top: 1px solid var(--c-filet);
+  padding-block: var(--e-32);
+  font-size: var(--t-petit);
+  line-height: 1.6;
+  color: var(--c-texte-doux);
 }
-.site-footer__inner { display: grid; gap: var(--space-2); }
-.site-footer__nom { font-weight: 700; color: var(--color-cream); }
+.site-footer__inner {
+  display: grid;
+  gap: var(--e-24);
+}
+.site-footer__nom {
+  font-weight: 600;
+  color: var(--c-texte);
+}
 
-/* Mentions légales, renseignées le 18 septembre 2026 (docs/DIRECTION.md,
-   « Levée du blocage légal et hébergement »). Bloc de texte courant, borné à
-   la mesure de lecture comme le reste de la page
-   (cf. docs/UX-REVIEW-portfolio.md § 1.2). */
+/* Mentions légales : vrai texte lisible, sans accordéon ni opacité réduite.
+   L'adresse y reste du texte simple, sans second lien mailto (décision
+   produit du 18 septembre). */
 .mentions {
   max-width: var(--mesure);
-  margin-top: var(--space-1);
+  margin-top: var(--e-08);
   display: grid;
-  gap: var(--space-1);
+  gap: var(--e-08);
 }
 .mentions__titre,
-.mentions strong { font-weight: 700; color: var(--color-cream); }
+.mentions strong { font-weight: 600; color: var(--c-texte); }
+.mentions p { overflow-wrap: anywhere; }
 
-/* ---------- 11. Page 404 ---------- */
+/* ---------- 12. Page 404 ---------- */
 
-.page-404 { padding-block: var(--space-7); }
-.page-404 p { margin-top: var(--space-3); max-width: var(--mesure); }
-.page-404 .btn { margin-top: var(--space-4); }
-
-/* ---------- Paliers responsive ---------- */
-
-/* Les trois paliers déjà validés par QA (docs/QA-portfolio.md) sont conservés
-   à l'identique : la refonte porte sur l'ambiance, pas sur l'architecture
-   responsive. */
-
-/* 641 px et au-delà */
-@media (min-width: 641px) {
-  .container { padding-inline: var(--space-3); }
-  .section { padding-block: var(--space-7); }
-  .hero { padding-block: var(--space-7) var(--space-6); }
+.page-404 { padding-block: var(--e-64); }
+.page-404 p {
+  margin-top: var(--e-24);
+  max-width: var(--mesure);
 }
+.page-404 .btn { margin-top: var(--e-24); }
 
-/* 768 px : prestations sur deux colonnes, et padding des cartes plus généreux.
-   La grille Réalisations n'a plus de palier : elle s'adapte au nombre réel
-   d'entrées par `auto-fit`, quelle que soit la largeur. */
-@media (min-width: 768px) {
-  .grille-prestations { grid-template-columns: repeat(2, 1fr); }
-  .carte-projet { padding: var(--space-5); }
-  .prestation { padding: var(--space-5); }
-}
+/* ---------- 13. Paliers responsive ---------- */
 
-/* 1024 px : hero en deux colonnes.
-   La grille des prestations RESTE à deux colonnes au-delà de 768px : le
-   nombre de colonnes suit le nombre réel d'entrées (quatre aujourd'hui, donc
-   2 x 2 sans ligne incomplète), il n'est pas fixé indépendamment du contenu.
-   Si le nombre de prestations change, revoir ce nombre selon la même règle
-   plutôt que de reconduire une valeur devenue inadaptée.
-   Cf. docs/DIRECTION.md, Direction artistique (c9266ab), et
-   docs/UX-REVIEW-portfolio.md § 2.1. */
-@media (min-width: 1024px) {
-  .section { padding-block: var(--space-8); }
-  .hero { padding-block: var(--space-8) var(--space-7); }
-  .hero__inner {
-    grid-template-columns: 55fr 45fr;
-    align-items: center;
-    gap: var(--space-6);
+/*
+  Trois paliers, conformes à la direction artistique : mobile sous 768px,
+  tablette de 768 à 1023px, desktop dès 1024px. Aucune largeur minimale de page
+  n'est posée : sous 320px la colonne unique demeure, les paddings se resserrent
+  et les mots très longs se coupent en dernier recours. Rien n'est masqué par
+  débordement.
+*/
+
+/* Sous 320px : resserrement de dernier recours, aucun masquage. */
+@media (max-width: 319px) {
+  :root {
+    --marge-ext: var(--e-12);
+    --carte-padding: var(--e-12);
   }
+}
+
+/* 768px : tablette. Grille de 8 colonnes, prestations en 2 × 2. */
+@media (min-width: 768px) {
+  :root {
+    --t-h1: 4rem;
+    --t-accroche: 1.75rem;
+    --t-h2: 2rem;
+    --t-h3: 1.375rem;
+    --marge-ext: var(--e-24);
+    --gouttiere: var(--e-24);
+    --rythme-section: var(--e-48);
+    --carte-padding: var(--e-24);
+  }
+  .hero__inner { padding-top: var(--e-48); }
+  .contact { padding-block: var(--e-48); }
+  .grille-prestations { grid-template-columns: repeat(2, 1fr); }
+  .site-footer { padding-block: var(--e-48); }
   .site-footer__inner {
     grid-template-columns: 1fr auto;
     align-items: start;
-    gap: var(--space-4);
   }
+}
+
+/* 1024px : desktop. Grille de 12 colonnes pour le hero, À propos et le projet. */
+@media (min-width: 1024px) {
+  :root {
+    --t-h1: 5rem;
+    --t-accroche: 2rem;
+    --t-h2: 2.5rem;
+    --t-h3: 1.5rem;
+    --t-corps: 1.125rem;
+    --marge-ext: var(--e-32);
+    --gouttiere: var(--e-32);
+    --rythme-section: var(--e-64);
+    --carte-padding: var(--e-32);
+  }
+  .hero__inner { padding-top: var(--e-64); }
+  .contact { padding-block: var(--e-64); }
+
+  /* Le nom occupe la largeur disponible ; sous lui, l'accroche sur 8 colonnes
+     et le groupe CTA + disponibilité sur 4, aligné au début de l'accroche. */
+  .hero__bas {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--gouttiere);
+    align-items: start;
+  }
+  .hero__bas > .hero__accroche { grid-column: 1 / span 8; margin-top: var(--e-24); }
+  .hero__bas > .hero__groupe-action { grid-column: 9 / span 4; margin-top: var(--e-24); }
+  .hero__groupe-action .hero__actions { margin-top: 0; }
+
+  /* À propos : H2 sur 4 colonnes, texte sur 8. */
+  .a-propos__grille {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--gouttiere);
+    align-items: start;
+  }
+  .a-propos__grille > h2 { grid-column: 1 / span 4; }
+  .a-propos__grille > .a-propos__texte { grid-column: 5 / span 8; margin-top: 0; }
+
+  /* Projet : visuel à gauche sur environ 40 %, contenu à droite. */
+  .carte-projet {
+    display: grid;
+    grid-template-columns: 40fr 60fr;
+    gap: var(--e-32);
+    align-items: start;
+  }
+  .visuel-projet { margin-bottom: 0; }
 }

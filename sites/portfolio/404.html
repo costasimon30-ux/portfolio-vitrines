@@ -8,21 +8,49 @@
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/style.css">
+<script>
+/*
+  Résolution du thème seule — même ordre que la page d'accueil : choix
+  mémorisé, puis préférence système, puis Clair. La page d'erreur n'expose pas
+  la bascule : le rail utilitaire appartient au hero (docs/DIRECTION.md), et
+  cette page n'en a pas. Elle respecte en revanche le choix déjà mémorisé,
+  sans éclair du mauvais thème. Sans JavaScript, la feuille de style suit seule
+  la préférence système.
+*/
+(function () {
+  "use strict";
+  var CLE = "portfolio-simon-costa:theme";
+  var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  var choix = null;
+  try {
+    var v = window.localStorage.getItem(CLE);
+    if (v === "dark" || v === "light") choix = v;
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+  document.documentElement.setAttribute("data-theme", choix || (mq && mq.matches ? "dark" : "light"));
+  if (mq && !choix) {
+    var suivre = function () {
+      document.documentElement.setAttribute("data-theme", mq.matches ? "dark" : "light");
+    };
+    if (mq.addEventListener) mq.addEventListener("change", suivre);
+    else if (mq.addListener) mq.addListener(suivre);
+  }
+})();
+</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Aller au contenu principal</a>
 
 <main id="main" tabindex="-1">
-  <section class="page-404 fond-bois">
+  <section class="page-404">
     <div class="container">
       <h1>Page introuvable</h1>
       <p>L’adresse demandée ne correspond à aucune page de ce site. Elle a peut-être été mal recopiée, ou la page n’existe plus.</p>
-      <p><a class="btn btn--primary" href="/">Revenir à l’accueil</a></p>
+      <p><a class="btn" href="/">Revenir à l’accueil</a></p>
     </div>
   </section>
 </main>
 
-<footer class="site-footer fond-bois-alt">
+<footer class="site-footer">
   <div class="container site-footer__inner">
     <div>
       <p class="site-footer__nom">Simon COSTA</p>

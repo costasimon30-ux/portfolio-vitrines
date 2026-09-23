@@ -18,43 +18,135 @@
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/style.css">
+<script>
+/*
+  Thème Clair / Sombre — docs/DIRECTION.md § « Bascule Clair / Sombre ».
+
+  Ce script est volontairement en ligne et bloquant, dans le <head> : il pose
+  data-theme avant le premier rendu, ce qui évite l'éclair du mauvais thème.
+  Un fichier séparé serait chargé trop tard, ou imposerait une requête de plus
+  sur le chemin critique.
+
+  Ordre de résolution : choix explicite mémorisé, puis préférence du système,
+  puis Clair. Tant qu'aucun choix manuel n'a été fait, une évolution de la
+  préférence système est suivie ; après un choix, elle ne l'écrase plus.
+
+  Sans JavaScript, rien de tout cela ne s'exécute : la feuille de style suit
+  seule la préférence système et le bouton, marqué `hidden` dans le balisage,
+  n'est jamais présenté puisque seul ce script le révèle.
+*/
+(function () {
+  "use strict";
+  // Clé propre au portfolio : aucune valeur partagée avec Créa'Tif ou une
+  // autre application. Seule la valeur « light » ou « dark » est mémorisée.
+  var CLE = "portfolio-simon-costa:theme";
+  var racine = document.documentElement;
+  var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+  function lire() {
+    try {
+      var v = window.localStorage.getItem(CLE);
+      return v === "dark" || v === "light" ? v : null;
+    } catch (e) {
+      return null; // stockage indisponible : on continue sans mémoire
+    }
+  }
+  function ecrire(v) {
+    try { window.localStorage.setItem(CLE, v); } catch (e) { /* visite seule */ }
+  }
+
+  // Choix de la visite en cours. Initialisé depuis le stockage s'il répond ;
+  // sinon il reste en mémoire vive, ce qui suffit à faire fonctionner la
+  // bascule pendant la visite même quand le stockage est bloqué.
+  var choix = lire();
+
+  function resolu() {
+    if (choix) return choix;
+    return mq && mq.matches ? "dark" : "light";
+  }
+  function appliquer() {
+    racine.setAttribute("data-theme", resolu());
+  }
+
+  appliquer();
+
+  function majBouton(btn) {
+    var sombre = resolu() === "dark";
+    // Le libellé annonce la destination, pas l'état courant.
+    btn.setAttribute("data-cible", sombre ? "light" : "dark");
+    btn.setAttribute("aria-label", sombre ? "Activer le thème clair" : "Activer le thème sombre");
+    var lib = btn.querySelector(".bascule__libelle");
+    if (lib) lib.textContent = sombre ? "Clair" : "Sombre";
+  }
+
+  function bouton() { return document.getElementById("bascule-theme"); }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var btn = bouton();
+    if (!btn) return;
+    btn.hidden = false;
+    majBouton(btn);
+    // Un <button> natif répond déjà au clic, à Entrée et à Espace : aucun
+    // gestionnaire de touche à ajouter, et le focus reste sur le bouton.
+    btn.addEventListener("click", function () {
+      choix = resolu() === "dark" ? "light" : "dark";
+      ecrire(choix);
+      appliquer();
+      majBouton(btn);
+    });
+  });
+
+  if (mq) {
+    var suivreSysteme = function () {
+      if (choix) return; // un choix manuel a été fait : il reste prioritaire
+      appliquer();
+      var btn = bouton();
+      if (btn) majBouton(btn);
+    };
+    if (mq.addEventListener) mq.addEventListener("change", suivreSysteme);
+    else if (mq.addListener) mq.addListener(suivreSysteme);
+  }
+})();
+</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Aller au contenu principal</a>
 
+<div class="rail">
+  <div class="container rail__inner">
+    <button type="button" class="bascule" id="bascule-theme" data-cible="dark" aria-label="Activer le thème sombre" hidden>
+      <svg class="bascule__icone bascule__icone--lune" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M13.2 9.8A5.6 5.6 0 0 1 6.2 2.8a5.6 5.6 0 1 0 7 7Z"></path>
+      </svg>
+      <svg class="bascule__icone bascule__icone--soleil" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <circle cx="8" cy="8" r="3.2"></circle>
+        <path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3.1 3.1l1.1 1.1M11.8 11.8l1.1 1.1M12.9 3.1l-1.1 1.1M4.2 11.8l-1.1 1.1"></path>
+      </svg>
+      <span class="bascule__libelle">Sombre</span>
+    </button>
+  </div>
+</div>
+
 <main id="main" tabindex="-1">
 
-  <section class="hero fond-bois">
+  <section class="hero">
     <div class="container hero__inner">
-      <div>
-        <p class="hero__eyebrow">Développeur front-end indépendant</p>
-        <h1>Simon COSTA</h1>
+      <p class="libelle">Développeur front-end indépendant</p>
+      <h1>Simon COSTA</h1>
+      <div class="hero__bas">
         <p class="hero__accroche">Des sites vitrines construits à partir de ce que vous dites vraiment.</p>
-        <p class="hero__actions"><a class="btn btn--primary" href="#contact">Discutons de votre projet</a></p>
-        <p class="hero__dispo">Disponible pour de nouveaux projets.</p>
-      </div>
-      <div class="hero__motif" aria-hidden="true">
-        <svg class="motif" viewBox="0 0 320 240" role="presentation" focusable="false">
-          <rect class="motif__fond" width="320" height="240"></rect>
-          <path class="motif__veine" d="M0 20 C6 21 24 23 36 24 C47 24 59 24 71 23 C83 23 95 22 107 21 C119 21 130 22 142 22 C154 22 166 23 178 22 C190 21 201 19 213 18 C225 17 237 15 249 15 C261 15 273 16 284 16 C296 17 314 19 320 19"></path>
-          <path class="motif__veine motif__veine--fine" d="M0 56 C6 56 24 55 36 55 C47 54 59 53 71 53 C83 53 95 54 107 54 C119 54 130 54 142 53 C154 52 166 49 178 47 C190 46 201 43 213 43 C225 43 237 48 249 49 C261 51 273 52 284 52 C296 53 314 52 320 52"></path>
-          <path class="motif__veine" d="M0 86 C6 86 24 85 36 85 C47 85 59 86 71 86 C83 86 95 84 107 83 C119 82 130 81 142 79 C154 78 166 76 178 75 C190 73 201 69 213 70 C225 72 237 80 249 82 C261 85 273 83 284 84 C296 85 314 85 320 86"></path>
-          <path class="motif__veine motif__veine--fine" d="M0 117 C6 117 24 118 36 117 C47 117 59 115 71 114 C83 113 95 111 107 111 C119 111 130 113 142 113 C154 112 166 112 178 109 C190 105 201 92 213 93 C225 93 237 109 249 113 C261 118 273 118 284 119 C296 120 314 121 320 121"></path>
-          <path class="motif__veine" d="M0 148 C6 147 24 145 36 144 C47 143 59 143 71 143 C83 143 95 145 107 146 C119 147 130 148 142 149 C154 150 166 151 178 154 C190 156 201 163 213 163 C225 163 237 156 249 154 C261 153 273 153 284 152 C296 151 314 149 320 148"></path>
-          <path class="motif__veine motif__veine--fine" d="M0 175 C6 175 24 175 36 176 C47 177 59 179 71 180 C83 181 95 181 107 181 C119 181 130 180 142 181 C154 181 166 183 178 184 C190 186 201 190 213 190 C225 190 237 186 249 184 C261 182 273 180 284 179 C296 178 314 177 320 177"></path>
-          <path class="motif__veine" d="M0 209 C6 210 24 212 36 213 C47 214 59 213 71 213 C83 213 95 213 107 213 C119 213 130 215 142 215 C154 216 166 217 178 217 C190 216 201 215 213 214 C225 213 237 210 249 209 C261 209 273 209 284 209 C296 209 314 210 320 210"></path>
-          <ellipse class="motif__noeud" cx="208" cy="118" rx="30" ry="19"></ellipse>
-          <ellipse class="motif__noeud" cx="208" cy="118" rx="20" ry="12"></ellipse>
-          <ellipse class="motif__noeud" cx="208" cy="118" rx="11" ry="7"></ellipse>
-        </svg>
+        <div class="hero__groupe-action">
+          <p class="hero__actions"><a class="btn" href="#contact">Discutons de votre projet</a></p>
+          <p class="hero__dispo">Disponible pour de nouveaux projets.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section section--alt fond-bois-alt" id="a-propos" aria-labelledby="a-propos-title">
-    <div class="container">
+  <section class="section" id="a-propos" aria-labelledby="a-propos-title">
+    <div class="container a-propos__grille">
       <h2 id="a-propos-title">À propos</h2>
-      <div class="prose">
+      <div class="prose a-propos__texte">
         <p>J’ai 28 ans et je construis des sites vitrines. Avant le développement, j’ai travaillé en support helpdesk — un métier où l’on n’a pas le droit de mal comprendre. On vous décrit un symptôme, presque jamais la cause&nbsp;: il faut écouter pour de bon, reformuler jusqu’à ce que la personne dise «&nbsp;oui, c’est exactement ça&nbsp;», puis résoudre. Vite, et sans jargon.</p>
         <p>C’est ce que j’ai gardé. Un projet de site commence rarement par un cahier des charges. Il commence par «&nbsp;je voudrais quelque chose de plus moderne&nbsp;», ou «&nbsp;mon site ne me ressemble plus&nbsp;». Mon travail commence là&nbsp;: comprendre ce que vous cherchez vraiment à obtenir, avant d’écrire la première ligne de code.</p>
         <p>Je me lance à mon compte, et ce que je propose est volontairement précis&nbsp;: des sites vitrines rapides, accessibles, qui tiennent sur tous les écrans. Pas de promesse démesurée — un travail soigné, vérifié, et une réalisation que vous pouvez regarder avant de décider.</p>
@@ -62,57 +154,54 @@
     </div>
   </section>
 
-  <section class="section fond-bois" id="realisations" aria-labelledby="realisations-title">
+  <section class="section" id="realisations" aria-labelledby="realisations-title">
     <div class="container">
       <h2 id="realisations-title">Réalisations</h2>
       <p class="section__intro">Une première réalisation, consultable en ligne. D’autres viendront s’ajouter ici.</p>
 
       <ul class="grille-projets">
-        <li class="carte-projet">
-          <div class="carte-projet__visuel" aria-hidden="true">
-            <svg class="motif" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" role="presentation" focusable="false">
-              <rect class="motif__fond" width="320" height="180"></rect>
-          <path class="motif__veine" d="M0 21 C6 22 24 23 36 23 C47 22 59 19 71 18 C83 16 95 13 107 12 C119 12 130 15 142 15 C154 16 166 17 178 16 C190 16 201 15 213 15 C225 15 237 14 249 14 C261 15 273 16 284 18 C296 19 314 21 320 22"></path>
-          <path class="motif__veine motif__veine--fine" d="M0 52 C6 51 24 50 36 48 C47 46 59 41 71 39 C83 37 95 34 107 35 C119 36 130 43 142 45 C154 47 166 45 178 45 C190 45 201 44 213 45 C225 46 237 48 249 50 C261 51 273 52 284 52 C296 53 314 51 320 51"></path>
-          <path class="motif__veine" d="M0 76 C6 76 24 76 36 75 C47 73 59 69 71 66 C83 63 95 55 107 56 C119 57 130 69 142 73 C154 76 166 75 178 77 C190 78 201 80 213 81 C225 82 237 83 249 82 C261 82 273 80 284 80 C296 79 314 79 320 79"></path>
-          <path class="motif__veine motif__veine--fine" d="M0 105 C6 105 24 105 36 107 C47 108 59 111 71 113 C83 116 95 120 107 120 C119 119 130 112 142 110 C154 109 166 112 178 112 C190 113 201 112 213 112 C225 111 237 110 249 109 C261 109 273 109 284 109 C296 109 314 109 320 109"></path>
-          <path class="motif__veine" d="M0 136 C6 136 24 134 36 135 C47 136 59 138 71 140 C83 142 95 146 107 147 C119 147 130 144 142 143 C154 142 166 141 178 141 C190 140 201 139 213 139 C225 138 237 139 249 139 C261 139 273 139 284 138 C296 137 314 135 320 134"></path>
-          <path class="motif__veine motif__veine--fine" d="M0 163 C6 164 24 165 36 166 C47 167 59 170 71 171 C83 172 95 172 107 172 C119 171 130 168 142 168 C154 167 166 167 178 166 C190 166 201 167 213 167 C225 167 237 166 249 165 C261 164 273 162 284 161 C296 161 314 162 320 162"></path>
-          <ellipse class="motif__noeud" cx="96" cy="84" rx="30" ry="19"></ellipse>
-          <ellipse class="motif__noeud" cx="96" cy="84" rx="20" ry="12"></ellipse>
-          <ellipse class="motif__noeud" cx="96" cy="84" rx="11" ry="7"></ellipse>
+        <li class="carte carte-projet">
+          <!-- Composition éditoriale décorative, conforme à la décision P06 :
+               ni photographie ni capture du site présenté. Elle ne prouve rien
+               du rendu du projet ; la preuve reste le lien vers la démo. -->
+          <div class="visuel-projet" aria-hidden="true">
+            <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" role="presentation" focusable="false">
+              <rect class="visuel__bloc" x="36" y="30" width="148" height="56"></rect>
+              <rect class="visuel__bloc" x="84" y="72" width="164" height="62"></rect>
+              <line class="visuel__filet" x1="268" y1="24" x2="268" y2="156"></line>
+              <line class="visuel__accent" x1="36" y1="150" x2="84" y2="150"></line>
             </svg>
           </div>
           <div class="carte-projet__corps">
-            <p class="carte-projet__nature">Démonstration</p>
+            <p class="libelle">Démonstration</p>
             <h3>Créa’Tif — concept de salon de coiffure mixte</h3>
             <p>Un concept de salon fictif, réalisé en démonstration&nbsp;: quatre pages, navigation au clavier, photographies d’illustration, mise en page pensée pour tous les écrans. Aucun établissement de ce nom n’existe&nbsp;; les coordonnées et disponibilités du site sont fictives.</p>
-            <p class="carte-projet__lien"><a class="lien-discret" href="https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/">Voir la démo</a></p>
+            <p class="carte-projet__lien"><a href="https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/">Voir la démo</a></p>
           </div>
         </li>
       </ul>
     </div>
   </section>
 
-  <section class="section section--alt fond-bois-alt" id="prestations" aria-labelledby="prestations-title">
+  <section class="section" id="prestations" aria-labelledby="prestations-title">
     <div class="container">
       <h2 id="prestations-title">Ce que je fais</h2>
       <p class="section__intro">Un périmètre volontairement resserré, sur ce que je sais livrer aujourd’hui.</p>
 
       <ul class="grille-prestations">
-        <li class="prestation">
+        <li class="carte prestation">
           <h3>Site vitrine</h3>
           <p>La création complète d’un site de présentation&nbsp;: structure des pages, mise en forme, contenus intégrés, prêt à être mis en ligne.</p>
         </li>
-        <li class="prestation">
+        <li class="carte prestation">
           <h3>Refonte de pages</h3>
           <p>La reprise d’un site existant dont la présentation a vieilli ou qui tient mal sur téléphone, sans repartir de zéro.</p>
         </li>
-        <li class="prestation">
+        <li class="carte prestation">
           <h3>Application web</h3>
           <p>De petits outils qui fonctionnent entièrement dans le navigateur, sans serveur à administrer ni abonnement à payer.</p>
         </li>
-        <li class="prestation">
+        <li class="carte prestation">
           <h3>Mise en ligne</h3>
           <p>La publication du site et sa remise entre vos mains&nbsp;: hébergement, nom des pages, accès, et la marche à suivre pour le faire évoluer.</p>
         </li>
@@ -122,12 +211,12 @@
     </div>
   </section>
 
-  <section class="section fond-bois" id="contact" aria-labelledby="contact-title">
+  <section class="contact" id="contact" aria-labelledby="contact-title">
     <div class="container">
       <h2 id="contact-title">Discutons de votre projet</h2>
       <p class="section__intro">Décrivez-moi ce que vous avez en tête, même sans savoir comment le formuler — c’est précisément mon travail de le clarifier avec vous. Je réponds à tout le monde. Les projets sont chiffrés sur devis, adapté à chaque périmètre.</p>
       <div class="contact__actions">
-        <a class="btn btn--primary" href="mailto:costa.simon30@outlook.com">M’écrire par e-mail</a>
+        <p><a class="btn" href="mailto:costa.simon30@outlook.com">M’écrire par e-mail</a></p>
         <p class="contact__adresse">costa.simon30@outlook.com</p>
       </div>
     </div>
@@ -135,7 +224,7 @@
 
 </main>
 
-<footer class="site-footer fond-bois-alt">
+<footer class="site-footer">
   <div class="container site-footer__inner">
     <div>
       <p class="site-footer__nom">Simon COSTA</p>
@@ -146,7 +235,7 @@
         <p><strong>Hébergeur&nbsp;:</strong> Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, États-Unis.</p>
       </div>
     </div>
-    <p><a class="lien-discret" href="#main">Retour en haut de page</a></p>
+    <p><a href="#main">Retour en haut de page</a></p>
   </div>
 </footer>
 </body>
