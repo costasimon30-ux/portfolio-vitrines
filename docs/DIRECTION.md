@@ -322,6 +322,16 @@ Simon valide la proposition UI/UX du commit `856f6f183aac2b9fea764ecc164371d542c
 
 **Critères de sortie de l’implémentation :** dans les deux thèmes, contrôler à 320, 375, 768 et 1440 px ainsi qu’au zoom navigateur 200 % : texte et commandes intégralement visibles, ordre de lecture cohérent, aucun chevauchement ou débordement horizontal, focus visible, liens et CTA existants fonctionnels. Contrôler aussi le premier affichage système/choix mémorisé, la bascule au clic, à Entrée et à Espace, et les replis sans stockage ni JavaScript. Le rendu visuel final reste à examiner séparément par UI/UX puis par Simon. Cette validation autorise le travail dans les sources ; elle n’autorise aucune publication ou modification du Worker en ligne.
 
+#### Arbitrage produit — aperçu réel de Créa’Tif dans « Réalisations » (23 septembre 2026)
+
+Simon valide le remplacement de la seule composition abstraite de la carte Créa’Tif par une capture honnête du hero d’accueil de la démo réelle. Cette décision déroge uniquement, pour cet emplacement, à l’interdiction historique de capture de la section « Présentation de Créa’Tif — traitement du point P06 » ci-dessus ; elle ne rouvre ni P06 ni le choix des autres médias. Aucune capture de la page Barbier ni de P06 ne doit entrer dans le portfolio.
+
+Deux cadrages de la même page réelle sont retenus : une prise à 1024 px recadrée en 3:2 pour la carte mobile (environ 246 × 164 px à 320, 301 × 201 px à 375), et une prise à 1200 px recadrée en 16:9 pour la carte desktop (environ 415 × 233 px à 1440). Le titre, le geste de coupe et les outils doivent rester visibles ensemble ; l’interface, les textes et la photographie ne sont ni recréés ni retouchés. Les deux thèmes Clair/Sombre affichent la même image naturelle, sans filtre, dans un simple filet neutre de 1 px, sans faux cadre de navigateur. « Démonstration », le titre de la réalisation, son texte et « Voir la démo » restent intégralement inchangés. Le statut de salon fictif et de photographies d’illustration demeure explicite.
+
+La photographie visible dans ce hero est P01, « Stylist Cutting Long Hair », attribuée à Shopify Partners et distribuée sous licence Burst « Some Rights Reserved » ; sa fiche et sa notice sont documentées dans `sites/coiffeur-mixte/assets/photos/NOTICE.md`. Cette licence de la photographie ne vaut pas autorisation individuelle garantie pour une personne représentée. La capture ne doit montrer ni P06 ni marque/personne reconnaissable nouvelle introduite par le cadrage. Consigner la provenance et le cadrage des deux fichiers livrés avec le portfolio.
+
+Cette validation porte sur la sélection et autorise une implémentation limitée à `sites/portfolio/`, pas la validation du rendu final ni sa publication. Après intégration, examiner la carte à 320, 375 et 1440 px dans les deux thèmes : lisibilité du titre, geste et outils visibles, image non déformée, absence de filtre et de recouvrement du texte, continuité du lien vers la démo. Aucun autre bloc du portfolio ni aucune page de Créa’Tif ne change ; aucun déploiement n’est autorisé.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
