@@ -28,8 +28,9 @@
     01. Jetons
     02. Base, reset, accessibilité
     03. Conteneur et rythme des blocs
+    03 bis. Grain du bois
     04. Boutons et liens
-    05. Hero et motif de veinage
+    05. Hero et motif focal
     06. À propos
     07. Réalisations
     08. Prestations
@@ -71,6 +72,12 @@
   --color-accent: #33302C;     /* anthracite mat : boutons, liens et focus sur crème */
   --color-accent-dark: #221F1C;/* survol/appui de l'accent */
   --color-cream-dark: #E4D5C1; /* survol/appui du crème quand il sert de fond de bouton */
+  /* Traits de veinage uniquement — jamais un fond de bloc. Plus clair que le
+     bois-alt : --color-wood-alt sur --color-wood ne donne que 1,22:1, trop
+     proche pour qu'un tracé s'y voie franchement quelle que soit son opacité,
+     alors que ce ton monte à 1,41:1 sur le bois (1,16:1 sur le bois-alt).
+     Toujours un grain discret, mais qui se lit. */
+  --color-wood-grain: #4A3324;
 
   /* Typographie — une famille, trois graisses.
      Nunito : sans-serif aux terminaisons arrondies, choisie pour que la
@@ -129,7 +136,9 @@ body {
   font-size: 1rem;
   line-height: 1.6;
   color: var(--color-cream);
-  background: var(--color-wood);
+  /* background-color et non le raccourci : celui-ci remettrait à `none` la
+     tuile de grain posée par .fond-bois / .fond-bois-alt (voir 03 bis). */
+  background-color: var(--color-wood);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -213,7 +222,47 @@ p { margin: 0; }
 .section { padding-block: var(--space-5); }
 /* Alternance bois / bois-alt d'un bloc à l'autre : même mécanique de rythme
    qu'avant la refonte, teintes différentes. */
-.section--alt { background: var(--color-wood-alt); }
+.section--alt { background-color: var(--color-wood-alt); }
+
+/* ---------- 03 bis. Grain du bois ---------- */
+
+/* Le fond bois doit se lire comme une matière, pas comme un aplat
+   (docs/DIRECTION.md, « Texture du bois — grain et veinage », commit 02b0665).
+
+   Une tuile SVG de 160 × 96px, répétée, posée en background-image par-dessus
+   la couleur de fond déjà en place : trois lignes ondulées horizontales, une
+   principale (2px, opacité 55 %) et deux secondaires (1px, opacité 35 %),
+   stroke-linecap arrondi — même vocabulaire de courbes que le motif focal du
+   hero, densité doublée. Aucun fichier à charger, aucun poids réseau : le
+   motif est encodé en data-URI.
+
+   RACCORD. Chaque ligne entre et sort à la même hauteur ET avec une tangente
+   horizontale (les deux points de contrôle de chaque extrémité sont à la même
+   ordonnée que le point qu'ils gouvernent) : la répétition est donc continue
+   en position comme en pente, sans couture visible, horizontalement comme
+   verticalement.
+
+   RACCOURCI `background` INTERDIT SUR CES BLOCS. Les fonds de bloc sont
+   déclarés en `background-color`, jamais avec le raccourci `background` : ce
+   dernier remet `background-image` à `none` et efface la tuile dès que sa règle
+   passe après celles-ci dans la feuille. Le pied de page est tombé dans ce
+   piège à la première écriture.
+
+   COULEUR EN DOUBLE. Une data-URI ne peut pas lire une variable CSS : la
+   valeur de --color-wood-grain est donc répétée en clair (%234A3324) dans les
+   deux motifs ci-dessous. Une révision de ce jeton doit être reportée ici à la
+   main — c'est le prix de la contrainte « pas de fichier séparé » du brief. */
+.fond-bois,
+.fond-bois-alt {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='96' viewBox='0 0 160 96'%3E%3Cg fill='none' stroke='%234A3324' stroke-linecap='round'%3E%3Cpath d='M0 18C42 18 42 30 84 30C122 30 122 18 160 18' stroke-width='2' opacity='.55'/%3E%3Cpath d='M0 57C34 57 34 47 68 47C114 47 114 57 160 57' stroke-width='1' opacity='.35'/%3E%3Cpath d='M0 73C48 73 48 83 96 83C128 83 128 73 160 73' stroke-width='1' opacity='.35'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 160px 96px;
+}
+/* Origine décalée d'un bloc à l'autre : les blocs bois et bois-alt alternent,
+   donc deux blocs consécutifs ne présentent jamais la même amorce de tuile et
+   l'œil ne retrouve pas une grille régulière d'une section à l'autre. */
+.fond-bois { background-position: 0 0; }
+.fond-bois-alt { background-position: 53px 31px; }
 
 /* Texte secondaire sur fond bois : crème à opacité réduite plutôt qu'un
    huitième jeton. 8,22:1 sur le bois, 7,01:1 sur le bois-alt — au-dessus du
@@ -352,23 +401,27 @@ a { color: var(--color-cream); }
   margin-inline: auto;
 }
 
-/* Veinage de bois : décor seul, aucune information portée. Les couleurs sont
-   déclarées ici et non dans le HTML, pour qu'un changement de palette n'oblige
-   pas à rouvrir le balisage. Les lignes sont dans --color-wood-alt sur fond
-   --color-wood, comme le demande la direction artistique : le motif est
-   volontairement discret, il donne une matière, pas un dessin. */
+/* Motif focal du hero — l'illustration ponctuelle, à distinguer du grain de
+   fond posé sur les blocs (voir 03 bis). Décor seul, aucune information
+   portée. Les couleurs sont déclarées ici et non dans le HTML, pour qu'un
+   changement de palette n'oblige pas à rouvrir le balisage.
+   Les tracés passent de --color-wood-alt à --color-wood-grain (docs/DIRECTION.md,
+   « Texture du bois », commit 02b0665) : la paire bois-alt / bois plafonnait à
+   1,22:1, le motif se lisait « de justesse » comme l'avait relevé QA. Sa
+   disposition, sa reprise sur la carte Créa'Tif et son statut décoratif ne
+   changent pas. */
 .motif { width: 100%; height: 100%; }
 .motif__fond { fill: var(--color-wood); }
 .motif__veine {
   fill: none;
-  stroke: var(--color-wood-alt);
+  stroke: var(--color-wood-grain);
   stroke-linecap: round;
   stroke-width: 2.5;
 }
 .motif__veine--fine { stroke-width: 1.25; opacity: .6; }
 .motif__noeud {
   fill: none;
-  stroke: var(--color-wood-alt);
+  stroke: var(--color-wood-grain);
   stroke-width: 1.5;
   opacity: .8;
 }
@@ -492,7 +545,7 @@ a { color: var(--color-cream); }
    — un filet sur fond bois serait soit invisible, soit une teinte de plus. */
 .site-footer {
   padding-block: var(--space-5);
-  background: var(--color-wood-alt);
+  background-color: var(--color-wood-alt);
   color: var(--color-cream);
   color: color-mix(in srgb, var(--color-cream) 75%, transparent);
   font-size: .9375rem;
