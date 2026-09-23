@@ -280,3 +280,156 @@ qui a été observé le jour du dépôt.
   de l'URL. Le Chef de projet la commande ; elle n'est pas lancée par ce dépôt.
 - Confirmer l'état du réglage « Preview URLs » dans le tableau de bord
   (réserve n° 1).
+
+
+## Dépôt n° 3 — 23 septembre 2026
+
+**Ce dépôt met en ligne la nouvelle direction « Clarté et structure » (thème
+Clair/Sombre) et le premier aperçu réel de la démonstration Créa'Tif dans la
+carte « Réalisations ».** Il remplace intégralement l'apparence boisée et
+cocooning publiée par le dépôt n° 2 : palette, typographie, structure du
+thème et vignette changent ; le contenu textuel et les paliers responsive ne
+changent pas.
+
+### Identification
+
+| | |
+| --- | --- |
+| Révision source | `52584f0d65cb4b1eee7cdcea071794f664b34ae5` |
+| Message | `site(portfolio): aperçu réel de Créa'Tif dans la carte « Réalisations »` |
+| Empreinte de l'artefact | `fdced2eb7caf9bc8ec812b772f4567022275e01134177ee443c309d624bf3d4c` |
+| Volume | 17 fichiers, 206 924 octets |
+| URL publique | `https://portfolio-simon-costa.costa-simon30.workers.dev/` (inchangée) |
+| Hébergement | Cloudflare Workers Static Assets, Worker `portfolio-simon-costa` |
+| Accord de Simon | explicite, sur cette révision et cette empreinte précises, donné en conversation avant dépôt |
+| Constat de mise en ligne | 2026-09-23T15:55:37Z (en-tête `date` de la première réponse observée) |
+| Version Cloudflare | **`ad384491`** — « Manually deployed — Dashboard — by costa.simon30 » |
+| Version précédente | `d3806c5f` (dépôt n° 2), conservée dans l'historique des versions (`664503f4`, dépôt n° 1, également présente) |
+
+### Ce que cette révision apporte
+
+Ensemble de commits déjà sur `main` au moment du dépôt, depuis le dépôt n° 2 :
+
+- `a23cc25` — bascule de la direction artistique boisée et cocooning vers
+  « Clarté et structure » : thème Clair/Sombre piloté par `data-theme`,
+  bouton de bascule, persistance `localStorage`, repli sur
+  `prefers-color-scheme`.
+- Suite de corrections QA ciblées (`c7ace6a` et commits associés) sur le lien
+  d'évitement, au zoom natif.
+- `52584f0` — remplacement du visuel de substitution de la carte
+  « Réalisations » par un aperçu réel de la démonstration Créa'Tif : image
+  responsive (`<picture>`, source mobile 3:2 et desktop 16:9), même fichier
+  dans les deux thèmes, filet `--c-filet` d'1px.
+
+### Méthode
+
+Identique aux dépôts n° 1 et n° 2, avec assemblage et vérification exécutés
+sous la version de Node exacte prescrite (aucun repli `--runtime-alternatif`
+nécessaire cette fois).
+
+1. Copie propre de la révision hors du dépôt de travail
+   (`git archive 52584f0d65cb4b1eee7cdcea071794f664b34ae5`), `git status --short`
+   vide au moment de l'extraction.
+2. Assemblage `node scripts/assemble-site.mjs portfolio --environment production`,
+   Node 22.23.2 (conforme à `.node-version`).
+3. Empreinte calculée par
+   `find . -type f | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256`
+   depuis la racine de `dist/`, reproduite à l'identique sur un second
+   assemblage (déterminisme confirmé).
+4. Dossier de dépôt distinct préparé et vérifié séparément de la sauvegarde
+   (celle-ci mélangeait fichiers publics et fiches de suivi) :
+   `~/Sites/artefacts/portfolio-simon-costa-candidat-52584f0-depot`, aplati à
+   la racine, strictement les 17 fichiers publics, sans
+   `INVENTAIRE-SHA256.txt`, `EMPREINTE-AGREGEE.txt` ni `README.txt`.
+5. Dépôt **manuel** par le tableau de bord Cloudflare, écran
+   « Deployments → New deployment → Upload static files to update your
+   Worker », dossier ci-dessus déposé **par Simon lui-même**. Aucun
+   raccordement Git, aucun déploiement automatique, aucune nouvelle
+   assemblage ni publication de `main`. Simon a saisi lui-même son
+   authentification et effectué le glisser-déposer ; aucun secret n'a
+   transité par la conversation, les captures ou le dépôt.
+
+### Vérifications avant dépôt (local, § 5.6)
+
+- Suite `scripts/verif-assemblage.mjs` : **90 réussis, 0 échec**,
+  `Conformité : OUI — rejeu sur la version figée`.
+- Assemblage production : 17 fichiers, `index, follow` sur l'accueil,
+  `noindex, follow` sur la 404, 202,1 Kio.
+- Double assemblage identique octet pour octet (`diff -rq` vide) ;
+  `sites/coiffeur-mixte/dist` ni créé ni nettoyé.
+- Inventaire du dossier de dépôt distinct recompté depuis sa racine :
+  17 fichiers, SHA-256 individuels et empreinte agrégée identiques à
+  l'artefact autorisé par Simon.
+- Aucune fiche de suivi (`INVENTAIRE-SHA256.txt`, `EMPREINTE-AGREGEE.txt`,
+  `README.txt`) présente dans le dossier de dépôt.
+- Aucun contenu interne (`docs`, `publication.json`, `scripts`, `.git`,
+  `shared`, `CLAUDE.md`, `.gitignore`, `.node-version`).
+
+### Vérifications après dépôt (hébergé, contrôles de fumée)
+
+Ces contrôles **ne constituent pas la recette QA hébergée** (§ 5.6, dernier
+paragraphe). Ils établissent le lien entre la source et ce qui est servi, et
+ce qui a été observé le jour du dépôt.
+
+- **Fichiers publics servis en 200** : les 17 fichiers de l'artefact
+  répondent 200 depuis l'origine. `_headers` n'est pas servi (404) :
+  comportement attendu, Cloudflare le consomme comme configuration.
+- **Apparence effectivement servie** : capture à 1440×900 en thème clair et
+  en thème sombre — la nouvelle direction « Clarté et structure » est bien
+  celle qui est en ligne, palette et bouton de bascule (« Sombre »/« Clair »)
+  conformes. Le mécanisme de thème (`data-theme` sur `<html>`, bouton,
+  persistance) fonctionne dans le navigateur.
+- **Vignette Créa'Tif servie et conforme** : les deux images
+  (`creatif-hero-mobile-3-2.webp`, `creatif-hero-desktop-16-9.webp`)
+  répondent 200 et s'affichent dans la carte « Réalisations », en thème
+  clair comme en thème sombre, avec le texte alternatif attendu — vérifié
+  visuellement par capture d'écran, en complément (non en remplacement) de la
+  preuve par empreinte du dossier de dépôt.
+- **`_headers` bien interprété** : `/assets/fonts/NOTICE.md` et
+  `/assets/images/NOTICE.md` sont servis en `text/plain; charset=utf-8` avec
+  `X-Robots-Tag: noindex, follow`.
+- **HTTPS** : origine servie en `https:`.
+- **404 réelle** : un chemin inexistant répond **404** avec la page
+  « Page introuvable — Simon COSTA » et `noindex, follow`.
+- **Aucun contenu interne exposé** : `/publication.json`, `/docs/`,
+  `/CLAUDE.md`, `/scripts/assemble-site.mjs`, `.node-version`, `/shared/`
+  répondent tous 404, ainsi que `/sites/coiffeur-mixte/index.html` — les deux
+  publications restent étanches. Les anciennes polices Nunito du dépôt n° 2
+  ne répondent plus (404) : elles ne subsistent pas à côté des nouvelles.
+- **Lien vers Créa'Tif et CTA de contact** : le lien vers la démonstration et
+  l'appel à l'action de contact sont présents et pointent vers les bonnes
+  cibles sur la page en ligne.
+- **Indexation** : `robots.txt` servi sans `Disallow` ; accueil en
+  `index, follow` ; 404 en `noindex, follow`.
+- **Aucune différence non attendue constatée.** La seule différence observée
+  est celle recherchée par ce dépôt : remplacement complet de l'apparence
+  boisée et cocooning par « Clarté et structure », et remplacement du visuel
+  de substitution par l'aperçu réel de Créa'Tif.
+
+### Réserves
+
+1. **Preview URLs déclarées désactivées par Simon, non re-vérifiées dans le
+   tableau de bord par ce dépôt.** Simon a confirmé avoir désactivé ce
+   réglage avant d'autoriser ce dépôt (réserve n° 1 du dépôt n° 2, laissée
+   ouverte à l'époque). Ce dépôt n'a pas relu l'onglet *Domains & Routes* du
+   Worker pour la confirmer par accès direct ; l'accord de Simon a été pris
+   comme fait établi, conformément à son message d'autorisation.
+2. **Dépôt effectué par Simon lui-même, pas par l'agent.** Le blocage de
+   permission du navigateur (Claude in Chrome n'était pas autorisé à
+   téléverser depuis le dossier de dépôt) a empêché un dépôt automatisé ; le
+   dossier vérifié a été transmis à Simon, qui a réalisé le glisser-déposer
+   et l'authentification lui-même — comme pour les dépôts n° 1 et n° 2.
+3. **Contrôles de fumée uniquement.** Rien ici ne remplace la recette QA
+   hébergée : paliers 320/375/768/1440, clavier, focus, lien d'évitement,
+   zoom 200 %, cache froid, erreurs réseau et console. **La recette des
+   dépôts n° 1 et n° 2 ne vaut plus pour l'apparence** : elle portait sur des
+   révisions dont la palette, la typographie et la vignette sont remplacées.
+   **La mise en avant du portfolio auprès de prospects ou d'employeurs reste
+   suspendue à une nouvelle recette.**
+
+### Suite
+
+- Faire passer une recette QA hébergée sur cette apparence et cette vignette
+  avant toute diffusion de l'URL.
+- Confirmer par accès direct au tableau de bord, au prochain accès, que
+  « Preview URLs » est bien désactivé pour ce Worker (réserve n° 1).
