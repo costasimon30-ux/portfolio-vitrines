@@ -312,6 +312,16 @@ Orientation retenue avec Simon :
 
 **Conséquence.** La section « Direction artistique » ci-dessous documente le parti pris précédent (sobre/technique) et reste conservée pour mémoire du choix initial. Elle est remplacée par la présente décision : elle sera réécrite par l’agent UI/UX en amont — palette, typographie, hero, boutons, composition et responsive compris.
 
+#### Validation produit de « Clarté et structure » — décision du 23 septembre 2026
+
+Simon valide la proposition UI/UX du commit `856f6f183aac2b9fea764ecc164371d542ced829` pour le seul site `sites/portfolio/` : (1) les palettes Clair/Sombre avec accent vert minéral et CTA neutres ; (2) Inter + IBM Plex Mono, un hero typographique et le visuel éditorial neutre de Créa’Tif ; (3) le thème initial fondé sur la préférence du système, le choix manuel mémorisé ayant ensuite priorité. La direction boisée des 19–20 septembre, y compris la texture intégrée dans les sources au commit `9d6c64c`, devient un état historique à remplacer dans le portfolio. La sous-section « Direction artistique » ci-dessous reste rédigée par UI/UX ; son statut « proposition à valider » décrit l’étape antérieure à la présente décision.
+
+**Périmètre autorisé :** Claude peut implémenter ce nouveau rendu dans `sites/portfolio/` uniquement. Conserver l’unique page, l’ordre et les textes des sections, les mentions légales, les ancres, les destinations des liens et le CTA principal de contact. Ne pas ajouter Grand Livre comme réalisation, ni modifier Créa’Tif, `shared/`, l’assemblage ou l’hébergement. Les polices sont auto-hébergées dans le portfolio avec leurs notices de licence.
+
+**Critères fonctionnels de la bascule :** un bouton visible et accessible au clavier permet de passer de Clair à Sombre et inversement, sans perdre le focus ni la position de lecture. Son libellé annonce le thème à activer. Sans choix manuel, le thème suit la préférence système ; après choix, seule la valeur Clair/Sombre du portfolio est mémorisée et prioritaire. Si le stockage est indisponible, la bascule fonctionne pendant la visite. Sans JavaScript, le contenu reste lisible selon le système et aucun bouton inopérant n’est présenté.
+
+**Critères de sortie de l’implémentation :** dans les deux thèmes, contrôler à 320, 375, 768 et 1440 px ainsi qu’au zoom navigateur 200 % : texte et commandes intégralement visibles, ordre de lecture cohérent, aucun chevauchement ou débordement horizontal, focus visible, liens et CTA existants fonctionnels. Contrôler aussi le premier affichage système/choix mémorisé, la bascule au clic, à Entrée et à Espace, et les replis sans stockage ni JavaScript. Le rendu visuel final reste à examiner séparément par UI/UX puis par Simon. Cette validation autorise le travail dans les sources ; elle n’autorise aucune publication ou modification du Worker en ligne.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
