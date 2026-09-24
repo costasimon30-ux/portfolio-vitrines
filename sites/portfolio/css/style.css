@@ -447,6 +447,21 @@ a:visited:hover { color: var(--c-accent-actif); }
 .btn:active { background-color: var(--c-cta-actif); color: var(--c-cta-texte); }
 .btn:focus-visible { color: var(--c-cta-texte); }
 
+/* CTA du hero uniquement : Simon demande que son texte suive exactement
+   --c-fond (et non --c-cta-texte) dans tous les etats. Sans ces regles,
+   `a:visited` et `a:visited:hover` (section ci-dessus, specificite
+   0,1,1 et 0,2,1) l'emportaient sur `.btn`/`.btn:hover` (0,1,0 et 0,2,0)
+   des que ce lien d'ancrage interne passait a l'etat visite, faisant
+   apparaitre le texte en vert (--c-accent) au lieu du blanc/texte du
+   bouton. Portee strictement limitee a `.hero__actions .btn` : le CTA
+   e-mail du bloc contact et les autres liens ne sont pas concernes. */
+.hero__actions .btn,
+.hero__actions .btn:hover,
+.hero__actions .btn:active,
+.hero__actions .btn:focus-visible,
+.hero__actions .btn:visited,
+.hero__actions .btn:visited:hover { color: var(--c-fond); }
+
 /* ---------- 06. Hero ---------- */
 
 .hero { padding-block: 0 var(--rythme-section); }
