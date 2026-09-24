@@ -530,67 +530,6 @@ a:visited:hover { color: var(--c-accent-actif); }
 }
 .visuel-projet img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Mouvement ciblé de la carte Créa'Tif — exception limitée au § 10
-   « Mouvement ciblé » de docs/DIRECTION.md, proposition UI/UX validée par
-   Simon le 24 septembre 2026. Un seul élément, un seul déclenchement, jamais
-   rejoué : sites/portfolio/js/mouvement-realisations.js pose les deux classes
-   d'état ci-dessous lui-même, seulement à partir de 768px CSS effectifs, hors
-   préférence de mouvement réduit, et seulement si IntersectionObserver est
-   disponible. Sans lui — pas de JavaScript, largeur insuffisante, mouvement
-   réduit, ou observation d'entrée indisponible —, aucune des deux classes
-   n'est jamais posée : la carte reste dans l'état par défaut ci-dessous, déjà
-   final, entièrement visible et immobile. C'est pourquoi `.carte-projet` seul
-   ne porte ici aucune règle : tout l'effet est conditionné par la classe
-   `--mouvement`, et son propre état de départ reste le rendu normal. */
-.carte-projet--mouvement {
-  /* Le filet des transitions de thème (`.carte` en base, § 02) doit rester
-     actif sur cette carte : la liste complète est reprise ici plutôt que
-     complétée, `transition` étant un raccourci qui remplace toute valeur
-     posée par une règle antérieure de même spécificité. */
-  transition: background-color .14s ease, border-color .14s ease, color .14s ease,
-              opacity .2s ease-out, transform .2s ease-out;
-}
-.carte-projet--mouvement.carte-projet--mouvement-armee {
-  opacity: 0.92;
-  transform: translateX(-8px);
-}
-.carte-projet--mouvement.carte-projet--mouvement-revele {
-  opacity: 1;
-  transform: none;
-}
-/* Repli défensif : si la classe d'attente est encore présente quand la
-   largeur CSS effective repasse sous 768px (redimensionnement, zoom) ou que
-   le mouvement réduit est demandé en cours de visite, ces deux règles
-   imposent l'état final ici même, sans attendre le script.
-
-   `transition: none` est indispensable ici, pas seulement défensif : ces
-   deux media queries se réévaluent au moment même du changement de largeur
-   ou de préférence, indépendamment du script — donc avant que
-   `mouvement-realisations.js` ait pu neutraliser la transition via son
-   changement de classe. Sans cette ligne, le passage de 0,92/-8px à 1/none
-   déclenché par la media query est un changement de valeur ordinaire, que la
-   transition `opacity .2s ease-out, transform .2s ease-out` de la règle de
-   base anime normalement — un repli qui se voulait immédiat devenait alors
-   une transition résiduelle de 200 ms (constatée en QA : opacity 0,95 à
-   80 ms après un passage 1440→720px). Le changement de classe que le script
-   effectue ensuite ne peut pas interrompre une transition déjà déclenchée
-   par la feuille de style : les deux règles visent la même valeur finale, il
-   n'y a alors plus de changement à annuler. */
-@media (max-width: 767.98px) {
-  .carte-projet--mouvement.carte-projet--mouvement-armee {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .carte-projet--mouvement.carte-projet--mouvement-armee {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
-
 /* ---------- 09. Ce que je fais ---------- */
 
 .grille-prestations {
@@ -756,4 +695,107 @@ a:visited:hover { color: var(--c-accent-actif); }
     align-items: start;
   }
   .visuel-projet { aspect-ratio: 16 / 9; margin-bottom: 0; }
+}
+
+/* ---------- 14. Mouvement de défilement (§ 10 DIRECTION.md) ---------- */
+
+/* Rythme de défilement global, direction validée par Simon le 24 septembre
+   2026 (docs/DIRECTION.md § 10 « Rythme de défilement global discret »,
+   commit documentaire 39b4cc4). Remplace l'ancienne exception limitée à la
+   seule carte Créa'Tif. Quatre groupes concernés — voir les classes posées
+   directement dans index.html : le titre et le texte d'À propos ensemble,
+   la carte Créa'Tif entière, les cartes de prestations par rangée, et le
+   bloc Contact entier. Hero, pied de page, bascule de thème, et titres/
+   introductions de Réalisations et Ce que je fais restent statiques : ils
+   ne portent aucune de ces classes.
+
+   Seuls opacity et transform varient, aucun déplacement de mise en page
+   n'est possible. sites/portfolio/js/mouvement-sections.js pose lui-même
+   les classes --armee puis --revele, seulement à partir de 768px CSS
+   effectifs, hors préférence de mouvement réduit, et seulement si
+   IntersectionObserver est disponible. Sans lui — pas de JavaScript,
+   largeur insuffisante, mouvement réduit, ou observation indisponible —,
+   aucune des deux classes n'est jamais posée : chaque groupe reste dans son
+   état par défaut ci-dessous, déjà final, entièrement visible et immobile.
+   C'est pourquoi la classe `.mouvement` seule ne porte aucune règle de
+   opacity/transform : tout l'effet est conditionné par `--armee`. */
+
+.mouvement.mouvement--armee {
+  opacity: var(--mvt-opacite, 1);
+  transform: var(--mvt-transform, none);
+}
+.mouvement.mouvement--revele {
+  opacity: 1;
+  transform: none;
+}
+
+/* À propos : titre + texte ensemble, 10px depuis la gauche, 0,96 → 1,
+   300ms. Ni l'un ni l'autre ne porte `.carte` : liste de transition
+   courte, rien à préserver d'une transition de bascule de thème. */
+.mouvement--gauche-10 {
+  --mvt-opacite: 0.96;
+  --mvt-transform: translateX(-10px);
+  transition: opacity .3s ease-out, transform .3s ease-out;
+}
+
+/* Créa'Tif (§ Réalisations) : la carte entière, un seul bloc, 8px depuis la
+   gauche, 0,94 → 1, 280ms. Remplace l'ancien réglage 200ms/0,92. La carte
+   porte aussi `.carte` (§ 02, transition de bascule de thème) : liste de
+   transition complète reprise ici plutôt que complétée — `transition` est
+   un raccourci qui remplace toute valeur posée par une règle antérieure de
+   même spécificité, même piège déjà rencontré et documenté sur cet élément
+   avant sa généralisation ici. */
+.mouvement--gauche-8 {
+  --mvt-opacite: 0.94;
+  --mvt-transform: translateX(-8px);
+  transition: background-color .14s ease, border-color .14s ease, color .14s ease,
+              opacity .28s ease-out, transform .28s ease-out;
+}
+
+/* Prestations (portent `.carte`) et Contact (n'en porte pas) : 8px depuis le
+   bas, 0,96 → 1, 280ms. La liste complète est reprise pour les deux — sans
+   effet sur le conteneur de Contact, qui ne change jamais de fond ni de
+   filet, mais évite de maintenir deux règles séparées pour un seul groupe
+   de valeurs. */
+.mouvement--bas-8 {
+  --mvt-opacite: 0.96;
+  --mvt-transform: translateY(8px);
+  transition: background-color .14s ease, border-color .14s ease, color .14s ease,
+              opacity .28s ease-out, transform .28s ease-out;
+}
+
+/* Cartes de prestations : décalage maximal de 60ms entre les deux cartes
+   d'une même rangée (grille à deux colonnes à partir de 768px, § 09 —
+   couplé à `.grille-prestations` dans mouvement-sections.js, à ajuster
+   ensemble si le nombre de colonnes change un jour). Posé uniquement sur la
+   seconde carte de chaque rangée dans index.html ; aucune cascade sur le
+   reste de la grille, chaque rangée se déclenche indépendamment au
+   défilement. */
+.mouvement--retard-1 { transition-delay: 60ms; }
+
+/* Repli défensif : si une classe d'attente est encore présente quand la
+   largeur CSS effective repasse sous 768px (redimensionnement, zoom) ou que
+   le mouvement réduit est demandé en cours de visite, ces deux règles
+   imposent l'état final ici même, sans attendre le script.
+
+   `transition: none` est indispensable ici, pas seulement défensif : ces
+   deux media queries se réévaluent au moment même du changement de largeur
+   ou de préférence, indépendamment du script — donc avant que
+   mouvement-sections.js ait pu neutraliser la transition via son
+   changement de classe. Sans cette ligne, le passage aux valeurs finales
+   déclenché par la media query est un changement de valeur ordinaire, que
+   la transition normale du groupe anime — un repli qui se voulait immédiat
+   devient alors une transition résiduelle (déjà constaté en QA sur ce
+   mécanisme, avant sa généralisation ici : opacity 0,95 à 80ms après un
+   passage 1440→720px sur la carte Créa'Tif). Le changement de classe que le
+   script effectue ensuite ne peut pas interrompre une transition déjà
+   déclenchée par la feuille de style : les deux règles visent la même
+   valeur finale, il n'y a alors plus de changement à annuler. Ceci couvre
+   aussi `transition-delay` (raccourci `transition`), pour les cartes de
+   prestations qui en portent un. */
+@media (max-width: 767.98px) {
+  .mouvement.mouvement--armee { opacity: 1; transform: none; transition: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mouvement.mouvement--armee { opacity: 1; transform: none; transition: none; }
 }

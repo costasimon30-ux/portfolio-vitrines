@@ -145,8 +145,8 @@
 
   <section class="section" id="a-propos" aria-labelledby="a-propos-title">
     <div class="container a-propos__grille">
-      <h2 id="a-propos-title">À propos</h2>
-      <div class="prose a-propos__texte">
+      <h2 id="a-propos-title" class="mouvement mouvement--gauche-10">À propos</h2>
+      <div class="prose a-propos__texte mouvement mouvement--gauche-10">
         <p>J’ai 28 ans et je construis des sites vitrines. Avant le développement, j’ai travaillé en support helpdesk — un métier où l’on n’a pas le droit de mal comprendre. On vous décrit un symptôme, presque jamais la cause&nbsp;: il faut écouter pour de bon, reformuler jusqu’à ce que la personne dise «&nbsp;oui, c’est exactement ça&nbsp;», puis résoudre. Vite, et sans jargon.</p>
         <p>C’est ce que j’ai gardé. Un projet de site commence rarement par un cahier des charges. Il commence par «&nbsp;je voudrais quelque chose de plus moderne&nbsp;», ou «&nbsp;mon site ne me ressemble plus&nbsp;». Mon travail commence là&nbsp;: comprendre ce que vous cherchez vraiment à obtenir, avant d’écrire la première ligne de code.</p>
         <p>Je me lance à mon compte, et ce que je propose est volontairement précis&nbsp;: des sites vitrines rapides, accessibles, qui tiennent sur tous les écrans. Pas de promesse démesurée — un travail soigné, vérifié, et une réalisation que vous pouvez regarder avant de décider.</p>
@@ -160,7 +160,7 @@
       <p class="section__intro">Une première réalisation, consultable en ligne. D’autres viendront s’ajouter ici.</p>
 
       <ul class="grille-projets">
-        <li class="carte carte-projet carte-projet--mouvement">
+        <li class="carte carte-projet mouvement mouvement--gauche-8">
           <!-- Aperçu réel de Créa'Tif, conforme à l'arbitrage produit du
                23 septembre 2026 (docs/DIRECTION.md) qui déroge, pour ce seul
                emplacement, à la décision P06 d'origine : capture honnête du
@@ -169,14 +169,15 @@
                retouche, aucun filtre, aucun faux cadre de navigateur. Détails
                de provenance et de cadrage dans assets/images/NOTICE.md.
 
-               Mouvement d'entrée ciblé sur cette seule carte, conforme au
-               § 10 « Mouvement ciblé » de docs/DIRECTION.md (proposition
-               UI/UX validée par Simon le 24 septembre 2026) : voir
-               js/mouvement-realisations.js et la section « 08. Réalisations »
-               de css/style.css. L'état par défaut ci-dessous (sans les
-               classes que ce script pose lui-même) est déjà l'état final,
-               visible et immobile — c'est le repli sans JavaScript, sous
-               768px et avec un mouvement réduit demandé. -->
+               Mouvement d'entrée sur cette carte entière, conforme au § 10
+               « Rythme de défilement global discret » de docs/DIRECTION.md
+               (direction validée par Simon le 24 septembre 2026, commit
+               documentaire 39b4cc4) : voir js/mouvement-sections.js et la
+               section « 14. Mouvement de défilement » de css/style.css.
+               L'état par défaut ci-dessous (sans les classes que ce script
+               pose lui-même) est déjà l'état final, visible et immobile —
+               c'est le repli sans JavaScript, sous 768px et avec un
+               mouvement réduit demandé. -->
           <div class="visuel-projet">
             <picture>
               <source media="(min-width: 1024px)" srcset="assets/images/creatif-hero-desktop-16-9.webp">
@@ -200,19 +201,19 @@
       <p class="section__intro">Un périmètre volontairement resserré, sur ce que je sais livrer aujourd’hui.</p>
 
       <ul class="grille-prestations">
-        <li class="carte prestation">
+        <li class="carte prestation mouvement mouvement--bas-8">
           <h3>Site vitrine</h3>
           <p>La création complète d’un site de présentation&nbsp;: structure des pages, mise en forme, contenus intégrés, prêt à être mis en ligne.</p>
         </li>
-        <li class="carte prestation">
+        <li class="carte prestation mouvement mouvement--bas-8 mouvement--retard-1">
           <h3>Refonte de pages</h3>
           <p>La reprise d’un site existant dont la présentation a vieilli ou qui tient mal sur téléphone, sans repartir de zéro.</p>
         </li>
-        <li class="carte prestation">
+        <li class="carte prestation mouvement mouvement--bas-8">
           <h3>Application web</h3>
           <p>De petits outils qui fonctionnent entièrement dans le navigateur, sans serveur à administrer ni abonnement à payer.</p>
         </li>
-        <li class="carte prestation">
+        <li class="carte prestation mouvement mouvement--bas-8 mouvement--retard-1">
           <h3>Mise en ligne</h3>
           <p>La publication du site et sa remise entre vos mains&nbsp;: hébergement, nom des pages, accès, et la marche à suivre pour le faire évoluer.</p>
         </li>
@@ -223,7 +224,7 @@
   </section>
 
   <section class="contact" id="contact" aria-labelledby="contact-title">
-    <div class="container">
+    <div class="container mouvement mouvement--bas-8">
       <h2 id="contact-title">Discutons de votre projet</h2>
       <p class="section__intro">Décrivez-moi ce que vous avez en tête, même sans savoir comment le formuler — c’est précisément mon travail de le clarifier avec vous. Je réponds à tout le monde. Les projets sont chiffrés sur devis, adapté à chaque périmètre.</p>
       <div class="contact__actions">
@@ -249,6 +250,6 @@
     <p><a href="#main">Retour en haut de page</a></p>
   </div>
 </footer>
-<script src="/js/mouvement-realisations.js" defer></script>
+<script src="/js/mouvement-sections.js" defer></script>
 </body>
 </html>
