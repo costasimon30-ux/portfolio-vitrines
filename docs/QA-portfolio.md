@@ -1,5 +1,29 @@
 # QA / Audit — portfolio
 
+## Recette hébergée ciblée — 23 septembre 2026 — version annoncée ad384491
+
+**Verdict : avis favorable à la mise en avant auprès de prospects et d’employeurs, avec une anomalie mineure à suivre.** En HTTPS, les ressources servies correspondent octet pour octet à l’assemblage indépendant du commit source `52584f0d65cb4b1eee7cdcea071794f664b34ae5` et à l’empreinte du candidat. Le numéro Cloudflare `ad384491` est déclaré dans le journal de publication, mais n’est pas exposé par la réponse publique.
+
+### Testé et passé sur l’URL réelle
+
+Le 23 septembre 2026, l’accueil répond `200` en HTTPS. Les 16 fichiers servis (HTML de l’accueil et vraie 404, plus les 14 ressources accessibles directement) ont les mêmes SHA-256 que l’assemblage source. `/index` et `/404.html` redirigent en `307` vers les routes canoniques ; les routes absentes simples et imbriquées répondent réellement `404` et offrent un retour vers l’accueil. Les chemins internes ciblés sont refusés. `robots.txt` autorise l’exploration ; l’accueil est `index, follow`, la vraie 404 `noindex, follow`, et les notices/licences servent `text/plain` avec `X-Robots-Tag: noindex, follow`.
+
+Sur l’accueil et la vraie 404, dans les deux thèmes et aux viewports mesurés 320, 375, 768 et 1440 px : contenu et navigation visibles, pas de débordement horizontal. Les images de la carte Créa’Tif et les polices locales chargent correctement. Le lien d’évitement reçoit le focus réel au clavier ; Entrée place le focus sur le contenu principal. Le CTA contact, le lien vers la démo, les crédits et la mention de salon fictif sont fonctionnels ou lisibles selon la page. Aucune erreur console ni ressource manquante propre au site relevée.
+
+### QA-H03-01 — mineur — HTTP sans redirection
+
+**Reproduction :** demander `http://portfolio-simon-costa.costa-simon30.workers.dev/` sans suivre de redirection. **Observé :** `200 OK`, sans en-tête `Location`; le corps est celui de l’accueil. **Impact :** un client qui n’impose pas HTTPS peut recevoir la page sans chiffrement. Le navigateur de recette a automatiquement mis à niveau sa navigation, ce qui ne prouve pas une redirection serveur. **Recommandation :** configurer une redirection HTTP vers HTTPS côté hébergement puis vérifier le statut et `Location`. L’URL HTTPS fonctionne ; ce constat mineur ne bloque pas l’avis favorable.
+
+### Limites et réserve documentaire
+
+Le zoom navigateur natif 200 % n’a pas pu être réglé dans l’environnement de recette ; aucune approximation n’est revendiquée. Les temps observés concernaient des réponses CDN `HIT` : pas de mesure à cache froid ni de score Lighthouse. Les paramètres Preview URL et Version URL du Worker ne sont pas vérifiables depuis sa surface publique ; leur désactivation reste une réserve documentaire, pas un contrôle passé. Les variantes navigateur, appareils physiques et lecteurs d’écran n’ont pas été testés.
+
+Le contenu public observé concorde avec le commit `52584f0`, mais l’identifiant interne `ad384491` n’a pas pu être prouvé par HTTP. Aucune action de déploiement n’est couverte par cet avis.
+
+---
+
+
+
 ## Prépublication ciblée — 23 septembre 2026 — source 52584f0
 
 **Verdict : candidat prêt pour décision de Simon.** Le dossier exact destiné au dépôt a été comparé à l’assemblage indépendant du commit source indiqué ci-dessous : les 17 chemins et tous leurs SHA-256 sont identiques, ainsi que l’empreinte agrégée. Aucune fiche de suivi ni fichier caché ne figure dans le dossier. Ce verdict porte sur le candidat local comparé ; il ne certifie pas la version hébergée et n’autorise pas son déploiement.
