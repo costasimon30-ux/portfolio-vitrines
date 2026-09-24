@@ -515,6 +515,50 @@ a:visited:hover { color: var(--c-accent-actif); }
 }
 .visuel-projet img { width: 100%; height: 100%; object-fit: cover; }
 
+/* Mouvement ciblé de la carte Créa'Tif — exception limitée au § 10
+   « Mouvement ciblé » de docs/DIRECTION.md, proposition UI/UX validée par
+   Simon le 24 septembre 2026. Un seul élément, un seul déclenchement, jamais
+   rejoué : sites/portfolio/js/mouvement-realisations.js pose les deux classes
+   d'état ci-dessous lui-même, seulement à partir de 768px CSS effectifs, hors
+   préférence de mouvement réduit, et seulement si IntersectionObserver est
+   disponible. Sans lui — pas de JavaScript, largeur insuffisante, mouvement
+   réduit, ou observation d'entrée indisponible —, aucune des deux classes
+   n'est jamais posée : la carte reste dans l'état par défaut ci-dessous, déjà
+   final, entièrement visible et immobile. C'est pourquoi `.carte-projet` seul
+   ne porte ici aucune règle : tout l'effet est conditionné par la classe
+   `--mouvement`, et son propre état de départ reste le rendu normal. */
+.carte-projet--mouvement {
+  /* Le filet des transitions de thème (`.carte` en base, § 02) doit rester
+     actif sur cette carte : la liste complète est reprise ici plutôt que
+     complétée, `transition` étant un raccourci qui remplace toute valeur
+     posée par une règle antérieure de même spécificité. */
+  transition: background-color .14s ease, border-color .14s ease, color .14s ease,
+              opacity .2s ease-out, transform .2s ease-out;
+}
+.carte-projet--mouvement.carte-projet--mouvement-armee {
+  opacity: 0.92;
+  transform: translateX(-8px);
+}
+.carte-projet--mouvement.carte-projet--mouvement-revele {
+  opacity: 1;
+  transform: none;
+}
+/* Repli défensif, redondant avec les conditions déjà posées par le script :
+   même si la classe d'attente était néanmoins présente hors de la fenêtre
+   prévue par le § 10, elle ne produit ici aucun effet visible. */
+@media (max-width: 767.98px) {
+  .carte-projet--mouvement.carte-projet--mouvement-armee {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carte-projet--mouvement.carte-projet--mouvement-armee {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ---------- 09. Ce que je fais ---------- */
 
 .grille-prestations {

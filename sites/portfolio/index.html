@@ -160,14 +160,23 @@
       <p class="section__intro">Une première réalisation, consultable en ligne. D’autres viendront s’ajouter ici.</p>
 
       <ul class="grille-projets">
-        <li class="carte carte-projet">
+        <li class="carte carte-projet carte-projet--mouvement">
           <!-- Aperçu réel de Créa'Tif, conforme à l'arbitrage produit du
                23 septembre 2026 (docs/DIRECTION.md) qui déroge, pour ce seul
                emplacement, à la décision P06 d'origine : capture honnête du
                hero d'accueil de la démo, deux cadrages de la même prise
                (3:2 à 1024px pour mobile, 16:9 à 1200px pour desktop), aucune
                retouche, aucun filtre, aucun faux cadre de navigateur. Détails
-               de provenance et de cadrage dans assets/images/NOTICE.md. -->
+               de provenance et de cadrage dans assets/images/NOTICE.md.
+
+               Mouvement d'entrée ciblé sur cette seule carte, conforme au
+               § 10 « Mouvement ciblé » de docs/DIRECTION.md (proposition
+               UI/UX validée par Simon le 24 septembre 2026) : voir
+               js/mouvement-realisations.js et la section « 08. Réalisations »
+               de css/style.css. L'état par défaut ci-dessous (sans les
+               classes que ce script pose lui-même) est déjà l'état final,
+               visible et immobile — c'est le repli sans JavaScript, sous
+               768px et avec un mouvement réduit demandé. -->
           <div class="visuel-projet">
             <picture>
               <source media="(min-width: 1024px)" srcset="assets/images/creatif-hero-desktop-16-9.webp">
@@ -240,5 +249,6 @@
     <p><a href="#main">Retour en haut de page</a></p>
   </div>
 </footer>
+<script src="/js/mouvement-realisations.js" defer></script>
 </body>
 </html>
