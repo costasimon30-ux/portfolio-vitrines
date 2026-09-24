@@ -43,6 +43,24 @@
   var carte = document.querySelector(".carte-projet--mouvement");
   if (!carte) return;
 
+  // Arrivée directe sur une ancre qui amène la carte (ou sa section) dans le
+  // viewport : le défilement natif déclenché par le fragment d'URL — lissé
+  // par `scroll-behavior: smooth` (§ 02) — fait passer l'intersection de 0 à
+  // plus de 20 % progressivement, exactement comme un défilement de
+  // l'utilisateur. Sans ce repli, le premier passage de l'observateur (à
+  // ratio 0, avant que le défilement natif ne commence) consommerait déjà
+  // « premierPassage », et la traversée du seuil pendant le défilement lissé
+  // serait alors traitée comme une entrée normale, animée — ce que le § 10
+  // exclut pour une arrivée par ancre. On ne pose alors jamais les classes
+  // d'attente : la carte reste dans son état final par défaut, sans qu'aucune
+  // transition ne soit possible.
+  if (window.location.hash) {
+    var cibleAncre = document.getElementById(window.location.hash.slice(1));
+    if (cibleAncre && (cibleAncre === carte || cibleAncre.contains(carte))) {
+      return;
+    }
+  }
+
   var lien = carte.querySelector(".carte-projet__lien a");
 
   var CLASSE_ARMEE = "carte-projet--mouvement-armee";

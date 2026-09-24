@@ -543,19 +543,36 @@ a:visited:hover { color: var(--c-accent-actif); }
   opacity: 1;
   transform: none;
 }
-/* Repli défensif, redondant avec les conditions déjà posées par le script :
-   même si la classe d'attente était néanmoins présente hors de la fenêtre
-   prévue par le § 10, elle ne produit ici aucun effet visible. */
+/* Repli défensif : si la classe d'attente est encore présente quand la
+   largeur CSS effective repasse sous 768px (redimensionnement, zoom) ou que
+   le mouvement réduit est demandé en cours de visite, ces deux règles
+   imposent l'état final ici même, sans attendre le script.
+
+   `transition: none` est indispensable ici, pas seulement défensif : ces
+   deux media queries se réévaluent au moment même du changement de largeur
+   ou de préférence, indépendamment du script — donc avant que
+   `mouvement-realisations.js` ait pu neutraliser la transition via son
+   changement de classe. Sans cette ligne, le passage de 0,92/-8px à 1/none
+   déclenché par la media query est un changement de valeur ordinaire, que la
+   transition `opacity .2s ease-out, transform .2s ease-out` de la règle de
+   base anime normalement — un repli qui se voulait immédiat devenait alors
+   une transition résiduelle de 200 ms (constatée en QA : opacity 0,95 à
+   80 ms après un passage 1440→720px). Le changement de classe que le script
+   effectue ensuite ne peut pas interrompre une transition déjà déclenchée
+   par la feuille de style : les deux règles visent la même valeur finale, il
+   n'y a alors plus de changement à annuler. */
 @media (max-width: 767.98px) {
   .carte-projet--mouvement.carte-projet--mouvement-armee {
     opacity: 1;
     transform: none;
+    transition: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .carte-projet--mouvement.carte-projet--mouvement-armee {
     opacity: 1;
     transform: none;
+    transition: none;
   }
 }
 
