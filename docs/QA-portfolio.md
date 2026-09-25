@@ -1,5 +1,18 @@
 # QA / Audit — portfolio
 
+## Contre-vérification ciblée — 25 septembre 2026 — source a51f11a
+
+**Verdict : QA-MVT-01 PASS ; QA-MVT-02 PASS. Candidat prêt pour décision de publication sur ce périmètre.** Source exacte `a51f11adde87e7b9c341aca6af21190d2b5e0a54`, assemblée en production avec Node 22.23.2 (18 fichiers, 224,3 Kio), servie uniquement en local. Les conclusions négatives de la section `004218b` ci-dessous restent historiques et ne décrivent pas cette révision. Aucun déploiement ni contrôle du Worker effectué.
+
+- **QA-MVT-01 — clos.** Sur `/`, après une vraie molette de 100 px puis un vrai clic sur « Discutons de votre projet », à 768 et 1440 px CSS, thèmes clair et sombre : `/#contact` atteint, opacité finale 1, transform nul, aucun `transitionrun` de Contact. Le même scénario sur `004218b` produisait `transitionrun` opacité/transform dans les quatre cas. Le `hashchange` survient avant la visibilité de Contact (à 768 px : `scrollY=100`, cible encore à 2639 px du haut ; à 1440 px : 2334 px) ; le style final est observé au tour suivant, 0,4–1,5 ms plus tard, avant l’arrivée de la cible. Il ne faut donc pas confondre l’état lu par un premier écouteur `hashchange` avec l’état à l’arrivée. Entrée au clavier sur le CTA réellement focalisé à 768 px, changement de fragment pendant la session, retour/avance historique et accès direct `/#contact` à 768/1440 px dans les deux thèmes : même résultat final, sans animation de Contact.
+- **QA-MVT-02 — clos.** Sur les quatre cartes Prestations à 768 et 1440 px, dans les deux sens Clair↔Sombre, `background-color`, les quatre côtés de `border-color` et `color` démarrent ensemble : écart mesuré entre cartes au plus 0,4 ms, donc inférieur à 10 ms. Le CSS calculé donne 0 ms de délai et 140 ms de durée pour ces couleurs sur les quatre cartes ; les cartes 2/4 gardent 60 ms de délai uniquement sur `opacity` et `transform`. Six bascules répétées à 768 px ont fini en 141–150 ms selon les événements ; une première série isolée a relevé deux fins à 166,7 ms dans le sens retour, sans retard de démarrage entre cartes, compatible avec la cadence des images du navigateur. Sur `004218b`, les cartes 2/4 commençaient les couleurs 60–84 ms après les autres et finissaient vers 200–218 ms. En défilement réel, le mouvement des secondes cartes reste décalé d’environ 50–67 ms selon l’image affichée ; aucune transition de couleur n’est déclenchée par ce défilement.
+- **Repli ciblé :** à 767 px et avec `prefers-reduced-motion: reduce` à 768 px, les huit groupes de mouvement restent statiques et visibles (`opacity: 1`, transform nul, aucun groupe armé). Aucune erreur console relevée dans les scénarios ciblés.
+
+**Limites :** mesures Chrome local, non Worker ; pas d’appareil physique ni d’autre moteur de navigateur. La variation ponctuelle de 166,7 ms des événements de fin est consignée, sans décalage visuel entre cartes ni retard CSS ; elle ne reproduit pas QA-MVT-02. Aucun audit général, modification de code/configuration ou déploiement par QA.
+
+---
+
+
 ## Contre-vérification prépublication ciblée — 25 septembre 2026 — source 004218b
 
 **Verdict : candidat non prêt pour validation par Simon sur le § 10.** Un saut interne vers Contact déclenche encore le mouvement alors que l’arrivée par ancre doit présenter le groupe dans son état final. Le retard des cartes de prestations affecte aussi la bascule de thème. Ce verdict concerne le commit exact `004218b9fcfcc49ec6fdee056d116c29b01af11d` assemblé localement ; les conclusions hébergées plus bas concernent d’autres révisions.
