@@ -770,8 +770,22 @@ a:visited:hover { color: var(--c-accent-actif); }
    ensemble si le nombre de colonnes change un jour). Posé uniquement sur la
    seconde carte de chaque rangée dans index.html ; aucune cascade sur le
    reste de la grille, chaque rangée se déclenche indépendamment au
-   défilement. */
-.mouvement--retard-1 { transition-delay: 60ms; }
+   défilement.
+
+   Réservé à opacity/transform (mouvement d'entrée) : `transition-delay`
+   est une liste positionnelle qui s'apparie avec celle de
+   `transition-property` de la règle appliquée (ici `.mouvement--bas-8`,
+   seule classe combinée avec celle-ci) — un simple `60ms` s'appliquerait
+   donc aux CINQ propriétés qu'elle déclare, y compris background-color,
+   border-color et color de la bascule de thème (§ 02), les décalant elles
+   aussi de 60ms et faisant dépasser la fenêtre de 120–160ms du brief pour
+   ces deux cartes (défaut relevé indépendamment par la revue de code et la
+   QA du 25 septembre 2026 : QA-MVT-02). La liste explicite ci-dessous fixe
+   un délai nul pour les trois propriétés de thème et 60ms seulement pour
+   opacity/transform — son ORDRE doit rester exactement celui de
+   `.mouvement--bas-8` (background-color, border-color, color, opacity,
+   transform) ; à mettre à jour ensemble si cet ordre change. */
+.mouvement--retard-1 { transition-delay: 0s, 0s, 0s, 0.06s, 0.06s; }
 
 /* Repli défensif : si une classe d'attente est encore présente quand la
    largeur CSS effective repasse sous 768px (redimensionnement, zoom) ou que

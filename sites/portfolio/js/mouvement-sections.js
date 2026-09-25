@@ -48,6 +48,14 @@
   immédiatement à son état final, focus conservé — jamais de groupe
   atténué sous le focus.
 
+  Navigation par ancre interne en cours de session (clic sur un lien
+  `href="#..."`, activation clavier de ce même lien, changement de
+  fragment, retour/avant) : traitée comme une arrivée par ancre à part
+  entière, via l'évènement `hashchange` — état final immédiat pour le
+  groupe ciblé (cible égale, contenue par, ou contenant un de ses
+  éléments), sans attendre l'observateur d'intersection, même si un
+  défilement réel de l'utilisateur a déjà eu lieu par ailleurs.
+
   Détection « défilement réel de l'utilisateur » (et non simple
   déclenchement de l'observateur) : un groupe déjà visible sans qu'aucun
   défilement volontaire (molette, tactile, touches de défilement au
@@ -84,8 +92,14 @@
 
   var hashCible = window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
 
+  // Vrai si la cible d'ancre et l'élément d'un groupe se recouvrent, dans
+  // un sens OU dans l'autre : la cible peut être (ou contenir) l'élément du
+  // groupe — cas déjà couvert —, mais aussi être un DESCENDANT de cet
+  // élément (ex. une ancre pointant vers un sous-élément à l'intérieur du
+  // bloc Contact) : ce second sens manquait — relevé par la revue de code
+  // du 25 septembre 2026, corrigé ici.
   function cibleContientOuEst(cible, el) {
-    return !!cible && (cible === el || cible.contains(el));
+    return !!cible && (cible === el || cible.contains(el) || el.contains(cible));
   }
 
   // Vrai uniquement après un défilement volontairement déclenché par
@@ -111,7 +125,7 @@
       return null; // arrivée directe par ancre : jamais armé
     }
 
-    var groupe = { revele: false, observer: null };
+    var groupe = { revele: false, observer: null, elements: elements };
 
     function surFocus() { reveler(true); }
     function detacherFocus() {
@@ -240,4 +254,34 @@
       tousLesGroupes.forEach(function (g) { if (g && !g.revele) g.reveler(true); });
     });
   }
+
+  // --- Navigation par ancre interne en cours de session (clic, activation
+  // clavier, changement de fragment, retour/avant) : doit produire le même
+  // résultat qu'un chargement direct sur cette ancre — état final immédiat
+  // pour le groupe ciblé, SANS attendre l'IntersectionObserver. Avant ce
+  // correctif, un groupe pas encore révélé mais déjà armé restait soumis
+  // au seul indicateur de défilement réel : si l'utilisateur avait défilé
+  // ne serait-ce qu'un peu AVANT d'activer un lien d'ancre interne (ex. le
+  // CTA du hero vers #contact), le défilement natif vers la cible faisait
+  // franchir le seuil de visibilité avec cet indicateur déjà à vrai, donc
+  // une révélation ANIMÉE au lieu de l'état final immédiat requis par le
+  // § 10 — défaut relevé indépendamment par la revue de code et la QA du
+  // 25 septembre 2026 sur ce CTA précis. `hashchange` couvre uniformément
+  // le clic, l'activation clavier (Entrée) et la navigation retour/avant
+  // qui change le fragment ; se déclenche avant que le défilement natif
+  // (animé par `scroll-behavior: smooth`) n'ait eu le temps d'amener la
+  // cible dans le viewport, donc avant tout signalement de l'observateur.
+  function revelerPourCible(cible) {
+    if (!cible) return;
+    tousLesGroupes.forEach(function (g) {
+      if (!g || g.revele) return;
+      if (g.elements.some(function (el) { return cibleContientOuEst(cible, el); })) {
+        g.reveler(true);
+      }
+    });
+  }
+  window.addEventListener("hashchange", function () {
+    var cible = window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
+    revelerPourCible(cible);
+  });
 })();
