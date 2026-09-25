@@ -1,5 +1,29 @@
 # QA / Audit — portfolio
 
+## Contre-vérification prépublication ciblée — 25 septembre 2026 — source 004218b
+
+**Verdict : candidat non prêt pour validation par Simon sur le § 10.** Un saut interne vers Contact déclenche encore le mouvement alors que l’arrivée par ancre doit présenter le groupe dans son état final. Le retard des cartes de prestations affecte aussi la bascule de thème. Ce verdict concerne le commit exact `004218b9fcfcc49ec6fdee056d116c29b01af11d` assemblé localement ; les conclusions hébergées plus bas concernent d’autres révisions.
+
+### Méthode et points passés
+
+- Assemblage de production du commit figé avec Node 22.23.2 : 18 fichiers, 220,7 Kio. Tests sur `127.0.0.1` dans Chrome, sans assimilation à la version du Worker. Viewports CSS mesurés de 320, 375, 768 et 1440 px, thèmes clair et sombre : 320/375 restent statiques ; à 768/1440, les groupes hors champ sont armés à 0,94 ou 0,96 d’opacité et à 8 ou 10 px, jamais invisibles. Aucun débordement horizontal ni erreur console relevé dans cette matrice.
+- Zoom **natif Chrome à 200 %**, confirmé par son contrôle et `devicePixelRatio=2`, combiné à des viewports imposés de 320/375/768/1440 px : largeurs CSS effectives 160/187/384/720 px. Après rechargement dans les deux thèmes, zéro groupe armé, opacité 1 et transform nul pour les huit éléments ; `scrollWidth` inférieur à `innerWidth`. À 1440 px, le passage en cours de visite de 100 à 200 % fait également passer de 1440 à 720 px CSS et force immédiatement l’état final. Les quatre tailles sont des viewports de test, pas quatre fenêtres physiques ni quatre appareils.
+- À 768 × 900 px, molette réelle : la carte Créa’Tif reste armée à 19,89 % de visibilité puis démarre à 20,99 %. Son retour hors champ puis sa réentrée ne relancent aucune transition. À 768 × 400 px, titre et texte d’À propos démarrent ensemble (événements séparés de 0,1 ms). Les prestations s’animent par rangée ; la seconde carte porte 60 ms de délai CSS. Hero, titres et introductions de Réalisations/Prestations et pied de page restent statiques. Aucun nouveau `layout-shift` n’a été relevé lors de la révélation de la carte ; un score de 0,057 au chargement, avant défilement, n’est pas attribué à cet effet.
+- Arrivées directes sur `/#a-propos`, `/#realisations`, `/#prestations`, `/#contact` et `/#main` à 768 × 900 px : groupe ciblé final, aucun `transitionrun`. Premier Tab réel sur « Aller au contenu principal », puis Entrée : URL `#main`, focus réel sur `main`, tous les groupes finaux. Tab jusqu’à « Voir la démo » : focus réel, carte finale sans transition. Avec mouvement réduit, sans JavaScript ou sans `IntersectionObserver`, les groupes restent visibles et statiques ; liens et CTA restent accessibles.
+
+### QA-MVT-01 — majeur — arrivée par ancre animée après un défilement
+
+**Reproduction :** sur `/` à 768 × 900 px, donner un coup de molette de 100 px, puis cliquer réellement sur le CTA du hero « Discutons de votre projet ». **Observé :** l’URL devient `/#contact`, puis le bloc Contact émet `transitionrun` sur l’opacité et la translation à `scrollY=2014,5` ; il part de 0,96 et +8 px avant d’atteindre 1 et sa position finale. Une arrivée directe sur `/#contact` ne reproduit pas ce défaut. **Impact :** l’arrivée par le lien interne n’est pas immédiatement stable, contrairement au critère explicite du § 10 ; le lien reste utilisable. **Correction recommandée :** traiter l’activation et le changement d’ancre comme une révélation instantanée du groupe cible, même après une interaction de défilement, puis contre-vérifier le clic et le retour arrière.
+
+### QA-MVT-02 — mineur — délai de thème sur les secondes cartes
+
+**Reproduction :** à 768 px, charger `/#main`, puis activer la bascule de thème. **Observé :** les cartes 2 et 4 ont `transition-delay: 60ms` sur toutes les propriétés, y compris le fond. Événements mesurés : cartes 1/3 démarrent à 886,8 ms et finissent à 1033,5 ms ; cartes 2/4 démarrent à 950,1 ms et finissent à 1083,3 ms, soit environ 196 ms depuis le départ des premières, au-delà des 160 ms du thème. **Impact :** la rangée change de couleur en deux temps. **Correction recommandée :** limiter le retard aux propriétés de mouvement, sans différer les couleurs de la bascule.
+
+**Limites :** pas de recette de cette révision sur le Worker, pas d’appareil physique, de Safari/Firefox ou de lecteur d’écran. Le score de décalage initial n’a pas été attribué à une cause dans cette passe ciblée. Les réserves historiques et l’audit général ne sont pas réouverts. Aucun code, configuration ou déploiement modifié par QA.
+
+---
+
+
 ## Recette hébergée ciblée — 23 septembre 2026 — version annoncée ad384491
 
 **Verdict : avis favorable à la mise en avant auprès de prospects et d’employeurs, avec une anomalie mineure à suivre.** En HTTPS, les ressources servies correspondent octet pour octet à l’assemblage indépendant du commit source `52584f0d65cb4b1eee7cdcea071794f664b34ae5` et à l’empreinte du candidat. Le numéro Cloudflare `ad384491` est déclaré dans le journal de publication, mais n’est pas exposé par la réponse publique.
