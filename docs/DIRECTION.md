@@ -332,6 +332,16 @@ La photographie visible dans ce hero est P01, « Stylist Cutting Long Hair », a
 
 Cette validation porte sur la sélection et autorise une implémentation limitée à `sites/portfolio/`, pas la validation du rendu final ni sa publication. Après intégration, examiner la carte à 320, 375 et 1440 px dans les deux thèmes : lisibilité du titre, geste et outils visibles, image non déformée, absence de filtre et de recouvrement du texte, continuité du lien vers la démo. Aucun autre bloc du portfolio ni aucune page de Créa’Tif ne change ; aucun déploiement n’est autorisé.
 
+#### Point d'étape — pause du 25 septembre 2026
+
+**Portfolio professionnel : en ligne, évolution mise en pause.** Simon a autorisé le dépôt manuel du candidat source `a51f11adde87e7b9c341aca6af21190d2b5e0a54` sur le Worker Cloudflare existant `portfolio-simon-costa`. Le tableau de bord a confirmé la nouvelle version active **`ab9e2c4a`**, avec `49bef56d` conservée comme version précédente. URL inchangée : [portfolio public](https://portfolio-simon-costa.costa-simon30.workers.dev/). Le dossier déposé contenait **18 fichiers** et portait l'empreinte agrégée `94e464619fb90a58e7645432a831d7702153ce96cb7407a127c31107642d99af` (méthode de `docs/ARCHITECTURE.md` § 5.4). Le dépôt n'a connecté ni Git ni domaine personnalisé ; aucune publication de Créa’Tif n'a été effectuée.
+
+**Qualité connue :** la contre-vérification QA locale du commit `3af2650` clôt `QA-MVT-01` et `QA-MVT-02` sur cette source précise. Après dépôt, les seuls contrôles de fumée réalisés ici confirment l'accueil, la présence des contenus/liens et de la bascule de thème, les références CSS/JS, l'absence d'erreur console observée, la page 404 personnalisée avec `noindex, follow`, et `/docs/` non exposé. Ces observations **ne sont pas une recette QA hébergée complète** : elles ne démontrent notamment ni le comportement de mouvement à toutes les largeurs et aux deux thèmes, ni tous les statuts/en-têtes et MIME des ressources, ni le zoom natif à 200 % sur le Worker. Ne pas attribuer au rapport QA local une validation de l'hébergement.
+
+**Autre site :** Créa’Tif reste une démo autonome livrée, liée depuis la carte « Réalisations ». La décision de conserver P06 et sa réserve documentaire de droits tiers restent inchangées ; la capture affichée sur le portfolio provient du hero d'accueil et n'inclut pas P06.
+
+**À la reprise, sans urgence ni nouvelle passe automatique :** consigner le dépôt ci-dessus dans `docs/PUBLICATION-portfolio.md` (le journal s'arrête actuellement au dépôt n° 3) ; décider si une recette hébergée ciblée de cette version est utile avant une nouvelle mise en avant ; confirmer au besoin dans le tableau de bord l'état de « Preview URLs », déclaré désactivé par Simon mais non recontrôlé ici. La réserve historique mineure sur la réponse HTTP sans redirection et celle du type MIME des polices ne sont pas requalifiées par cette note. Aucun changement de code, nouvelle direction, second site, automatisation ni republication n'est lancé pendant cette pause.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
