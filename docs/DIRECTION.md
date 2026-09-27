@@ -342,6 +342,19 @@ Cette validation porte sur la sélection et autorise une implémentation limité
 
 **À la reprise, sans urgence ni nouvelle passe automatique :** consigner le dépôt ci-dessus dans `docs/PUBLICATION-portfolio.md` (le journal s'arrête actuellement au dépôt n° 3) ; décider si une recette hébergée ciblée de cette version est utile avant une nouvelle mise en avant ; confirmer au besoin dans le tableau de bord l'état de « Preview URLs », déclaré désactivé par Simon mais non recontrôlé ici. La réserve historique mineure sur la réponse HTTP sans redirection et celle du type MIME des polices ne sont pas requalifiées par cette note. Aucun changement de code, nouvelle direction, second site, automatisation ni republication n'est lancé pendant cette pause.
 
+#### Décision produit — apparition réversible au défilement (27 septembre 2026)
+
+Après examen personnel de la version publiée `ab9e2c4a`, Simon juge l'effet actuel trop éloigné de son intention. Pour **`sites/portfolio/` uniquement**, il veut une progression lisible par grandes sections, liée à la position verticale du défilement (`scrollY`) : une section entre dans la lecture par **fondu et déplacement depuis le bas** quand on descend ; si l'on remonte avant son point d'entrée, le mouvement se joue en sens inverse et elle s'estompe à nouveau. Ce n'est donc pas une révélation unique conservée définitivement après le premier passage. Le comportement est demandé sur **mobile, tablette et ordinateur**, sans seuil qui désactive l'effet sous 768 px.
+
+- **Dès l'arrivée :** hero et section « À propos » dans leur état final, sans entrée retardée. « À propos » reste dans le flux normal ; « visible dès le départ » ne signifie pas que toute sa hauteur doive tenir dans un seul écran de téléphone.
+- **Première étape en descendant :** section « Réalisations » complète, y compris titre, introduction, carte Créa’Tif et lien, apparaît comme un ensemble cohérent.
+- **Étape suivante :** section « Ce que je fais » complète, y compris titre, introduction, cartes et paragraphe final, apparaît à son tour ; ne pas animer seulement les cartes par rangée.
+- **Fin de page :** section « Discutons de votre projet » puis pied de page accompagnent la fin du défilement. Le contact, son action et les mentions ne doivent jamais devenir difficiles à atteindre ou à lire.
+
+Cette décision **remplace** dans le § 10 artistique ci-dessous le déclenchement à usage unique, le seuil desktop de 768 px, l'entrée latérale d'« À propos » et de la seule carte « Réalisations », ainsi que la cascade par rangées des prestations. Elle ne change ni l'ordre des sections, ni les textes, thèmes, couleurs, liens, CTA, médias ou destinations. L'UI/UX précisera dans sa sous-section les paliers de progression, distances et états visuels, y compris la sortie en remontant et le traitement du pied de page, avant tout brief d'implémentation.
+
+**Invariants d'usage :** défilement natif, sans verrouillage, parallaxe ni saut de mise en page ; toutes les sections restent dans le DOM et dans l'ordre de lecture. Une arrivée par ancre, un focus clavier ou une navigation historique rend immédiatement utilisable et lisible le contenu ciblé. Sans JavaScript, en cas de fonction d'observation indisponible ou avec `prefers-reduced-motion: reduce`, le contenu est entièrement visible et statique. La réversibilité visuelle ne doit jamais masquer un élément focalisé ou bloquer l'accès au contact et aux mentions. Le rendu final sera examiné séparément ; **aucun déploiement n'est autorisé par cette décision**. Créa’Tif reste hors périmètre.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
