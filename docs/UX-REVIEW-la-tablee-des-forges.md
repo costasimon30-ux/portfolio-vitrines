@@ -36,3 +36,6 @@ Sur les écrans examinés, les crédits P01–P04 bis sont en texte visible sous
 - **Hors périmètre testé :** zoom natif 200 %, navigation/focus, liens et crédits activés, sans JavaScript, performance et assemblage de publication. Leur validation revient à QA ; ils ne sont pas présumés conformes ici. La lecture détaillée du cadre P03 à 320 px n’a pas été capturée ; seule sa présence et sa boîte ont été constatées.
 
 **Conclusion :** passe photo convaincante pour une démonstration conceptuelle, sous réserve du choix P01 et de l’arbitrage esthétique et juridique de Simon. Aucun accord de déploiement.
+
+
+**Complément de méthode — sortie assemblée isolée.** Après les captures ci-dessus, le commit source 58f4fb7 a été extrait dans un répertoire temporaire puis assemblé localement en mode production avec Node 24.21.0 : 30 fichiers produits. Le HTML d’accueil et sa feuille CSS sont identiques octet pour octet entre source et sortie (SHA-256 comparés). L’accueil assemblé a été ouvert à 375×667 : P01 mesure encore 341×255 px, commence à y=320 px, ne déborde pas et montre le même rendu. Cette vérification confirme le constat P01 sur l’artefact ; elle ne constitue pas l’audit QA de tous les chemins, du zoom natif ou de la publication.
