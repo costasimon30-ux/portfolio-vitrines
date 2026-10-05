@@ -847,32 +847,40 @@ Cette page garde un rythme plus compact que Coiffure, avec davantage de séparat
 - Chaque page possède un titre et une méta-description uniques ; un favicon est présent.
 - Les données fictives restent identifiées comme telles dans la présentation du portfolio.
 
-### Site 2 — La Tablée des Forges (nom de travail, cadrage brut)
+### Site 2 — La Tablée des Forges (brief produit V1, démonstration)
 
-**Statut :** pistes produit confirmées oralement par Simon, à préciser avant brief d'implémentation. Ce texte n'autorise ni code, ni sélection de médias, ni publication. Le nom est un choix de travail apprécié par Simon, mais sa disponibilité n'a pas été vérifiée ; aucune prétention à une enseigne réelle ou à une marque réservée.
+**Objet et statut.** Deuxième vitrine conceptuelle du portfolio, pour montrer un site de restaurant **multipage, entièrement front-end**. Simon valide le principe d'une démo claire et courte, sans longue carte ni fonctions fictivement opérationnelles. « La Tablée des Forges » est le nom retenu pour cette démo ; sa disponibilité comme enseigne réelle n'est pas vérifiée. Ce brief fixe le produit et le contenu de travail, pas la direction artistique détaillée, la sélection finale des photos, l'architecture de build ou une autorisation de publication.
 
-#### Positionnement et expérience voulue
+#### Positionnement et public
 
-Une **petite brasserie-bar de quartier**, simple et conviviale, dont la carte met en avant des burgers, quelques plats de brasserie et des bières. Le service est pensé **principalement pour le soir**, avec une fermeture envisagée vers **2 h du matin** ; les jours et horaires exacts restent à définir. Le visiteur doit comprendre dès l'accueil qu'il peut venir dîner puis prolonger la soirée autour d'un verre. Ce n'est ni un fast-food, ni une chaîne, ni une brasserie prétendant fabriquer ses propres bières. La référence donnée par Simon à Trois Brasseurs désigne une famille de cuisine et d'ambiance, pas une marque ou une carte à reproduire.
+Petite **brasserie-bar de quartier** : burgers, deux plats simples de brasserie, desserts et bières. Le lieu vit surtout **le soir**, pour dîner puis prolonger la conversation autour d'un verre ; une fermeture vers **2 h** sert de repère d'ambiance, pas d'horaire réel garanti. Ton accueillant, généreux et direct, sans superlatifs ou histoire d'entreprise inventée. La référence à Trois Brasseurs décrit seulement une famille de cuisine et de convivialité : ne reprendre ni sa marque, ni ses textes, ni sa carte, et ne pas prétendre brasser la bière sur place.
 
-**Repères d'ambiance transmis à l'UI/UX, sans fixer ici sa direction artistique :** lieu feutré et chaleureux, bois sombre et éléments métalliques pour la touche industrielle. Le nom évoque discrètement la forge et la tablée, avec une résonance viking appréciée par Simon ; ne pas en déduire un restaurant médiéval à thème ou des codes graphiques littéraux sans nouvel arbitrage.
+Repères d'ambiance à transmettre à l'UI/UX, **sans décider de ses couleurs ou composants** : atmosphère feutrée et chaleureuse, bois sombre, pièces métalliques et caractère industriel. Le nom évoque pour Simon la forge, la tablée et légèrement un banquet viking ; cette évocation doit rester subtile, sans transformer l'établissement en restaurant médiéval à thème.
 
-#### Arborescence provisoire et parcours
+#### Arborescence et parcours
 
-Quatre pages constituent la base de discussion, sous réserve d'ajuster leur contenu avant implémentation :
+**Trois pages** évitent une page Infos pratiques creuse tout en montrant une navigation multipage :
 
-1. **Accueil** — présentation immédiate du restaurant, de l'offre burgers/bières et du caractère nocturne du lieu ; accès évident à la carte et au lieu.
-2. **La carte** — lecture simple sur téléphone, par catégories (burgers, plats de brasserie, desserts, bières et autres boissons) ; intitulés, descriptions et éventuels prix restent à rédiger et à valider comme données de démonstration.
-3. **Le lieu** — atmosphère du bar-restaurant et promesse de convivialité, sans histoire d'entreprise, équipe ou distinction inventée présentée comme un fait.
-4. **Infos pratiques** — fonctionnement illustratif du service du soir et indication de localisation **générique et explicitement fictive**. Aucun numéro de rue, code postal, épingle de carte ou itinéraire vers un lieu réel ; aucun téléphone ou e-mail fictif activable.
+1. **Accueil** — présenter dès le premier écran le nom, la nature du lieu (brasserie-bar du soir), l'offre burgers/bières et une ambiance photographique pertinente. Une courte introduction confirme l'esprit de quartier. Actions principales : **« Voir la carte »** puis **« Découvrir le lieu »**.
+2. **La carte** — catégories lisibles sans interaction obligatoire : **4 burgers** dont une option végétarienne, **2 plats de brasserie**, **2 desserts**, **une courte sélection de bières** et au moins une boisson sans alcool. Chaque entrée a un nom, une description courte et, pour l'effet de démonstration, un prix affiché comme fictif dans la mention de page. Aucun plat, prix ou boisson ne doit être présenté comme une offre réellement disponible ; le détail éditorial sera finalisé avant implémentation.
+3. **Le lieu & infos** — montrer l'ambiance du comptoir et des tables, expliquer le passage du dîner à la soirée, puis afficher une indication pratique honnête : « service du soir, jusqu'à 2 h — horaires de démonstration » et « localisation fictive, non ouverte au public ». Pas de rue, numéro, code postal, carte, itinéraire ou coordonnées activables qui pourraient conduire vers un établissement réel.
 
-Parcours principal envisagé : découvrir le lieu sur l'accueil → consulter la carte → voir l'ambiance et les informations pratiques. Les CTA définitifs restent à choisir ; « Voir la carte » est une hypothèse, pas un libellé validé.
+Parcours principal : découvrir le restaurant sur l'accueil → consulter rapidement burgers, plats et bières → visualiser le lieu et comprendre le service du soir. Depuis toutes les pages, navigation et retour vers l'accueil/la carte. Une mention visible « Projet fictif réalisé pour le portfolio de Simon Costa » et un lien vers le portfolio permettent de sortir de la démo sans ambiguïté, sans dominer l'identité du restaurant.
 
-#### Contraintes de démonstration et décisions ouvertes
+#### Fonctionnalités, contenu et limites
 
-- Site de portfolio **entièrement front-end**, avec plusieurs pages statiques. Pas de compte, panier, commande, paiement, calendrier ou réservation confirmée simulée. Aucun formulaire qui prétendrait joindre le restaurant sans destinataire réel.
-- Le caractère fictif de l'établissement, de sa localisation et de ses horaires doit être lisible sur le site, pas seulement sur le portfolio qui y renvoie. Ne pas présenter une adresse potentiellement réelle comme adresse du restaurant.
-- À définir avant le brief final : nom définitif, jours et plages exactes d'ouverture, contenu et profondeur de la carte, traitement des prix fictifs, éventuel canal de contact honnête, et ressources photographiques disponibles/licenciées. Une page Infos pratiques trop vide doit être retravaillée plutôt que remplie de fausses coordonnées.
-- L'arrivée de ce deuxième site déclenche la **validation de mutualisation et de la trajectoire Eleventy** prévue dans `docs/ARCHITECTURE.md` § 3 et § 5.7. Cet outillage de compilation, s'il est retenu après examen par l'Architecte, produit des fichiers statiques ; il n'ajoute pas de back-end et n'autorise aucun déploiement automatique ni modification des sites déjà publiés.
+- Navigation multipage responsive, liens et CTA réels entre les trois pages, focus visible et liens d'évitement. La carte reste accessible sans JavaScript ; aucune catégorie ne dépend d'un filtre pour être lisible.
+- Aucun back-end, compte, panier, commande, paiement, réservation, faux calendrier, faux avis client, formulaire de contact ni numéro/e-mail fictif cliquable. Une démo de restaurant ne doit pas simuler un service commercial actif.
+- Les textes de menu, prix et horaires sont **illustratifs** ; l'établissement et la localisation sont explicitement fictifs sur le site lui-même, pas seulement sur le portfolio. Ne pas inventer de promesses d'origine, d'allergènes, de fabrication maison ou de distinction sans source. Les contenus exacts restent un petit lot éditorial à finaliser, sans étendre la carte au-delà des catégories ci-dessus.
+- Photos du lieu, des burgers et du bar seulement si leur source et leurs droits sont documentés ; ni photo de restaurant identifiable présentée comme ce lieu, ni marque visible introduite par recadrage sans examen. À défaut, le design doit rester convaincant sans contenu trompeur. L'UI/UX précisera le besoin visuel, puis la sélection sera arbitrée séparément avant intégration.
+- Site de démo publié séparément du portfolio et de Créa’Tif, en principe `noindex, follow` ; aucun domaine, compte ou déploiement n'est créé par ce brief. L'ajout du deuxième site ne change ni leurs URL ni leurs artefacts publiés.
+- L'Architecte doit valider ce qui est réellement mutualisable entre les vitrines et préciser la trajectoire Eleventy prévue dans `docs/ARCHITECTURE.md` § 3 et § 5.7. Eleventy, s'il est adopté, ne sert qu'à produire du HTML/CSS/JS statique ; cette décision technique est distincte de l'absence de back-end et de l'autorisation de déployer.
 
-**Prochain jalon produit :** préciser le contenu de la carte et les horaires fictifs avant de demander à l'UI/UX une direction artistique détaillée. Aucun critère de livraison final n'est encore déclaré pour ce cadrage provisoire.
+#### Critères de réussite avant présentation à Simon
+
+- Trois pages complètes et distinctes, navigation/CTA sans lien mort, menu entièrement lisible sur téléphone et sans JavaScript, informations de soirée trouvables en deux actions au plus depuis l'accueil.
+- Le caractère fictif est perceptible avant qu'un visiteur puisse confondre localisation, horaires ou prix avec ceux d'un vrai restaurant ; aucune action ne fait croire à une réservation ou commande confirmée.
+- Le rendu est cohérent sur mobile, tablette et desktop, au clavier et avec réduction des mouvements ; pas de débordement horizontal ni de contenu essentiel masqué. Titres et métadonnées propres à chaque page ; médias optimisés et crédités.
+- L'atmosphère bois sombre/métal/soirée distingue nettement cette vitrine de Créa’Tif et du portfolio, sans copier une enseigne existante. L'UI/UX juge cette cohérence visuelle sur le rendu ; QA vérifie les parcours et replis avant toute mise en avant.
+
+**Suite bornée :** UI/UX fixe la direction artistique de cette seule vitrine ; Architecte valide la construction du deuxième site sans élargir au déploiement. Claude implémentera ensuite sur un brief stabilisé. Aucun code ni publication avant cette étape.
