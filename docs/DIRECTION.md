@@ -849,7 +849,7 @@ Cette page garde un rythme plus compact que Coiffure, avec davantage de séparat
 
 ### Site 2 — La Tablée des Forges (brief produit V1, démonstration)
 
-**Objet et statut.** Deuxième vitrine conceptuelle du portfolio, pour montrer un site de restaurant **multipage, entièrement front-end**. Simon valide le principe d'une démo claire et courte, sans longue carte ni fonctions fictivement opérationnelles. « La Tablée des Forges » est le nom retenu pour cette démo ; sa disponibilité comme enseigne réelle n'est pas vérifiée. Ce brief fixe le produit et le contenu de travail, pas la direction artistique détaillée, la sélection finale des photos, l'architecture de build ou une autorisation de publication.
+**Objet et statut.** Deuxième vitrine conceptuelle du portfolio, pour montrer un site de restaurant **multipage, entièrement front-end**. Simon valide le principe d'une démo claire et courte, sans longue carte ni fonctions fictivement opérationnelles. « La Tablée des Forges » est le nom retenu pour cette démo ; sa disponibilité comme enseigne réelle n'est pas vérifiée. Simon a validé la **proposition de direction artistique V1** ci-dessous le 5 octobre 2026 comme point de départ ajustable, sans valider encore un rendu. L'Architecte a retenu au commit `fa8ec02` des pages HTML statiques autonomes, **sans Eleventy pour cette V1**. Ce brief autorise la préparation de l'implémentation locale du nouveau site, pas le choix définitif des photographies ni une publication.
 
 #### Positionnement et public
 
@@ -862,7 +862,7 @@ Repères d'ambiance à transmettre à l'UI/UX, **sans décider de ses couleurs o
 **Trois pages** évitent une page Infos pratiques creuse tout en montrant une navigation multipage :
 
 1. **Accueil** — présenter dès le premier écran le nom, la nature du lieu (brasserie-bar du soir), l'offre burgers/bières et une ambiance photographique pertinente. Une courte introduction confirme l'esprit de quartier. Actions principales : **« Voir la carte »** puis **« Découvrir le lieu »**.
-2. **La carte** — catégories lisibles sans interaction obligatoire : **4 burgers** dont une option végétarienne, **2 plats de brasserie**, **2 desserts**, **une courte sélection de bières** et au moins une boisson sans alcool. Chaque entrée a un nom, une description courte et, pour l'effet de démonstration, un prix affiché comme fictif dans la mention de page. Aucun plat, prix ou boisson ne doit être présenté comme une offre réellement disponible ; le détail éditorial sera finalisé avant implémentation.
+2. **La carte** — catégories lisibles sans interaction obligatoire : **4 burgers** dont une option végétarienne, **2 plats de brasserie**, **2 desserts**, **une courte sélection de bières** et des boissons sans alcool. Chaque entrée a un nom, une description courte et un prix fictif, précédés d'une mention de démonstration visible avant le premier prix. Aucun plat, prix ou boisson ne doit être présenté comme une offre réellement disponible ; le contenu V1 est fixé ci-dessous.
 3. **Le lieu & infos** — montrer l'ambiance du comptoir et des tables, expliquer le passage du dîner à la soirée, puis afficher une indication pratique honnête : « service du soir, jusqu'à 2 h — horaires de démonstration » et « localisation fictive, non ouverte au public ». Pas de rue, numéro, code postal, carte, itinéraire ou coordonnées activables qui pourraient conduire vers un établissement réel.
 
 Parcours principal : découvrir le restaurant sur l'accueil → consulter rapidement burgers, plats et bières → visualiser le lieu et comprendre le service du soir. Depuis toutes les pages, navigation et retour vers l'accueil/la carte. Une mention visible « Projet fictif réalisé pour le portfolio de Simon Costa » et un lien vers le portfolio permettent de sortir de la démo sans ambiguïté, sans dominer l'identité du restaurant.
@@ -871,10 +871,32 @@ Parcours principal : découvrir le restaurant sur l'accueil → consulter rapide
 
 - Navigation multipage responsive, liens et CTA réels entre les trois pages, focus visible et liens d'évitement. La carte reste accessible sans JavaScript ; aucune catégorie ne dépend d'un filtre pour être lisible.
 - Aucun back-end, compte, panier, commande, paiement, réservation, faux calendrier, faux avis client, formulaire de contact ni numéro/e-mail fictif cliquable. Une démo de restaurant ne doit pas simuler un service commercial actif.
-- Les textes de menu, prix et horaires sont **illustratifs** ; l'établissement et la localisation sont explicitement fictifs sur le site lui-même, pas seulement sur le portfolio. Ne pas inventer de promesses d'origine, d'allergènes, de fabrication maison ou de distinction sans source. Les contenus exacts restent un petit lot éditorial à finaliser, sans étendre la carte au-delà des catégories ci-dessus.
+- Les textes de menu, prix et horaires sont **illustratifs** ; l'établissement et la localisation sont explicitement fictifs sur le site lui-même, pas seulement sur le portfolio. Ne pas inventer de promesses d'origine, d'allergènes, de fabrication maison ou de distinction sans source. Ne pas étendre la carte au-delà du lot V1 ci-dessous sans arbitrage.
 - Photos du lieu, des burgers et du bar seulement si leur source et leurs droits sont documentés ; ni photo de restaurant identifiable présentée comme ce lieu, ni marque visible introduite par recadrage sans examen. À défaut, le design doit rester convaincant sans contenu trompeur. L'UI/UX précisera le besoin visuel, puis la sélection sera arbitrée séparément avant intégration.
 - Site de démo publié séparément du portfolio et de Créa’Tif, en principe `noindex, follow` ; aucun domaine, compte ou déploiement n'est créé par ce brief. L'ajout du deuxième site ne change ni leurs URL ni leurs artefacts publiés.
-- L'Architecte doit valider ce qui est réellement mutualisable entre les vitrines et préciser la trajectoire Eleventy prévue dans `docs/ARCHITECTURE.md` § 3 et § 5.7. Eleventy, s'il est adopté, ne sert qu'à produire du HTML/CSS/JS statique ; cette décision technique est distincte de l'absence de back-end et de l'autorisation de déployer.
+- L'Architecte a conclu qu'aucun shell inter-sites n'était à mutualiser pour cette V1 et reporte Eleventy (`docs/ARCHITECTURE.md` § 1, § 3 et § 5.7). Claude construit uniquement `sites/la-tablee-des-forges/` avec trois HTML plats et une 404, ses ressources locales et son manifeste ; les deux sites publiés restent inchangés. Cette décision technique est distincte de l'absence de back-end et de l'autorisation de déployer.
+
+#### Carte V1 — contenu fictif prêt à intégrer
+
+Une mention avant la liste indique : **« Carte et prix fictifs, présentés pour cette démonstration. »** Les noms et prix ci-dessous servent la mise en page et peuvent être ajustés après le premier rendu, sans devenir des données commerciales réelles.
+
+| Catégorie | Nom | Description courte | Prix fictif |
+| --- | --- | --- | ---: |
+| Burgers | Le Classique | Bœuf, cheddar, salade, oignons et sauce du comptoir | 15 € |
+| Burgers | Le Fumé | Bœuf, fromage fumé, oignons rouges et sauce barbecue | 17 € |
+| Burgers | Le Croustillant | Poulet croustillant, salade, pickles et sauce citronnée | 16 € |
+| Burgers | Le Végétal | Galette végétale, salade, pickles et sauce aux herbes | 15 € |
+| Plats de brasserie | Fish & chips | Poisson pané, frites et sauce citronnée | 17 € |
+| Plats de brasserie | La Planche du soir | Fromages, charcuterie et pickles à partager | 18 € |
+| Desserts | Brownie au chocolat | Brownie et glace vanille | 7 € |
+| Desserts | Crumble aux pommes | Pommes et pâte croustillante | 7 € |
+| Bières | Blonde pression | 25 cl | 5 € |
+| Bières | Ambrée pression | 25 cl | 5,50 € |
+| Bières | IPA pression | 25 cl | 6 € |
+| Sans alcool | Bière sans alcool | 33 cl | 5 € |
+| Sans alcool | Limonade | 33 cl | 4 € |
+
+Le panneau pratique de la page Le lieu affiche **« Service du soir, jusqu'à 2 h — horaires de démonstration »** et **« Localisation fictive — cet établissement n'est pas ouvert au public »**. Ne pas ajouter de jours, adresse, carte ou bouton d'appel pour combler ce panneau. Les autres textes peuvent rester courts et informatifs : le lieu réunit un comptoir, des tables, une carte brasserie et la possibilité de prolonger la soirée ; ne pas inventer d'histoire, d'équipe ou de témoignages.
 
 #### Critères de réussite avant présentation à Simon
 
@@ -924,4 +946,4 @@ Besoins visuels à sélectionner plus tard : **table burger/bière** pour l'accu
 
 Seules les transitions de couleur/soulignement des commandes durent **150 ms** ; aucun parallaxe, carrousel ou effet conditionnant la lecture. Avec `prefers-reduced-motion: reduce`, elles sont immédiates. Le footer de chaque page affiche la mention complète « Projet fictif réalisé pour le portfolio de Simon Costa » et un lien vers le portfolio, discrètement mais lisiblement.
 
-**Suite bornée :** UI/UX fixe la direction artistique de cette seule vitrine ; Architecte valide la construction du deuxième site sans élargir au déploiement. Claude implémentera ensuite sur un brief stabilisé. Aucun code ni publication avant cette étape.
+**Suite bornée :** la proposition UI/UX V1 est validée comme base ajustable et l'Architecture V1 est tranchée. Claude peut maintenant implémenter **uniquement** `sites/la-tablee-des-forges/`, avec des emplacements illustratifs honnêtes en l'absence de photographies approuvées. Il ne choisit ni n'intègre une photo de restaurant réelle sans validation séparée de sa source et de son usage. Un premier rendu local sera soumis à Simon avant toute décision sur les photos finales, le lien depuis le portfolio ou la publication. Aucun déploiement n'est autorisé par ce brief.
