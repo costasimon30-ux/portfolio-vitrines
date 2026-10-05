@@ -849,7 +849,7 @@ Cette page garde un rythme plus compact que Coiffure, avec davantage de séparat
 
 ### Site 2 — La Tablée des Forges (brief produit V1, démonstration)
 
-**Objet et statut.** Deuxième vitrine conceptuelle du portfolio, pour montrer un site de restaurant **multipage, entièrement front-end**. Simon valide le principe d'une démo claire et courte, sans longue carte ni fonctions fictivement opérationnelles. « La Tablée des Forges » est le nom retenu pour cette démo ; sa disponibilité comme enseigne réelle n'est pas vérifiée. Simon a validé la **proposition de direction artistique V1** ci-dessous le 5 octobre 2026 comme point de départ ajustable, sans valider encore un rendu. L'Architecte a retenu au commit `fa8ec02` des pages HTML statiques autonomes, **sans Eleventy pour cette V1**. Ce brief autorise la préparation de l'implémentation locale du nouveau site, pas le choix définitif des photographies ni une publication.
+**Objet et statut.** Deuxième vitrine conceptuelle du portfolio, pour montrer un site de restaurant **multipage, entièrement front-end**. Simon valide le principe d'une démo claire et courte, sans longue carte ni fonctions fictivement opérationnelles. « La Tablée des Forges » est le nom retenu pour cette démo ; sa disponibilité comme enseigne réelle n'est pas vérifiée. Simon a validé la **proposition de direction artistique V1** ci-dessous le 5 octobre 2026 comme point de départ ajustable, sans valider encore un rendu. L'Architecte a retenu au commit `fa8ec02` des pages HTML statiques autonomes, **sans Eleventy pour cette V1**. Le premier état local du site est livré au commit `418edc5`. Simon a ensuite validé visuellement quatre photographies (P01, P02, P03 et P04 bis) pour remplacer les illustrations provisoires ; l'ancienne P04 est abandonnée. Cette validation porte sur la sélection, pas encore sur le rendu intégré ni sur les droits tiers. Aucun déploiement n'est autorisé.
 
 #### Positionnement et public
 
@@ -875,6 +875,13 @@ Parcours principal : découvrir le restaurant sur l'accueil → consulter rapide
 - Photos du lieu, des burgers et du bar seulement si leur source et leurs droits sont documentés ; ni photo de restaurant identifiable présentée comme ce lieu, ni marque visible introduite par recadrage sans examen. À défaut, le design doit rester convaincant sans contenu trompeur. L'UI/UX précisera le besoin visuel, puis la sélection sera arbitrée séparément avant intégration.
 - Site de démo publié séparément du portfolio et de Créa’Tif, en principe `noindex, follow` ; aucun domaine, compte ou déploiement n'est créé par ce brief. L'ajout du deuxième site ne change ni leurs URL ni leurs artefacts publiés.
 - L'Architecte a conclu qu'aucun shell inter-sites n'était à mutualiser pour cette V1 et reporte Eleventy (`docs/ARCHITECTURE.md` § 1, § 3 et § 5.7). Claude construit uniquement `sites/la-tablee-des-forges/` avec trois HTML plats et une 404, ses ressources locales et son manifeste ; les deux sites publiés restent inchangés. Cette décision technique est distincte de l'absence de back-end et de l'autorisation de déployer.
+
+#### Décision produit — intégration photographique (5 octobre 2026)
+
+- Remplacer seulement les illustrations des emplacements prévus par P01, P02, P03 et P04 bis, selon les rôles, cadrages et réserves documentés par l'UI/UX ci-dessous. Ne pas modifier l'arborescence, la carte, les CTA, le ton, ni la direction graphique générale.
+- Maintenir partout le statut de concept fictif et la légende « Photographie d’illustration » ; les photos d'intérieurs ne représentent pas nécessairement le même lieu ni La Tablée des Forges.
+- Avant publication, examiner sur les fichiers réels et les recadrages la marque possible sur le verre P01, les éléments de lieu/décor P03 et P04 bis, et la personne en arrière-plan P04 bis. Une licence de photographie ne tranche pas ces droits tiers. Si le doute empêche l'utilisation d'une image, suspendre cette image et soumettre le choix à Simon, sans remplacement silencieux.
+- Après intégration, revue UI/UX indépendante du commit livré à 320, 375, 768 et 1440 px, incluant premier écran mobile, lisibilité et cohérence des quatre photos ; Simon garde la validation finale du rendu. Cette étape n'autorise pas la mise en ligne.
 
 #### Carte V1 — contenu fictif prêt à intégrer
 
