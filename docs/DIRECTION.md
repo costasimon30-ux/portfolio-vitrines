@@ -846,3 +846,33 @@ Cette page garde un rythme plus compact que Coiffure, avec davantage de séparat
 - Les focus, contrastes, textes alternatifs et structures de titres sont vérifiés.
 - Chaque page possède un titre et une méta-description uniques ; un favicon est présent.
 - Les données fictives restent identifiées comme telles dans la présentation du portfolio.
+
+### Site 2 — La Tablée des Forges (nom de travail, cadrage brut)
+
+**Statut :** pistes produit confirmées oralement par Simon, à préciser avant brief d'implémentation. Ce texte n'autorise ni code, ni sélection de médias, ni publication. Le nom est un choix de travail apprécié par Simon, mais sa disponibilité n'a pas été vérifiée ; aucune prétention à une enseigne réelle ou à une marque réservée.
+
+#### Positionnement et expérience voulue
+
+Une **petite brasserie-bar de quartier**, simple et conviviale, dont la carte met en avant des burgers, quelques plats de brasserie et des bières. Le service est pensé **principalement pour le soir**, avec une fermeture envisagée vers **2 h du matin** ; les jours et horaires exacts restent à définir. Le visiteur doit comprendre dès l'accueil qu'il peut venir dîner puis prolonger la soirée autour d'un verre. Ce n'est ni un fast-food, ni une chaîne, ni une brasserie prétendant fabriquer ses propres bières. La référence donnée par Simon à Trois Brasseurs désigne une famille de cuisine et d'ambiance, pas une marque ou une carte à reproduire.
+
+**Repères d'ambiance transmis à l'UI/UX, sans fixer ici sa direction artistique :** lieu feutré et chaleureux, bois sombre et éléments métalliques pour la touche industrielle. Le nom évoque discrètement la forge et la tablée, avec une résonance viking appréciée par Simon ; ne pas en déduire un restaurant médiéval à thème ou des codes graphiques littéraux sans nouvel arbitrage.
+
+#### Arborescence provisoire et parcours
+
+Quatre pages constituent la base de discussion, sous réserve d'ajuster leur contenu avant implémentation :
+
+1. **Accueil** — présentation immédiate du restaurant, de l'offre burgers/bières et du caractère nocturne du lieu ; accès évident à la carte et au lieu.
+2. **La carte** — lecture simple sur téléphone, par catégories (burgers, plats de brasserie, desserts, bières et autres boissons) ; intitulés, descriptions et éventuels prix restent à rédiger et à valider comme données de démonstration.
+3. **Le lieu** — atmosphère du bar-restaurant et promesse de convivialité, sans histoire d'entreprise, équipe ou distinction inventée présentée comme un fait.
+4. **Infos pratiques** — fonctionnement illustratif du service du soir et indication de localisation **générique et explicitement fictive**. Aucun numéro de rue, code postal, épingle de carte ou itinéraire vers un lieu réel ; aucun téléphone ou e-mail fictif activable.
+
+Parcours principal envisagé : découvrir le lieu sur l'accueil → consulter la carte → voir l'ambiance et les informations pratiques. Les CTA définitifs restent à choisir ; « Voir la carte » est une hypothèse, pas un libellé validé.
+
+#### Contraintes de démonstration et décisions ouvertes
+
+- Site de portfolio **entièrement front-end**, avec plusieurs pages statiques. Pas de compte, panier, commande, paiement, calendrier ou réservation confirmée simulée. Aucun formulaire qui prétendrait joindre le restaurant sans destinataire réel.
+- Le caractère fictif de l'établissement, de sa localisation et de ses horaires doit être lisible sur le site, pas seulement sur le portfolio qui y renvoie. Ne pas présenter une adresse potentiellement réelle comme adresse du restaurant.
+- À définir avant le brief final : nom définitif, jours et plages exactes d'ouverture, contenu et profondeur de la carte, traitement des prix fictifs, éventuel canal de contact honnête, et ressources photographiques disponibles/licenciées. Une page Infos pratiques trop vide doit être retravaillée plutôt que remplie de fausses coordonnées.
+- L'arrivée de ce deuxième site déclenche la **validation de mutualisation et de la trajectoire Eleventy** prévue dans `docs/ARCHITECTURE.md` § 3 et § 5.7. Cet outillage de compilation, s'il est retenu après examen par l'Architecte, produit des fichiers statiques ; il n'ajoute pas de back-end et n'autorise aucun déploiement automatique ni modification des sites déjà publiés.
+
+**Prochain jalon produit :** préciser le contenu de la carte et les horaires fictifs avant de demander à l'UI/UX une direction artistique détaillée. Aucun critère de livraison final n'est encore déclaré pour ce cadrage provisoire.
