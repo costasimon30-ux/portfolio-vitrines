@@ -304,7 +304,7 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
 }
 .panneau-bois .texte { color: var(--secondaire); }
 
-/* ---------- Illustrations ---------- */
+/* ---------- Photographies d'illustration ---------- */
 
 .illustration { margin: 0; }
 .illustration__cadre {
@@ -313,16 +313,27 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
   border-radius: var(--rayon);
   overflow: hidden;
 }
+.illustration picture { display: block; height: 100%; }
 .illustration img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 .illustration figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.5rem;
   padding-top: 0.5rem;
   color: var(--secondaire);
   font-size: 0.875rem;
 }
+.illustration__credit {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+.illustration__note { flex-basis: 100%; margin-top: -0.5rem; }
 
 /* ---------- Accueil : hero ---------- */
 
@@ -342,12 +353,10 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
 .hero h1 { font-size: clamp(2.5rem, 1.9rem + 3vw, 4rem); }
 .hero__accroche { margin-top: 1rem; max-width: 34rem; color: var(--secondaire); }
 
-.hero__media .illustration__cadre {
-  aspect-ratio: 4 / 3;
-  max-height: 210px;
-}
+.hero__media { max-width: 36rem; }
+.hero__media .illustration__cadre { aspect-ratio: 4 / 3; }
 @media (min-width: 40em) {
-  .hero__media .illustration__cadre { aspect-ratio: 3 / 2; max-height: 22rem; }
+  .hero__media .illustration__cadre { aspect-ratio: 3 / 2; }
 }
 
 @media (min-width: 64em) {
@@ -361,8 +370,7 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
   }
   .hero__texte { grid-area: texte; padding: 0; align-self: end; }
   .hero__actions { grid-area: actions; padding: 2rem 0 0; align-self: start; }
-  .hero__media { grid-area: media; }
-  .hero__media .illustration__cadre { aspect-ratio: 3 / 2; max-height: none; }
+  .hero__media { grid-area: media; max-width: none; }
 }
 
 /* ---------- Accueil : introduction, aperçus ---------- */
@@ -376,8 +384,10 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
 .apercu-offre strong { color: var(--clair); font-weight: 600; }
 
 .deux-colonnes { display: grid; gap: 1.5rem; }
+.deux-colonnes--apres-filet { margin-top: 2rem; }
 @media (min-width: 64em) {
-  .deux-colonnes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; align-items: start; }
+  .deux-colonnes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; align-items: center; }
+  .illustration--detail { max-width: none; }
 }
 
 /* ---------- Pages intérieures ---------- */
@@ -394,18 +404,25 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
   .entete-grille { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 3rem; align-items: end; }
 }
 
-.entete-grille .illustration__cadre { aspect-ratio: 4 / 3; max-height: 14rem; }
+.entete-grille .illustration { max-width: 28rem; }
+.entete-grille .illustration__cadre { aspect-ratio: 4 / 3; }
 @media (min-width: 64em) {
-  .entete-grille .illustration__cadre { max-height: none; }
+  .entete-grille .illustration { max-width: none; }
 }
 
-/* Le lieu : détail vertical sur mobile, plan horizontal large dès 768 px. */
-.illustration--lieu { max-width: 20rem; }
-.entete-grille .illustration--lieu .illustration__cadre { aspect-ratio: 3 / 4; max-height: none; }
-@media (min-width: 48em) {
-  .illustration--lieu { max-width: none; }
-  .entete-grille .illustration--lieu .illustration__cadre { aspect-ratio: 16 / 9; }
+/* Le lieu : salle en 4:3 sur mobile, 3:2 dès 640 px, colonne image plus large. */
+.entete-grille--lieu .illustration { max-width: 36rem; }
+@media (min-width: 40em) {
+  .entete-grille--lieu .illustration__cadre { aspect-ratio: 3 / 2; }
 }
+@media (min-width: 64em) {
+  .entete-grille--lieu { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+  .entete-grille--lieu .illustration { max-width: none; }
+}
+
+/* Le lieu : détail secondaire à côté du texte. */
+.illustration--detail { max-width: 36rem; }
+.illustration--detail .illustration__cadre { aspect-ratio: 4 / 3; }
 
 /* ---------- La carte ---------- */
 
@@ -475,7 +492,6 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
 
 /* ---------- Le lieu : compléments ---------- */
 
-.panneau-bois--apres-filet { margin-top: 2rem; }
 .infos-note { margin-top: 1.5rem; }
 
 /* ---------- Pied de page ---------- */

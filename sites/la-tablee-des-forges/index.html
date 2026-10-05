@@ -35,9 +35,15 @@
       </div>
       <figure class="illustration hero__media">
         <div class="illustration__cadre">
-          <img src="assets/illustrations/burger-biere.svg" width="600" height="400" alt="Illustration d’un burger et d’un verre de bière posés sur une table en bois">
+          <picture>
+            <source media="(max-width: 39.99em)" srcset="assets/photos/p01-accueil-burger-mobile-480.webp 480w, assets/photos/p01-accueil-burger-mobile-720.webp 720w" sizes="calc(100vw - 2rem)" width="720" height="540">
+            <img src="assets/photos/p01-accueil-burger-960.webp" srcset="assets/photos/p01-accueil-burger-640.webp 640w, assets/photos/p01-accueil-burger-960.webp 960w, assets/photos/p01-accueil-burger-1400.webp 1400w" sizes="(min-width: 64em) 654px, (min-width: 40em) 576px, calc(100vw - 2rem)" width="1400" height="933" fetchpriority="high" decoding="async" alt="Photographie d’illustration : un burger et des frites sur une table en bois, avec un verre de bière brune flou à l’arrière-plan">
+          </picture>
         </div>
-        <figcaption>Illustration, pas une photographie.</figcaption>
+        <figcaption>
+          <span>Photographie d’illustration.</span>
+          <a class="illustration__credit" href="https://www.pexels.com/photo/burger-and-fries-24554391/">Andrea Prochilo, Pexels</a>
+        </figcaption>
       </figure>
       <div class="hero__actions actions">
         <a class="btn btn--principal" href="la-carte.html">Voir la carte</a>
@@ -90,7 +96,7 @@
 <footer class="site-footer">
   <div class="container">
     <p class="site-footer__mention">Projet fictif réalisé pour le portfolio de Simon Costa.</p>
-    <p>Établissement, carte, prix, horaires et localisation fictifs. Illustrations originales, sans photographie.</p>
+    <p>Établissement, carte, prix, horaires et localisation fictifs. Photographies d’illustration, crédits en légende.</p>
     <ul class="site-footer__liens">
       <li><a href="https://portfolio-simon-costa.costa-simon30.workers.dev/">Voir le portfolio de Simon Costa</a></li>
       <li><a href="assets/NOTICE.md">Crédits</a></li>

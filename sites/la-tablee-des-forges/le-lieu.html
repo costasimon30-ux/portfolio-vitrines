@@ -28,7 +28,7 @@
 <main id="contenu" tabindex="-1">
   <section class="page-entete">
     <div class="container">
-      <div class="entete-grille">
+      <div class="entete-grille entete-grille--lieu">
         <div>
           <p class="eyebrow">Brasserie-bar du soir</p>
           <h1>Le lieu &amp; infos</h1>
@@ -36,14 +36,18 @@
             <p class="texte">Un comptoir, des tables, une carte de brasserie et la possibilité de prolonger la soirée&nbsp;: voilà ce que réunit La Tablée des Forges.</p>
           </div>
         </div>
-        <figure class="illustration illustration--lieu">
+        <figure class="illustration">
           <div class="illustration__cadre">
             <picture>
-              <source media="(min-width: 48em)" srcset="assets/illustrations/lieu-large.svg" width="800" height="450">
-              <img src="assets/illustrations/lieu-detail.svg" width="300" height="400" alt="Illustration d’un comptoir en bois avec ses tirettes à bière, sous une suspension lumineuse">
+              <source media="(max-width: 39.99em)" srcset="assets/photos/p04-lieu-salle-mobile-480.webp 480w, assets/photos/p04-lieu-salle-mobile-720.webp 720w" sizes="calc(100vw - 2rem)" width="720" height="540">
+              <img src="assets/photos/p04-lieu-salle-960.webp" srcset="assets/photos/p04-lieu-salle-640.webp 640w, assets/photos/p04-lieu-salle-960.webp 960w, assets/photos/p04-lieu-salle-1280.webp 1280w" sizes="(min-width: 64em) 618px, (min-width: 40em) 576px, calc(100vw - 2rem)" width="1280" height="853" decoding="async" alt="Photographie d’illustration : une salle de restaurant tamisée, avec des étagères de bouteilles au fond, des tables en bois au premier plan et des suspensions ambrées">
             </picture>
           </div>
-          <figcaption>Illustration, pas une photographie du lieu.</figcaption>
+          <figcaption>
+            <span>Photographie d’illustration.</span>
+            <a class="illustration__credit" href="https://unsplash.com/photos/a-dimly-lit-restaurant-with-tables-and-chairs-EjHiN2KxTO4">Oliver Guhr, Unsplash</a>
+            <span class="illustration__note">Un restaurant réel, sans lien avec La Tablée des Forges.</span>
+          </figcaption>
         </figure>
       </div>
     </div>
@@ -52,11 +56,23 @@
   <section class="section" aria-labelledby="titre-soiree">
     <div class="container">
       <div class="filet-forge" aria-hidden="true"></div>
-      <div class="panneau-bois panneau-bois--apres-filet">
-        <div class="section__intro">
-          <h2 id="titre-soiree">Du dîner à la soirée</h2>
-          <p class="texte">On commence par le dîner, autour des burgers et des plats de la carte. Quand les assiettes sont débarrassées, la soirée continue&nbsp;: une bière à la pression ou une boisson sans alcool, au comptoir ou à table, pour prolonger la conversation.</p>
+      <div class="deux-colonnes deux-colonnes--apres-filet">
+        <div class="panneau-bois">
+          <div class="section__intro">
+            <h2 id="titre-soiree">Du dîner à la soirée</h2>
+            <p class="texte">On commence par le dîner, autour des burgers et des plats de la carte. Quand les assiettes sont débarrassées, la soirée continue&nbsp;: une bière à la pression ou une boisson sans alcool, au comptoir ou à table, pour prolonger la conversation.</p>
+          </div>
         </div>
+        <figure class="illustration illustration--detail">
+          <div class="illustration__cadre">
+            <img src="assets/photos/p03-lieu-tabourets-960.webp" srcset="assets/photos/p03-lieu-tabourets-640.webp 640w, assets/photos/p03-lieu-tabourets-960.webp 960w" sizes="(min-width: 64em) 560px, (min-width: 40em) 576px, calc(100vw - 2rem)" width="960" height="720" loading="lazy" decoding="async" alt="Photographie d’illustration : des tabourets en bois alignés le long d’un comptoir sombre">
+          </div>
+          <figcaption>
+            <span>Photographie d’illustration.</span>
+            <a class="illustration__credit" href="https://unsplash.com/photos/empty-wooden-bar-stools-lined-up-at-a-counter-HPTEAmM09vM">Vlad Ionita, Unsplash</a>
+            <span class="illustration__note">Un autre lieu réel, sans lien avec La Tablée des Forges ni avec la photographie de salle ci-dessus.</span>
+          </figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -85,7 +101,7 @@
 <footer class="site-footer">
   <div class="container">
     <p class="site-footer__mention">Projet fictif réalisé pour le portfolio de Simon Costa.</p>
-    <p>Établissement, carte, prix, horaires et localisation fictifs. Illustrations originales, sans photographie.</p>
+    <p>Établissement, carte, prix, horaires et localisation fictifs. Photographies d’illustration, crédits en légende.</p>
     <ul class="site-footer__liens">
       <li><a href="https://portfolio-simon-costa.costa-simon30.workers.dev/">Voir le portfolio de Simon Costa</a></li>
       <li><a href="assets/NOTICE.md">Crédits</a></li>
