@@ -1,5 +1,27 @@
 # QA / Audit — portfolio
 
+## Contre-vérification ciblée — 5 octobre 2026 — source 4f9f192
+
+**Verdict : cycle de défilement PASS aux quatre largeurs et dans les deux thèmes. Clôture complète du §10 non prononcée : le zoom navigateur natif à 200 % n’a pas été vérifié et un CLS de chargement reste observé, sans lien établi avec les transitions.** Source exacte : `4f9f192fcde5b68cd87de3b687537518cfc582d7`. Assemblage production exécuté sur cette révision avec Node 22.23.2 : 18 fichiers, 222,1 Kio. Assemblage servi localement à `127.0.0.1:8765`; aucune version hébergée n’est inférée.
+
+### Contrôles réalisés et passés
+
+- Chrome, viewport CSS `320/375/768/1440 × 900`, thèmes clair et sombre. Défilement produit par événements de molette réels et répétés, dans les deux sens ; les seuils sont mesurés par la position du titre/nom du groupe rapportée à la hauteur de viewport. Aux exemples mesurés : à 320 px, Réalisations entre à `T/H=0,819` et ressort à `0,951`; à 1440 px, entre à `0,810` et ressort à `0,960`. Les quatre groupes (Réalisations, Prestations, Contact, pied de page) entrent, ressortent quand la garde le permet, puis se révèlent à nouveau au second passage. Après arrêt de la molette, attente de 440 ms (sections) ou 370 ms (pied) : opacité 1 et translation nulle pour les entrées ; les transitions d’opacité/translation sont appliquées au conteneur du groupe, sans cascade interne. Le pied reste visible près du bas quand sa garde de sortie (`distanceBas > 0,40H`) n’est pas satisfaite ; à `scrollYmax`, Contact et pied sont visibles et nets dans les deux thèmes.
+- Les huit groupes restent dans le flux ; aucun débordement horizontal aux huit combinaisons de viewport et thème. Au focus clavier, premier Tab sur le lien d’évitement ; la tabulation réelle vers « Voir la démo » puis le lien e-mail révèle leur groupe avec opacité 1 et transform nul. L’accès direct `/#contact`, le clic interne vers Contact et l’historique retour/avance conservent le groupe ciblé à l’état final. Fin de page par la touche Fin : contact, mentions, retour en haut et pied lisibles.
+- Mouvement réduit et JavaScript désactivé : testés aux quatre largeurs, deux thèmes et les deux modes (32 combinaisons). Les quatre groupes restent statiques (`opacity:1`, `transform:none`, sans classe armée) et sans débordement. Aucune erreur console/page ni requête échouée n’a été relevée dans les parcours ciblés.
+- `PerformanceObserver` n’a remonté aucun nouveau Layout Shift pendant les cycles de molette et transitions suivis.
+
+### Observation CLS au chargement — non attribuée au cycle testé
+
+À froid, page `/`, thème clair, viewport `320 × 900`, un Layout Shift de `0,051864` est mesuré vers `45,6 ms`. La source attribuée par Chromium est le bloc `main`, dont la boîte passe de `y=32,0 / h=868,0` à `y=80,4 / h=819,6`. Ce déplacement survient avant les actions de molette ; aucun lien causal avec les seuils d’animation n’est établi. Il empêche d’affirmer « zéro CLS » au chargement. **Recommandation :** isoler l’origine de ce changement de géométrie dans une passe dédiée si le critère signifie zéro CLS global ; aucune correction n’a été faite ici.
+
+### Non vérifié / limites
+
+Le zoom natif 200 % n’a pas été mesuré : la page des réglages natifs Chrome a été bloquée par la politique de navigation de l’outil. Les largeurs CSS testées ne sont pas une approximation revendiquée du zoom. Pas de Safari/Firefox, appareil physique ni lecteur d’écran. La mesure CLS citée est un seul scénario de chargement froid ; elle ne constitue pas une campagne de performance. Aucun contrôle Worker/hébergement. Les réserves antérieures ne sont pas rouvertes. Aucun code, configuration ou déploiement modifié par QA.
+
+---
+
+
 ## Contre-vérification ciblée — 25 septembre 2026 — source a51f11a
 
 **Verdict : QA-MVT-01 PASS ; QA-MVT-02 PASS. Candidat prêt pour décision de publication sur ce périmètre.** Source exacte `a51f11adde87e7b9c341aca6af21190d2b5e0a54`, assemblée en production avec Node 22.23.2 (18 fichiers, 224,3 Kio), servie uniquement en local. Les conclusions négatives de la section `004218b` ci-dessous restent historiques et ne décrivent pas cette révision. Aucun déploiement ni contrôle du Worker effectué.
