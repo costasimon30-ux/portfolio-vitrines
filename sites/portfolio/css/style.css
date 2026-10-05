@@ -33,6 +33,7 @@
     11. Pied de page
     12. Page 404
     13. Paliers responsive
+    14. Apparition réversible au défilement
 */
 
 /* ---------- 01. Jetons et thèmes ---------- */
@@ -697,119 +698,105 @@ a:visited:hover { color: var(--c-accent-actif); }
   .visuel-projet { aspect-ratio: 16 / 9; margin-bottom: 0; }
 }
 
-/* ---------- 14. Mouvement de défilement (§ 10 DIRECTION.md) ---------- */
+/* ---------- 14. Apparition réversible par seuil de défilement (§ 10 DIRECTION.md) ---------- */
 
-/* Rythme de défilement global, direction validée par Simon le 24 septembre
-   2026 (docs/DIRECTION.md § 10 « Rythme de défilement global discret »,
-   commit documentaire 39b4cc4). Remplace l'ancienne exception limitée à la
-   seule carte Créa'Tif. Quatre groupes concernés — voir les classes posées
-   directement dans index.html : le titre et le texte d'À propos ensemble,
-   la carte Créa'Tif entière, les cartes de prestations par rangée, et le
-   bloc Contact entier. Hero, pied de page, bascule de thème, et titres/
-   introductions de Réalisations et Ce que je fais restent statiques : ils
-   ne portent aucune de ces classes.
+/* Remplace intégralement l'ancien § 10 « Rythme de défilement global
+   discret » (classes `.mouvement*`, retirées du balisage et de cette
+   feuille), à la suite de la décision produit du 27 septembre 2026 —
+   orientation corrigée au § 10 de docs/DIRECTION.md : apparition
+   RÉVERSIBLE par seuil de position, et non plus un déclenchement unique.
+   Portée exclusive à sites/portfolio/.
 
-   Seuls opacity et transform varient, aucun déplacement de mise en page
-   n'est possible. sites/portfolio/js/mouvement-sections.js pose lui-même
-   les classes --armee puis --revele, seulement à partir de 768px CSS
-   effectifs, hors préférence de mouvement réduit, et seulement si
-   IntersectionObserver est disponible. Sans lui — pas de JavaScript,
-   largeur insuffisante, mouvement réduit, ou observation indisponible —,
-   aucune des deux classes n'est jamais posée : chaque groupe reste dans son
-   état par défaut ci-dessous, déjà final, entièrement visible et immobile.
-   C'est pourquoi la classe `.mouvement` seule ne porte aucune règle de
-   opacity/transform : tout l'effet est conditionné par `--armee`. */
+   Hero et « À propos » restent pleinement visibles et immobiles en
+   permanence : ils ne portent aucune des classes ci-dessous, à aucun
+   moment — ce n'était pas le cas d'« À propos » dans l'ancien § 10, qui
+   lui appliquait une entrée latérale ; cette direction l'annule.
 
-.mouvement.mouvement--armee {
-  opacity: var(--mvt-opacite, 1);
-  transform: var(--mvt-transform, none);
-}
-.mouvement.mouvement--revele {
+   Quatre groupes entiers, chacun un seul bloc sans cascade interne,
+   portent la classe `.defilement` directement dans index.html : le
+   conteneur de Réalisations (titre au lien « Voir la démo »), celui de Ce
+   que je fais (titre au paragraphe technique), celui de Contact (titre,
+   texte, CTA, adresse) et `.site-footer__inner` pour le pied de page (nom,
+   mentions légales, retour en haut), qui porte en plus `.defilement--pied`
+   pour son amplitude et ses durées réduites. sites/portfolio/js/
+   mouvement-sections.js pose et RETIRE lui-même `--armee` selon le sens du
+   défilement — jamais une seule fois pour toutes : voir ce fichier pour
+   les seuils exacts du § 10 et les replis (accès prioritaire par ancre/
+   focus/historique, mouvement réduit, mesure indisponible).
+
+   Sans JavaScript, avec un mouvement réduit, ou si la mesure du défilement
+   échoue : `.defilement` seule, sans `--armee`, EST déjà l'état final —
+   opacity: 1, transform: none — à TOUTES les largeurs, y compris sous
+   768px (aucun seuil de largeur ne désactive plus l'effet, à la différence
+   de l'ancien § 10). C'est pourquoi la classe de base ne déclare aucune
+   opacité réduite : tout l'effet est conditionné par `--armee` seule.
+
+   Aucun déplacement de mise en page : seuls opacity et transform varient,
+   les éléments gardent leur place et leurs dimensions dans le flux. Pas de
+   délai, flou, rotation, zoom ni mouvement horizontal — une translation
+   verticale uniquement, vers le haut à l'entrée (l'état caché est décalé
+   vers le bas).
+
+   Durées et easings asymétriques (entrée 420ms ease-out / sortie 300ms
+   ease-in, 350/250ms pour le pied de page) obtenus par le changement de
+   classe lui-même, sans minuteur JS : la transition appliquée à un
+   changement de propriété est celle déclarée sur l'état d'ARRIVÉE de ce
+   changement. `.defilement` (sans `--armee`) déclare la transition
+   d'entrée ; `.defilement--armee`, plus spécifique, déclare la transition
+   de sortie. Ajouter `--armee` applique donc la sortie, le retirer
+   applique l'entrée — un seul couple de règles suffit pour un mouvement
+   bidirectionnel qui reprend sans saut si le sens change en cours
+   d'animation : la transition CSS déjà en cours se retargete simplement
+   vers la nouvelle valeur finale, depuis l'opacité/translation courante. */
+
+.defilement {
+  --defilement-decalage: 24px;
+  --defilement-duree-entree: .42s;
+  --defilement-duree-sortie: .3s;
   opacity: 1;
   transform: none;
+  transition: opacity var(--defilement-duree-entree) ease-out,
+              transform var(--defilement-duree-entree) ease-out;
 }
-
-/* À propos : titre + texte ensemble, 10px depuis la gauche, 0,96 → 1,
-   300ms. Ni l'un ni l'autre ne porte `.carte` : liste de transition
-   courte, rien à préserver d'une transition de bascule de thème. */
-.mouvement--gauche-10 {
-  --mvt-opacite: 0.96;
-  --mvt-transform: translateX(-10px);
-  transition: opacity .3s ease-out, transform .3s ease-out;
-}
-
-/* Créa'Tif (§ Réalisations) : la carte entière, un seul bloc, 8px depuis la
-   gauche, 0,94 → 1, 280ms. Remplace l'ancien réglage 200ms/0,92. La carte
-   porte aussi `.carte` (§ 02, transition de bascule de thème) : liste de
-   transition complète reprise ici plutôt que complétée — `transition` est
-   un raccourci qui remplace toute valeur posée par une règle antérieure de
-   même spécificité, même piège déjà rencontré et documenté sur cet élément
-   avant sa généralisation ici. */
-.mouvement--gauche-8 {
-  --mvt-opacite: 0.94;
-  --mvt-transform: translateX(-8px);
-  transition: background-color .14s ease, border-color .14s ease, color .14s ease,
-              opacity .28s ease-out, transform .28s ease-out;
-}
-
-/* Prestations (portent `.carte`) et Contact (n'en porte pas) : 8px depuis le
-   bas, 0,96 → 1, 280ms. La liste complète est reprise pour les deux — sans
-   effet sur le conteneur de Contact, qui ne change jamais de fond ni de
-   filet, mais évite de maintenir deux règles séparées pour un seul groupe
-   de valeurs. */
-.mouvement--bas-8 {
-  --mvt-opacite: 0.96;
-  --mvt-transform: translateY(8px);
-  transition: background-color .14s ease, border-color .14s ease, color .14s ease,
-              opacity .28s ease-out, transform .28s ease-out;
-}
-
-/* Cartes de prestations : décalage maximal de 60ms entre les deux cartes
-   d'une même rangée (grille à deux colonnes à partir de 768px, § 09 —
-   couplé à `.grille-prestations` dans mouvement-sections.js, à ajuster
-   ensemble si le nombre de colonnes change un jour). Posé uniquement sur la
-   seconde carte de chaque rangée dans index.html ; aucune cascade sur le
-   reste de la grille, chaque rangée se déclenche indépendamment au
-   défilement.
-
-   Réservé à opacity/transform (mouvement d'entrée) : `transition-delay`
-   est une liste positionnelle qui s'apparie avec celle de
-   `transition-property` de la règle appliquée (ici `.mouvement--bas-8`,
-   seule classe combinée avec celle-ci) — un simple `60ms` s'appliquerait
-   donc aux CINQ propriétés qu'elle déclare, y compris background-color,
-   border-color et color de la bascule de thème (§ 02), les décalant elles
-   aussi de 60ms et faisant dépasser la fenêtre de 120–160ms du brief pour
-   ces deux cartes (défaut relevé indépendamment par la revue de code et la
-   QA du 25 septembre 2026 : QA-MVT-02). La liste explicite ci-dessous fixe
-   un délai nul pour les trois propriétés de thème et 60ms seulement pour
-   opacity/transform — son ORDRE doit rester exactement celui de
-   `.mouvement--bas-8` (background-color, border-color, color, opacity,
-   transform) ; à mettre à jour ensemble si cet ordre change. */
-.mouvement--retard-1 { transition-delay: 0s, 0s, 0s, 0.06s, 0.06s; }
-
-/* Repli défensif : si une classe d'attente est encore présente quand la
-   largeur CSS effective repasse sous 768px (redimensionnement, zoom) ou que
-   le mouvement réduit est demandé en cours de visite, ces deux règles
-   imposent l'état final ici même, sans attendre le script.
-
-   `transition: none` est indispensable ici, pas seulement défensif : ces
-   deux media queries se réévaluent au moment même du changement de largeur
-   ou de préférence, indépendamment du script — donc avant que
-   mouvement-sections.js ait pu neutraliser la transition via son
-   changement de classe. Sans cette ligne, le passage aux valeurs finales
-   déclenché par la media query est un changement de valeur ordinaire, que
-   la transition normale du groupe anime — un repli qui se voulait immédiat
-   devient alors une transition résiduelle (déjà constaté en QA sur ce
-   mécanisme, avant sa généralisation ici : opacity 0,95 à 80ms après un
-   passage 1440→720px sur la carte Créa'Tif). Le changement de classe que le
-   script effectue ensuite ne peut pas interrompre une transition déjà
-   déclenchée par la feuille de style : les deux règles visent la même
-   valeur finale, il n'y a alors plus de changement à annuler. Ceci couvre
-   aussi `transition-delay` (raccourci `transition`), pour les cartes de
-   prestations qui en portent un. */
 @media (max-width: 767.98px) {
-  .mouvement.mouvement--armee { opacity: 1; transform: none; transition: none; }
+  .defilement { --defilement-decalage: 16px; }
 }
+
+/* Pied de page : amplitude réduite (12px, 8px sous 768px) et durées plus
+   courtes (350ms / 250ms), seules valeurs qui diffèrent — mêmes classes,
+   mêmes règles, par simple redéfinition des propriétés personnalisées. */
+.defilement.defilement--pied {
+  --defilement-decalage: 12px;
+  --defilement-duree-entree: .35s;
+  --defilement-duree-sortie: .25s;
+}
+@media (max-width: 767.98px) {
+  .defilement.defilement--pied { --defilement-decalage: 8px; }
+}
+
+/* État caché : opacity nulle, translation vers le bas au repos (d'où une
+   entrée perçue « depuis le bas », vers le haut). La transition ci-dessous
+   régit la SORTIE (moment où cette classe est AJOUTÉE) ; voir la note de
+   tête de section pour celle qui régit l'entrée, déclarée sur `.defilement`
+   seule. */
+.defilement.defilement--armee {
+  opacity: 0;
+  transform: translateY(var(--defilement-decalage));
+  transition: opacity var(--defilement-duree-sortie) ease-in,
+              transform var(--defilement-duree-sortie) ease-in;
+}
+
+/* Repli : mouvement réduit demandé, à tout moment de la visite (requête
+   média réactive, pas seulement à l'initialisation ni au script). La règle
+   globale du § 02 met déjà `transition-duration` à 0,01ms sur toute la
+   page ; sans la règle ci-dessous, un groupe resterait pourtant invisible
+   si `--armee` était déjà posée au moment où la préférence s'applique —
+   ce repli impose l'état final, opaque, quelle que soit la classe. */
 @media (prefers-reduced-motion: reduce) {
-  .mouvement.mouvement--armee { opacity: 1; transform: none; transition: none; }
+  .defilement,
+  .defilement.defilement--armee {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

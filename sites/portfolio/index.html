@@ -145,8 +145,8 @@
 
   <section class="section" id="a-propos" aria-labelledby="a-propos-title">
     <div class="container a-propos__grille">
-      <h2 id="a-propos-title" class="mouvement mouvement--gauche-10">À propos</h2>
-      <div class="prose a-propos__texte mouvement mouvement--gauche-10">
+      <h2 id="a-propos-title">À propos</h2>
+      <div class="prose a-propos__texte">
         <p>J’ai 28 ans et je construis des sites vitrines. Avant le développement, j’ai travaillé en support helpdesk — un métier où l’on n’a pas le droit de mal comprendre. On vous décrit un symptôme, presque jamais la cause&nbsp;: il faut écouter pour de bon, reformuler jusqu’à ce que la personne dise «&nbsp;oui, c’est exactement ça&nbsp;», puis résoudre. Vite, et sans jargon.</p>
         <p>C’est ce que j’ai gardé. Un projet de site commence rarement par un cahier des charges. Il commence par «&nbsp;je voudrais quelque chose de plus moderne&nbsp;», ou «&nbsp;mon site ne me ressemble plus&nbsp;». Mon travail commence là&nbsp;: comprendre ce que vous cherchez vraiment à obtenir, avant d’écrire la première ligne de code.</p>
         <p>Je me lance à mon compte, et ce que je propose est volontairement précis&nbsp;: des sites vitrines rapides, accessibles, qui tiennent sur tous les écrans. Pas de promesse démesurée — un travail soigné, vérifié, et une réalisation que vous pouvez regarder avant de décider.</p>
@@ -155,12 +155,12 @@
   </section>
 
   <section class="section" id="realisations" aria-labelledby="realisations-title">
-    <div class="container">
+    <div class="container defilement">
       <h2 id="realisations-title">Réalisations</h2>
       <p class="section__intro">Une première réalisation, consultable en ligne. D’autres viendront s’ajouter ici.</p>
 
       <ul class="grille-projets">
-        <li class="carte carte-projet mouvement mouvement--gauche-8">
+        <li class="carte carte-projet">
           <!-- Aperçu réel de Créa'Tif, conforme à l'arbitrage produit du
                23 septembre 2026 (docs/DIRECTION.md) qui déroge, pour ce seul
                emplacement, à la décision P06 d'origine : capture honnête du
@@ -169,15 +169,19 @@
                retouche, aucun filtre, aucun faux cadre de navigateur. Détails
                de provenance et de cadrage dans assets/images/NOTICE.md.
 
-               Mouvement d'entrée sur cette carte entière, conforme au § 10
-               « Rythme de défilement global discret » de docs/DIRECTION.md
-               (direction validée par Simon le 24 septembre 2026, commit
-               documentaire 39b4cc4) : voir js/mouvement-sections.js et la
-               section « 14. Mouvement de défilement » de css/style.css.
-               L'état par défaut ci-dessous (sans les classes que ce script
-               pose lui-même) est déjà l'état final, visible et immobile —
-               c'est le repli sans JavaScript, sous 768px et avec un
-               mouvement réduit demandé. -->
+               Cette carte ne porte plus de classe de mouvement propre : elle
+               fait partie du groupe « Réalisations » entier (titre, intro,
+               carte, lien « Voir la démo »), qui apparaît ou disparaît comme
+               un seul bloc au défilement, conformément à la décision produit
+               du 27 septembre 2026 et au § 10 « Apparition réversible par
+               seuil de défilement » de docs/DIRECTION.md — voir la classe
+               `defilement` posée sur le conteneur de la section ci-dessus,
+               js/mouvement-sections.js et la section « 14. Apparition
+               réversible par seuil de défilement » de css/style.css.
+               L'état par défaut de ce conteneur (sans la classe `--armee`
+               que ce script pose et retire lui-même) est déjà l'état final,
+               visible et immobile — c'est le repli sans JavaScript, à toutes
+               les largeurs, et avec un mouvement réduit demandé. -->
           <div class="visuel-projet">
             <picture>
               <source media="(min-width: 1024px)" srcset="assets/images/creatif-hero-desktop-16-9.webp">
@@ -196,24 +200,24 @@
   </section>
 
   <section class="section" id="prestations" aria-labelledby="prestations-title">
-    <div class="container">
+    <div class="container defilement">
       <h2 id="prestations-title">Ce que je fais</h2>
       <p class="section__intro">Un périmètre volontairement resserré, sur ce que je sais livrer aujourd’hui.</p>
 
       <ul class="grille-prestations">
-        <li class="carte prestation mouvement mouvement--bas-8">
+        <li class="carte prestation">
           <h3>Site vitrine</h3>
           <p>La création complète d’un site de présentation&nbsp;: structure des pages, mise en forme, contenus intégrés, prêt à être mis en ligne.</p>
         </li>
-        <li class="carte prestation mouvement mouvement--bas-8 mouvement--retard-1">
+        <li class="carte prestation">
           <h3>Refonte de pages</h3>
           <p>La reprise d’un site existant dont la présentation a vieilli ou qui tient mal sur téléphone, sans repartir de zéro.</p>
         </li>
-        <li class="carte prestation mouvement mouvement--bas-8">
+        <li class="carte prestation">
           <h3>Application web</h3>
           <p>De petits outils qui fonctionnent entièrement dans le navigateur, sans serveur à administrer ni abonnement à payer.</p>
         </li>
-        <li class="carte prestation mouvement mouvement--bas-8 mouvement--retard-1">
+        <li class="carte prestation">
           <h3>Mise en ligne</h3>
           <p>La publication du site et sa remise entre vos mains&nbsp;: hébergement, nom des pages, accès, et la marche à suivre pour le faire évoluer.</p>
         </li>
@@ -224,7 +228,7 @@
   </section>
 
   <section class="contact" id="contact" aria-labelledby="contact-title">
-    <div class="container mouvement mouvement--bas-8">
+    <div class="container defilement">
       <h2 id="contact-title">Discutons de votre projet</h2>
       <p class="section__intro">Décrivez-moi ce que vous avez en tête, même sans savoir comment le formuler — c’est précisément mon travail de le clarifier avec vous. Je réponds à tout le monde. Les projets sont chiffrés sur devis, adapté à chaque périmètre.</p>
       <div class="contact__actions">
@@ -237,7 +241,7 @@
 </main>
 
 <footer class="site-footer">
-  <div class="container site-footer__inner">
+  <div class="container site-footer__inner defilement defilement--pied">
     <div>
       <p class="site-footer__nom">Simon COSTA</p>
       <p>Développeur front-end indépendant</p>
