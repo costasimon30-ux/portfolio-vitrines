@@ -1,0 +1,25 @@
+{
+  "kind": "demo",
+  "pages": [
+    "index.html",
+    "la-carte.html",
+    "le-lieu.html",
+    "404.html"
+  ],
+  "publicFiles": [
+    "css/fonts.css",
+    "css/style.css",
+    "assets/favicon.svg",
+    "assets/NOTICE.md",
+    "assets/illustrations/burger-biere.svg",
+    "assets/illustrations/burger-detail.svg",
+    "assets/illustrations/lieu-large.svg",
+    "assets/illustrations/lieu-detail.svg",
+    "assets/fonts/barlow/LICENSE.txt",
+    "assets/fonts/barlow/barlow-400.woff2",
+    "assets/fonts/barlow/barlow-600.woff2",
+    "assets/fonts/barlow-condensed/LICENSE.txt",
+    "assets/fonts/barlow-condensed/barlow-condensed-700.woff2"
+  ],
+  "sharedFiles": []
+}

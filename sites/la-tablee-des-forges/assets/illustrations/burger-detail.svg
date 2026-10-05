@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <title>Illustration : détail d’un burger posé sur du bois</title>
+  <defs>
+    <radialGradient id="lampe" cx="50%" cy="15%" r="60%">
+      <stop offset="0" stop-color="#D9AC6D" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#D9AC6D" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="#252A2B"/>
+  <rect width="400" height="300" fill="url(#lampe)"/>
+  <rect y="236" width="400" height="64" fill="#2D231F"/>
+  <rect y="236" width="400" height="3" fill="#636B69"/>
+  <ellipse cx="200" cy="244" rx="138" ry="9" fill="#181C1D" opacity=".55"/>
+  <path d="M82 218 Q82 240 108 240 H292 Q318 240 318 218 Z" fill="#C98B4A"/>
+  <rect x="76" y="192" width="248" height="28" rx="14" fill="#4A2E22"/>
+  <path d="M74 190 H326 L314 210 L282 198 L246 212 L210 198 L174 212 L138 198 L104 210 Z" fill="#E9C58E"/>
+  <path d="M70 180 Q92 162 118 178 Q144 160 170 178 Q196 160 222 178 Q248 160 274 178 Q300 162 330 180 Q342 192 330 192 H70 Q60 190 70 180 Z" fill="#7E9B5A"/>
+  <rect x="98" y="168" width="204" height="10" rx="5" fill="#8E4A63"/>
+  <path d="M78 168 Q78 82 200 82 Q322 82 322 168 Z" fill="#D49A55"/>
+  <path d="M100 126 Q136 96 186 90" stroke="#E9C58E" stroke-width="6" fill="none" stroke-linecap="round" opacity=".6"/>
+  <g fill="#F3EBDD">
+    <ellipse cx="150" cy="118" rx="8" ry="4" transform="rotate(-20 150 118)"/>
+    <ellipse cx="196" cy="106" rx="8" ry="4" transform="rotate(10 196 106)"/>
+    <ellipse cx="244" cy="120" rx="8" ry="4" transform="rotate(25 244 120)"/>
+    <ellipse cx="172" cy="146" rx="8" ry="4" transform="rotate(-8 172 146)"/>
+    <ellipse cx="222" cy="148" rx="8" ry="4" transform="rotate(18 222 148)"/>
+    <ellipse cx="128" cy="150" rx="8" ry="4" transform="rotate(-30 128 150)"/>
+    <ellipse cx="270" cy="146" rx="8" ry="4" transform="rotate(30 270 146)"/>
+  </g>
+</svg>

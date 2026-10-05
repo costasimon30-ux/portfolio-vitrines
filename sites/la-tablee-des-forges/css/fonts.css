@@ -1,0 +1,35 @@
+/*
+  Polices auto-hébergées — La Tablée des Forges (démo)
+  Sources, auteurs et licence (SIL OFL 1.1) : assets/NOTICE.md ; texte complet
+  de la licence dans assets/fonts/<famille>/LICENSE.txt.
+
+  Ce site déclare ses propres polices : shared/design-system/fonts.css sert
+  l'identité de Créa'Tif (Cormorant Garamond / DM Sans) et n'est pas repris
+  (docs/ARCHITECTURE.md § 1 et § 5.7). Trois fichiers seulement, ceux que le
+  CSS utilise : Barlow Condensed 700 (mot-symbole, titres), Barlow 400 (texte)
+  et Barlow 600 (navigation, actions, libellés).
+*/
+
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("../assets/fonts/barlow-condensed/barlow-condensed-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  src: url("../assets/fonts/barlow/barlow-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  src: url("../assets/fonts/barlow/barlow-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}

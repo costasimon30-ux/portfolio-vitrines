@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400">
+  <title>Illustration : tirettes à bière sur un comptoir en bois, sous une suspension</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#D9AC6D" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#D9AC6D" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="300" height="400" fill="#252A2B"/>
+  <line x1="150" y1="0" x2="150" y2="70" stroke="#636B69" stroke-width="2"/>
+  <circle cx="150" cy="104" r="100" fill="url(#halo)"/>
+  <path d="M108 100 Q108 66 150 66 Q192 66 192 100 Z" fill="#181C1D" stroke="#636B69" stroke-width="2"/>
+  <rect x="132" y="100" width="36" height="6" rx="3" fill="#F3EBDD"/>
+  <rect x="30" y="196" width="240" height="14" rx="3" fill="#636B69"/>
+  <g fill="#636B69"><rect x="76" y="210" width="12" height="44"/><rect x="144" y="210" width="12" height="44"/><rect x="212" y="210" width="12" height="44"/></g>
+  <g fill="#D9AC6D"><rect x="68" y="150" width="28" height="48" rx="5"/><rect x="136" y="150" width="28" height="48" rx="5"/><rect x="204" y="150" width="28" height="48" rx="5"/></g>
+  <g fill="#181C1D" opacity=".5"><rect x="74" y="160" width="4" height="30"/><rect x="142" y="160" width="4" height="30"/><rect x="210" y="160" width="4" height="30"/></g>
+  <rect x="0" y="290" width="300" height="110" fill="#2D231F"/>
+  <rect x="0" y="290" width="300" height="4" fill="#636B69"/>
+  <g stroke="#181C1D" stroke-width="2" opacity=".55"><line x1="0" y1="326" x2="300" y2="326"/><line x1="0" y1="362" x2="300" y2="362"/></g>
+  <path d="M110 288 L116 238 H156 L162 288 Z" fill="#E9C58E"/>
+  <path d="M108 244 Q106 228 120 226 Q128 214 144 220 Q160 216 164 232 Q168 244 160 246 Z" fill="#F3EBDD"/>
+</svg>

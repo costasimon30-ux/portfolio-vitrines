@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="La Tablée des Forges">
+  <rect width="64" height="64" rx="4" fill="#181C1D"/>
+  <rect x="10" y="38" width="44" height="6" fill="#F3EBDD"/>
+  <rect x="10" y="46" width="44" height="3" fill="#2D231F"/>
+  <g fill="#D9AC6D">
+    <polygon points="22,12 27,12 21,34 16,34"/>
+    <polygon points="34,12 39,12 33,34 28,34"/>
+  </g>
+</svg>
