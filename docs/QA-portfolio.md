@@ -1,5 +1,35 @@
 # QA / Audit — portfolio
 
+## Recette QA hébergée — 5 octobre 2026 — source 4f9f192
+
+**Verdict : avis favorable à la diffusion de cette URL auprès de prospects et d’employeurs, avec les limites ci-dessous.** Aucun défaut bloquant ou majeur nouveau n’a été reproduit sur la version hébergée. Ce verdict concerne uniquement l’URL et les parcours testés ; il ne constitue pas une certification du zoom natif, d’autres navigateurs ni du réglage Cloudflare « Preview URLs ».
+
+### Version et méthode
+
+- URL : `https://portfolio-simon-costa.costa-simon30.workers.dev/`, contrôlée le 5 octobre 2026 vers 08:28–08:45 UTC. Révision source demandée : `4f9f192fcde5b68cd87de3b687537518cfc582d7`. Version Cloudflare `c0592a94` annoncée dans `docs/PUBLICATION-portfolio.md` ; son identifiant n’est pas exposé par les réponses publiques et n’a pas été confirmé par lecture du Dashboard.
+- Assemblage indépendant de cette source : 18 fichiers, empreinte agrégée `f13974dc302058ef62012da05cc14066732b0937449a21e35a411139ec69416e`. Les **17 fichiers publics servis** ont chacun le même SHA-256 que leur homologue local, y compris les deux HTML, CSS, JavaScript, deux WebP, quatre WOFF2, notices, licences, favicon et `robots.txt`. `_headers`, dix-huitième fichier, répond 404 comme attendu : il est consommé par l’hébergeur. Le lien octet à octet entre source et contenu accessible est établi ; le numéro interne de déploiement ne l’est pas.
+- Chrome sur l’URL réelle, viewports CSS mesurés `320/375/768/1440 × 900`, Clair/Sombre. Cache **navigateur** désactivé par CDP et contexte neuf pour les mesures de chargement ; le CDN répondait `cf-cache-status: HIT`. Ce protocole ne simule donc pas un cache CDN froid, un réseau lent ni des données terrain.
+
+### Testé et passé
+
+- HTTPS répond 200. `/index` et `/index.html` redirigent en 307 vers `/` ; `/404.html` redirige en 307 vers `/404`. Les chemins absents simple et imbriqué répondent réellement 404 avec la page « Page introuvable » et un retour cliquable vers l’accueil. `/`, `/#contact`, la 404 et les rechargements ont été ouverts directement. L’URL HTTP simple répond encore 200 sans redirection serveur : constat mineur historique `QA-H03-01`, non rouvert ici.
+- `robots.txt` sert `User-agent: *` et `Allow: /` ; l’accueil sert `index, follow`, la vraie 404 `noindex, follow`. Les notices et licences répondent 200 en `text/plain; charset=utf-8` avec `X-Robots-Tag: noindex, follow`. `_headers`, `/publication.json`, `/docs/`, `/docs/DIRECTION.md`, `/CLAUDE.md`, `/.node-version`, `/scripts/assemble-site.mjs` et `/sites/coiffeur-mixte/index.html` répondent 404. L’absence déjà acceptée de `X-Robots-Tag` sur la réponse 404 reste compensée par la meta HTML.
+- Sur les huit couples largeur/thème, molette réelle jusqu’en bas, remontée puis seconde descente : Réalisations, Ce que je fais, Contact et pied de page reviennent à l’état masqué en remontant et se révèlent à nouveau en descendant. Après stabilisation, Contact et pied valent `opacity:1`, `transform:none` au dernier pixel. Aucun débordement horizontal (`scrollWidth - innerWidth = 0`). Les captures visuelles à 320 Clair et 1440 Sombre montrent le contenu et la carte sans troncature apparente.
+- Premier Tab réel sur « Aller au contenu principal » ; Entrée place le focus sur `main#main`. Sur l’accueil et la 404, aux quatre largeurs et deux thèmes, le contour calculé du focus est solide de 3 px avec décalage de 3 px. La tabulation atteint « Voir la démo » et « M’écrire par e-mail » ; après stabilisation leurs boîtes restent dans le viewport et leurs groupes sont opaques. Le thème bascule sans perte du focus du bouton.
+- Accès direct `/#contact`, clic réel sur le CTA, historique retour/avance, touche Fin et « Retour en haut de page » : après stabilisation du défilement, fragment, position et lisibilité concordent aux huit couples largeur/thème ; à `#contact`, le groupe est `opacity:1`, `transform:none`. Le lien e-mail est `mailto:costa.simon30@outlook.com`, et « Voir la démo » mène à la démo HTTPS qui répond 200. La mention de concept fictif et de photographies d’illustration est présente.
+- Avec mouvement réduit ou JavaScript désactivé : 16 configurations (quatre largeurs × deux thèmes × deux modes), quatre groupes chacun statiques (`opacity:1`, `transform:none`, non armés), sans débordement ; sans JS, le bouton de thème inopérant est masqué. Les deux images WebP chargent selon le palier (mobile 720 × 480, desktop 896 × 504) ; les quatre polices locales ont le statut navigateur `loaded`. Les chargements ordinaires suivis n’ont produit ni requête échouée ni erreur JavaScript. L’erreur console 404 provoquée par la visite volontaire d’une adresse absente est attendue. Le MIME des WOFF2 reste `application/octet-stream`, réserve historique PORT-04 ; le navigateur les charge effectivement.
+
+### Observation de chargement — mineure, à suivre
+
+**Reproduction :** ouvrir `/` dans Chrome avec un contexte neuf et cache navigateur désactivé, viewport `320 × 900`, thème Clair, attendre la fin du chargement puis lire les entrées `layout-shift` sans interaction récente. **Observé :** CLS `0,051856` ; le bloc `main` passe de `y=32` à `y=80,39` vers 247 ms. La même campagne unique donne environ `0,056` à 375 px, `0,057` à 768 px et `0,037` à 1440 px, dans les deux thèmes. **Impact :** léger déplacement visuel initial ; aucune action ou lecture n’a été perdue pendant les parcours suivis. Aucun décalage supplémentaire n’a été relevé durant les cycles de molette. **Recommandation :** isoler la cause du déplacement initial lors d’une passe performance dédiée si un objectif CLS plus strict est retenu. Ce signal connu avant publication ne justifie pas à lui seul de bloquer la diffusion testée.
+
+### Non vérifié / réserves
+
+Zoom **natif** du navigateur à 200 % non mesuré : l’accès au réglage Chrome était bloqué par l’outil ; les viewports CSS ne sont pas présentés comme équivalents. Pas d’appareil physique, Safari/Firefox, lecteur d’écran, réseau ralenti ou données Web Vitals terrain. Le réglage Dashboard « Preview URLs » reste à confirmer par Simon, hors preuve de l’URL publique. Les réserves anciennes (dont HTTP sans redirection, MIME WOFF2, absence d’en-tête sur vraie 404) demeurent celles déjà documentées ; Créa’Tif, P06 et la direction artistique ne sont pas réévalués. Aucun changement de code, configuration ou déploiement effectué par QA.
+
+---
+
+
 ## Contre-vérification ciblée — 5 octobre 2026 — source 4f9f192
 
 **Verdict : cycle de défilement PASS aux quatre largeurs et dans les deux thèmes. Clôture complète du §10 non prononcée : le zoom navigateur natif à 200 % n’a pas été vérifié et un CLS de chargement reste observé, sans lien établi avec les transitions.** Source exacte : `4f9f192fcde5b68cd87de3b687537518cfc582d7`. Assemblage production exécuté sur cette révision avec Node 22.23.2 : 18 fichiers, 222,1 Kio. Assemblage servi localement à `127.0.0.1:8765`; aucune version hébergée n’est inférée.
