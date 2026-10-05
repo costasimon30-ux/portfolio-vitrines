@@ -101,3 +101,36 @@ Agent: claude-ui-ux
 **Suite proposée au Chef de projet :** confier uniquement les contrôles QA manquants à l'agent QA ou à Simon, puis lui soumettre l'arbitrage facultatif de la vignette. Ne lancer ni refonte ni déploiement sur la base de cette revue.
 
 Agent: claude-ui-ux
+
+---
+
+# Revue ciblée — apparition réversible au défilement
+
+**Commit source audité :** `4f9f192fcde5b68cd87de3b687537518cfc582d7`.  
+**Périmètre :** effet de seuil du § 10 de `docs/DIRECTION.md` uniquement. Assemblage local du portfolio et inspection du rendu dans Chromium, sans consultation de l’URL publique ni du compte rendu de l’implémenteur.
+
+## Verdict ciblé
+
+**Conforme sur l’effet de défilement observé, avec un contrôle de zoom restant non vérifié.** Aucun défaut visuel reproductible de l’animation n’a été constaté dans la matrice testée. Ce verdict ne constitue pas une validation QA complète ni la validation esthétique finale de Simon.
+
+## Contrôles observés
+
+- **Deux thèmes, quatre viewports :** Clair et Sombre contrôlés à **320×568, 375×667, 768×1024 et 1440×900 CSS px**. Dans les captures observées au sommet, hero et « À propos » sont déjà nets et ne dépendent pas de l’entrée animée. Le bouton de thème reste hors des groupes animés.
+- **Entrée et état final :** sur les huit combinaisons, Réalisations, Ce que je fais, Contact et footer passent tous de l’état armé à l’état visible pendant le parcours vers le bas. En arrêtant le défilement sur Réalisations à 320×568 en Sombre, après 500 ms l’opacité relevée est 1 et la translation est nulle : l’entrée s’achève sans mouvement continu dépendant de `scrollY`. Les blocs Contact et footer se stabilisent aussi visibles après leur entrée.
+- **Inversion et second passage :** à 320×568 en Sombre, Réalisations entre à `scrollY ≈ 997` avec son titre à `T ≈ 411 px`; après l’arrêt, le rendu atteint l’état final à `scrollY ≈ 1140`. En remontant, le groupe revient à `opacity: 0` et `translateY: 16 px` vers `scrollY ≈ 712`. Une nouvelle descente relance l’entrée au même passage de seuil et le groupe se stabilise à nouveau avec `opacity: 1` et sans translation.
+- **Fin de page :** à 320×568 en Sombre, au bas exact observé (`scrollY = 3723,5`, maximum calculé 3723 px, différence de demi-pixel due au défilement), les quatre groupes ont `opacity: 1`; Contact et footer sont donc visibles en fin de course. Dans la matrice Clair/Sombre, ils sont également visibles après le parcours jusqu’au bas aux quatre tailles.
+- **Sortie en remontant :** le retour vers le haut réarme les groupes dans l’ordre inverse de la descente ; au sommet, les quatre groupes animés sont masqués, tandis que le hero et À propos restent hors de ce cycle. Aucun clignotement reproductible n’a été observé pendant ces passages.
+
+Ces observations portent sur les états effectivement rendus. Elles ne mesurent pas au milliseconde près les durées CSS prescrites et ne certifient pas tous les chemins d’accès au contenu.
+
+## Écarts ou défauts
+
+**Aucun défaut d’animation reproductible identifié** dans le périmètre ci-dessus.
+
+## Non vérifié — ne pas considérer comme validé
+
+- Le **zoom navigateur natif à 200 %** n’a pas été activé : les viewports CSS simulés ne le remplacent pas.
+- Le comportement sous `prefers-reduced-motion: reduce`, sans JavaScript, après accès direct par ancre/focus et restauration d’historique n’a pas été éprouvé ici.
+- Les états de survol et un parcours clavier complet ne relevaient pas de cette contre-vérification ciblée et ne sont pas déclarés validés.
+
+Agent: claude-ui-ux
