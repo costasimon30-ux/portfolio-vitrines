@@ -10,89 +10,23 @@ Ce document fixe les décisions structurelles communes à `portfolio-vitrines`. 
 - La mutualisation se fait à la compilation, jamais par injection HTML au chargement de la page.
 - Les dépendances sont de développement uniquement lorsqu'elles évitent une duplication durable ou des scripts maison fragiles.
 
-## 1. Shell commun : header, footer et `<head>`
+## 1. Shells de site : header, footer et `<head>`
 
-### Décision
+### Décision au lancement de La Tablée des Forges (5 octobre 2026)
 
-Adopter un **générateur de site statique léger à l'échelle du dépôt**, recommandé : **Eleventy (11ty)**. Il sert uniquement à produire les fichiers HTML finaux ; il ne change ni la stack servie aux visiteurs, ni l'autonomie de déploiement de chaque site.
+**Reporter Eleventy pour cette V1.** L'existence d'un deuxième site vitrine déclenche l'examen promis, pas automatiquement une migration. Les pages livrées restent du HTML/CSS/JS statique ; l'assembleur existant reste le seul outil de préparation des artefacts. Aucune dépendance npm, configuration Eleventy ou génération de templates n'est demandée à Claude pour la brasserie.
 
-Cette décision est **différée jusqu'à l'existence d'un deuxième site vitrine**. `coiffeur-mixte` conserve donc, temporairement et de manière assumée, son shell dupliqué : un seul site ne justifie pas encore l'ajout d'un outillage de compilation de templates. La création du deuxième site sera le point de validation concret des éléments réellement mutualisables et déclenchera la migration vers des partials compilées. Le simple assemblage de publication reste distinct (section 5).
-
-### Pourquoi un build step, et non une autre solution
-
-| Option | Décision | Motif |
+| Site observé / prévu | Shell et répétition | Ce qui peut être mutualisé maintenant |
 | --- | --- | --- |
-| Partials compilés par Eleventy | Retenue | Layouts, includes, données par page et sortie HTML statique, sans JavaScript de runtime. |
-| Includes côté serveur (SSI, PHP, etc.) | Écartée | Dépend du serveur choisi et ne garantit pas le fonctionnement sur GitHub Pages ou un hébergement statique. |
-| `fetch()`/injection du header et footer en JavaScript | Écartée | Rend le shell dépendant du JavaScript, ajoute un flash de contenu et détériore le repli, le SEO et l'accessibilité. |
-| Copier-coller documenté | Écartée | Ne traite pas la cause et reporte la dette à chaque nouvelle page. |
-| Générateur de templates maison | Écartée | Le besoin est déjà couvert par un outil maintenu ; un script interne deviendrait une dépendance à entretenir. |
+| Créa'Tif (`coiffeur-mixte`) | Header, navigation, footer et liens de styles répétés dans quatre pages ordinaires ; 404 distincte. | À l'intérieur de ce site seulement, lors d'une future extraction de partials. Sa marque, sa navigation, ses crédits et son CSS ne sont pas un shell commun au dépôt. |
+| Portfolio (`portfolio`) | Une page principale et une 404 ; rail, thème clair/sombre, fontes et styles propres. | Aucun shell inter-sites. Le mécanisme de thème et les polices Inter/IBM Plex Mono restent locaux. |
+| La Tablée des Forges (`la-tablee-des-forges`, à créer) | Trois pages de brasserie prévues ; header/footer cohérents entre elles, identité bois sombre/métal distincte. | Une convention locale de navigation et de mention fictive ; pas de reprise automatique du HTML/CSS de Créa'Tif ni du portfolio. |
 
-Eleventy est ici un outil de compilation, pas un framework applicatif. Les visiteurs reçoivent des fichiers HTML/CSS/JS ordinaires. Aucun routeur, hydratation ni dépendance JavaScript supplémentaire n'est requis.
+Les invariants réutilisables sont **des contrats**, pas un composant global : document HTML sémantique, lien d'évitement, navigation au clavier, ressources autonomes dans `dist/`, politique `noindex, follow` pour les démos. La duplication bornée de trois petits shells locaux est acceptée pour construire cette V1. Claude garde header, footer et `<head>` concordants sur ses trois pages et vérifie les liens/états actifs ; il ne crée ni include côté serveur, ni injection JavaScript, ni moteur de templates maison. Le CSS, le JS et les données éditoriales restent propres au site. La carte est du contenu statique lisible sans JavaScript, pas une base de données ou un module partagé.
 
-### Frontière entre un site et `shared/`
+`shared/design-system/` contient aujourd'hui les fontes et tokens utilisés par Créa'Tif, **pas** un design system neutre déjà validé par le portfolio. Une similarité de bouton, de conteneur ou de typographie ne suffit pas à déplacer du code vers `shared/` : il faut deux usages réels et compatibles, un bénéfice de maintenance mesurable et une vérification des artefacts des deux consommateurs. La brasserie peut avoir des polices et styles locaux, avec licences et variantes nécessaires seulement. Tout changement de `shared/`, d'un contrat de publication ou d'un autre site doit être remonté au Chef de projet ou à l'Architecte avant implémentation.
 
-Le **shell est local à chaque site** : les liens, la marque, le CTA, les mentions de démo et le contenu du footer changent normalement d'un client à l'autre. Il ne faut donc pas créer immédiatement un `shared/header.html` mondial.
-
-`shared/design-system/` reste responsable des primitives neutres et éprouvées : tokens, styles de base, boutons, conteneurs, utilitaires d'accessibilité et typographie. Une partial partagée entre sites ne doit être introduite que lorsqu'au moins deux sites emploient réellement la même structure et que ses variations sont simples, explicites et documentées.
-
-### Structure cible
-
-La source d'un site peut évoluer vers la structure suivante :
-
-```text
-portfolio-vitrines/
-├── package.json                         # dépendances et scripts de build, à la racine
-├── eleventy.config.mjs                  # configuration commune de compilation
-├── shared/
-│   └── design-system/
-│       ├── tokens.css
-│       ├── base.css                     # si les styles de base sortent de tokens.css
-│       ├── fonts.css
-│       └── fonts/
-├── sites/
-│   └── coiffeur-mixte/
-│       ├── src/
-│       │   ├── _data/
-│       │   │   └── site.json            # marque, navigation, métadonnées et footer
-│       │   ├── _includes/
-│       │   │   ├── layouts/base.njk     # structure document, head, header, main, footer
-│       │   │   └── partials/
-│       │   │       ├── header.njk
-│       │   │       ├── footer.njk
-│       │   │       └── head.njk
-│       │   ├── index.njk
-│       │   ├── coiffure.njk
-│       │   ├── barbier.njk
-│       │   └── salon.njk
-│       ├── assets/
-│       ├── css/
-│       ├── js/
-│       └── dist/                        # sortie générée, jamais éditée à la main
-```
-
-La sortie retenue est `sites/<site>/dist/`, définie en section 5. Le schéma `src/` ci-dessus concerne la future migration Eleventy ; les sources HTML actuelles restent en place jusque-là. L'assemblage de publication décrit en section 5 ne génère aucun template et n'avance pas cette migration.
-
-### Données minimales par site
-
-Le header et le footer ne doivent pas être paramétrés par plusieurs copies HTML. Les données stables d'un site vivent dans un unique fichier local, par exemple :
-
-- nom de marque et lien de retour à l'accueil ;
-- éléments de navigation ;
-- libellé et destination du CTA ;
-- titre de page et méta-description ;
-- contenu de footer et mention de démonstration ;
-- état de navigation actif, dérivé du chemin courant plutôt qu'écrit à la main.
-
-Les pages conservent leur contenu éditorial et leurs structures spécifiques. Le but est de mutualiser le chrome du site, non de forcer les pages Coiffure, Barbier ou Salon dans un gabarit identique.
-
-### Règles d'implémentation futures
-
-- Une page source ne contient pas de copie de header, footer ni de déclaration de polices à dupliquer.
-- Le layout rend un unique `<main id="main" tabindex="-1">` et conserve les structures sémantiques existantes.
-- Une partial de navigation génère `aria-current="page"` à partir de la page courante.
-- Les fichiers CSS et JavaScript restent séparés par site tant qu'ils portent une identité ou une interaction propre à ce site.
-- Toute interaction commune ne rejoint `shared/` qu'après preuve de réutilisation sur deux sites, avec un repli sans JavaScript documenté.
+Eleventy reste l'option privilégiée **si** une duplication de shell devient une charge observée (section 3). Il produirait du HTML statique, avec partials **locales à chaque site** et aucune dépendance côté navigateur ; un `shared/header` mondial n'est pas présumé. SSI/PHP imposeraient un serveur, et `fetch()` pour le shell rendrait la navigation dépendante de JavaScript : ces voies restent écartées.
 
 ## 2. Polices web
 
@@ -136,36 +70,23 @@ Une police propre à un seul client peut rester dans `sites/<nom-du-site>/assets
 
 ## 3. Trajectoire de migration
 
-### Étape 1 — au lancement du deuxième site vitrine
+### Étape 1 — deuxième vitrine : examen clos, HTML statique conservé
 
-La création du deuxième site est le déclencheur de cette étape. Avant d'introduire l'outillage, comparer les deux shells pour confirmer ce qui est réellement commun et ce qui doit rester propre à chaque marque.
+La comparaison de la section 1 ne révèle pas de shell inter-sites à partager. Pour La Tablée des Forges, Claude crée `sites/la-tablee-des-forges/` avec trois pages HTML plates à sa racine (accueil, carte, lieu/infos), une `404.html`, ses ressources locales et son `publication.json` de type `demo`. Les noms exacts des deux pages secondaires sont fixés une fois par Claude et repris sans divergence dans la navigation et le manifeste. Le shell cohérent est maintenu localement sur ces trois pages ; les états actifs, titres et descriptions sont propres à chaque page. Pas de `src/` de templates ni de conversion des sites publiés. Les polices, médias et notices restent dans le site sauf réutilisation inter-sites réellement validée. L'assemblage reste `node scripts/assemble-site.mjs la-tablee-des-forges --environment preview` pour les essais, puis `--environment production` pour préparer un candidat ; ce build local ne publie rien.
 
-1. Introduire Eleventy comme dépendance de développement, à la racine du dépôt, une fois le besoin validé sur les deux sites.
-2. Créer des partials locales `head`, `header` et `footer` pour chaque site ; ne pas créer de header mondial par anticipation.
-3. Convertir les pages de `coiffeur-mixte` en sources de templates et extraire ses métadonnées et sa navigation dans `src/_data/site.json`.
-4. Construire le deuxième site avec le même mécanisme, tout en conservant son shell et ses données propres.
-5. Vérifier que le HTML généré conserve exactement les comportements accessibles : skip link, menu sans JavaScript, `aria-current`, titre, méta-description et favicon.
-6. Conserver les CSS, JavaScript et assets comme ressources statiques ; cette étape ne justifie aucune réécriture des sites.
+**Déclencheur de réexamen :** après livraison de cette V1, à la première demande de maintenance qui oblige à appliquer **le même changement de header, footer ou `<head>` à au moins trois pages d'un même site**, Claude relève les fichiers concernés, le nombre d'éditions identiques et le risque de divergence, puis remonte une proposition de partials locales au Chef de projet et à l'Architecte *avant* de changer l'outillage. Une nouvelle vitrine multipage présentant ce même coût déclenche aussi l'examen. Ce n'est pas une autorisation automatique de migrer : si les différences par page dominent, conserver le HTML. Si le coût est établi, évaluer Eleventy comme dépendance de développement, sans template global de marque ; préciser à ce moment-là l'ordre compilation → assemblage, les entrées autorisées et la sortie par site avant tout code. Aucun routeur, rendu client ou backend ne suit de cette décision.
 
-### Étape 2 — avant publication publique
+### Étape 2 — ressources et publication indépendantes
 
-Cette étape est indépendante de l'étape 1 : elle peut être réalisée avec un seul site. Les fontes de Créa'Tif sont déjà locales à la date du 7 septembre 2026 ; conserver les fichiers et graisses effectivement employés.
+Pour chaque nouveau site, auto-héberger les seules variantes de polices employées après vérification de licence ; garder un repli système et `font-display: swap`. Déclarer précisément les pages, CSS, JS éventuel, images, fontes et notices dans `publication.json`. L'assembleur génère uniquement `sites/<slug>/dist/` et applique les directives du § 5.5 : `noindex, follow` pour une démo, exploration permise. Servir localement **cette sortie seule** et contrôler pages, ressources et 404. Le choix d'un hôte et chaque dépôt manuel restent soumis à un accord distinct de Simon sur la révision et l'artefact ; ajouter une vitrine au dépôt ne modifie aucune URL publiée.
 
-1. Pour tout site suivant, auto-héberger les fontes après validation de licence et remplacer les liens CDN dans les pages, puis dans le layout commun lorsque celui-ci existe.
-2. Vérifier le rendu avec les fontes locales et de repli sur la sortie assemblée.
-3. Préparer l'assemblage indépendant et les directives d'indexation selon la section 5, sans déploiement implicite.
+### Étape 3 — mutualisation seulement sur preuve
 
-État au 8 septembre : l'assemblage de Créa'Tif est livré et contre-vérifié, puis sa première publication manuelle sur Workers Static Assets a été rapportée. La section 5 distingue ces acquis de la recette hébergée et encadre les versions suivantes ; cette étape ne constitue plus une demande de première mise en ligne.
-
-### Étape 3 — standardisation après validation sur deux sites
-
-1. Réutiliser les tokens, styles de base, polices et primitives d'accessibilité de `shared/design-system/`.
-2. Créer un shell local au nouveau site ; ne pas imposer celui de Créa'Tif.
-3. Évaluer après deux sites si une partial cross-site apporte réellement plus de cohérence qu'elle n'ajoute de paramètres. Sans ce constat, garder les partials de shell locales.
+Une extraction vers `shared/` suppose deux usages effectifs, une API de variation courte et stable, la compatibilité visuelle des deux marques et des tests des deux sorties. Par défaut, les tokens, composants, comportements et données de la brasserie restent locaux ; ceux de Créa'Tif et du portfolio ne sont pas réorganisés pour elle. Une éventuelle adoption ultérieure d'Eleventy doit préserver les URL et le contrat du § 5, comparer les artefacts avant/après pour **Créa'Tif et le portfolio**, et conserver une seule chaîne de génération HTML par site. Elle fait l'objet d'une décision et d'un lot séparés, jamais d'une migration implicite pendant la création de La Tablée.
 
 ## 4. Critères d'acceptation de cette architecture
 
-- Après la migration Eleventy, modifier un lien de navigation ou une mention de footer d'un site ne demande qu'une modification de source ; la duplication actuelle reste acceptée jusque-là.
+- Pour La Tablée des Forges V1, le shell de ses trois pages reste cohérent malgré la duplication locale ; une modification transversale répond au déclencheur de réexamen du § 3.
 - Le site généré reste utilisable avec JavaScript désactivé, notamment sa navigation mobile.
 - Une page reste lisible et explorable comme HTML statique sans requête de rendu côté client ; son indexation dépend du site et de l'environnement (section 5).
 - Chaque site peut être construit et publié sans embarquer les sources ou données d'un autre site.
@@ -180,19 +101,17 @@ L'état publié ci-dessous est celui rapporté par Claude et consigné dans DIRE
 
 ### 5.1 Sources, sorties et URL
 
-Conserver un dépôt et publier un artefact distinct par site. Réserver **`sites/portfolio/`** au futur portfolio professionnel, sans créer ce dossier ni son contenu maintenant. Créa'Tif reste dans `sites/coiffeur-mixte/` et n'est jamais copié comme accueil du portfolio ou comme `index.html` à la racine du dépôt.
+Conserver un dépôt et publier un artefact distinct par site. **Créa'Tif et le portfolio sont déjà deux sites distincts** : ne pas traiter le portfolio comme un emplacement futur ni copier la démo comme accueil. La Tablée des Forges sera une troisième source autonome ; sa création n'altère ni les fichiers ni les URL des deux sites publiés.
 
-| Élément | Sources | Sortie publiable | Hébergement |
+| Élément | Sources | Sortie publiable | Situation |
 | --- | --- | --- | --- |
 | Démo Créa'Tif | `sites/coiffeur-mixte/` | `sites/coiffeur-mixte/dist/` | Worker `portfolio-vitrines-coiffeur-mixte`, dépôt manuel |
-| Future démo | `sites/<slug>/` | `sites/<slug>/dist/` | Publication indépendante ; produit et nom à valider |
-| Futur portfolio, emplacement réservé | `sites/portfolio/` | `sites/portfolio/dist/` | Publication indépendante ; produit et nom à valider |
+| Portfolio professionnel | `sites/portfolio/` | `sites/portfolio/dist/` | Worker `portfolio-simon-costa`, dépôt manuel ; journal de version dans `docs/PUBLICATION-portfolio.md` |
+| Démo La Tablée des Forges, à créer | `sites/la-tablee-des-forges/` | `sites/la-tablee-des-forges/dist/` | Hébergement et URL à arbitrer ; aucun dépôt autorisé par la création des sources |
 
-Chaque sortie contient ses pages à sa propre racine et une copie de ses dépendances communes. `dist/` est déjà couvert par `.gitignore` ; il reste non versionné. Ni le dépôt entier, ni `sites/`, ni le dossier source d'un site ne doivent être sélectionnés comme sortie publiée.
+Chaque sortie contient ses pages à sa propre racine et seulement ses dépendances déclarées. `dist/` est ignoré par Git et jamais édité manuellement. Ni le dépôt entier, ni `sites/`, ni le dossier source d'un site ne sont une sortie publiable. Les URL effectives des deux sites en ligne sont [Créa'Tif](https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/) et [portfolio](https://portfolio-simon-costa.costa-simon30.workers.dev/). Leur publication est manuelle sur Workers Static Assets, sans connexion Git ; aucune mise en ligne de la brasserie ne découle de cette note. Un éventuel domaine personnalisé reste une décision distincte de Simon.
 
-URL effective déclarée : [Créa'Tif sur Workers](https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/). L'URL `pages.dev` envisagée n'a pas été mise en service. Conserver l'URL actuelle ; aucune redirection vers Pages n'est demandée. Cible éventuelle inchangée : domaine principal pour le portfolio, `https://<slug>.<domaine>/` pour chaque démo, sans nom réservé ni achat engagé. Un futur raccordement devra préserver les chemins et traiter les URL alternatives avec les mécanismes du produit alors retenu, sans déplacer les sources.
-
-Les fichiers restent `index.html`, `coiffure.html`, `barbier.html`, `salon.html`. Workers Static Assets dispose de sa propre résolution HTML ; son mode documenté `auto-trailing-slash` sert les fichiers plats sans extension et redirige notamment `.html` ou le slash final en 307. C'est compatible avec `/`, `/coiffure`, `/barbier`, `/salon` et les observations rapportées par Claude, sans prouver le réglage exact du Worker. Conserver les liens relatifs pour le service HTTP local ; QA vérifie les chaînes réelles et l'ancre Contact, sans exiger un statut emprunté à Pages. Aucun routeur ni repli général vers l'accueil. [Workers — résolution HTML](https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/).
+L'assembleur du § 5.2 n'accepte que des pages HTML plates à la racine de chaque site. Pour Créa'Tif, conserver `index.html`, `coiffure.html`, `barbier.html` et `salon.html` et leurs URL publiées. Pour La Tablée, choisir trois noms de fichiers plats cohérents avec ses liens relatifs ; aucune page imbriquée, aucun routeur ou repli SPA. La `404.html` obligatoire conserve des liens et ressources qui fonctionnent aussi lorsqu'une URL inconnue est imbriquée. QA vérifie les réponses et redirections réelles sur l'hôte seulement après un dépôt autorisé ; ne pas supposer qu'un serveur local reproduit Workers. [Workers — résolution HTML](https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/).
 
 ### 5.2 Assembleur minimal et manifeste local
 
@@ -234,7 +153,7 @@ L'assembleur suit ces opérations dans cet ordre :
 
 Les liens entre pages, les `srcset`, les URL de photos dans le CSS et les liens de crédits restent inchangés. En particulier, `css/style.css` reste à la même profondeur par rapport à `assets/`. `fonts.css` conserve ses URL `fonts/...woff2`, résolues sous `dist/shared/design-system/fonts/`. Les photos, polices et notices sont copiées octet pour octet. On ne réécrit pas globalement les chaînes `../` dans tous les fichiers.
 
-La version minimale ne traite que des pages HTML à la racine, comme le site actuel. L'arrivée de pages imbriquées nécessite un calcul des URL relatif à chaque document, à intégrer dans Eleventy au moment prévu, pas une extension implicite du remplacement de chaînes.
+La version minimale ne traite que des pages HTML à la racine. Des pages imbriquées exigeraient une décision distincte sur les chemins et une vérification du contrat de sortie, pas une extension implicite du remplacement de chaînes ni une migration automatique.
 
 **Page 404 :** conserver la page locale livrée, son lien vers `/` et ses éventuelles ressources relatives à l'origine, pour fonctionner également sur une URL inconnue imbriquée. La page porte `noindex, follow` dans tous les environnements. Le contrat exige une vraie réponse HTTP 404 avec cette page. Ne pas déduire sa prise en charge de la seule présence du fichier : Workers documente le mode `not_found_handling = "404-page"`, distinct des conventions Pages. Claude rapporte une 404 personnalisée ; QA doit confirmer le comportement effectif, sans modifier la configuration dans cette intervention. Aucun mode SPA à activer. [Workers — routage des assets et 404](https://developers.cloudflare.com/workers/static-assets/).
 
@@ -296,7 +215,7 @@ Les anciens filtres Pages incluaient `sites/coiffeur-mixte/*`, `shared/design-sy
 
 Aujourd'hui, **aucun push ne déclenche de publication**, documentaire ou non. Les changements dans un site, ses dépendances `shared/`, son manifeste ou l'assembleur déterminent les candidats à tester/reconstruire localement, pas une autorisation de les mettre en ligne. Une notice Markdown publiée est une dépendance, contrairement à un rapport `docs/` ; ne pas les confondre. Une modification de la suite de tests peut nécessiter un rejeu sans changement d'artefact.
 
-Ajouter un site garde les conventions `sites/<slug>/`, manifeste local, brief et sortie isolée. Le futur portfolio utilise `kind=portfolio`, sans être construit maintenant. Simon arbitre le produit d'hébergement de chaque nouvelle publication et autorise chaque version ; ni création automatique d'un Worker, ni obligation de Pages, ni changement d'URL des sites existants. Si une automatisation est réexaminée au deuxième site, séparer tests/builds et déploiement avec validation humaine. Connecter Workers à Git serait une autre décision technique : cela ne créerait pas un projet Pages et ne rendrait pas ses réglages applicables.
+Ajouter un site garde les conventions `sites/<slug>/`, manifeste local, brief et sortie isolée. Le portfolio existant utilise `kind=portfolio` ; La Tablée utilisera `kind=demo`. Simon arbitre le produit d'hébergement de chaque nouvelle publication et autorise chaque version ; ni création automatique d'un Worker, ni obligation de Pages, ni changement d'URL des sites existants. Si une automatisation est réexaminée au deuxième site, séparer tests/builds et déploiement avec validation humaine. Connecter Workers à Git serait une autre décision technique : cela ne créerait pas un projet Pages et ne rendrait pas ses réglages applicables.
 
 ### 5.5 Indexation par site, environnement et ressource
 
@@ -330,7 +249,7 @@ Pour le portfolio en production, les pages ordinaires doivent effectivement rest
 
 La non-indexation des URL de préversion du Worker (*Preview URLs*, format `<préfixe-de-version-ou-alias>-<nom-du-worker>.<sous-domaine>.workers.dev`, activées par défaut dès que `workers.dev` l'est [Workers — Preview URLs](https://developers.cloudflare.com/workers/versions-and-deployments/preview-urls/)) repose donc ailleurs, selon le site. Pour une démo, le `noindex, follow` global déjà en place couvre toute URL par laquelle elle est atteinte, préversions comprises. Pour le portfolio en production — seul site dont les pages ordinaires doivent rester indexables, donc seul cas où une préversion indexée serait réellement gênante —, aucune règle `_headers` ne peut viser sa seule préversion sans reproduire le défaut ci-dessus : les Preview URLs sont un mécanisme d'hôte, pas une correspondance de chemin. **Décision : désactiver le réglage « Preview URLs » du Worker qui sert le portfolio (tableau de bord Cloudflare, Settings → Domains & Routes) avant toute publication indexable du portfolio.** Ce réglage est externe au dépôt et n'est pas exécuté par la présente mission ; consigner sa vérification dans le prochain journal de publication du portfolio. Les démos n'ont pas besoin de cette désactivation, leur `noindex` global suffisant déjà à couvrir leurs éventuelles préversions.
 
-**Sitemaps et URL alternatives :** aucun sitemap pour les démos `noindex`, ni pour les previews. Aucun domaine fictif ni canonique inventée dans l'artefact actuel. Le sitemap et les canoniques du futur portfolio seront préparés quand son contenu et son origine de production seront validés ; ne pas mettre les URL de démos non indexables dans ce sitemap. Au raccordement d'un domaine personnalisé, choisir une origine publique de référence, rediriger les URL de plateforme correspondantes vers elle en conservant chemin et paramètres, puis actualiser les canoniques et sitemap du portfolio. Les previews conservent leur non-indexation. Ces réglages futurs n'exigent pas de réorganiser les sources.
+**Sitemaps et URL alternatives :** aucun sitemap pour les démos `noindex`, ni pour les previews. Aucun domaine fictif ni canonique inventée dans l'artefact actuel. Le sitemap et les canoniques du portfolio seront préparés lorsque son contenu et son origine de production définitive seront validés ; ne pas mettre les URL de démos non indexables dans ce sitemap. Au raccordement d'un domaine personnalisé, choisir une origine publique de référence, rediriger les URL de plateforme correspondantes vers elle en conservant chemin et paramètres, puis actualiser les canoniques et sitemap du portfolio. Les previews conservent leur non-indexation. Ces réglages futurs n'exigent pas de réorganiser les sources.
 
 **Arbitrage du 18 septembre 2026 (réserve 3 de `docs/PUBLICATION-portfolio.md`, dépôt n° 1) : l'absence de `X-Robots-Tag` sur la réponse 404 réelle est acceptée en l'état, sans correction de l'assembleur.** Une règle `_headers` s'applique selon le chemin de la requête entrante, pas selon le statut de la réponse ni selon l'asset effectivement servi. Workers Static Assets réécrit en interne une requête sans correspondance vers `404.html` après évaluation de `_headers` [Workers — page 404 personnalisée](https://developers.cloudflare.com/workers/static-assets/routing/static-site-generation/#custom-404-pages) : une règle écrite sur `/404.html` ne matche donc jamais la requête à l'origine d'une 404 réelle, dont le chemin est par nature arbitraire et non prévisible. Seule une règle globale `/*` couvrirait toute 404 sans distinction de chemin — déjà le cas pour une démo, mais impossible pour le portfolio en production sans reproduire le défaut de la réserve 2 : elle rendrait aussi ses pages ordinaires non indexables. Il n'existe donc pas de règle `_headers` qui protège spécifiquement une 404 sans contredire par ailleurs l'indexabilité exigée des pages ordinaires du portfolio ; ce n'est pas une lacune de l'assembleur à corriger, mais une limite du mécanisme de correspondance par chemin lui-même, qui ne distingue pas les réponses par code de statut.
 
@@ -342,7 +261,7 @@ Cette absence reste sans effet pratique. Google n'indexe pas le contenu d'une UR
 
 **Contrôles locaux à conserver pour préparer un prochain candidat :**
 
-1. Assembler Créa'Tif en `production` puis en `preview` dans le cadre des vérifications ; vérifier sa non-indexation dans les deux sorties. La suite `node scripts/verif-assemblage.mjs` couvre les politiques portfolio sur des fixtures isolées, le repli local et le garde-fou de branche Pages, sans créer le futur portfolio ni une preview hébergée. Pour le candidat à déposer, terminer par l'assemblage explicite `--environment production` et relever son résultat effectif (§ 5.4).
+1. Assembler Créa'Tif en `production` puis en `preview` dans le cadre des vérifications ; vérifier sa non-indexation dans les deux sorties. La suite `node scripts/verif-assemblage.mjs` couvre les politiques portfolio sur des fixtures isolées, le repli local et le garde-fou de branche Pages, sans créer de preview hébergée. Pour le candidat à déposer, terminer par l'assemblage explicite `--environment production` et relever son résultat effectif (§ 5.4).
 2. Assembler deux fois le même site avec le même mode et comparer les fichiers produits. Vérifier que seules les sorties générées changent et qu'un autre site ou dossier source n'est jamais nettoyé. Tester un slug invalide et une entrée manquante : échec explicite.
 3. Comparer l'inventaire publié au manifeste et aux fichiers générés attendus. Aucune capture, configuration, autre site ou source interne. Vérifier les empreintes des médias, fontes et notices copiés ; la réserve documentaire existante est conservée.
 4. Servir uniquement `sites/coiffeur-mixte/dist/` comme racine HTTP locale, par exemple avec `ruby -run -e httpd sites/coiffeur-mixte/dist -p 8765` depuis la racine du dépôt. Ne pas servir le dépôt pour ce contrôle : cela masquerait des dépendances sortantes.
@@ -355,12 +274,14 @@ La validation locale acquise n'est pas rouverte par le changement de documentati
 
 QA contrôle les quatre pages à 320/375/768/1440 px, menu, clavier/focus/lien d'évitement, zoom 200 %, contact et crédits, photos et débordements, cache froid et erreurs réseau/console ; distinguer mesures de laboratoire et données réelles indisponibles. Les URL versionnées ou previews ne sont testées que si elles existent et sont accessibles sans changement de réglage. QA consigne ses preuves et limites dans son rapport, sans correction ni republication. La mise en avant auprès de prospects reste soumise à cette recette ; les contrôles de fumée déclarés par Claude ne la remplacent pas. L'absence de données dans l'artefact ne rend pas privé le dépôt GitHub public. P06 et la sélection artistique ne sont pas rouverts.
 
-### 5.7 Raccordement à Eleventy et décisions restant à Simon
+### 5.7 Deuxième vitrine, réexamen d'Eleventy et non-régression
 
-L'assemblage répond au besoin de publication du premier site. Au deuxième site vitrine, la validation de mutualisation puis la trajectoire Eleventy de la section 3 restent déclenchées comme convenu. Eleventy prendra en charge les layouts et la production HTML ; ses copies de ressources et sa configuration de sortie pourront absorber les copies et transformations actuelles. Maintenir **le contrat de sortie `sites/<slug>/dist/`**, les URL, la séparation des sites et les règles d'indexation.
+**Décision : pas d'Eleventy ni de refonte de l'assembleur pour La Tablée V1.** Le déclencheur « deuxième site » a été honoré par la comparaison du § 1 : la duplication substantielle du shell n'est avérée qu'à l'intérieur de Créa'Tif ; le portfolio ne partage pas son shell, et celui de la brasserie reste à concevoir. Un outil de templates ajouterait aujourd'hui une dépendance et une chaîne de build à raccorder au manifeste pour trois pages courtes, tout en exposant deux artefacts déjà publiés à une conversion sans bénéfice démontré. L'assembleur actuel sait copier les pages HTML plates et les ressources explicites d'une nouvelle démo sans changement de code. Il ne faut donc ni convertir Créa'Tif ou le portfolio, ni étendre son remplacement ciblé de chemins pour créer artificiellement une réutilisation.
 
-Supprimer `scripts/assemble-site.mjs` seulement lorsque ses responsabilités sont couvertes et vérifiées ; un petit utilitaire de préparation des en-têtes peut subsister si nécessaire. Ne pas conserver deux chaînes concurrentes pour produire le même HTML. À cette migration, mettre à jour la commande locale, la liste des entrées et les vérifications (configuration Eleventy, `package.json`, lockfile et éventuels utilitaires), sans imposer de changement d'hébergement ou d'URL. Les éventuels filtres distants ne seront à définir que si une intégration Git est explicitement décidée ; aucune n'est active aujourd'hui.
+**Contrat de Claude pour la nouvelle démo :** utiliser un slug enfant direct `la-tablee-des-forges` ; garder trois HTML plats et `404.html`, CSS/JS éventuel et médias dans ce site ; créer un manifeste `kind: demo` listant exactement `pages` et `publicFiles`. `sharedFiles` peut être vide ; aucun fichier de `shared/design-system/` n'est repris par défaut. Si une ressource réellement commune est proposée, documenter les deux consommateurs, les chemins en source **et en sortie**, les effets sur les sites publiés et faire arbitrer avant modification. Les polices et notices locales sont listées explicitement. Garder les chemins de ressources résolvables depuis l'artefact assemblé, sans dépendance à `../../shared/` non prise en charge. Ne pas stocker de données privées, d'offres réelles ou de configuration de réservation ; le menu fictif reste du contenu statique local.
 
-L'outillage local est déjà livré. Son évolution relève de Claude sur instruction ; l'Architecte ne modifie que ce document. Le deuxième site déclenche la validation de mutualisation Eleventy prévue, **pas une migration vers Pages, un raccordement Git ou une autorisation de déploiement automatique**. Produit d'hébergement, construction locale et mode de publication restent trois décisions distinctes.
+**Critères vérifiables avant tout candidat de publication :** la suite `node scripts/verif-assemblage.mjs` passe ; `node scripts/assemble-site.mjs la-tablee-des-forges --environment production` produit uniquement `sites/la-tablee-des-forges/dist/` ; son inventaire correspond à son manifeste plus `robots.txt` et `_headers`, sans `docs/`, autres sites, fichiers sources ou dépendances hors sortie. Comparer deux assemblages identiques pour leur déterminisme. Servir `dist/` seul : vérifier trois accès directs, liens/CTA/retour, menu sans JavaScript, 404 présente, polices/images/notices sans 404 réseau, titres et descriptions distincts, lien d'évitement, clavier/focus, lisibilité à 320 et 375 px, absence de débordement, et tailles/poids des médias justifiés. Contrôler dans les HTML et `_headers` le `noindex, follow` de la démo et dans `robots.txt` l'exploration autorisée ; les notices doivent rester créditées et non indexables. QA vérifiera sur une URL hébergée **seulement après accord de Simon et publication par le rôle compétent** les réponses HTTP, 404 réelle, en-têtes, ressources, clavier et petits écrans. La présence d'une sortie locale ne vaut pas recette hébergée.
 
-L'arbitrage actuel est compatible avec le contrat de sortie. Restent à compléter la traçabilité Cloudflare disponible et la recette hébergée, pas une nouvelle décision entre Pages et Workers pour Créa'Tif. Simon autorise explicitement chaque version suivante ; l'achat/raccordement éventuel d'un domaine, l'hébergement des futurs sites et une éventuelle automatisation restent des décisions séparées. Aucun seuil de cinq sites Workers n'est déduit de l'ancienne limite Pages. Le maintien de P06 et sa réserve documentaire connue sont inchangés, sans nouvelle recherche ou modification de média.
+**Non-régression des deux sites en ligne :** avant l'ajout, relever le commit de base et produire l'inventaire SHA-256 de chaque sortie de `coiffeur-mixte` et `portfolio` depuis ce même état source. Après ajout de la nouvelle démo, réassembler isolément ces deux sites depuis la nouvelle révision et comparer chaque inventaire à cette base, dans les mêmes conditions ; les fichiers `publication.json`, sources et URL de ces sites ne changent pas. Si une différence inattendue apparaît, la traiter avant tout candidat de dépôt. Les empreintes de dossiers faites par des méthodes différentes ne sont pas directement comparables (§ 5.4). Aucun push ne republie un Worker. La Tablée n'a pas d'URL ou d'hébergement choisi par cette architecture ; tout dépôt, même initial, exige l'accord explicite de Simon sur une révision et un artefact précis.
+
+Si le déclencheur du § 3 survient, instruire un lot distinct : démontrer les éditions dupliquées, comparer HTML conservé et partials locales, fixer les entrées/sorties et l'ordre de compilation, puis exiger des sorties inchangées ou des écarts expliqués pour les deux sites publiés. Eleventy n'est alors adopté qu'après validation de ce contrat. Ne pas conserver deux chaînes concurrentes de génération HTML ni faire dépendre la décision d'une connexion Git ou d'un réglage Cloudflare. Le maintien de P06 et sa réserve documentaire sont inchangés.
