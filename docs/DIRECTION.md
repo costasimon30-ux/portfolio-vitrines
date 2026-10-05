@@ -883,4 +883,45 @@ Parcours principal : découvrir le restaurant sur l'accueil → consulter rapide
 - Le rendu est cohérent sur mobile, tablette et desktop, au clavier et avec réduction des mouvements ; pas de débordement horizontal ni de contenu essentiel masqué. Titres et métadonnées propres à chaque page ; médias optimisés et crédités.
 - L'atmosphère bois sombre/métal/soirée distingue nettement cette vitrine de Créa’Tif et du portfolio, sans copier une enseigne existante. L'UI/UX juge cette cohérence visuelle sur le rendu ; QA vérifie les parcours et replis avant toute mise en avant.
 
+#### Direction artistique — proposition V1 pour « La Tablée des Forges » (5 octobre 2026)
+
+**Statut : à valider par Simon.** Trois pages, contenu et périmètre du brief produit conservés. Aucune photographie définitive n'est choisie.
+
+**Parti pris — le comptoir après la tombée du jour.** Une identité nocturne et conviviale : graphite mat, brun de bois sombre, détails de métal et lumière ambrée. Grands aplats calmes, cadrages gourmands, filets fins. La forge n'apparaît que dans un filet à deux coupes obliques, au plus une fois par page ; ni runes, casques, blasons, parchemin, texture usée ou décor médiéval. Cette photo dominante et cette palette sombre différencient le site de l'ivoire/cuivre/sauge de Créa’Tif et du portfolio clair/sombre à grille éditoriale.
+
+##### Palette et typographie
+
+| Rôle et couleur | Usage |
+| --- | --- |
+| Nuit `#181C1D` | Fond et panneau de texte du hero |
+| Métal `#252A2B` | Header, cartes et footer |
+| Bois `#2D231F` | Un panneau d'ambiance maximum par page |
+| Clair `#F3EBDD` | Titres, texte, navigation |
+| Secondaire `#C8C4B9` | Descriptions, légendes, mentions, sans opacité réduite |
+| Ambre `#D9AC6D` / survol `#E9C58E` | CTA, lien actif, détail court |
+| Filet `#636B69` | Séparation décorative uniquement |
+| Focus `#A9E1DC` | Anneau clavier |
+
+Contrastes calculés en sRGB sur aplats : clair sur nuit/métal/bois **14,51 / 12,28 / 12,93:1** ; secondaire **9,86 / 8,34 / 8,79:1** ; ambre sur nuit **8,24:1** ; texte graphite `#1B1D1D` sur CTA ambre **8,12:1**, survol **10,36:1**. Tous les textes prescrits dépassent 4,5:1. Aucun titre, CTA ou avertissement directement sur une photo : un panneau graphite opaque porte toujours ces contenus.
+
+**Barlow Condensed 700** pour mot-symbole/titres ; **Barlow 400 et 600** pour corps, navigation et actions. Trois graisses utiles, auto-hébergées avec `font-display: swap`, repli sans-serif et notices OFL. Licences officielles [Barlow](https://github.com/google/fonts/blob/main/ofl/barlow/OFL.txt) et [Barlow Condensed](https://github.com/google/fonts/blob/main/ofl/barlowcondensed/OFL.txt) ; vérifier les fichiers exacts avant intégration. H1 accueil **40–64 px**, H1 intérieur **36–52 px**, H2 **26–36 px** à base 16 px, à exprimer en unités relatives ; interligne titres **1,05–1,15**. Corps **16 px mobile / 18 px desktop**, interligne **1,55**, largeur de lecture **65 caractères max**. Capitales espacées réservées aux petits libellés de catégorie.
+
+##### Composition et navigation
+
+Conteneur **1160 px max**, marges **16 / 24 / 32 px** (mobile/tablette/desktop), espace par pas de **8, 16, 24, 32, 48, 72, 96 px** ; sections espacées de **72 px mobile / 96 px desktop**. Cartes : bordure 1 px, rayon **4 px**, padding **20 px mobile / 28 px desktop**. Pas d'ombre flottante. En-tête non fixe : mot-symbole à gauche et trois liens à droite sur desktop ; sous **768 px**, mot-symbole puis trois liens toujours visibles sur une ligne distincte, avec retour à la ligne permis à 320 px. Page active soulignée **2 px** et signalée par `aria-current`. Aucun menu caché.
+
+- **Accueil :** dès 1024 px, hero en deux colonnes, texte **42 %** / photo **58 %**. Nom, « brasserie-bar du soir », burgers/bières et les deux actions se lisent sur le panneau nuit ; photo d'une table burger et bière sans marque à côté. Sous 1024 px, ordre nom/offre → photo → actions. Une brève introduction mène à un aperçu de l'offre, puis un aperçu du lieu, chacun lié à sa page. Aucun horaire présenté comme réel ici.
+- **La carte :** ouverture courte, mention « carte illustrative / prix fictifs » visible avant le premier prix. Catégories du brief entièrement lisibles sans filtre ni accordéon. Une seule photo éditoriale de burger peut accompagner l'ouverture ; aucune série de cartes photo répétées. Noms/descriptions à gauche, prix à droite sur grand écran, puis sous le nom si nécessaire sur mobile. Lien de fin vers Le lieu & infos.
+- **Le lieu & infos :** détail de comptoir et tablée en ouverture ; texte sur le passage du dîner à la soirée. Horaires de démonstration et localisation fictive réunis dans un même panneau lisible, sans carte ni façade identifiable. Lien « Voir la carte ».
+
+CTA principal « Voir la carte » : ambre plein, texte graphite, **48 px** de haut minimum, rayon **4 px**. « Découvrir le lieu » reste un lien ou bouton bordé secondaire. Actions sans déplacement au survol (couleur/soulignement uniquement) ; cibles d'au moins **44 × 44 px**. Focus cyan continu **3 px**, décalé de **3 px**, non rogné. Lien d'évitement visible au focus. Aucun bouton de commande ou réservation.
+
+##### Images et vérification du rendu
+
+Besoins visuels à sélectionner plus tard : **table burger/bière** pour l'accueil, **détail de burger** si utile sur La carte, **comptoir/tables et matières bois-métal** pour Le lieu. Accueil : cadrage desktop **3:2**, sujets au centre droit ; mobile cadre **4:3** plafonné à **210 px** de haut, burger et verre non coupés. Le lieu : plan horizontal large desktop, détail vertical mobile. Teintes chaudes naturelles, sans filtre orange ni même image répétée sur les trois pages. Avant intégration, documenter source, licence, crédit, personnes et marques visibles ; légender « photographie d'illustration ». Une photo d'intérieur n'est jamais présentée comme celle du lieu fictif. Sans photo approuvée, l'emplacement montre une illustration sobre de burger et verre, explicitement signalée comme telle.
+
+À **320×568**, le premier écran d'accueil doit montrer nom, nature brasserie-bar, offre burgers/bières et au moins **120 px** du sujet ou de son emplacement illustratif ; le CTA peut suivre dans le défilement naturel. Vérifier aussi **375×667, 768×1024, 1440×900** et le zoom natif **200 %** : aucun débordement, titre/nav/prix intégraux, mentions de fiction proches des prix et horaires, focus/CTA non masqués. Mobile : une colonne et aucune hauteur fixe ; à 768 px, photo et texte peuvent rester empilés. Préserver l'ordre de lecture.
+
+Seules les transitions de couleur/soulignement des commandes durent **150 ms** ; aucun parallaxe, carrousel ou effet conditionnant la lecture. Avec `prefers-reduced-motion: reduce`, elles sont immédiates. Le footer de chaque page affiche la mention complète « Projet fictif réalisé pour le portfolio de Simon Costa » et un lien vers le portfolio, discrètement mais lisiblement.
+
 **Suite bornée :** UI/UX fixe la direction artistique de cette seule vitrine ; Architecte valide la construction du deuxième site sans élargir au déploiement. Claude implémentera ensuite sur un brief stabilisé. Aucun code ni publication avant cette étape.
