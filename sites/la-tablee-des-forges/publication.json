@@ -9,6 +9,7 @@
   "publicFiles": [
     "css/fonts.css",
     "css/style.css",
+    "js/defilement.js",
     "assets/favicon.svg",
     "assets/NOTICE.md",
     "assets/photos/p01-accueil-burger-1400.webp",

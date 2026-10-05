@@ -25,7 +25,7 @@
   </div>
 </header>
 
-<main id="contenu" tabindex="-1">
+<main id="contenu" tabindex="-1" class="fond-lames">
   <div class="hero">
     <div class="container hero__grille">
       <div class="hero__texte">
@@ -53,7 +53,7 @@
   </div>
 
   <section class="section" aria-labelledby="titre-esprit">
-    <div class="container">
+    <div class="container defilement" data-defilement="standard">
       <div class="filet-forge" aria-hidden="true"></div>
       <div class="section__intro section__intro--apres-filet">
         <p class="eyebrow">Brasserie de quartier</p>
@@ -65,7 +65,7 @@
   </section>
 
   <section class="section" aria-labelledby="titre-offre">
-    <div class="container">
+    <div class="container defilement" data-defilement="standard">
       <div class="section__intro">
         <h2 id="titre-offre">Sur la carte</h2>
         <p class="texte">Quatre burgers, deux plats de brasserie, deux desserts, des bières à la pression et des boissons sans alcool.</p>
@@ -81,7 +81,7 @@
   </section>
 
   <section class="section" aria-labelledby="titre-lieu">
-    <div class="container">
+    <div class="container defilement" data-defilement="dernier">
       <div class="panneau-bois">
         <div class="section__intro">
           <h2 id="titre-lieu">Le lieu</h2>
@@ -94,7 +94,7 @@
 </main>
 
 <footer class="site-footer">
-  <div class="container">
+  <div class="container defilement" data-defilement="pied">
     <p class="site-footer__mention">Projet fictif réalisé pour le portfolio de Simon Costa.</p>
     <p>Établissement, carte, prix, horaires et localisation fictifs. Photographies d’illustration, crédits en légende.</p>
     <ul class="site-footer__liens">
@@ -103,5 +103,6 @@
     </ul>
   </div>
 </footer>
+<script src="js/defilement.js"></script>
 </body>
 </html>

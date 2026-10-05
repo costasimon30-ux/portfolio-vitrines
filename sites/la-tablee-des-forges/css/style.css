@@ -7,8 +7,10 @@
   dépendance, et aucun fichier de shared/ repris. Les polices sont locales
   (css/fonts.css, chargé avant cette feuille).
 
-  Ce site ne charge aucun JavaScript : navigation, carte et pages fonctionnent
-  telles quelles. Aucun menu masqué, aucun filtre, aucun accordéon.
+  Le seul JavaScript du site est js/defilement.js (apparition au défilement,
+  § « Apparition au défilement » ci-dessous) ; navigation, carte et pages
+  fonctionnent telles quelles sans lui. Aucun menu masqué, aucun filtre,
+  aucun accordéon.
 
   Contrastes calculés par l'UI/UX sur aplats (clair sur nuit/métal/bois
   14,5 / 12,3 / 12,9:1 ; secondaire 9,9 / 8,3 / 8,8:1 ; ambre sur nuit 8,2:1 ;
@@ -31,6 +33,14 @@
   --police-titre: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --police-texte: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 
+  /* Fond à lames (§ « Fond à lames de noyer ») : repères UI/UX #241B18 / #111314. */
+  --lame: #1F1916;
+  --joint: #161819;
+  --lame-largeur: 56px;
+  --joint-largeur: 2px;
+  --interstice: 1.25rem;
+  --bande-pad: 1.75rem;
+
   --marge: 1rem;
   --espace-section: 4.5rem;
   --rayon: 4px;
@@ -38,10 +48,25 @@
 }
 
 @media (min-width: 48em) {
-  :root { --marge: 1.5rem; }
+  :root {
+    --marge: 1.5rem;
+    --lame: #211A17;
+    --joint: #151718;
+    --lame-largeur: 64px;
+    --interstice: 1.75rem;
+    --bande-pad: 2.25rem;
+  }
 }
 @media (min-width: 64em) {
-  :root { --marge: 2rem; --espace-section: 6rem; }
+  :root {
+    --marge: 2rem;
+    --espace-section: 6rem;
+    --lame: #241B18;
+    --joint: #111314;
+    --lame-largeur: 72px;
+    --interstice: 2.5rem;
+    --bande-pad: 2.5rem;
+  }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -262,8 +287,7 @@ main:focus { outline: none; }
 
 /* ---------- Sections ---------- */
 
-.section { padding-block: var(--espace-section) 0; }
-main > .section:last-child { padding-bottom: var(--espace-section); }
+.section { padding-block: var(--bande-pad); }
 
 .section__intro { max-width: var(--lecture); }
 .section__intro > * + * { margin-top: 1rem; }
@@ -337,7 +361,7 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
 
 /* ---------- Accueil : hero ---------- */
 
-.hero { background: var(--nuit); }
+.hero { background: var(--nuit); padding-bottom: var(--bande-pad); }
 
 .hero__grille {
   display: grid;
@@ -392,9 +416,9 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
 
 /* ---------- Pages intérieures ---------- */
 
-.page-entete { padding-block: 2rem 0; }
+.page-entete { padding-block: 2rem var(--bande-pad); }
 @media (min-width: 64em) {
-  .page-entete { padding-block: 3rem 0; }
+  .page-entete { padding-block: 3rem var(--bande-pad); }
 }
 .page-entete h1 { max-width: 20ch; }
 .page-entete .section__intro { margin-top: 1rem; }
@@ -522,8 +546,85 @@ main > .section:last-child { padding-bottom: var(--espace-section); }
 .erreur h1 { margin-bottom: 1rem; }
 .erreur .actions { margin-top: 1.5rem; }
 
+/* ---------- Fond à lames de noyer ---------- */
+
+/* docs/DIRECTION.md, Site 2, « Fond noyer à lames et apparition réversible ».
+   Motif CSS statique (aucune image, aucune animation) réservé à `main` des
+   trois pages : il n'apparaît que dans les marges latérales (au-delà de la
+   largeur de lecture, vers 1224 px et plus) et dans les interstices entre
+   grandes sections. Chaque grande section est une bande pleine Nuit :
+   textes, prix, légendes, mentions, CTA et anneau de focus ne reposent
+   jamais sur les lames. Le contraste du motif diminue à 768 px, puis sous
+   768 px (lames plus étroites, joints à peine plus sombres que la lame).
+   Le motif est une tuile de trois lames (joint en bout de chaque lame) avec
+   une très légère variation de ton, sans veinage ni relief. */
+.fond-lames {
+  display: flow-root;
+  padding-block: 0 var(--interstice);
+  background-color: var(--lame);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0 calc(var(--lame-largeur) - var(--joint-largeur)),
+    var(--joint) calc(var(--lame-largeur) - var(--joint-largeur)) var(--lame-largeur),
+    rgba(255, 240, 220, 0.02) var(--lame-largeur) calc(2 * var(--lame-largeur) - var(--joint-largeur)),
+    var(--joint) calc(2 * var(--lame-largeur) - var(--joint-largeur)) calc(2 * var(--lame-largeur)),
+    rgba(0, 0, 0, 0.06) calc(2 * var(--lame-largeur)) calc(3 * var(--lame-largeur) - var(--joint-largeur)),
+    var(--joint) calc(3 * var(--lame-largeur) - var(--joint-largeur)) calc(3 * var(--lame-largeur))
+  );
+  background-size: calc(3 * var(--lame-largeur)) 100%;
+  background-repeat: repeat-x;
+  background-position: left top;
+}
+@media (min-width: 48em) {
+  .fond-lames { padding-block: var(--interstice); }
+}
+
+.fond-lames > * {
+  max-width: calc(72.5rem + 2 * var(--marge));
+  margin-inline: auto;
+  background: var(--nuit);
+}
+.fond-lames > * + * { margin-top: var(--interstice); }
+
+/* ---------- Apparition au défilement ---------- */
+
+/* docs/DIRECTION.md, Site 2 ; mécanisme : js/defilement.js (seuils, accès
+   prioritaires). L'état final est l'état PAR DÉFAUT : sans JavaScript, avec
+   un mouvement réduit ou si la mesure du défilement est indisponible, tous
+   les groupes sont visibles et immobiles, à toutes les largeurs. Seules
+   opacity et transform varient : les groupes gardent leur place dans le flux.
+   La classe `defilement--armee` (posée et retirée par le script) est l'état
+   caché ; la transition appliquée est celle de l'état d'ARRIVÉE, d'où deux
+   durées et deux easings (entrée sur `.defilement`, sortie sur `--armee`). */
+.defilement {
+  --defilement-decalage: 16px;
+  --defilement-duree-entree: 0.42s;
+  --defilement-duree-sortie: 0.3s;
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--defilement-duree-entree) ease-out,
+              transform var(--defilement-duree-entree) ease-out;
+}
+.defilement[data-defilement="pied"] {
+  --defilement-decalage: 8px;
+  --defilement-duree-entree: 0.35s;
+  --defilement-duree-sortie: 0.25s;
+}
+@media (min-width: 48em) {
+  .defilement { --defilement-decalage: 24px; }
+  .defilement[data-defilement="pied"] { --defilement-decalage: 12px; }
+}
+.defilement.defilement--armee {
+  opacity: 0;
+  transform: translateY(var(--defilement-decalage));
+  transition: opacity var(--defilement-duree-sortie) ease-in,
+              transform var(--defilement-duree-sortie) ease-in;
+}
+
 /* ---------- Mouvement réduit ---------- */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+  .defilement,
+  .defilement.defilement--armee { opacity: 1; transform: none; }
 }

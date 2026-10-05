@@ -25,7 +25,7 @@
   </div>
 </header>
 
-<main id="contenu" tabindex="-1">
+<main id="contenu" tabindex="-1" class="fond-lames">
   <section class="page-entete">
     <div class="container">
       <div class="entete-grille">
@@ -56,7 +56,7 @@
       <div class="filet-forge" aria-hidden="true"></div>
       <div class="carte">
 
-        <section class="carte-panneau carte__categorie carte__categorie--large" aria-labelledby="cat-burgers">
+        <section class="carte-panneau carte__categorie carte__categorie--large defilement" data-defilement="standard" aria-labelledby="cat-burgers">
           <h2 id="cat-burgers">Burgers</h2>
           <ul class="plats">
             <li class="plat">
@@ -82,7 +82,7 @@
           </ul>
         </section>
 
-        <section class="carte-panneau carte__categorie" aria-labelledby="cat-plats">
+        <section class="carte-panneau carte__categorie defilement" data-defilement="standard" aria-labelledby="cat-plats">
           <h2 id="cat-plats">Plats de brasserie</h2>
           <ul class="plats">
             <li class="plat">
@@ -98,7 +98,7 @@
           </ul>
         </section>
 
-        <section class="carte-panneau carte__categorie" aria-labelledby="cat-desserts">
+        <section class="carte-panneau carte__categorie defilement" data-defilement="standard" aria-labelledby="cat-desserts">
           <h2 id="cat-desserts">Desserts</h2>
           <ul class="plats">
             <li class="plat">
@@ -114,7 +114,7 @@
           </ul>
         </section>
 
-        <section class="carte-panneau carte__categorie" aria-labelledby="cat-bieres">
+        <section class="carte-panneau carte__categorie defilement" data-defilement="standard" aria-labelledby="cat-bieres">
           <h2 id="cat-bieres">Bières</h2>
           <ul class="plats">
             <li class="plat">
@@ -135,7 +135,7 @@
           </ul>
         </section>
 
-        <section class="carte-panneau carte__categorie" aria-labelledby="cat-sans-alcool">
+        <section class="carte-panneau carte__categorie defilement" data-defilement="standard" aria-labelledby="cat-sans-alcool">
           <h2 id="cat-sans-alcool">Sans alcool</h2>
           <ul class="plats">
             <li class="plat">
@@ -153,7 +153,7 @@
 
       </div>
 
-      <div class="carte-fin">
+      <div class="carte-fin defilement" data-defilement="dernier">
         <p class="texte">Service du soir et informations pratiques :</p>
         <a class="btn btn--principal" href="le-lieu.html">Le lieu &amp; infos</a>
       </div>
@@ -162,7 +162,7 @@
 </main>
 
 <footer class="site-footer">
-  <div class="container">
+  <div class="container defilement" data-defilement="pied">
     <p class="site-footer__mention">Projet fictif réalisé pour le portfolio de Simon Costa.</p>
     <p>Établissement, carte, prix, horaires et localisation fictifs. Photographies d’illustration, crédits en légende.</p>
     <ul class="site-footer__liens">
@@ -171,5 +171,6 @@
     </ul>
   </div>
 </footer>
+<script src="js/defilement.js"></script>
 </body>
 </html>

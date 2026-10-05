@@ -25,7 +25,7 @@
   </div>
 </header>
 
-<main id="contenu" tabindex="-1">
+<main id="contenu" tabindex="-1" class="fond-lames">
   <section class="page-entete">
     <div class="container">
       <div class="entete-grille entete-grille--lieu">
@@ -54,7 +54,7 @@
   </section>
 
   <section class="section" aria-labelledby="titre-soiree">
-    <div class="container">
+    <div class="container defilement" data-defilement="standard">
       <div class="filet-forge" aria-hidden="true"></div>
       <div class="deux-colonnes deux-colonnes--apres-filet">
         <div class="panneau-bois">
@@ -78,7 +78,7 @@
   </section>
 
   <section class="section" aria-labelledby="titre-infos">
-    <div class="container">
+    <div class="container defilement" data-defilement="dernier">
       <div class="carte-panneau">
         <h2 id="titre-infos">Infos pratiques</h2>
         <dl class="panneau-infos">
@@ -99,7 +99,7 @@
 </main>
 
 <footer class="site-footer">
-  <div class="container">
+  <div class="container defilement" data-defilement="pied">
     <p class="site-footer__mention">Projet fictif réalisé pour le portfolio de Simon Costa.</p>
     <p>Établissement, carte, prix, horaires et localisation fictifs. Photographies d’illustration, crédits en légende.</p>
     <ul class="site-footer__liens">
@@ -108,5 +108,6 @@
     </ul>
   </div>
 </footer>
+<script src="js/defilement.js"></script>
 </body>
 </html>
