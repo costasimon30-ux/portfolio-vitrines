@@ -391,6 +391,14 @@ Contrôle documentaire et visuel ponctuel des fichiers livrés : le 16:9 conserv
 
 Restent aussi à contrôler sur le rendu intégré : thèmes, quatre largeurs, clavier, repli sans JavaScript, stabilité du scroll et zoom navigateur natif 200 % si possible. Les essais annoncés par l'Implémentation ne remplacent pas la vérification indépendante ciblée ni l'examen esthétique par Simon. La réserve P01 sur le possible marquage du verre demeure acceptée, non levée. La prochaine étape n'est **pas** une publication : régler ou arbitrer ce cadrage, puis examiner la carte et seulement ensuite décider d'un éventuel dépôt manuel distinct.
 
+#### Arbitrage Simon — vignette La Tablée en 16:9 sur mobile (6 octobre 2026)
+
+Simon valide l'ajustement proposé après examen des deux WebP du commit `09ded67` : utiliser le **cadrage complet 16:9 de La Tablée également sous 1024 px**, plutôt que le 3:2 qui coupe presque tout le verre et la fin du crédit intégré. Cette décision plus récente remplace **uniquement pour La Tablée** la prescription mobile 3:2 des sections produit et artistique ci-dessus. Le motif à deux onglets et une seule carte reste confirmé ; la carte et les fichiers de Créa’Tif ne changent pas.
+
+L'intégration doit garder le hero publié fidèle, avec titre, burger, frites et verre visibles, sans filtre ni faux cadre. Conserver les dimensions réservées et la stabilité de la zone de carte : pas de saut vertical au changement d'onglet, de thème ou au chargement de l'image. Si le 16:9 ne peut être affiché entièrement et lisiblement à 320/375 px dans le cadre actuel, Claude remonte le constat avec captures avant de changer la composition. Le crédit visible dans la capture peut devenir petit à cette échelle ; ne pas le tronquer, et conserver la provenance complète dans la notice. Vérifier la correspondance de l'alternative textuelle avec l'image effectivement affichée.
+
+**Suite limitée :** correction du média/markup/style nécessaires dans `sites/portfolio/`, contrôle ciblé aux quatre largeurs et dans les deux thèmes, puis présentation du rendu à Simon. Ne pas refaire la section « Réalisations », ne pas rouvrir P01 ou les autres médias, ne pas modifier la démo La Tablée ni Créa’Tif. Cet accord n'autorise aucun déploiement Cloudflare.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
