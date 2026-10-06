@@ -121,7 +121,7 @@ Interface unique, depuis la racine du dépôt :
 
 ```text
 node scripts/assemble-site.mjs <slug> --environment production
-node scripts/assemble-site.mjs <slug> --environment preview
+`node scripts/assemble-site.mjs <slug> --environment preview`
 node scripts/assemble-site.mjs <slug>
 ```
 
@@ -296,7 +296,7 @@ Si le déclencheur du § 3 survient, instruire un lot distinct : démontrer les 
 
 ### 6.2 Frontières de fichiers et données canoniques
 
-**Structure cible proposée, à adapter au slug validé sans toucher aux autres sites :** sites/<slug>/ contient les pages HTML plates, publication.json, css/ propre au site, js/ organisé entre logique pure (catalogue, recherche, panier, simulation) et contrôleurs DOM par écran, data/catalogue.json, assets/ locaux et tests/ non publiés. dist/ demeure une sortie générée ignorée par Git. Les modules importent localement par chemins relatifs ; aucune ressource du dépôt n'est requise à l'exécution hors de l'artefact. Le manifeste énumère chaque page, module, JSON, CSS, image, police et notice publique dans pages ou publicFiles ; tests/, sources non destinées au public et autres sites n'y figurent pas. sharedFiles reste vide sauf arbitrage inter-sites documenté selon le § 3. Une police propre à la marque reste locale et auto-hébergée, avec licence. Pas de flux distant de catalogue, de CDN de runtime, de fichier métier privé ni de stockage serveur.
+**Structure cible proposée, à adapter au slug validé sans toucher aux autres sites :** `sites/<slug>/` contient les pages HTML plates, publication.json, css/ propre au site, js/ organisé entre logique pure (catalogue, recherche, panier, simulation) et contrôleurs DOM par écran, data/catalogue.json, assets/ locaux et tests/ non publiés. dist/ demeure une sortie générée ignorée par Git. Les modules importent localement par chemins relatifs ; aucune ressource du dépôt n'est requise à l'exécution hors de l'artefact. Le manifeste énumère chaque page, module, JSON, CSS, image, police et notice publique dans pages ou publicFiles ; tests/, sources non destinées au public et autres sites n'y figurent pas. sharedFiles reste vide sauf arbitrage inter-sites documenté selon le § 3. Une police propre à la marque reste locale et auto-hébergée, avec licence. Pas de flux distant de catalogue, de CDN de runtime, de fichier métier privé ni de stockage serveur.
 
 **Modèle canonique :** un jeu versionné de 20 gammes et 80 références, une seule source de vérité pour les noms, prix, finitions et associations. Chaque gamme porte un identifiant stable non réutilisé, exactement un type parmi les quatre, un nom, une description et une liste non vide d'univers parmi les quatre ; l'appartenance à plusieurs univers est permise. Chaque référence porte un SKU stable et unique, l'identifiant de sa gamme, un identifiant de finition stable dans cette gamme, un libellé de finition et un prix en centimes entiers non négatif. Une référence ne peut appartenir qu'à une gamme ; une paire gamme/finition ne peut désigner deux SKU. Chaque gamme doit avoir au moins une référence ; l'ensemble comporte cinq gammes et 20 références **par type**, sans imposer un nombre identique de finitions par gamme. Les médias sont liés par identifiants/chemins locaux vérifiables, avec alt ou rôle décoratif décidé pour chaque usage ; une licence et une notice explicites conditionnent leur publication. Les contenus commerciaux restent fictifs, sans emprunt à l'outil personnel ni données professionnelles.
 
