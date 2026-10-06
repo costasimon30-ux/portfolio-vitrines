@@ -439,6 +439,10 @@ Le paquet sauvegardé n'a pas été modifié, et le nouveau commit Créa’Tif n
 
 **Contrôle HTTP complémentaire en lecture seule :** sur le portfolio, l'accueil répond HTTP 200, un chemin inconnu et `/publication.json` répondent HTTP 404. Aucun en-tête global `noindex` n'a été observé sur l'accueil ; la balise HTML conserve `index, follow`. Ces vérifications de quelques réponses ne remplacent pas une recette exhaustive.
 
+#### Validation visuelle des trois sites publiés — Simon, 6 octobre 2026
+
+Après les dépôts manuels du portfolio et de Créa’Tif, Simon a consulté lui-même les rendus Cloudflare du **portfolio, de Créa’Tif et de La Tablée des Forges** et les juge « propres ». Cette validation confirme que le résultat visible lui convient pour ce cycle ; elle ne change ni les sources ni les versions publiées, et ne transforme pas les contrôles de fumée en recette QA exhaustive. Le zoom natif 200 % reste une limite connue acceptée pour le portfolio. Aucun correctif ni nouveau déploiement n'est demandé.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
