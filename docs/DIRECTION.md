@@ -423,6 +423,12 @@ Une copie propre de la source figée `e88dd25af92feeef40b233047d1285c76b3347b8` 
 
 La demande distincte d'un lien retour dans Créa’Tif est cadrée dans sa section et n'altère pas la source figée du portfolio. Aucune autorisation Cloudflare n'est donnée ici.
 
+#### Contre-vérification du paquet e88dd25 sous Node 22.23.2 — 6 octobre 2026
+
+L'Implémentation a extrait à nouveau la source exacte `e88dd25af92feeef40b233047d1285c76b3347b8` dans un dossier vierge. Sous **Node 22.23.2** (version fixée par `.node-version`), `verif-assemblage` passe **90/90**, et deux assemblages `portfolio --environment production` produisent chacun 20 fichiers avec l'empreinte complète `cc09c52999e70532d20469c3295231a03be12aea60a19b5bce0066da6d3f5248`. Claude a comparé **ligne à ligne** les SHA-256 des 20 fichiers au paquet local préparé sous Node 24 ; aucun écart. La réserve de runtime du relevé précédent est donc **levée pour cet artefact exact**, sans prétendre qu'un essai local vaut recette hébergée.
+
+Le paquet sauvegardé n'a pas été modifié, et le nouveau commit Créa’Tif n'en change aucun octet. **Candidat portfolio prêt pour une décision distincte de publication**, non déployé par cette vérification. Cible prévue : Worker existant `portfolio-simon-costa`. Ne pas reconstruire depuis le `main` désormais avancé et l'appeler `e88dd25` : utiliser le paquet vérifié ou réextraire ce commit exact, puis comparer l'empreinte complète avant toute action Cloudflare.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
@@ -637,6 +643,12 @@ Premier projet du portfolio : une vitrine statique de démonstration, pensée po
 Simon demande à Créa’Tif le même chemin de retour que la démo La Tablée des Forges. Ajouter dans le pied de page des **quatre pages** de Créa’Tif un lien textuel intitulé exactement **« Voir le portfolio de Simon Costa »**, vers `https://portfolio-simon-costa.costa-simon30.workers.dev/`. Sur la **404** autonome, conserver « Retour à l’accueil » et ajouter un second lien textuel discret vers le même portfolio ; ne pas reconstruire un footer complet pour cette page. Le lien ouvre normalement dans le même onglet. Il est visible et utilisable au clavier, avec le style et le focus déjà prévus par le site, sans remplacer les liens internes, crédits ou mentions de fiction.
 
 **Critères ciblés :** présence et destination exacte sur les cinq pages, lien atteint au clavier avec focus visible, pas de débordement à 320/375/768/1440 px, 404 toujours simple et fonctionnelle. Un lien externe vers le portfolio n'implique aucune modification de la photographie, de la navigation principale ou du contenu métier. Ce lot n'autorise **ni republication de Créa’Tif**, ni changement du paquet portfolio `e88dd25` déjà préparé séparément ; chaque publication ultérieure exigera sa propre validation.
+
+##### Livraison du lien retour Créa’Tif — 6 octobre 2026
+
+Le commit `3ed69d253b28e8419adb7bc58a2ff2a1181a58f8` est poussé sur `main`, au-dessus de la direction `af2699b`. Son diff vérifié ne touche que les cinq pages HTML et `css/style.css` de `sites/coiffeur-mixte/` : le lien « Voir le portfolio de Simon Costa » figure dans les quatre pieds de page et sur la 404, avec la destination décidée ; « Retour à l’accueil » y demeure. Aucun fichier du portfolio ou de La Tablée n'est changé. Les contrôles 320/375/768/1440 px, clavier/focus et destinations sont ceux de l'Implémentation, pas une recette hébergée.
+
+Une copie propre de cette source a été assemblée en production **sous Node 24.21.0**, puis sauvegardée hors du dépôt : 42 fichiers, empreinte complète `e7ca2b4a87ac88a3f20264077e94e43bacc762285bf7a15eadd94cfd0efecf16`, méthode `find . -type f | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256`. Le contrôle `shasum -c` de son inventaire détaillé réussit sur les 42 fichiers. Cette empreinte complète correspond à celle annoncée par Claude pour un assemblage sous Node 22.23.2 ; la comparaison détaillée *entre* runtimes de ces 42 fichiers n'a pas été remise dans le présent handoff. Si Créa’Tif doit être publié, confirmer l'identité de l'artefact exact sous le runtime figé ou comparer les 42 SHA ligne à ligne avant le dépôt. **Le site en ligne sert encore l'ancienne version sans lien retour.** Aucun accord de republication ne découle de cette livraison.
 
 ##### Suivi produit — passe photographique, 7 septembre 2026
 
