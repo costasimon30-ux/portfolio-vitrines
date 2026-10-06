@@ -121,7 +121,7 @@ Interface unique, depuis la racine du dépôt :
 
 ```text
 node scripts/assemble-site.mjs <slug> --environment production
-`node scripts/assemble-site.mjs <slug> --environment preview`
+node scripts/assemble-site.mjs <slug> --environment preview
 node scripts/assemble-site.mjs <slug>
 ```
 
@@ -330,7 +330,7 @@ Charger d'abord le HTML et le CSS utiles ; différer les modules non nécessaire
 
 ### 6.7 Assemblage, publication et non-régression
 
-Après choix du slug, publication.json porte kind=demo, index.html et 404.html ainsi que chaque page plate approuvée ; publicFiles liste exactement CSS, modules JS, catalogue JSON, images, polices et notices locales. Ne pas faire sortir tests/, briefs, sources originales ou autres sites. L'assemblage local reste node scripts/assemble-site.mjs <slug> --environment preview pour contrôle et --environment production pour un candidat éventuel. Les deux modes d'une démo portent noindex, follow ; robots.txt autorise l'exploration et _headers couvre l'artefact conformément au § 5.5. Aucun nouveau Worker, URL, domaine, connexion Git ni déploiement ne découle de cette section. Une publication initiale comme chaque version suivante demanderait l'accord explicite de Simon sur la révision et l'artefact, puis une recette QA hébergée. Les sorties de Créa'Tif, du portfolio et de La Tablée ne changent pas du fait de cette nouvelle source ; si un changement de script/contrat partagé devenait nécessaire, le faire arbitrer et comparer les inventaires SHA-256 des sorties existantes avant/après.
+Après choix du slug, publication.json porte kind=demo, index.html et 404.html ainsi que chaque page plate approuvée ; publicFiles liste exactement CSS, modules JS, catalogue JSON, images, polices et notices locales. Ne pas faire sortir tests/, briefs, sources originales ou autres sites. L'assemblage local reste `node scripts/assemble-site.mjs <slug> --environment preview` pour contrôle et --environment production pour un candidat éventuel. Les deux modes d'une démo portent noindex, follow ; robots.txt autorise l'exploration et _headers couvre l'artefact conformément au § 5.5. Aucun nouveau Worker, URL, domaine, connexion Git ni déploiement ne découle de cette section. Une publication initiale comme chaque version suivante demanderait l'accord explicite de Simon sur la révision et l'artefact, puis une recette QA hébergée. Les sorties de Créa'Tif, du portfolio et de La Tablée ne changent pas du fait de cette nouvelle source ; si un changement de script/contrat partagé devenait nécessaire, le faire arbitrer et comparer les inventaires SHA-256 des sorties existantes avant/après.
 
 ### 6.8 Vérifications exigibles avant tout candidat
 
