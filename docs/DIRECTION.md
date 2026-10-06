@@ -624,6 +624,12 @@ Après accord de Simon : le Chef de projet peut transmettre un brief d'implémen
 
 Premier projet du portfolio : une vitrine statique de démonstration, pensée pour montrer une intégration front-end premium, responsive et accessible. Il ne s'agit pas d'un site commercial prêt à recevoir de vrais rendez-vous.
 
+##### Retour vers le portfolio — demande du 6 octobre 2026
+
+Simon demande à Créa’Tif le même chemin de retour que la démo La Tablée des Forges. Ajouter dans le pied de page des **quatre pages** de Créa’Tif un lien textuel intitulé exactement **« Voir le portfolio de Simon Costa »**, vers `https://portfolio-simon-costa.costa-simon30.workers.dev/`. Sur la **404** autonome, conserver « Retour à l’accueil » et ajouter un second lien textuel discret vers le même portfolio ; ne pas reconstruire un footer complet pour cette page. Le lien ouvre normalement dans le même onglet. Il est visible et utilisable au clavier, avec le style et le focus déjà prévus par le site, sans remplacer les liens internes, crédits ou mentions de fiction.
+
+**Critères ciblés :** présence et destination exacte sur les cinq pages, lien atteint au clavier avec focus visible, pas de débordement à 320/375/768/1440 px, 404 toujours simple et fonctionnelle. Un lien externe vers le portfolio n'implique aucune modification de la photographie, de la navigation principale ou du contenu métier. Ce lot n'autorise **ni republication de Créa’Tif**, ni changement du paquet portfolio `e88dd25` déjà préparé séparément ; chaque publication ultérieure exigera sa propre validation.
+
 ##### Suivi produit — passe photographique, 7 septembre 2026
 
 **Passe photographique implémentée ; revue UI/UX effectuée avec avis favorable ; rendu esthétique validé par Simon le 7 septembre 2026. Le renommage du lien de crédits est livré dans `4c80571`. Simon décide de conserver P06 en l'état ; la réserve de droits tiers reste documentée, sans recherche ou correction supplémentaire demandée.**
