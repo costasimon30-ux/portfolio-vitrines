@@ -530,6 +530,20 @@ a:visited:hover { color: var(--c-accent-actif); }
   margin-bottom: var(--e-16);
 }
 .visuel-projet img { width: 100%; height: 100%; object-fit: cover; }
+/* Aperçu de La Tablée des Forges : capture complète du hero, 16:9 à toutes
+   les largeurs (arbitrage du 6 octobre 2026). Le fichier fait exactement
+   880 × 495. Le cadre garde le rapport 16:9 sur sa boîte de contenu (et non sur
+   la boîte de bordure, que le filet de 1 px rendrait très légèrement différent
+   de 16:9 pour l'image) : `content-box` et une largeur de 100 % moins les deux
+   filets. L'image remplit donc exactement le cadre, sans rognage, sans
+   étirement, sans bande de fond ; et la hauteur reste réservée même si le
+   fichier ne se charge pas (le texte alternatif ne fait pas grandir la zone).
+   Réservé à cette seule vignette : Créa'Tif garde son cadre 3:2 sur mobile. */
+.visuel-projet.visuel-projet--16-9 {
+  box-sizing: content-box;
+  width: calc(100% - 2px);
+  aspect-ratio: 16 / 9;
+}
 
 /* Deux démonstrations, une seule carte affichée (docs/DIRECTION.md, « Deux
    démos dans Réalisations » et § 11). Sans JavaScript, la rangée d'onglets

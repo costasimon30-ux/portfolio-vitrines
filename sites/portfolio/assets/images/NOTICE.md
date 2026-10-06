@@ -86,12 +86,21 @@ reste fidèle à l’interface réellement affichée.
 
 # Aperçu de La Tablée des Forges — portfolio
 
-Ce chapitre documente les deux fichiers `tablee-hero-mobile-3-2.webp` et
-`tablee-hero-desktop-16-9.webp`, utilisés par la carte « La Tablée des Forges »
-de la section « Réalisations » (`index.html`). Décision : « Deux démos dans
-Réalisations » du 6 octobre 2026 et § 11, `docs/DIRECTION.md` : capture fidèle
-du hero d'accueil de la démo effectivement publiée, sans filtre, sans retouche
-de l'interface, sans faux navigateur ni substitution photographique.
+Ce chapitre documente le fichier `tablee-hero-desktop-16-9.webp`, utilisé à
+toutes les largeurs par la carte « La Tablée des Forges » de la section
+« Réalisations » (`index.html`). Décision : « Deux démos dans Réalisations » du
+6 octobre 2026 et § 11, `docs/DIRECTION.md` : capture fidèle du hero d'accueil
+de la démo effectivement publiée, sans filtre, sans retouche de l'interface,
+sans faux navigateur ni substitution photographique.
+
+**Révision du 6 octobre 2026 (arbitrage de Simon).** La première intégration
+(commit `09ded67`) livrait aussi un cadrage 3:2 pour les largeurs inférieures
+à 1024 px. Simon l'a remplacé par le 16:9 complet : le 3:2 coupait la moitié
+droite du verre et la fin du crédit. Le fichier `tablee-hero-mobile-3-2.webp`
+est retiré du dossier et de `publication.json` ; il reste consultable dans
+l'historique git. Le nom `…-desktop-16-9.webp` est conservé tel quel pour que
+le fichier reste identique octet pour octet à celui déjà validé ; il sert
+désormais à toutes les largeurs.
 
 ## Page capturée, date et méthode
 
@@ -120,28 +129,35 @@ de l'interface, sans faux navigateur ni substitution photographique.
   de la démo publiée. Avant toute nouvelle publication de la démo, revérifier
   que la version en ligne correspond toujours à cette source.
 
-## Les deux cadrages
+## Le cadrage
 
-| Fichier | Zone recadrée dans la capture (x, y, largeur × hauteur) | Cadrage | Dimensions livrées |
-| --- | --- | --- | --- |
-| `tablee-hero-desktop-16-9.webp` | 0, 0, 880 × 495 | 16:9 | 880 × 495 px |
-| `tablee-hero-mobile-3-2.webp` | 0, 0, 747 × 498 | 3:2 | 747 × 498 px |
+| Fichier | Zone recadrée dans la capture (x, y, largeur × hauteur) | Cadrage | Dimensions livrées | SHA-256 |
+| --- | --- | --- | --- | --- |
+| `tablee-hero-desktop-16-9.webp` | 0, 0, 880 × 495 | 16:9 | 880 × 495 px | `01f79b931a3fe270e20556dbf51bc9603a821fb358ae3248d541c04818e68c31` |
 
 Le seul traitement est un recadrage géométrique à partir du coin supérieur
-gauche (retrait d’une marge à droite et de 4 px au plus en bas), **sans
+gauche (retrait de 144 px à droite et de 3 px en bas de la capture de
+1024 × 498 px), **sans
 rééchantillonnage**, suivi de la conversion en WebP (qualité 90, sans
 métadonnées). Aucune retouche colorimétrique, aucun filtre, aucune
-recomposition. Dans le cadrage 16:9, le nom « La Tablée des Forges », le
-burger, les frites et le verre de bière sont visibles ; la légende de crédit de
-la photographie l'est aussi. Dans le cadrage 3:2, le nom entier du site, le
-burger et les frites restent visibles ; **la moitié droite du verre et la fin de
-la légende de crédit (« …Pexels ») sont coupées** : un 3:2 ne peut contenir plus
-de la hauteur du bandeau (498 px) sans en sortir. Ce compromis est signalé à
-Simon ; la démo elle-même, qui affiche la photographie entière, n'est pas
-modifiée.
+recomposition. Dans ce cadrage, le nom « La Tablée des Forges », le burger, les
+frites et le verre de bière sont visibles (le verre tel que la photographie
+elle-même le cadre), ainsi que la légende de crédit de la photographie (« Photographie d’illustration. Andrea Prochilo,
+Pexels »), qui n'est pas tronquée. Sur les écrans étroits (320 et 375 px), la
+vignette est réduite d'un seul bloc : le texte du bandeau et le crédit y
+deviennent petits mais restent entiers ; le texte alternatif de l'image les
+transcrit. La démo elle-même n'est pas modifiée.
 
-Les deux thèmes Clair et Sombre du portfolio utilisent ces deux mêmes fichiers,
-sans variante par thème, dans un filet neutre de 1 px (`--c-filet`) posé par
+**Limite à connaître.** Le 16:9 n'est pas le bandeau entier : la capture
+complète fait 1024 × 498 px (environ 2,06:1). La bande de 144 px retirée à
+droite contient le cinquième droit de la photographie (fond sombre et frites)
+et son filet droit : dans la vignette, la photographie touche donc le bord droit
+du cadre. Titre, burger, frites, verre et crédit complet restent dans le
+cadrage. Montrer toute la photographie imposerait un rapport d'environ 2:1
+(hors du 16:9 arbitré le 6 octobre 2026) ; ce choix reste à Simon.
+
+Les deux thèmes Clair et Sombre du portfolio utilisent ce même fichier, sans
+variante par thème, dans un filet neutre de 1 px (`--c-filet`) posé par
 `css/style.css`. Aucun texte de la carte n'est posé sur l'image.
 
 ## Photographie visible dans la capture
