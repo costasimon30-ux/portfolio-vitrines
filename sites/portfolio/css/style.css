@@ -531,6 +531,74 @@ a:visited:hover { color: var(--c-accent-actif); }
 }
 .visuel-projet img { width: 100%; height: 100%; object-fit: cover; }
 
+/* Deux démonstrations, une seule carte affichée (docs/DIRECTION.md, « Deux
+   démos dans Réalisations » et § 11). Sans JavaScript, la rangée d'onglets
+   reste masquée (`hidden`) et les deux cartes complètes s'empilent dans
+   l'ordre du document. js/realisations-onglets.js révèle la rangée et pose
+   `.projets--onglets` : les deux cartes occupent alors la même cellule de
+   grille, la carte inactive est seulement `visibility: hidden` (hors parcours
+   Tab et hors arbre d'accessibilité). La zone prend ainsi toujours la hauteur
+   de la carte la plus haute : changer d'onglet ne déplace ni le contenu qui
+   suit, ni la position de lecture, et ne rejoue pas le groupe `.defilement`. */
+.grille-projets { display: grid; gap: var(--e-32); }
+.projets--onglets .grille-projets { margin-top: var(--e-16); gap: 0; }
+.projets--onglets .carte-projet { grid-area: 1 / 1; }
+.projets--onglets .carte-projet[data-inactif] { visibility: hidden; }
+
+/* Rangée de choix : deux colonnes égales sur téléphone, largeur naturelle
+   dès 768px. Cible d'au moins 44 x 44px (56px de haut sur téléphone). Actif :
+   nom en texte principal semi-gras et filet inférieur continu de 2px en
+   accent ; inactif : texte secondaire opaque, filet neutre de 1px porté par
+   la rangée. L'information ne repose pas sur la couleur seule (graisse,
+   épaisseur du filet, aria-selected). Pas de changement de hauteur ni de
+   largeur à la sélection : la graisse semi-grasse est réservée par un double
+   invisible du nom. Le focus clavier reste l'anneau commun de 3px décalé de
+   3px (voir 02), distinct du filet actif. */
+.onglets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: var(--e-32);
+  border-bottom: 1px solid var(--c-filet);
+}
+.onglet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  margin: 0 0 -1px;
+  padding: var(--e-08) var(--e-12);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--c-texte-doux);
+  font: inherit;
+  font-weight: 400;
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+  transition: color .14s ease, border-color .14s ease;
+}
+.onglet__nom { display: block; text-wrap: balance; }
+.onglet__nom::after {
+  content: attr(data-nom);
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 600;
+}
+.onglet:hover { color: var(--c-texte); }
+.onglet[aria-selected="false"]:hover { border-bottom-color: var(--c-contour); }
+.onglet[aria-selected="true"] {
+  color: var(--c-texte);
+  font-weight: 600;
+  border-bottom-color: var(--c-accent);
+}
+@media (forced-colors: active) {
+  .onglet[aria-selected="true"] { border-bottom-color: Highlight; }
+}
+
 /* ---------- 09. Ce que je fais ---------- */
 
 .grille-prestations {
@@ -630,6 +698,9 @@ a:visited:hover { color: var(--c-accent-actif); }
 
 /* 768px : tablette. Grille de 8 colonnes, prestations en 2 × 2. */
 @media (min-width: 768px) {
+  .projets--onglets .grille-projets { margin-top: var(--e-24); }
+  .onglets { display: flex; gap: var(--e-32); }
+  .onglet { min-height: 48px; padding-inline: var(--e-04); text-align: left; }
   :root {
     --t-h1: 4rem;
     --t-accroche: 1.75rem;

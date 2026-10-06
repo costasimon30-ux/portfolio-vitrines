@@ -157,45 +157,81 @@
   <section class="section" id="realisations" aria-labelledby="realisations-title">
     <div class="container defilement">
       <h2 id="realisations-title">Réalisations</h2>
-      <p class="section__intro">Une première réalisation, consultable en ligne. D’autres viendront s’ajouter ici.</p>
+      <p class="section__intro">Deux démonstrations de sites vitrines, à découvrir en ligne.</p>
 
-      <ul class="grille-projets">
-        <li class="carte carte-projet">
-          <!-- Aperçu réel de Créa'Tif, conforme à l'arbitrage produit du
-               23 septembre 2026 (docs/DIRECTION.md) qui déroge, pour ce seul
-               emplacement, à la décision P06 d'origine : capture honnête du
-               hero d'accueil de la démo, deux cadrages de la même prise
-               (3:2 à 1024px pour mobile, 16:9 à 1200px pour desktop), aucune
-               retouche, aucun filtre, aucun faux cadre de navigateur. Détails
-               de provenance et de cadrage dans assets/images/NOTICE.md.
+      <div class="projets">
+        <!-- Deux démonstrations, une seule carte affichée (docs/DIRECTION.md,
+             « Deux démos dans Réalisations » et § 11). La rangée d'onglets est
+             masquée (`hidden`) et n'est révélée que par js/realisations-onglets.js :
+             sans JavaScript, ou si l'initialisation échoue, les deux cartes
+             complètes restent visibles dans l'ordre du document, avec leurs
+             liens réels — aucun faux onglet inerte. -->
+        <div class="onglets" role="tablist" aria-label="Démonstrations" hidden>
+          <button type="button" class="onglet" role="tab" id="onglet-creatif" aria-selected="true" aria-controls="projet-creatif"><span class="onglet__nom" data-nom="Créa’Tif">Créa’Tif</span></button>
+          <button type="button" class="onglet" role="tab" id="onglet-tablee" aria-selected="false" aria-controls="projet-tablee" tabindex="-1"><span class="onglet__nom" data-nom="La Tablée des Forges">La Tablée des Forges</span></button>
+        </div>
 
-               Cette carte ne porte plus de classe de mouvement propre : elle
-               fait partie du groupe « Réalisations » entier (titre, intro,
-               carte, lien « Voir la démo »), qui apparaît ou disparaît comme
-               un seul bloc au défilement, conformément à la décision produit
-               du 27 septembre 2026 et au § 10 « Apparition réversible par
-               seuil de défilement » de docs/DIRECTION.md — voir la classe
-               `defilement` posée sur le conteneur de la section ci-dessus,
-               js/mouvement-sections.js et la section « 14. Apparition
-               réversible par seuil de défilement » de css/style.css.
-               L'état par défaut de ce conteneur (sans la classe `--armee`
-               que ce script pose et retire lui-même) est déjà l'état final,
-               visible et immobile — c'est le repli sans JavaScript, à toutes
-               les largeurs, et avec un mouvement réduit demandé. -->
-          <div class="visuel-projet">
-            <picture>
-              <source media="(min-width: 1024px)" srcset="assets/images/creatif-hero-desktop-16-9.webp">
-              <img src="assets/images/creatif-hero-mobile-3-2.webp" width="720" height="480" alt="Bandeau d’accueil de Créa’Tif : le titre « Le geste juste, pour chaque histoire de cheveux » à côté d’une coupe aux ciseaux, peigne en main." loading="lazy" decoding="async">
-            </picture>
-          </div>
-          <div class="carte-projet__corps">
-            <p class="libelle">Démonstration</p>
-            <h3>Créa’Tif — concept de salon de coiffure mixte</h3>
-            <p>Un concept de salon fictif, réalisé en démonstration&nbsp;: quatre pages, navigation au clavier, photographies d’illustration, mise en page pensée pour tous les écrans. Aucun établissement de ce nom n’existe&nbsp;; les coordonnées et disponibilités du site sont fictives.</p>
-            <p class="carte-projet__lien"><a href="https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/">Voir la démo</a></p>
-          </div>
-        </li>
-      </ul>
+        <div class="grille-projets">
+          <article class="carte carte-projet" id="projet-creatif">
+            <!-- Aperçu réel de Créa'Tif, conforme à l'arbitrage produit du
+                 23 septembre 2026 (docs/DIRECTION.md) qui déroge, pour ce seul
+                 emplacement, à la décision P06 d'origine : capture honnête du
+                 hero d'accueil de la démo, deux cadrages de la même prise
+                 (3:2 à 1024px pour mobile, 16:9 à 1200px pour desktop), aucune
+                 retouche, aucun filtre, aucun faux cadre de navigateur. Détails
+                 de provenance et de cadrage dans assets/images/NOTICE.md.
+
+                 Cette carte ne porte plus de classe de mouvement propre : elle
+                 fait partie du groupe « Réalisations » entier (titre, intro,
+                 carte, lien « Voir la démo »), qui apparaît ou disparaît comme
+                 un seul bloc au défilement, conformément à la décision produit
+                 du 27 septembre 2026 et au § 10 « Apparition réversible par
+                 seuil de défilement » de docs/DIRECTION.md — voir la classe
+                 `defilement` posée sur le conteneur de la section ci-dessus,
+                 js/mouvement-sections.js et la section « 14. Apparition
+                 réversible par seuil de défilement » de css/style.css.
+                 L'état par défaut de ce conteneur (sans la classe `--armee`
+                 que ce script pose et retire lui-même) est déjà l'état final,
+                 visible et immobile — c'est le repli sans JavaScript, à toutes
+                 les largeurs, et avec un mouvement réduit demandé. -->
+            <div class="visuel-projet">
+              <picture>
+                <source media="(min-width: 1024px)" srcset="assets/images/creatif-hero-desktop-16-9.webp">
+                <img src="assets/images/creatif-hero-mobile-3-2.webp" width="720" height="480" alt="Bandeau d’accueil de Créa’Tif : le titre « Le geste juste, pour chaque histoire de cheveux » à côté d’une coupe aux ciseaux, peigne en main." loading="lazy" decoding="async">
+              </picture>
+            </div>
+            <div class="carte-projet__corps">
+              <p class="libelle">Démonstration</p>
+              <h3>Créa’Tif — concept de salon de coiffure mixte</h3>
+              <p>Un concept de salon fictif, réalisé en démonstration&nbsp;: quatre pages, navigation au clavier, photographies d’illustration, mise en page pensée pour tous les écrans. Aucun établissement de ce nom n’existe&nbsp;; les coordonnées et disponibilités du site sont fictives.</p>
+              <p class="carte-projet__lien"><a href="https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/">Voir la démo</a></p>
+            </div>
+
+          </article>
+
+          <article class="carte carte-projet" id="projet-tablee">
+            <!-- Aperçu réel de La Tablée des Forges : capture du hero d'accueil
+                 de la démo publiée (paquet de 31 fichiers, empreinte agrégée
+                 64a057e2…, source 2d325b5, vérifié identique en ligne), deux
+                 cadrages de la même prise (3:2 pour mobile, 16:9 à partir de
+                 1024px), aucune retouche, aucun filtre, aucun faux cadre de
+                 navigateur. Provenance, photographie P01 et recadrages dans
+                 assets/images/NOTICE.md. -->
+            <div class="visuel-projet">
+              <picture>
+                <source media="(min-width: 1024px)" srcset="assets/images/tablee-hero-desktop-16-9.webp">
+                <img src="assets/images/tablee-hero-mobile-3-2.webp" width="747" height="498" alt="Bandeau d’accueil de La Tablée des Forges : le titre « La Tablée des Forges » à côté d’un burger et de frites, avec un verre de bière brune à l’arrière-plan." loading="lazy" decoding="async">
+              </picture>
+            </div>
+            <div class="carte-projet__corps">
+              <p class="libelle">Démonstration</p>
+              <h3>La Tablée des Forges — concept de brasserie-bar du soir</h3>
+              <p>Un concept de brasserie-bar fictif, réalisé en démonstration&nbsp;: trois pages, une carte courte de burgers et de bières, une ambiance bois et métal, photographies d’illustration. Aucun établissement de ce nom n’existe&nbsp;; la carte, les prix, les horaires et la localisation du site sont fictifs.</p>
+              <p class="carte-projet__lien"><a href="https://la-tablee-des-forges.costa-simon30.workers.dev/" aria-label="Voir la démo de La Tablée des Forges">Voir la démo</a></p>
+            </div>
+          </article>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -255,5 +291,6 @@
   </div>
 </footer>
 <script src="/js/mouvement-sections.js" defer></script>
+<script src="/js/realisations-onglets.js" defer></script>
 </body>
 </html>
