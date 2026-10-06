@@ -407,6 +407,14 @@ Le commit `e88dd25af92feeef40b233047d1285c76b3347b8`, poussé au-dessus de la d�
 
 **Décisions encore ouvertes :** (1) Simon accepte-t-il le cadrage 16:9 concret et cet espace vide dans le rendu intégré, ou demande-t-il un recadrage d'environ 2:1 pour montrer le bandeau entier ? Ce choix précède toute correction supplémentaire. (2) Le zoom navigateur natif à 200 % n'est toujours pas vérifié ; Chromium et les largeurs testées ne le remplacent pas. (3) Le nouveau motif d'onglets mérite une vérification indépendante **ciblée** des deux états, du clavier, du repli sans JS et du scroll, sans nouvel audit général ; le rendu esthétique final revient à Simon. Aucun déploiement avant sa validation de la source exacte et son autorisation explicite. P01 reste maintenue avec sa réserve connue ; ne pas la rouvrir par défaut.
 
+#### Validation du rendu à deux démos — décision de Simon (6 octobre 2026)
+
+Simon valide **tel quel** le rendu intégré du portfolio à la source exacte `e88dd25af92feeef40b233047d1285c76b3347b8` : deux onglets nommés, une carte à la fois, Créa’Tif par défaut, La Tablée avec la vignette 16:9 à toutes les largeurs. Le recadrage réel de 144 px à droite, le texte très petit *dans la capture* sur téléphone et l'espace vide possible sous la carte La Tablée à certaines largeurs intermédiaires sont **acceptés pour cette version** ; ne pas lancer de recadrage 2:1, de renommage du fichier ou de retouche de confort isolée. La photographie P01 et sa réserve déjà acceptée restent inchangées. La validation porte sur le rendu vu par Simon, pas sur une preuve de tous les parcours ou navigateurs.
+
+Simon décide de **ne pas demander de contrôle du zoom navigateur natif à 200 % pour ce cycle** : la limite reste connue et non vérifiée, mais elle n'empêche plus à elle seule l'avancement du portfolio. Les essais antérieurs de largeurs CSS ne sont pas requalifiés en preuve de zoom. Aucun nouvel audit général ni retour automatique à QA ou UI/UX n'est demandé ; un défaut reproductible affectant réellement l'usage pourra être traité séparément s'il apparaît. Les vérifications déjà rapportées par l'Implémentation restent attribuées à celle-ci, sans label de contre-vérification indépendante.
+
+Le site public consulté avant cette décision affichait encore Créa’Tif seul. **Cette validation n'autorise pas à elle seule le déploiement** : publier `e88dd25` exige un accord distinct de Simon sur l'artefact assemblé et sa cible Cloudflare, suivi des contrôles de fumée hébergés. Ne pas modifier Créa’Tif ni La Tablée.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
