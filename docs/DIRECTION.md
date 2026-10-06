@@ -399,6 +399,14 @@ L'intégration doit garder le hero publié fidèle, avec titre, burger, frites e
 
 **Suite limitée :** correction du média/markup/style nécessaires dans `sites/portfolio/`, contrôle ciblé aux quatre largeurs et dans les deux thèmes, puis présentation du rendu à Simon. Ne pas refaire la section « Réalisations », ne pas rouvrir P01 ou les autres médias, ne pas modifier la démo La Tablée ni Créa’Tif. Cet accord n'autorise aucun déploiement Cloudflare.
 
+#### Suivi après correction 16:9 — source e88dd25 (6 octobre 2026)
+
+Le commit `e88dd25af92feeef40b233047d1285c76b3347b8`, poussé au-dessus de la décision `68cd341`, remplace l'image 3:2 de La Tablée par le même WebP 16:9 à toutes les largeurs ; l'ancien WebP mobile est retiré du manifeste et du dépôt, et la notice est rectifiée. Le diff vérifié ne touche que `sites/portfolio/` ; les autres sites et le Worker ne sont pas modifiés. L'Implémentation annonce un assemblage déterministe de 20 fichiers et 90/90 contrôles, mais ces essais Chromium restent les siens. Le portfolio public a été consulté après ce commit : il présente encore l'ancienne introduction et Créa’Tif seul ; **e88dd25 n'est pas en ligne** au moment de ce contrôle. Aucun nouveau dépôt n'est donc à ajouter au journal de publication.
+
+**Nuance visuelle à soumettre à Simon :** le WebP 16:9 ne subit pas de rognage supplémentaire dans sa carte mobile, mais il provient d'une capture source de 1024 × 498 px recadrée à 880 × 495 px ; **144 px à droite** (une partie du fond photographique et des frites) et 3 px en bas sont absents. Titre, burger, frites, verre et crédit complet demeurent dans le fichier. À 320/375 px, le texte contenu *dans la capture* devient très petit ; la carte HTML conserve séparément son titre et son lien lisibles. Entre 768 et 1023 px, la superposition des deux cartes laisse sous celle de La Tablée un espace vide rapporté d'environ 42 à 95 px, contrepartie de la hauteur stable voulue par Simon. Le nom du fichier contient encore `desktop` bien qu'il soit servi partout : sans effet visible et sans correction prioritaire.
+
+**Décisions encore ouvertes :** (1) Simon accepte-t-il le cadrage 16:9 concret et cet espace vide dans le rendu intégré, ou demande-t-il un recadrage d'environ 2:1 pour montrer le bandeau entier ? Ce choix précède toute correction supplémentaire. (2) Le zoom navigateur natif à 200 % n'est toujours pas vérifié ; Chromium et les largeurs testées ne le remplacent pas. (3) Le nouveau motif d'onglets mérite une vérification indépendante **ciblée** des deux états, du clavier, du repli sans JS et du scroll, sans nouvel audit général ; le rendu esthétique final revient à Simon. Aucun déploiement avant sa validation de la source exacte et son autorisation explicite. P01 reste maintenue avec sa réserve connue ; ne pas la rouvrir par défaut.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
