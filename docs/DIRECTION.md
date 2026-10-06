@@ -383,6 +383,14 @@ La seconde carte présente **La Tablée des Forges comme une démonstration fict
 
 **Critères de sortie ciblés :** à 320×568, 375×667, 768×1024 et 1440×900, dans les deux thèmes, les deux noms et le panneau actif sont lisibles, la capture et le lien de chaque démo correspondent, le changement ne provoque ni saut de page, ni rognage du contenu, ni débordement horizontal. Vérifier le clavier (sélection, état annoncé, focus et lien du panneau), la désactivation de JavaScript, les images retardées et `prefers-reduced-motion: reduce`. Tester le zoom navigateur natif 200 % si disponible ; une émulation de viewport ne sera pas présentée comme équivalente. Une revue visuelle ciblée puis un contrôle fonctionnel ciblé suffisent ; aucune nouvelle revue générale par défaut. Le rendu intégré reste à valider par Simon. **Aucun déploiement du portfolio n’est autorisé par cette décision.**
 
+#### Suivi de l'intégration « deux démos » — source 09ded67 (6 octobre 2026)
+
+L'Implémentation a poussé le commit `09ded677122d0f0033df802b69f0800be555588a` sur `main`, limité à `sites/portfolio/`. Le diff confirme l'ajout des deux onglets et de la carte La Tablée, de son script et de ses deux WebP, ainsi que la phrase d'introduction décidée ci-dessus. Il ne constitue ni une recette indépendante ni la validation visuelle de Simon. **Aucun déploiement du portfolio n'a été autorisé ou effectué pour cette source.**
+
+Contrôle documentaire et visuel ponctuel des fichiers livrés : le 16:9 conserve titre, burger, frites, verre et crédit dans la capture ; le 3:2 coupe presque entièrement le verre et tronque la fin du crédit intégré à l'image. Le cadrage mobile ne satisfait donc pas encore pleinement le critère « titre, burger, frites et verre reconnaissables » de la décision produit. La présence d'un crédit complet dans la notice ne rend pas lisible celui qui est coupé dans la capture. Avant validation finale, montrer ce compromis à Simon et soit produire un cadrage fidèle qui préserve ces éléments, soit obtenir son acceptation explicite d'un ratio différent ou de ce recadrage. Ne pas substituer une autre photographie et ne pas ouvrir une refonte.
+
+Restent aussi à contrôler sur le rendu intégré : thèmes, quatre largeurs, clavier, repli sans JavaScript, stabilité du scroll et zoom navigateur natif 200 % si possible. Les essais annoncés par l'Implémentation ne remplacent pas la vérification indépendante ciblée ni l'examen esthétique par Simon. La réserve P01 sur le possible marquage du verre demeure acceptée, non levée. La prochaine étape n'est **pas** une publication : régler ou arbitrer ce cadrage, puis examiner la carte et seulement ensuite décider d'un éventuel dépôt manuel distinct.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
