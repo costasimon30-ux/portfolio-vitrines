@@ -415,6 +415,14 @@ Simon décide de **ne pas demander de contrôle du zoom navigateur natif à 200 
 
 Le site public consulté avant cette décision affichait encore Créa’Tif seul. **Cette validation n'autorise pas à elle seule le déploiement** : publier `e88dd25` exige un accord distinct de Simon sur l'artefact assemblé et sa cible Cloudflare, suivi des contrôles de fumée hébergés. Ne pas modifier Créa’Tif ni La Tablée.
 
+#### Préparation du paquet portfolio e88dd25 — 6 octobre 2026 (non publié)
+
+Une copie propre de la source figée `e88dd25af92feeef40b233047d1285c76b3347b8` a été extraite hors dépôt et assemblée en `production`, sans toucher l'arbre de travail ni le Worker. Le paquet isolé contient **20 fichiers** (276,7 Kio) et son empreinte agrégée est `cc09c52999e70532d20469c3295231a03be12aea60a19b5bce0066da6d3f5248`, calculée depuis sa racine avec `find . -type f | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256`. Une sauvegarde hors du dépôt et hors du `dist/` nettoyable conserve le paquet, l'inventaire SHA-256 détaillé des 20 chemins et une fiche de contexte **à côté**, non à l'intérieur du dossier publiable. La comparaison `shasum -c` réussit sur les 20 fichiers de la sauvegarde. L'indexation générée est `index, follow` (404 : `noindex, follow`).
+
+**Limite de préparation :** cette copie a été construite sous **Node 24.21.0**, alors que `.node-version` fixe **22.23.2**. La suite `verif-assemblage` ne donne sa conformité de référence que sous cette version ; en mode `--runtime-alternatif`, elle a passé 90/90, ce qui est un contrôle croisé, pas la validation de la version figée. L'empreinte calculée commence par `cc09c529`, comme celle annoncée par l'Implémentation sous Node 22.23.2, mais la comparaison du **hash complet et des 20 fichiers** avec un nouvel assemblage sous Node 22.23.2 reste à faire avant de déclarer le paquet prêt au dépôt. Ne pas remplacer cette preuve par le seul préfixe commun. Si les octets diffèrent, ne pas publier ce paquet : expliquer l'écart et proposer un artefact corrigé à Simon.
+
+La demande distincte d'un lien retour dans Créa’Tif est cadrée dans sa section et n'altère pas la source figée du portfolio. Aucune autorisation Cloudflare n'est donnée ici.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
