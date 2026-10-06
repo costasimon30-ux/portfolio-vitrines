@@ -1,0 +1,197 @@
+/*
+  Boutique setup — squelette mobile first (lot 0, docs/DIRECTION.md « Site 3 »).
+  CSS local minimal, sans polices, images ni dépendance : pile de polices
+  système, aucune ressource de shared/. Ce n'est ni une direction artistique ni
+  une identité de marque : couleurs neutres provisoires, à remplacer lors du lot
+  de direction artistique. Écrit d'abord pour 320/375 px, puis élargi à 768 et
+  1440 px.
+*/
+
+:root {
+  --c-fond: #fbfbfa;
+  --c-texte: #1b1f24;
+  --c-texte-doux: #4a525c;
+  --c-filet: #c9ced4;
+  --c-surface: #ffffff;
+  --c-focus: #0b5cad;
+  --c-avis-fond: #fff4d6;
+  --c-avis-bord: #8a6500;
+  --e-4: .25rem;
+  --e-8: .5rem;
+  --e-12: .75rem;
+  --e-16: 1rem;
+  --e-24: 1.5rem;
+  --e-32: 2rem;
+  --e-48: 3rem;
+  --cible: 2.75rem; /* 44 px : surface tactile minimale */
+  --largeur: 68rem;
+  --police: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--c-fond);
+  color: var(--c-texte);
+  font-family: var(--police);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+h1, h2, p, ul { margin: 0; }
+ul { padding: 0; list-style: none; }
+h1 { font-size: 1.75rem; line-height: 1.2; }
+h2 { font-size: 1.25rem; line-height: 1.3; }
+p, li { overflow-wrap: break-word; }
+
+a { color: inherit; }
+a:hover { text-decoration-thickness: 2px; }
+
+:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 3px;
+}
+main:focus { outline: none; }
+
+.container {
+  width: 100%;
+  max-width: var(--largeur);
+  margin-inline: auto;
+  padding-inline: var(--e-16);
+}
+
+/* ---------- Lien d'évitement ---------- */
+
+.skip-link {
+  position: absolute;
+  top: var(--e-8);
+  left: var(--e-8);
+  z-index: 10;
+  padding: var(--e-12) var(--e-16);
+  background: var(--c-texte);
+  color: var(--c-fond);
+  transform: translateY(-200%);
+}
+.skip-link:focus { transform: translateY(0); }
+
+/* ---------- Avis permanent : démonstration en préparation ---------- */
+
+.avis-demo {
+  padding-block: var(--e-8);
+  background: var(--c-avis-fond);
+  border-bottom: 1px solid var(--c-avis-bord);
+  font-size: .9375rem;
+  line-height: 1.4;
+}
+.avis-demo strong { font-weight: 700; }
+
+/* ---------- En-tête et navigation ---------- */
+
+.site-header { border-bottom: 1px solid var(--c-filet); background: var(--c-surface); }
+.site-header__inner { padding-block: var(--e-8); }
+
+.marque {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: var(--cible);
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1.2;
+}
+.marque small { font-weight: 400; color: var(--c-texte-doux); font-size: .8125rem; }
+
+.nav-principale ul { display: flex; flex-wrap: wrap; gap: 0 var(--e-4); }
+.nav-principale a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--cible);
+  padding-inline: var(--e-8);
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+}
+.nav-principale a:hover { border-bottom-color: var(--c-filet); }
+.nav-principale a[aria-current="page"] {
+  font-weight: 700;
+  border-bottom-color: var(--c-texte);
+}
+
+/* ---------- Contenu ---------- */
+
+main { padding-block: var(--e-32) var(--e-48); }
+
+.eyebrow {
+  margin-bottom: var(--e-8);
+  font-size: .8125rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--c-texte-doux);
+}
+
+.chapeau { margin-top: var(--e-16); max-width: 40rem; }
+
+.bloc { margin-top: var(--e-32); max-width: 40rem; }
+.bloc h2 { margin-bottom: var(--e-12); }
+.bloc > ul > li + li { margin-top: var(--e-8); }
+
+.etat {
+  margin-top: var(--e-24);
+  max-width: 40rem;
+  padding: var(--e-16);
+  background: var(--c-surface);
+  border: 1px solid var(--c-filet);
+  border-left: 4px solid var(--c-avis-bord);
+}
+
+.liens-retour { display: flex; flex-wrap: wrap; gap: 0 var(--e-24); margin-top: var(--e-24); }
+.liens-retour a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--cible);
+}
+
+.plan li { display: block; }
+.plan a { display: inline-block; padding-block: .625rem; font-weight: 600; }
+.plan span { display: block; color: var(--c-texte-doux); font-size: .9375rem; }
+
+/* ---------- Pied de page ---------- */
+
+.site-footer {
+  padding-block: var(--e-24);
+  border-top: 1px solid var(--c-filet);
+  background: var(--c-surface);
+  font-size: .9375rem;
+  color: var(--c-texte-doux);
+}
+.site-footer p { max-width: 44rem; }
+
+/* ---------- Tablette et plus ---------- */
+
+@media (min-width: 48em) {
+  .container { padding-inline: var(--e-32); }
+  h1 { font-size: 2.25rem; }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-24);
+  }
+  main { padding-block: var(--e-48) calc(var(--e-48) + var(--e-16)); }
+}
+
+@media (min-width: 90em) {
+  h1 { font-size: 2.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+@media (forced-colors: active) {
+  .nav-principale a[aria-current="page"] { border-bottom-color: Highlight; }
+  .etat { border-left-color: CanvasText; }
+}

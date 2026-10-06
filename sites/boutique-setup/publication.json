@@ -1,0 +1,17 @@
+{
+  "kind": "demo",
+  "pages": [
+    "index.html",
+    "catalogue.html",
+    "produit.html",
+    "panier.html",
+    "commande.html",
+    "confirmation.html",
+    "404.html"
+  ],
+  "publicFiles": [
+    "css/style.css",
+    "assets/favicon.svg"
+  ],
+  "sharedFiles": []
+}
