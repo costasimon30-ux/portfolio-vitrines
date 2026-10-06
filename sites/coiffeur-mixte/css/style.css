@@ -330,6 +330,23 @@ html { scroll-padding-top: calc(var(--header-h) + var(--space-1)); }
 }
 .site-footer__credits a { text-decoration: underline; }
 
+/* Retour vers le portfolio de Simon Costa (docs/DIRECTION.md, « Retour vers le
+   portfolio », 6 octobre 2026) : lien textuel souligné comme les crédits, sur
+   sa propre ligne, hauteur de cible d'au moins 32px, focus par défaut du site.
+   Même lien, plus discret, sur la 404 autonome (.error-page__portfolio). */
+.site-footer__portfolio {
+  width: 100%;
+  margin: 0;
+  font-size: .9375rem;
+  font-weight: 600;
+}
+.site-footer__portfolio a,
+.error-page__portfolio a {
+  display: inline-block;
+  padding-block: var(--space-1);
+  text-decoration: underline;
+}
+
 /* ---------- Sections génériques ---------- */
 .section { padding-block: var(--space-6); }
 .section--alt { background: var(--color-sand); }
@@ -535,6 +552,7 @@ html { scroll-padding-top: calc(var(--header-h) + var(--space-1)); }
   padding-block: var(--space-6);
 }
 .error-page .btn { margin-top: var(--space-2); }
+.error-page__portfolio { margin: 0; font-size: .9375rem; }
 
 /* ---------- Encadré compact ---------- */
 .callout {
