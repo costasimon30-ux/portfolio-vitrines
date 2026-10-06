@@ -953,6 +953,12 @@ Cette page garde un rythme plus compact que Coiffure, avec davantage de séparat
 - Chaque page possède un titre et une méta-description uniques ; un favicon est présent.
 - Les données fictives restent identifiées comme telles dans la présentation du portfolio.
 
+### Option future — carte interactive de démonstration
+
+**Idée consignée, non commandée.** Simon souhaite garder la possibilité d'ajouter, un autre jour, un encart cartographique déplaçable au curseur ou au doigt dans les informations pratiques de Créa’Tif et de La Tablée des Forges. L'objectif est de montrer aux futurs clients une option de personnalisation de leur propre site, pas de localiser ces commerces fictifs.
+
+Si cette option est cadrée ultérieurement, la carte devra être explicitement présentée comme un exemple personnalisable, sans épingle d'établissement, itinéraire ou lien laissant croire à une adresse réelle. Prévoir une activation volontaire pour que le défilement de la page, notamment sur mobile, ne déplace pas la carte par accident ; vérifier alors lisibilité, clavier, tactile, chargement et attribution du fournisseur retenu. Le choix de la solution, du contenu cartographique et du rendu reste ouvert. **Aucune implémentation, revue ou publication n'est demandée à ce stade.**
+
 ### Site 2 — La Tablée des Forges (brief produit V1, démonstration)
 
 **Objet et statut.** Deuxième vitrine conceptuelle du portfolio, pour montrer un site de restaurant **multipage, entièrement front-end**. Simon valide le principe d'une démo claire et courte, sans longue carte ni fonctions fictivement opérationnelles. « La Tablée des Forges » est le nom retenu pour cette démo ; sa disponibilité comme enseigne réelle n'est pas vérifiée. Simon a validé la **proposition de direction artistique V1** ci-dessous le 5 octobre 2026 comme point de départ ajustable, sans valider encore un rendu. L'Architecte a retenu au commit `fa8ec02` des pages HTML statiques autonomes, **sans Eleventy pour cette V1**. Le premier état local du site est livré au commit `418edc5`. Simon a ensuite validé visuellement quatre photographies (P01, P02, P03 et P04 bis) pour remplacer les illustrations provisoires ; l'ancienne P04 est abandonnée. Cette validation porte sur la sélection, pas encore sur le rendu intégré ni sur les droits tiers. Aucun déploiement n'est autorisé.
