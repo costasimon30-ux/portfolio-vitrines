@@ -437,6 +437,8 @@ Le paquet sauvegardé n'a pas été modifié, et le nouveau commit Créa’Tif n
 
 **Contrôles de fumée sur l'URL réelle :** l'accueil affiche la nouvelle introduction et les deux onglets ; Créa’Tif est sélectionné par défaut ; sélectionner La Tablée révèle sa carte, son lien vers la démo publiée et son WebP 880 × 495 effectivement décodé. Balise robots visible `index, follow` ; aucune erreur console relevée dans le navigateur pendant ces parcours. Le paquet a été déposé depuis le dossier de 20 fichiers vérifié localement ; ces contrôles ne sont **pas** une comparaison octet par octet de tous les fichiers servis, ni une recette QA hébergée complète. Le zoom natif 200 % reste volontairement non testé et accepté par Simon pour cette version. Aucun autre Worker n'a été changé pendant ce premier dépôt.
 
+**Contrôle HTTP complémentaire en lecture seule :** sur le portfolio, l'accueil répond HTTP 200, un chemin inconnu et `/publication.json` répondent HTTP 404. Aucun en-tête global `noindex` n'a été observé sur l'accueil ; la balise HTML conserve `index, follow`. Ces vérifications de quelques réponses ne remplacent pas une recette exhaustive.
+
 #### Direction artistique
 
 ##### Proposition du 23 septembre 2026 — « Clarté et structure », Clair / Sombre
@@ -663,6 +665,8 @@ Une copie propre de cette source a été assemblée en production **sous Node 24
 Après le portfolio, Simon a autorisé le dépôt du paquet Créa’Tif sur son Worker existant `portfolio-vitrines-coiffeur-mixte`, URL inchangée : https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/ . Source exacte `3ed69d253b28e8419adb7bc58a2ff2a1181a58f8` ; **42 fichiers**, empreinte du dossier sauvegardé recalculée avant envoi `e7ca2b4a87ac88a3f20264077e94e43bacc762285bf7a15eadd94cfd0efecf16` (même méthode de hachage agrégé). Le tableau de bord a reçu « Uploading 42 total file(s) » ; réglages `assets /`, `auto-trailing-slash` et `404-page` inchangés. **Version Cloudflare active `866c86cd`**, précédente `ff687b8e` conservée. Pas de connexion Git, domaine ou nouvelle application.
 
 **Contrôles de fumée hébergés :** les quatre pages principales et une URL inconnue servent leurs titres attendus ; chacune affiche exactement un lien « Voir le portfolio de Simon Costa » avec la destination décidée. La page introuvable conserve en plus « Retour à l’accueil ». Un clic réel depuis l'accueil de Créa’Tif ouvre le portfolio mis à jour dans le même onglet, où l'onglet La Tablée est présent. Balise robots visible `noindex, follow` ; aucune erreur console relevée sur l'accueil. Ces observations ne prouvent ni tous les statuts/en-têtes HTTP, ni une comparaison de chaque ressource distante au paquet, ni une recette responsive complète. P06 et sa réserve documentaire restent inchangées ; La Tablée des Forges n'a pas été republiée.
+
+**Contrôle HTTP complémentaire en lecture seule :** sur Créa’Tif, l'accueil répond HTTP 200 avec `X-Robots-Tag: noindex, follow` ; un chemin inconnu répond HTTP 404 avec ce même en-tête, et `/publication.json` répond HTTP 404. Le lien retour a été activé par clic réel et mène au portfolio publié. Ces vérifications restent des contrôles de fumée, non un audit complet.
 
 ##### Suivi produit — passe photographique, 7 septembre 2026
 
