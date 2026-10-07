@@ -1184,7 +1184,7 @@ Pour cette boutique, définir d’abord l’ordre du contenu, la navigation, les
 
 ### Site 3 — boutique d’accessoires de bureau et de setup (cadrage produit initial)
 
-**Statut : décisions de Simon, sans commande d’implémentation ni de publication.** Après Créa’Tif et La Tablée des Forges, ce troisième projet doit démontrer un parcours e-commerce plus riche, entièrement front-end, pour une marque fictive haut de gamme d’accessoires de bureau et de setup. Le nom de la marque est fixé plus bas ; l’arborescence détaillée et la direction artistique restent à décider. Ne pas déduire le design des deux vitrines précédentes.
+**Statut au 7 octobre 2026 : lot 0 livré ; lot 1 catalogue/fiches spécifié ci-dessous pour implémentation ; aucune publication autorisée.** Après Créa’Tif et La Tablée des Forges, ce troisième projet doit démontrer un parcours e-commerce plus riche, entièrement front-end, pour une marque fictive haut de gamme d’accessoires de bureau et de setup. Le nom de la marque est fixé plus bas ; l’arborescence détaillée et la direction artistique restent à décider. Ne pas déduire le design des deux vitrines précédentes.
 
 **Catalogue retenu.** Quatre types de produits : supports, tapis de bureau, éclairage et rangement. Prévoir **20 gammes distinctes** au total, réparties à raison de cinq par type. Les finitions/variantes de ces gammes doivent constituer **80 références réellement sélectionnables**, soit 20 par type de produit. Une référence n’est pas une simple entrée comptable : son choix doit se refléter de façon cohérente dans la fiche, le panier et le récapitulatif de commande. Les 20 gammes peuvent être les cartes principales du catalogue ; ne pas prétendre afficher 80 modèles différents si les autres références sont des finitions.
 
