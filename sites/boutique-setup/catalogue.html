@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Catalogue — Boutique setup (démonstration en préparation)</title>
-<meta name="description" content="Page d’entrée du futur catalogue de la boutique fictive. Aucun produit n’est encore présenté.">
+<title>Catalogue — Ligne Posée (démonstration)</title>
+<meta name="description" content="Catalogue fictif de Ligne Posée : 20 modèles d’accessoires de bureau en quatre familles, avec recherche, filtres et tris. Prix de démonstration, aucun achat possible.">
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
@@ -13,12 +13,12 @@
 <a class="skip-link" href="#contenu">Aller au contenu</a>
 <div class="avis-demo">
   <div class="container">
-    <p><strong>Démonstration en préparation.</strong> Boutique fictive : aucun produit, aucun prix et aucune commande possible pour l’instant.</p>
+    <p><strong>Démonstration — boutique fictive.</strong> Les produits, références et prix sont des données de démonstration : aucun achat n’est possible.</p>
   </div>
 </div>
 <header class="site-header">
   <div class="container site-header__inner">
-    <a class="marque" href="index.html" aria-label="Boutique setup, nom de travail provisoire — accueil">Boutique setup <small>nom de travail provisoire</small></a>
+    <a class="marque" href="index.html" aria-label="Ligne Posée, boutique fictive — accueil">Ligne Posée <small>boutique fictive</small></a>
     <nav class="nav-principale" aria-label="Navigation principale">
       <ul>
         <li><a href="index.html">Accueil</a></li>
@@ -34,23 +34,107 @@
 
 <main id="contenu" tabindex="-1">
   <div class="container">
-    <p class="eyebrow">Démonstration en préparation</p>
+    <p class="eyebrow">Ligne Posée · catalogue de démonstration</p>
     <h1>Catalogue</h1>
-    <p class="chapeau">Le catalogue n’est pas encore disponible. Les produits et leurs finitions seront présentés ici dans une prochaine étape.</p>
-    <div class="etat" role="note">
-      <p><strong>Aucun produit n’est affiché.</strong> Cette page ne contient ni article, ni prix, ni bouton d’achat.</p>
+    <p class="chapeau">20 modèles fictifs en quatre familles, chacun en quatre variantes. Les prix sont des prix de démonstration ; aucun achat n’est possible.</p>
+
+    <noscript>
+      <div class="etat" role="note">
+        <p><strong>JavaScript est désactivé.</strong> La recherche, les filtres, les tris et les fiches interactives sont indisponibles. La liste ci-dessous présente les 20 modèles de Ligne Posée, sans prix.</p>
+      </div>
+    </noscript>
+    <div class="etat" id="indisponible" role="note" hidden>
+      <p><strong>Catalogue indisponible.</strong> Les données n’ont pas pu être chargées ou n’ont pas passé leur vérification : la recherche, les filtres, les tris et les fiches interactives sont indisponibles. La liste ci-dessous reprend les noms des 20 modèles, sans prix ni détail.</p>
     </div>
+
+    <form class="filtres" id="filtres" role="search" aria-label="Rechercher et filtrer le catalogue" action="catalogue.html" method="get" novalidate hidden>
+      <div class="champ champ--large">
+        <label for="f-q">Rechercher un modèle</label>
+        <input id="f-q" name="q" type="search" maxlength="80" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-describedby="aide-q">
+        <p class="aide" id="aide-q">La recherche porte sur les noms, les descriptions courtes et les familles.</p>
+      </div>
+      <div class="champ">
+        <label for="f-famille">Famille</label>
+        <select id="f-famille" name="famille"><option value="">Toutes les familles</option></select>
+      </div>
+      <div class="champ">
+        <label for="f-prix">Prix d’entrée maximum</label>
+        <select id="f-prix" name="prix" aria-describedby="aide-prix"><option value="">Tous les prix</option></select>
+        <p class="aide" id="aide-prix">Prix pris en compte : le « À partir de » du modèle.</p>
+      </div>
+      <div class="champ">
+        <label for="f-tri">Trier par</label>
+        <select id="f-tri" name="tri"></select>
+      </div>
+      <fieldset class="champ champ--large">
+        <legend>Univers (un ou plusieurs)</legend>
+        <div class="cases" id="f-univers"></div>
+      </fieldset>
+      <div class="actions-filtres">
+        <button class="bouton bouton--secondaire" type="button" id="f-effacer">Effacer tous les filtres</button>
+      </div>
+    </form>
+
+    <div class="etat" id="avis-lien" role="note" hidden><p></p></div>
+
+    <section id="resultats" aria-labelledby="resultats-titre" hidden>
+      <h2 id="resultats-titre" class="compte-titre">Modèles</h2>
+      <p class="compte" id="compte" role="status"></p>
+      <ul class="cartes" id="cartes"></ul>
+      <div class="etat" id="vide" hidden>
+        <p><strong>Aucun modèle ne correspond à cette recherche.</strong> Essayez un autre mot, retirez un univers ou élargissez le prix, ou effacez tous les filtres pour revoir les 20 modèles.</p>
+        <p class="actions"><button class="bouton" type="button" id="vide-effacer">Effacer tous les filtres</button></p>
+      </div>
+    </section>
+
+    <section class="bloc repli" id="repli" aria-labelledby="repli-titre">
+      <h2 id="repli-titre">Les 20 modèles de Ligne Posée</h2>
+      <p>Liste de repli : les noms seulement. Les prix, les variantes et les fiches demandent JavaScript et le chargement du catalogue.</p>
+      <h3>Supports</h3>
+      <ul>
+        <li>Rehausseur d’écran</li>
+        <li>Support d’ordinateur portable</li>
+        <li>Bras d’écran articulé</li>
+        <li>Support de tablette</li>
+        <li>Support de casque</li>
+      </ul>
+      <h3>Tapis de bureau</h3>
+      <ul>
+        <li>Tapis compact</li>
+        <li>Tapis classique</li>
+        <li>Tapis grand format</li>
+        <li>Tapis en feutre</li>
+        <li>Sous-main avec rangement</li>
+      </ul>
+      <h3>Éclairage</h3>
+      <ul>
+        <li>Lampe de bureau</li>
+        <li>Barre lumineuse d’écran</li>
+        <li>Lampe articulée</li>
+        <li>Éclairage d’ambiance</li>
+        <li>Lampe nomade</li>
+      </ul>
+      <h3>Rangement</h3>
+      <ul>
+        <li>Organiseur de bureau</li>
+        <li>Boîte range-câbles</li>
+        <li>Vide-poche</li>
+        <li>Rangement vertical</li>
+        <li>Module à tiroir</li>
+      </ul>
+    </section>
+
     <ul class="liens-retour" aria-label="Pages voisines">
       <li><a href="index.html">Retour à l’accueil</a></li>
-      <li><a href="produit.html">Voir l’emplacement de la fiche produit</a></li>
     </ul>
   </div>
 </main>
 
 <footer class="site-footer">
   <div class="container">
-    <p>Boutique fictive de démonstration, en préparation, réalisée pour le portfolio de Simon Costa. Le nom, les produits, les prix, les photographies et le parcours de commande ne sont pas encore définis. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
+    <p>Ligne Posée est une marque fictive de démonstration, imaginée pour le portfolio de Simon Costa. Produits, références et prix sont fictifs. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
   </div>
 </footer>
+<script type="module" src="js/page-catalogue.js"></script>
 </body>
 </html>

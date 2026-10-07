@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fiche produit — Boutique setup (démonstration en préparation)</title>
-<meta name="description" content="Emplacement de la future fiche produit de la boutique fictive. Aucun produit n’est sélectionné et l’ajout au panier est indisponible.">
+<title>Fiche produit — Ligne Posée (démonstration)</title>
+<meta name="description" content="Fiche d’un modèle fictif de Ligne Posée : quatre variantes, référence et prix de démonstration. L’ajout au panier est indisponible.">
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
@@ -13,12 +13,12 @@
 <a class="skip-link" href="#contenu">Aller au contenu</a>
 <div class="avis-demo">
   <div class="container">
-    <p><strong>Démonstration en préparation.</strong> Boutique fictive : aucun produit, aucun prix et aucune commande possible pour l’instant.</p>
+    <p><strong>Démonstration — boutique fictive.</strong> Les produits, références et prix sont des données de démonstration : aucun achat n’est possible.</p>
   </div>
 </div>
 <header class="site-header">
   <div class="container site-header__inner">
-    <a class="marque" href="index.html" aria-label="Boutique setup, nom de travail provisoire — accueil">Boutique setup <small>nom de travail provisoire</small></a>
+    <a class="marque" href="index.html" aria-label="Ligne Posée, boutique fictive — accueil">Ligne Posée <small>boutique fictive</small></a>
     <nav class="nav-principale" aria-label="Navigation principale">
       <ul>
         <li><a href="index.html">Accueil</a></li>
@@ -34,12 +34,25 @@
 
 <main id="contenu" tabindex="-1">
   <div class="container">
-    <p class="eyebrow">Démonstration en préparation</p>
-    <h1>Fiche produit</h1>
-    <p class="chapeau">Aucun produit n’est sélectionné. Cette page accueillera plus tard la fiche d’un produit et le choix de sa finition.</p>
-    <div class="etat" role="note">
-      <p><strong>Ajout au panier indisponible.</strong> Aucun achat n’est possible dans cette version : il n’y a ni produit, ni prix, ni bouton d’achat.</p>
+    <p class="retour"><a href="catalogue.html">← Retour au catalogue</a></p>
+    <p class="eyebrow" id="fiche-eyebrow">Fiche produit</p>
+    <h1 id="fiche-titre">Fiche produit</h1>
+
+    <noscript>
+      <div class="etat" role="note">
+        <p><strong>JavaScript est désactivé.</strong> La fiche d’un modèle (variantes, références et prix) est indisponible sans lui. Aucun achat n’est possible dans cette démonstration.</p>
+      </div>
+    </noscript>
+    <div id="fiche-zone" class="fiche-zone">
+    <div class="etat" id="fiche-repli" role="note">
+      <p>Cette fiche s’affiche à partir du catalogue de démonstration, avec JavaScript. Si elle reste vide, le catalogue donne la liste des modèles.</p>
     </div>
+    <div class="etat" id="fiche-repli-indispo" role="note" hidden>
+      <p><strong>Fiche indisponible.</strong> Les données du catalogue n’ont pas pu être chargées ou n’ont pas passé leur vérification : aucune fiche ni aucun prix n’est affiché.</p>
+    </div>
+    <div id="fiche"></div>
+    </div>
+
     <ul class="liens-retour" aria-label="Pages voisines">
       <li><a href="catalogue.html">Retour au catalogue</a></li>
       <li><a href="index.html">Retour à l’accueil</a></li>
@@ -49,8 +62,9 @@
 
 <footer class="site-footer">
   <div class="container">
-    <p>Boutique fictive de démonstration, en préparation, réalisée pour le portfolio de Simon Costa. Le nom, les produits, les prix, les photographies et le parcours de commande ne sont pas encore définis. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
+    <p>Ligne Posée est une marque fictive de démonstration, imaginée pour le portfolio de Simon Costa. Produits, références et prix sont fictifs. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
   </div>
 </footer>
+<script type="module" src="js/page-produit.js"></script>
 </body>
 </html>

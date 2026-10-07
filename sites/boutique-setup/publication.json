@@ -11,7 +11,12 @@
   ],
   "publicFiles": [
     "css/style.css",
-    "assets/favicon.svg"
+    "assets/favicon.svg",
+    "data/catalogue.json",
+    "js/catalogue-core.js",
+    "js/dom.js",
+    "js/page-catalogue.js",
+    "js/page-produit.js"
   ],
   "sharedFiles": []
 }
