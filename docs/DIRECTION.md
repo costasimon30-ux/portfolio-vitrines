@@ -1218,3 +1218,66 @@ Le caractère fictif de la boutique et de la transaction doit être perceptible 
 **Suivi du lot 0 — commit `8f4b3fdb16735149c2b7493eaab85f1a781e783f`.** Le diff GitHub comparé à la base `0d3f145` confirme dix fichiers ajoutés exclusivement dans `sites/boutique-setup/` : les sept pages prévues, CSS local, favicon neutre et manifeste. Aucun code JavaScript ni média commercial, aucun changement aux trois sites publiés, à `shared/`, aux scripts ou à `docs/` dans ce commit. Claude rapporte ses contrôles locaux de navigation, clavier, largeurs et assemblage ; ils ne sont pas rejoués ici et ne valent pas recette hébergée. **Statut produit : squelette livré, provisoire, non validé comme rendu final ; aucun déploiement autorisé.** Les textes d'attente et la palette neutre peuvent rester jusqu'au lot de contenu/DA. Avant publication, retirer le lien de démonstration vers la 404 depuis l'accueil et décider d'un retour vers le portfolio. Les contenus, les photographies, la direction visuelle et toute logique commerciale restent à cadrer avant le lot suivant ; le nom de marque est fixé dans la décision ci-dessous.
 
 **Décision de Simon du 7 octobre 2026 — nom de la démo.** La marque fictive du site 3 s’appelle **Ligne Posée**. Le choix vise un ton premium sobre, sans posture de luxe inaccessible. Il remplace le libellé provisoire affiché dans le squelette ; le slug technique `boutique-setup` peut rester inchangé pour éviter un renommage sans bénéfice produit. Ce nom n’implique ni identité graphique arrêtée, ni disponibilité juridique ou nom de domaine vérifiés. Ne pas prolonger la recherche de nom pour cette démo. Aucun déploiement n’est autorisé par cette décision.
+
+
+#### Lot 1 — catalogue et fiches de Ligne Posée (cahier des charges fonctionnel)
+
+**Décision de Simon du 7 octobre 2026.** La proposition de catalogue est validée : quatre familles de cinq modèles, chacune avec quatre variantes sélectionnables, soit **20 modèles et 80 références**. Ce lot construit la découverte et la fiche produit sur le squelette existant. Il ne simule pas encore le panier ou la commande et ne fixe pas l'identité artistique. Le prix, les noms descriptifs et les caractéristiques ci-dessous sont des données **fictives de démonstration**, pas des offres réelles ni des spécifications de fabricants.
+
+**Périmètre et navigation.** Garder les sept pages structurelles déjà créées sous sites/boutique-setup/. Dans ce lot, rendre actifs Accueil, Catalogue et Fiche produit. L'Accueil présente Ligne Posée comme boutique fictive d'accessoires de bureau, donne accès aux quatre familles et au catalogue complet, sans promettre d'achat opérationnel. Catalogue affiche une carte par modèle. Une carte mène à la fiche correspondante ; la fiche présente quatre variantes, leurs références et leurs prix. Panier, Commande et Fin de démonstration restent des pages d'attente explicites ; ne pas créer de bouton d'ajout qui suggère un panier fonctionnel. La 404 reste accessible par URL inconnue, mais le lien de démonstration directe vers celle-ci sur l'Accueil sera retiré avant publication. Le retour vers le portfolio reste à décider avant publication ; ne pas l'inventer dans ce lot.
+
+**Inventaire de référence.** Le prix de base est celui de la variante 01 de chaque modèle. Les descriptions courtes servent de base éditoriale ; elles ne doivent pas être développées en promesses techniques, certifications, garanties ou bénéfices de santé non documentés. Les univers sont des étiquettes qui se recoupent.
+
+| ID modèle | Nom | Prix de base fictif | Univers | Description courte |
+| --- | --- | ---: | --- | --- |
+| `sup-01` | Rehausseur d’écran | 69 € | Ergonomie, Essentiels | Surélève un écran et libère la zone sous le plateau. |
+| `sup-02` | Support d’ordinateur portable | 59 € | Ergonomie, Essentiels | Place l’ordinateur portable sur un support indépendant. |
+| `sup-03` | Bras d’écran articulé | 159 € | Ergonomie, Signature, Industriel | Permet de positionner un écran sur un bras réglable. |
+| `sup-04` | Support de tablette | 45 € | Essentiels, Signature | Maintient une tablette sur le bureau. |
+| `sup-05` | Support de casque | 39 € | Essentiels, Industriel | Réserve une place stable au casque. |
+| `tap-01` | Tapis compact | 39 € | Essentiels | Protège une petite zone de travail. |
+| `tap-02` | Tapis classique | 49 € | Essentiels, Signature | Délimite la zone clavier et souris. |
+| `tap-03` | Tapis grand format | 69 € | Ergonomie, Signature | Couvre une grande partie du bureau. |
+| `tap-04` | Tapis en feutre | 59 € | Signature | Apporte une surface en feutre au poste de travail. |
+| `tap-05` | Sous-main avec rangement | 79 € | Ergonomie, Industriel | Associe surface de travail et espace de rangement. |
+| `lum-01` | Lampe de bureau | 99 € | Essentiels, Signature | Éclaire directement la zone de travail. |
+| `lum-02` | Barre lumineuse d’écran | 119 € | Ergonomie, Industriel | Éclaire le bureau depuis le haut de l’écran. |
+| `lum-03` | Lampe articulée | 139 € | Ergonomie, Industriel | Oriente la lumière grâce à un bras articulé. |
+| `lum-04` | Éclairage d’ambiance | 69 € | Signature | Ajoute un point lumineux secondaire au bureau. |
+| `lum-05` | Lampe nomade | 89 € | Essentiels, Signature | Se déplace facilement d’un poste à l’autre. |
+| `ran-01` | Organiseur de bureau | 49 € | Essentiels | Regroupe les petits objets utilisés chaque jour. |
+| `ran-02` | Boîte range-câbles | 39 € | Essentiels, Industriel | Rassemble les câbles visibles sur le bureau. |
+| `ran-03` | Vide-poche | 35 € | Signature | Accueille les objets à garder sous la main. |
+| `ran-04` | Rangement vertical | 59 € | Ergonomie, Industriel | Classe les documents ou accessoires à la verticale. |
+| `ran-05` | Module à tiroir | 99 € | Signature, Industriel | Range les accessoires dans des tiroirs compacts. |
+
+**Variantes et références, sans exception.** Chaque modèle possède exactement quatre variantes identifiées par les suffixes 01 à 04. Le SKU stable et unique suit le motif LP–TYPE–MODÈLE–VARIANTE (par exemple LP-SUP-03-04, LP-TAP-02-01) ; les codes de type sont SUP, TAP, LUM et RAN. Le prix final d'un SKU vaut le prix de base du modèle plus le supplément ci-dessous. Tous les calculs internes se font en centimes entiers ; les euros formatés ne servent qu'à l'affichage. La variante 01 est celle du prix « à partir de ».
+
+| Famille | Variante 01 | Variante 02 | Variante 03 | Variante 04 |
+| --- | --- | --- | --- | --- |
+| Supports | Noir mat, +0 € | Graphite, +0 € | Blanc satiné, +0 € | Aspect aluminium brossé, +10 € |
+| Tapis de bureau | Petit format, graphite, +0 € | Petit format, sable, +0 € | Grand format, graphite, +15 € | Grand format, sable, +15 € |
+| Éclairage | Noir mat, lumière chaude 2700 K, +0 € | Noir mat, lumière neutre 4000 K, +0 € | Graphite, lumière chaude 2700 K, +0 € | Graphite, lumière neutre 4000 K, +0 € |
+| Rangement | Compact, noir mat, +0 € | Compact, graphite, +0 € | Grand, noir mat, +12 € | Grand, graphite, +12 € |
+
+Pour les tapis, les tailles concrètes petit/grand dépendent du modèle : tap-01 = 45 × 30 / 60 × 35 cm ; tap-02 = 70 × 35 / 80 × 40 cm ; tap-03 = 90 × 40 / 100 × 50 cm ; tap-04 = 70 × 35 / 90 × 40 cm ; tap-05 = 70 × 35 / 90 × 40 cm. Pour les autres familles, ne pas inventer de dimensions, matériaux exacts, compatibilités ou performances sans source ; les libellés ci-dessus suffisent à différencier les références de la démo. Une option ne doit jamais afficher une photo ou une propriété qui prétendrait montrer une finition non photographiée. Exemple de contrôle : LP-SUP-03-04 = 169 €, LP-TAP-03-03 = 84 €, LP-RAN-05-03 = 111 €.
+
+**Règles de découverte.** Une carte représente un modèle, jamais une variante ; le catalogue compte donc 20 cartes. Elle affiche famille, nom, description courte, univers et « À partir de X € » où X est le minimum de ses quatre SKU. Une recherche locale traite les noms, descriptions courtes et familles, insensible à la casse, aux accents et aux espaces excédentaires. Filtres : une famille à la fois (ou toutes), plusieurs univers possibles en logique OU, et plafond de prix parmi « tous », 50 €, 100 €, 150 € ; le prix du modèle utilisé pour ce filtre est son minimum, clairement indiqué par « À partir de ». Les filtres famille, univers, prix et la recherche se combinent en logique ET. Tris : ordre éditorial par défaut (famille puis numéro de modèle), prix croissant, prix décroissant et nom alphabétique ; départager tout ex aequo par l'ID modèle pour un ordre stable. Afficher le nombre de **modèles** correspondants. Une carte présente dans plusieurs univers n'apparaît qu'une fois. Si aucun modèle ne correspond, expliquer l'absence de résultat et proposer une action visible pour effacer tous les filtres. Un retour navigateur, un rechargement ou un lien direct doivent restaurer une recherche/filtre/tri valable ; des paramètres inconnus ne doivent ni casser la page ni afficher de résultat trompeur.
+
+**Fiche produit.** L'accès direct à la fiche d'un modèle connu fonctionne sans passage par l'Accueil. Afficher le nom, la famille, la description, les univers, les quatre choix de variante, le SKU et le prix correspondant au choix actif, puis un lien clair vers le catalogue. Changer de variante met à jour ensemble son libellé, le SKU et le prix ; les autres valeurs restent cohérentes au rechargement et au retour navigateur. Une référence ou un modèle inconnu affiche un état d'erreur compréhensible avec retour au catalogue, sans variante substituée silencieusement. Aucune action d'achat, de livraison ou de paiement n'est activée dans ce lot.
+
+**Médias et honnêteté.** Les photographies réelles et la direction artistique sont des lots ultérieurs. Le lot 1 peut utiliser des surfaces neutres marquées « Visuel à venir » ; ne pas télécharger de photos de fabricants ou de sites d'avis, ne pas générer de faux produit ressemblant à une marque, ne pas afficher une image unique comme preuve des quatre finitions. Si aucun média validé n'est disponible, la fiche et la carte restent complètes en texte. Le caractère fictif de Ligne Posée et les prix de démonstration sont visibles sur chaque page concernée. Pas de compte, de données personnelles, de contact commercial réel ni d'appel réseau métier.
+
+**Comportement mobile et dégradation.** À 320 et 375 px, familles, recherche, filtres, tri et fiches doivent être utilisables sans survol ; tablette et desktop à 768 et 1440 px enrichissent seulement la mise en page. Champs étiquetés, cibles tactiles utiles, ordre de lecture et de focus cohérent, sélection de variante compréhensible au clavier et au lecteur d'écran, messages de résultat et d'erreur perceptibles sans imposer un déplacement de focus imprévu. Sans JavaScript ou si les données catalogue sont indisponibles/invalides, afficher au minimum l'identité fictive, les quatre familles, une liste lisible des 20 noms de modèles et une explication que les filtres et fiches interactives sont indisponibles ; jamais de catalogue partiel présenté comme complet ni de commande supposée réussie. Les pages d'attente et la 404 restent lisibles.
+
+**Critères d'acceptation du lot 1, vérifiables sur la sortie assemblée isolée.**
+
+1. Quatre familles, exactement cinq modèles par famille, 20 cartes sans doublon, quatre SKU uniques par modèle, 80 SKU au total et 20 SKU par famille ; chaque ID, prix et appartenance renvoie à un modèle existant.
+2. Pour les 20 fiches, les quatre variantes sont sélectionnables. Au changement, libellé, SKU et prix changent ensemble ; les trois exemples de prix ci-dessus passent et aucun prix n'est calculé à partir d'une chaîne formatée.
+3. Recherche avec casse, accents et espaces différents ; familles, univers multiples, plafond de prix et tris combinés ; compte exact et zéro résultat testés. Un modèle recouvrant deux univers ne se double pas.
+4. Accès direct, rechargement et retour navigateur conservent un état valide ; modèle/SKU/paramètre inconnu donnent l'état explicatif prévu, sans erreur console ni variante remplacée en silence.
+5. À 320, 375, 768 et 1440 px : aucun débordement horizontal, lecture et navigation complètes, filtres/variantes actionnables au clavier et au toucher, focus visible, aucun contrôle essentiel dépendant du survol.
+6. Sans JavaScript, avec catalogue absent/invalide, et avec visuel non chargé : le repli décrit ci-dessus reste visible ; aucun écran blanc, lien mort, commande réussie ou photo sans provenance.
+7. L'assemblage preview et production inclut seulement les fichiers publics déclarés, reste déterministe et réussit les contrôles du dépôt ; les artefacts des trois sites déjà publiés ne changent pas. Aucun déploiement n'est autorisé par ce cahier des charges.
+
+**Clôture et suite.** Claude Code peut implémenter ce lot uniquement dans sites/boutique-setup/ après lecture de ce cahier des charges. Il choisit ses détails internes réversibles ; tout besoin de shared/, de dépendance ou de modification du contrat d'assemblage revient d'abord à l'Architecte et à Simon. Le Code Reviewer fera ensuite une revue ciblée des données, états de recherche/filtre et cohérence des SKU/prix. Le lot suivant cadrera panier, livraison et commande simulée ; l'UI/UX définira séparément l'identité visuelle et les médias avant tout rendu final. Aucune mise en ligne implicite.
