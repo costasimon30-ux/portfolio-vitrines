@@ -14,10 +14,16 @@
     "assets/favicon.svg",
     "data/catalogue.json",
     "js/attente-fiche.js",
+    "js/attente-page.js",
     "js/catalogue-core.js",
     "js/dom.js",
     "js/page-catalogue.js",
-    "js/page-produit.js"
+    "js/page-commande.js",
+    "js/page-confirmation.js",
+    "js/page-panier.js",
+    "js/page-produit.js",
+    "js/panier-core.js",
+    "js/panier-ui.js"
   ],
   "sharedFiles": []
 }

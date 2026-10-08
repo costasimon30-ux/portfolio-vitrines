@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Panier — Ligne Posée (démonstration)</title>
-<meta name="description" content="Écran du futur panier de Ligne Posée, boutique fictive. Le panier n’est pas actif : aucun article ne peut y être ajouté.">
+<meta name="description" content="Panier de Ligne Posée, boutique fictive : les variantes ajoutées sont conservées dans l’onglet, avec prix de démonstration. Aucune commande n’est possible.">
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
+<script src="js/attente-page.js"></script>
 </head>
 <body>
 <a class="skip-link" href="#contenu">Aller au contenu</a>
@@ -34,13 +35,15 @@
 
 <main id="contenu" tabindex="-1">
   <div class="container">
-    <p class="eyebrow">Étape à venir · démonstration</p>
+    <p class="eyebrow">Démonstration · panier conservé dans cet onglet</p>
     <h1>Panier</h1>
-    <p class="chapeau">Le panier n’est pas encore actif. Il ne contient aucun article et rien ne peut y être ajouté dans cette version.</p>
-    <div class="etat" role="note">
-      <p><strong>Aucune commande n’est possible.</strong> Cette page ne permet ni de valider un panier, ni de payer, ni de saisir des informations personnelles.</p>
+    <p class="chapeau">Les variantes ajoutées depuis une fiche restent dans cet onglet, le temps de la démonstration. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
+    <div id="statut" class="sr-seulement" role="status" aria-live="polite"></div>
+    <div class="etat" id="panier-repli" role="note">
+      <p><strong>Le panier a besoin de JavaScript.</strong> Il est conservé dans le navigateur, dans cet onglet : si JavaScript est désactivé ou n’a pas pu démarrer, aucun article ne peut être ajouté, modifié ni validé. Rien n’est enregistré et aucune commande n’est possible. Rechargez la page pour réessayer, ou consultez le catalogue.</p>
     </div>
-    <ul class="liens-retour" aria-label="Pages voisines">
+    <div id="panier-zone" tabindex="-1"></div>
+    <ul class="liens-retour suite-page" aria-label="Pages voisines">
       <li><a href="catalogue.html">Retour au catalogue</a></li>
       <li><a href="index.html">Retour à l’accueil</a></li>
     </ul>
@@ -52,5 +55,6 @@
     <p>Ligne Posée est une marque fictive de démonstration, imaginée pour le portfolio de Simon Costa. Produits, références et prix sont fictifs. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
   </div>
 </footer>
+<script type="module" src="js/page-panier.js"></script>
 </body>
 </html>

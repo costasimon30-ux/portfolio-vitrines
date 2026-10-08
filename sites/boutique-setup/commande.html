@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Commande simulée — Ligne Posée (démonstration)</title>
-<meta name="description" content="Écran de la future commande simulée de Ligne Posée, boutique fictive. Il n’est pas actif : aucune commande ne peut être passée.">
+<meta name="description" content="Récapitulatif de la commande simulée de Ligne Posée, boutique fictive : livraison fictive Standard ou Express, sans données personnelles ni paiement. Aucune commande n’est envoyée.">
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
+<script src="js/attente-page.js"></script>
 </head>
 <body>
 <a class="skip-link" href="#contenu">Aller au contenu</a>
@@ -34,15 +35,17 @@
 
 <main id="contenu" tabindex="-1">
   <div class="container">
-    <p class="eyebrow">Étape à venir · démonstration</p>
+    <p class="eyebrow">Démonstration · commande simulée</p>
     <h1>Commande simulée</h1>
-    <p class="chapeau">Cet écran n’est pas encore actif. La commande simulée sera conçue dans une prochaine étape.</p>
-    <div class="etat" role="note">
-      <p><strong>Aucune commande ne peut être passée.</strong> Aucun formulaire, aucun paiement et aucune saisie de données personnelles ne figurent sur cette page.</p>
+    <p class="chapeau">Récapitulatif de votre panier avec une livraison fictive. Aucun nom, adresse, e-mail, téléphone ni moyen de paiement n’est demandé ; rien n’est envoyé.</p>
+    <div id="statut" class="sr-seulement" role="status" aria-live="polite"></div>
+    <div class="etat" id="commande-repli" role="note">
+      <p><strong>La commande simulée a besoin de JavaScript.</strong> Le récapitulatif est calculé dans le navigateur à partir du panier de cet onglet : si JavaScript est désactivé ou n’a pas pu démarrer, aucune simulation ne peut être terminée. Aucune commande n’est possible. Rechargez la page pour réessayer.</p>
     </div>
-    <ul class="liens-retour" aria-label="Pages voisines">
+    <div id="commande-zone"></div>
+    <ul class="liens-retour suite-page" aria-label="Pages voisines">
       <li><a href="panier.html">Retour au panier</a></li>
-      <li><a href="index.html">Retour à l’accueil</a></li>
+      <li><a href="catalogue.html">Retour au catalogue</a></li>
     </ul>
   </div>
 </main>
@@ -52,5 +55,6 @@
     <p>Ligne Posée est une marque fictive de démonstration, imaginée pour le portfolio de Simon Costa. Produits, références et prix sont fictifs. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
   </div>
 </footer>
+<script type="module" src="js/page-commande.js"></script>
 </body>
 </html>

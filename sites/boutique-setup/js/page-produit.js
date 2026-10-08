@@ -3,7 +3,8 @@
   Affiche la fiche d'un modèle (?modele=sup-03&variante=04, ou ?sku=…) à partir
   de data/catalogue.json. Libellé, SKU et prix de la variante active viennent
   tous de la même référence du catalogue, donc ne peuvent pas diverger. Aucun
-  achat, panier ni livraison dans ce lot. Un modèle, une variante ou une
+  achat réel. L'ajout au panier (lot 2) ajoute exactement la variante sélectionnée, quantité 1 ; le panier
+  vit dans cet onglet (panier-core.js). Un modèle, une variante ou une
   référence inconnus donnent un état explicatif : rien n'est substitué en
   silence.
 */
@@ -11,6 +12,7 @@ import {
   validerCatalogue, resoudreFiche, ecrireFiche, formaterPrix, libelleVariante, lienFiche,
 } from "./catalogue-core.js";
 import { el, vider, chargerCatalogue } from "./dom.js";
+import { ajouterAuPanier, lirePanier, obtenirMagasin } from "./panier-core.js";
 
 const $ = (id) => document.getElementById(id);
 const MARQUE = "Ligne Posée";
@@ -67,6 +69,47 @@ function listeVariantes(modele) {
   );
 }
 
+/** « Ajouter au panier » : le SKU affiché, rien d'autre. Retour perceptible et accès immédiat au panier. */
+function blocAchat(catalogue, modele, reference) {
+  const magasin = obtenirMagasin(window);
+  const indisponible = lirePanier(magasin).statut === "stockage-indisponible";
+  const retour = el("div", { id: "achat-retour", class: "achat__retour", role: "status", "aria-live": "polite" });
+  const bouton = el("button", { type: "button", class: "bouton", id: "ajouter", disabled: indisponible }, "Ajouter au panier");
+  let courante = reference;
+
+  bouton.addEventListener("click", () => {
+    vider(retour);
+    const r = ajouterAuPanier({ magasin, catalogue, sku: courante.sku });
+    if (r.ok) {
+      retour.append(
+        el("p", {}, el("strong", {}, "Ajouté au panier :"), ` ${modele.nom} — ${libelleVariante(courante)} (${courante.sku}). Quantité de cette référence dans le panier : ${r.quantite}.`),
+        el("p", {}, el("a", { class: "bouton bouton--secondaire", href: "panier.html" }, "Voir le panier"))
+      );
+      return;
+    }
+    retour.append(el("p", { class: "erreur-champ" }, r.message));
+    if (r.code === "panier-corrompu" || r.code === "panier-a-reparer") {
+      retour.append(el("p", {}, el("a", { href: "panier.html" }, "Ouvrir le panier pour le réparer")));
+    }
+  });
+
+  return {
+    noeud: el(
+      "div",
+      { class: "achat" },
+      bouton,
+      el("p", { class: "aide" }, indisponible
+        ? "Le stockage de cet onglet est indisponible ou refusé : l’ajout au panier est désactivé. Les prix et références restent consultables."
+        : "Prix de démonstration. Le panier est conservé dans cet onglet ; aucune commande n’est envoyée."),
+      retour
+    ),
+    changer(ref) {
+      courante = ref;
+      vider(retour); // le message précédent concernait une autre variante
+    },
+  };
+}
+
 function rendreFiche(catalogue, res) {
   const { modele } = res;
   const famille = catalogue.parFamilleId.get(modele.famille);
@@ -75,6 +118,7 @@ function rendreFiche(catalogue, res) {
 
   const zone = $("fiche");
   vider(zone);
+  const achat = blocAchat(catalogue, modele, res.reference);
 
   const resume = el("dl", { class: "resume", id: "resume", "aria-live": "polite", "aria-atomic": "true" });
   const majResume = (ref) => {
@@ -111,6 +155,7 @@ function rendreFiche(catalogue, res) {
     if (!ref) return; // valeur hors catalogue : on ne change rien
     majResume(ref);
     memoriser(ref);
+    achat.changer(ref);
   });
   majResume(res.reference);
 
@@ -126,11 +171,7 @@ function rendreFiche(catalogue, res) {
         { class: "fiche__choix" },
         formulaire,
         el("section", { class: "selection", "aria-labelledby": "selection-titre" }, el("h2", { id: "selection-titre" }, "Variante sélectionnée"), resume),
-        el(
-          "div",
-          { class: "etat", role: "note" },
-          el("p", {}, el("strong", {}, "Ajout au panier indisponible."), " Prix, références et modèles sont fictifs ; le panier et la commande ne sont pas encore actifs dans cette démonstration.")
-        )
+        achat.noeud
       )
     )
   );

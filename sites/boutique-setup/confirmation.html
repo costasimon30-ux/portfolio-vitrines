@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fin de démonstration — Ligne Posée (aucune commande)</title>
-<meta name="description" content="Écran de fin de la future simulation de Ligne Posée, boutique fictive. Aucune commande n’a été envoyée et aucun paiement n’a été effectué.">
+<meta name="description" content="Fin de la simulation de Ligne Posée, boutique fictive : récapitulatif figé de la simulation terminée dans l’onglet. Aucune commande n’a été envoyée et aucun paiement n’a été effectué.">
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
@@ -34,12 +34,13 @@
 
 <main id="contenu" tabindex="-1">
   <div class="container">
-    <p class="eyebrow">Étape à venir · démonstration</p>
+    <p class="eyebrow">Démonstration · fin de la simulation</p>
     <h1>Fin de démonstration</h1>
-    <p class="chapeau"><strong>Aucune commande n’a été envoyée et aucun paiement n’a été effectué.</strong></p>
-    <div class="etat" role="note">
-      <p>Cette page est le futur écran de fin de la simulation. La simulation n’existe pas encore : il n’y a aucune commande, aucun numéro de commande et aucun e-mail de confirmation.</p>
+    <p class="chapeau" id="confirmation-chapeau">Cette page affiche le récapitulatif d’une simulation terminée dans cet onglet.</p>
+    <div class="etat" id="confirmation-repli" role="note">
+      <p><strong>Aucune simulation n’est affichée.</strong> Sans JavaScript, aucune simulation ne peut être terminée ni retrouvée. Aucune commande n’a été envoyée et aucun paiement n’a été effectué.</p>
     </div>
+    <div id="confirmation-zone"></div>
     <ul class="liens-retour" aria-label="Pages voisines">
       <li><a href="index.html">Retour à l’accueil</a></li>
       <li><a href="catalogue.html">Voir le catalogue</a></li>
@@ -52,5 +53,6 @@
     <p>Ligne Posée est une marque fictive de démonstration, imaginée pour le portfolio de Simon Costa. Produits, références et prix sont fictifs. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
   </div>
 </footer>
+<script type="module" src="js/page-confirmation.js"></script>
 </body>
 </html>
