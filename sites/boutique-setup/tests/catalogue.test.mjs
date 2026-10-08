@@ -522,7 +522,78 @@ test("BQ-04 : l'attente de la fiche est posée par un script classique de l'en-t
   assert.ok(!/fiche-liberer/.test(css), "plus de libération par animation");
   assert.ok(!/body\.fiche-attente/.test(css));
   const attente = lirePage("js/attente-fiche.js");
-  for (const garde of ['"error"', '"load"', "data-fiche-module", "8000", "classList.remove"]) assert.ok(attente.includes(garde), garde);
+  for (const garde of ['"error"', '"load"', "data-fiche-module", "data-fiche-repli", "2000", "8000", "classList.remove"]) assert.ok(attente.includes(garde), garde);
   assert.ok(!/animation|matchMedia|reduced-motion/.test(attente.replace(/\/\*[\s\S]*?\*\//g, "")));
   assert.ok(lirePage("js/page-produit.js").includes("data-fiche-module"));
+  assert.ok(lirePage("js/page-produit.js").includes("data-fiche-repli"));
+});
+
+
+/* Comportement réel de js/attente-fiche.js dans un faux document, avec horloge simulée. */
+async function lancerAttente({ demarrerAvant = null, evenement = null, lecture = "complete" } = {}) {
+  const { default: vm } = await import("node:vm");
+  const attrs = new Set();
+  const classes = new Set();
+  const minuteurs = [];
+  const ecouteurs = { doc: {}, win: {} };
+  const noeud = (hidden) => ({ hidden });
+  const indispo = noeud(true), neutre = noeud(false);
+  const racine = {
+    classList: { add: (c) => classes.add(c), remove: (c) => classes.delete(c) },
+    setAttribute: (a) => attrs.add(a),
+    hasAttribute: (a) => attrs.has(a),
+  };
+  const document = {
+    documentElement: racine,
+    readyState: lecture,
+    getElementById: (id) => ({ "fiche-repli-indispo": indispo, "fiche-repli": neutre })[id] ?? null,
+    addEventListener: (t, f) => { (ecouteurs.doc[t] ??= []).push(f); },
+  };
+  const window = { addEventListener: (t, f) => { (ecouteurs.win[t] ??= []).push(f); } };
+  const setTimeout = (f, ms) => minuteurs.push({ f, ms });
+  vm.runInNewContext(lirePage("js/attente-fiche.js"), { document, window, setTimeout });
+  const etat = () => ({ attente: classes.has("fiche-attente"), repli: attrs.has("data-fiche-repli"), indispo: !indispo.hidden, neutre: !neutre.hidden });
+  const avancer = (ms) => minuteurs.filter((m) => m.ms <= ms).sort((a, b) => a.ms - b.ms).forEach((m) => m.f());
+  if (demarrerAvant) racine.setAttribute("data-fiche-module");
+  return { etat, avancer, ecouteurs, racine, document };
+}
+
+test("BQ-04 : module non démarré à 2 s → repli « Fiche indisponible » et liens libérés ; l'arrivée tardive ne le défait pas", async () => {
+  const a = await lancerAttente();
+  assert.deepEqual(a.etat(), { attente: true, repli: false, indispo: false, neutre: true });
+  a.avancer(2000);
+  assert.deepEqual(a.etat(), { attente: false, repli: true, indispo: true, neutre: false });
+  // Le module qui arrive après le repli le constate et s'abstient (marqueur lu par page-produit.js).
+  assert.ok(a.racine.hasAttribute("data-fiche-repli"));
+});
+
+test("BQ-04 : module démarré → aucun repli à 2 s (le JSON peut arriver plus tard) ; la sécurité libère à 8 s", async () => {
+  const a = await lancerAttente({ demarrerAvant: true });
+  a.avancer(2000);
+  assert.deepEqual(a.etat(), { attente: true, repli: false, indispo: false, neutre: true }, "toujours en attente, sans repli");
+  a.avancer(8000);
+  assert.deepEqual(a.etat(), { attente: false, repli: false, indispo: false, neutre: true }, "libéré par la sécurité, sans repli");
+  // Une erreur de script ou la fin du chargement ne déclenche pas de repli quand le module a démarré.
+  const b = await lancerAttente({ demarrerAvant: true });
+  for (const f of b.ecouteurs.win.load) f({});
+  for (const f of b.ecouteurs.doc.error) f({ target: { tagName: "SCRIPT" } });
+  assert.equal(b.etat().repli, false);
+});
+
+test("BQ-04 : échec franc du module (erreur de script ou fin de chargement sans module) → repli immédiat", async () => {
+  for (const [cible, type, ev] of [["doc", "error", { target: { tagName: "SCRIPT" } }], ["win", "error", {}], ["win", "load", {}]]) {
+    const a = await lancerAttente();
+    for (const f of a.ecouteurs[cible][type]) f(ev);
+    assert.deepEqual(a.etat(), { attente: false, repli: true, indispo: true, neutre: false }, `${cible}:${type}`);
+  }
+  // Erreur d'une balise autre qu'un script : ignorée.
+  const b = await lancerAttente();
+  for (const f of b.ecouteurs.doc.error) f({ target: { tagName: "IMG" } });
+  assert.equal(b.etat().repli, false);
+  // Document encore en cours d'analyse : le repli s'applique à DOMContentLoaded, sans toucher aux éléments absents.
+  const c = await lancerAttente({ lecture: "loading" });
+  c.avancer(2000);
+  assert.equal(c.etat().indispo, false);
+  for (const f of c.ecouteurs.doc.DOMContentLoaded) f();
+  assert.deepEqual(c.etat(), { attente: false, repli: true, indispo: true, neutre: false });
 });

@@ -195,8 +195,8 @@ function afficher(catalogue) {
   sont rendus invisibles (sans quitter la mise en page), puis révélés une fois la fiche ou son
   message d'erreur affiché. Ils ne sont donc jamais visibles à deux positions successives :
   aucun saut perceptible, quelle que soit la hauteur de l'état final (fiche complète ou erreur
-  courte), et aucune hauteur réservée qui laisserait un vide. Un délai de sécurité les révèle
-  même si le chargement n'aboutit jamais (voir js/attente-fiche.js).
+  courte), et aucune hauteur réservée qui laisserait un vide. Si ce module ne démarre pas en 2 s,
+  js/attente-fiche.js affiche le repli « Fiche indisponible » et ce module ne fait plus rien.
 */
 function attendre() {
   // La classe est posée avant le premier rendu par js/attente-fiche.js, qui la retire aussi si ce module échoue.
@@ -205,6 +205,8 @@ function attendre() {
 }
 
 async function amorcer() {
+  // Repli déjà affiché par js/attente-fiche.js (module arrivé trop tard) : on ne remplace rien et rien ne bouge.
+  if (document.documentElement.hasAttribute("data-fiche-repli")) return;
   const liberer = attendre();
   try {
     const resultat = await chargerCatalogue(validerCatalogue);
