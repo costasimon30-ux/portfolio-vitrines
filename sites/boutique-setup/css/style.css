@@ -321,10 +321,17 @@ main { padding-block: var(--e-32) var(--e-48); }
 .resume .prix { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
 .fiche__choix .etat { margin-top: var(--e-16); }
 
-/* Place réservée à la fiche pendant le chargement, seulement si JavaScript est actif. */
+/* Fiche en cours de chargement : le pied de page et les liens de retour restent dans la mise en page
+   mais sont invisibles, pour ne jamais être vus se déplacer quand la fiche (ou son erreur) s'affiche. */
 @media (scripting: enabled) {
-  .fiche-zone:not(.fiche-zone--prete) { min-height: 56rem; }
+  body.fiche-attente .fiche-suite,
+  body.fiche-attente .site-footer {
+    visibility: hidden;
+    /* Filet de sécurité sans JS : si le script ne s'exécute jamais, tout redevient visible après 8 s. */
+    animation: fiche-liberer 0s linear 8s forwards;
+  }
 }
+@keyframes fiche-liberer { to { visibility: visible; } }
 
 .liste-modeles section { margin-top: var(--e-24); }
 .liste-modeles h2 { font-size: 1.0625rem; }
@@ -370,10 +377,6 @@ main { padding-block: var(--e-32) var(--e-48); }
     gap: var(--e-24);
   }
   main { padding-block: var(--e-48) calc(var(--e-48) + var(--e-16)); }
-}
-
-@media (min-width: 48em) and (scripting: enabled) {
-  .fiche-zone:not(.fiche-zone--prete) { min-height: 38rem; }
 }
 
 @media (min-width: 90em) {

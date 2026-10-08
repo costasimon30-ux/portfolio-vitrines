@@ -190,25 +190,41 @@ function afficher(catalogue) {
   }
 }
 
+/*
+  Chargement : tant que le catalogue n'est pas arrivé, le pied de page et les liens de retour
+  sont rendus invisibles (sans quitter la mise en page), puis révélés une fois la fiche ou son
+  message d'erreur affiché. Ils ne sont donc jamais visibles à deux positions successives :
+  aucun saut perceptible, quelle que soit la hauteur de l'état final (fiche complète ou erreur
+  courte), et aucune hauteur réservée qui laisserait un vide. Un délai de sécurité les révèle
+  même si le chargement n'aboutit jamais.
+*/
+function attendre() {
+  document.body.classList.add("fiche-attente"); // déjà présente dans le HTML : posée avant le premier rendu
+  const liberer = () => document.body.classList.remove("fiche-attente");
+  const securite = setTimeout(liberer, 8000);
+  return () => {
+    clearTimeout(securite);
+    liberer();
+  };
+}
+
 async function amorcer() {
-  // La place de la fiche est réservée par le CSS tant que JavaScript est actif (média « scripting »),
-  // pour que le pied de page ne saute pas au chargement ; on la libère une fois la fiche rendue.
-  const zone = $("fiche-zone");
-  const resultat = await chargerCatalogue(validerCatalogue);
-  if (!resultat.ok) {
-    console.error("Ligne Posée : catalogue indisponible ou invalide —", resultat.erreurs.join(" | "));
-    $("fiche-repli-indispo").hidden = false;
-    zone.classList.add("fiche-zone--prete");
-    return;
-  }
+  const liberer = attendre();
   try {
+    const resultat = await chargerCatalogue(validerCatalogue);
+    if (!resultat.ok) {
+      console.error("Ligne Posée : catalogue indisponible ou invalide —", resultat.erreurs.join(" | "));
+      $("fiche-repli-indispo").hidden = false;
+      return;
+    }
     afficher(resultat.catalogue);
     window.addEventListener("popstate", () => afficher(resultat.catalogue));
   } catch (e) {
     console.error("Ligne Posée : échec d'initialisation de la fiche —", e);
     $("fiche-repli-indispo").hidden = false;
+  } finally {
+    liberer();
   }
-  zone.classList.add("fiche-zone--prete");
 }
 
 amorcer();

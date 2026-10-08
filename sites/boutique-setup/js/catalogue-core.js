@@ -20,6 +20,19 @@ export const ATTENDU = Object.freeze({
   referencesParFamille: 20,
 });
 
+/**
+ * Règle de prix du lot 1 (docs/DIRECTION.md) : prix d'une référence = prix de
+ * base du modèle + supplément de sa famille pour la variante, en centimes.
+ * Le supplément est une règle métier du code ; le prix de base est une donnée
+ * du modèle. La variante 01 (supplément nul) fixe donc le prix « à partir de ».
+ */
+export const SUPPLEMENTS_CENTS = Object.freeze({
+  sup: Object.freeze([0, 0, 0, 1000]),
+  tap: Object.freeze([0, 0, 1500, 1500]),
+  lum: Object.freeze([0, 0, 0, 0]),
+  ran: Object.freeze([0, 0, 1200, 1200]),
+});
+
 export const PLAFONDS_PRIX = Object.freeze([50, 100, 150]);
 export const TRIS = Object.freeze(["editorial", "prix-asc", "prix-desc", "nom"]);
 export const TRI_DEFAUT = "editorial";
@@ -32,7 +45,7 @@ export const LONGUEUR_MAX_RECHERCHE = 80;
 /** 6900 → « 69 € », 8450 → « 84,50 € » (espace insécable avant « € »). */
 export function formaterPrix(cents) {
   if (!Number.isSafeInteger(cents) || cents < 0) {
-    throw new RangeError(`Montant invalide : ${String(cents)}`);
+    throw new RangeError(`Montant invalide : ${aff(cents)}`);
   }
   const euros = Math.trunc(cents / 100);
   const reste = cents % 100;
@@ -75,20 +88,38 @@ export function reduireEspaces(texte) {
 
 const estObjet = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const estTexte = (v) => typeof v === "string" && v.trim() !== "";
+/** Vrai seulement pour une chaîne conforme : aucune conversion implicite d'un objet. */
+const conforme = (v, motif) => typeof v === "string" && motif.test(v);
+/** Rend une valeur inconnue affichable sans jamais la convertir (pas de toString appelé). */
+function aff(v) {
+  if (typeof v === "string") return JSON.stringify(v.length > 40 ? `${v.slice(0, 40)}…` : v);
+  if (typeof v === "number" || typeof v === "boolean" || v === null || v === undefined) return String(v);
+  return Array.isArray(v) ? "[liste]" : "{objet}";
+}
 
 /**
  * Valide les données brutes et construit les index. Ne lève jamais : renvoie
  * { ok: false, erreurs } au moindre écart, et l'appelant n'affiche alors aucun
- * catalogue (ni partiel, ni présenté comme complet).
+ * catalogue (ni partiel, ni présenté comme complet). Les types sont contrôlés
+ * avant toute comparaison ou conversion ; en dernier recours, une exception
+ * inattendue est elle-même transformée en échec.
  */
 export function validerCatalogue(donnees) {
+  try {
+    return validerInterne(donnees);
+  } catch {
+    return { ok: false, erreurs: ["Catalogue illisible : structure inattendue."] };
+  }
+}
+
+function validerInterne(donnees) {
   const erreurs = [];
   const err = (message) => {
     if (erreurs.length < 25) erreurs.push(message);
   };
 
   if (!estObjet(donnees)) return { ok: false, erreurs: ["Le catalogue n'est pas un objet."] };
-  if (donnees.schema !== SCHEMA) err(`Schéma inattendu : ${String(donnees.schema)}.`);
+  if (donnees.schema !== SCHEMA) err(`Schéma inattendu : ${aff(donnees.schema)}.`);
   if (!estTexte(donnees.marque)) err("Marque absente.");
   for (const cle of ["familles", "univers", "modeles", "references"]) {
     if (!Array.isArray(donnees[cle])) err(`« ${cle} » doit être une liste.`);
@@ -97,9 +128,10 @@ export function validerCatalogue(donnees) {
 
   const familleIds = new Set();
   donnees.familles.forEach((f, i) => {
-    if (!estObjet(f) || !/^[a-z]{3}$/.test(f.id ?? "") || f.code !== String(f.id).toUpperCase() || !estTexte(f.nom)) {
+    if (!estObjet(f) || !conforme(f.id, /^[a-z]{3}$/) || f.code !== f.id.toUpperCase() || !estTexte(f.nom)) {
       return err(`Famille n° ${i + 1} invalide.`);
     }
+    if (!Object.hasOwn(SUPPLEMENTS_CENTS, f.id)) err(`Famille ${f.id} : aucune règle de prix.`);
     if (familleIds.has(f.id)) err(`Famille en double : ${f.id}.`);
     familleIds.add(f.id);
   });
@@ -107,29 +139,32 @@ export function validerCatalogue(donnees) {
 
   const universIds = new Set();
   donnees.univers.forEach((u, i) => {
-    if (!estObjet(u) || !/^[a-z]+$/.test(u.id ?? "") || !estTexte(u.nom)) return err(`Univers n° ${i + 1} invalide.`);
+    if (!estObjet(u) || !conforme(u.id, /^[a-z]+$/) || !estTexte(u.nom)) return err(`Univers n° ${i + 1} invalide.`);
     if (universIds.has(u.id)) err(`Univers en double : ${u.id}.`);
     universIds.add(u.id);
   });
   if (donnees.univers.length !== ATTENDU.univers) err(`${donnees.univers.length} univers au lieu de ${ATTENDU.univers}.`);
 
   const modeleIds = new Set();
+  const prixBase = new Map();
   const parFamille = new Map();
   donnees.modeles.forEach((m, i) => {
     const o = `Modèle n° ${i + 1}`;
     if (!estObjet(m)) return err(`${o} invalide.`);
-    const forme = /^([a-z]{3})-(0[1-5])$/.exec(m.id ?? "");
-    if (!forme) return err(`${o} : identifiant « ${String(m.id)} » invalide.`);
+    const forme = typeof m.id === "string" ? /^([a-z]{3})-(0[1-5])$/.exec(m.id) : null;
+    if (!forme) return err(`${o} : identifiant ${aff(m.id)} invalide.`);
     if (modeleIds.has(m.id)) err(`Modèle en double : ${m.id}.`);
     modeleIds.add(m.id);
     if (m.famille !== forme[1] || !familleIds.has(m.famille)) err(`${m.id} : famille incohérente.`);
+    if (!Number.isSafeInteger(m.prixBaseCents) || m.prixBaseCents <= 0) err(`${m.id} : prix de base invalide.`);
+    else prixBase.set(m.id, m.prixBaseCents);
     if (!estTexte(m.nom)) err(`${m.id} : nom absent.`);
     if (!estTexte(m.description)) err(`${m.id} : description absente.`);
     if (!Array.isArray(m.univers) || m.univers.length === 0) {
       err(`${m.id} : aucun univers.`);
     } else {
       if (new Set(m.univers).size !== m.univers.length) err(`${m.id} : univers répétés.`);
-      for (const u of m.univers) if (!universIds.has(u)) err(`${m.id} : univers inconnu « ${String(u)} ».`);
+      for (const u of m.univers) if (typeof u !== "string" || !universIds.has(u)) err(`${m.id} : univers inconnu ${aff(u)}.`);
     }
     parFamille.set(m.famille, (parFamille.get(m.famille) ?? 0) + 1);
   });
@@ -143,28 +178,43 @@ export function validerCatalogue(donnees) {
   const paires = new Set();
   const parModele = new Map();
   const refsParFamille = new Map();
+  const prixVariante01 = new Map();
   donnees.references.forEach((r, i) => {
     const o = `Référence n° ${i + 1}`;
     if (!estObjet(r)) return err(`${o} invalide.`);
-    if (!modeleIds.has(r.modele)) return err(`${o} : modèle inconnu « ${String(r.modele)} ».`);
-    if (!/^0[1-4]$/.test(r.variante ?? "")) return err(`${o} : variante « ${String(r.variante)} » invalide.`);
-    const attendu = `LP-${codes.get(String(r.modele).slice(0, 3))}-${String(r.modele).slice(4)}-${r.variante}`;
-    if (r.sku !== attendu) err(`${o} : SKU « ${String(r.sku)} » au lieu de ${attendu}.`);
+    if (typeof r.modele !== "string" || !modeleIds.has(r.modele)) return err(`${o} : modèle inconnu ${aff(r.modele)}.`);
+    if (!conforme(r.variante, /^0[1-4]$/)) return err(`${o} : variante ${aff(r.variante)} invalide.`);
+    const attendu = `LP-${codes.get(r.modele.slice(0, 3))}-${r.modele.slice(4)}-${r.variante}`;
+    if (r.sku !== attendu) return err(`${o} : SKU ${aff(r.sku)} au lieu de ${attendu}.`);
     if (skus.has(r.sku)) err(`SKU en double : ${r.sku}.`);
     skus.add(r.sku);
     const paire = `${r.modele}/${r.variante}`;
     if (paires.has(paire)) err(`Variante en double : ${paire}.`);
     paires.add(paire);
     if (!estTexte(r.libelle)) err(`${r.sku} : libellé absent.`);
-    if (!Number.isSafeInteger(r.prixCents) || r.prixCents < 0) err(`${r.sku} : prix invalide.`);
+    if (!Number.isSafeInteger(r.prixCents) || r.prixCents < 0) {
+      err(`${r.sku} : prix invalide.`);
+    } else if (prixBase.has(r.modele)) {
+      // Contrat de prix : base du modèle + supplément de la famille pour cette variante.
+      const attenduCents = prixBase.get(r.modele) + SUPPLEMENTS_CENTS[r.modele.slice(0, 3)][Number(r.variante) - 1];
+      if (r.prixCents !== attenduCents) err(`${r.sku} : prix ${r.prixCents} centimes au lieu de ${attenduCents}.`);
+    }
     if (r.detail !== undefined && !estTexte(r.detail)) err(`${r.sku} : détail invalide.`);
     parModele.set(r.modele, (parModele.get(r.modele) ?? 0) + 1);
-    const f = String(r.modele).slice(0, 3);
+    if (r.variante === "01") prixVariante01.set(r.modele, r.prixCents);
+    const f = r.modele.slice(0, 3);
     refsParFamille.set(f, (refsParFamille.get(f) ?? 0) + 1);
   });
   if (donnees.references.length !== ATTENDU.references) err(`${donnees.references.length} références au lieu de ${ATTENDU.references}.`);
   for (const id of modeleIds) {
     if ((parModele.get(id) ?? 0) !== ATTENDU.variantesParModele) err(`${id} : ${parModele.get(id) ?? 0} variantes au lieu de ${ATTENDU.variantesParModele}.`);
+  }
+  // La variante 01 fixe le prix « à partir de » : elle vaut le prix de base et aucune variante ne descend en dessous.
+  for (const id of modeleIds) {
+    const prix = donnees.references.filter((r) => estObjet(r) && r.modele === id).map((r) => r.prixCents);
+    if (prixBase.has(id) && (prixVariante01.get(id) !== prixBase.get(id) || prix.some((p) => !(p >= prixBase.get(id))))) {
+      err(`${id} : la variante 01 doit valoir le prix de base et être le minimum.`);
+    }
   }
   for (const f of familleIds) {
     if ((refsParFamille.get(f) ?? 0) !== ATTENDU.referencesParFamille) err(`Famille ${f} : ${refsParFamille.get(f) ?? 0} références au lieu de ${ATTENDU.referencesParFamille}.`);

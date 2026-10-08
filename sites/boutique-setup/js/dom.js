@@ -37,5 +37,10 @@ export async function chargerCatalogue(validerCatalogue) {
   } catch {
     return { ok: false, erreurs: ["JSON illisible."] };
   }
-  return validerCatalogue(donnees);
+  try {
+    return validerCatalogue(donnees);
+  } catch {
+    // Filet de sécurité : un validateur qui lèverait malgré tout reste un échec contrôlé.
+    return { ok: false, erreurs: ["Validation impossible : données inattendues."] };
+  }
 }

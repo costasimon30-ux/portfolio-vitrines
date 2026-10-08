@@ -113,16 +113,27 @@ function demarrer(catalogue) {
     zone.hidden = false;
   };
 
+  /*
+    Historique : une entrée par action de filtrage, et UNE seule entrée par session de
+    saisie (la première frappe ouvre l'entrée, les suivantes la mettent à jour). Ainsi
+    « famille → recherche → Retour » revient à l'état « famille », jamais à l'état d'avant.
+  */
+  let saisieOuverte = false;
   const adresse = (etat) => location.pathname + ecrireEtatCatalogue(etat) + location.hash;
+  /** Renvoie true si une nouvelle entrée d'historique a réellement été créée. */
   const memoriser = (etat, mode) => {
     try {
       const cible = adresse(etat);
-      if (cible === location.pathname + location.search + location.hash) return;
-      if (mode === "push") history.pushState(null, "", cible);
-      else history.replaceState(null, "", cible);
+      if (cible === location.pathname + location.search + location.hash) return false;
+      if (mode === "push") {
+        history.pushState(null, "", cible);
+        return true;
+      }
+      history.replaceState(null, "", cible);
     } catch {
       /* Historique indisponible : la page reste utilisable, sans lien partageable. */
     }
+    return false;
   };
 
   /* État initial, lu dans l'URL. */
@@ -141,19 +152,34 @@ function demarrer(catalogue) {
     const etat = lireFormulaire();
     rendre(etat);
     avertir([]);
-    memoriser(etat, mode);
+    return memoriser(etat, mode);
+  };
+  const saisir = () => {
+    // La session de saisie ne s'ouvre que si une entrée a réellement été créée (une frappe sans effet n'en ouvre pas).
+    if (saisieOuverte) appliquer("replace");
+    else saisieOuverte = appliquer("push");
   };
 
   const form = $("filtres");
   form.addEventListener("submit", (ev) => {
     ev.preventDefault();
+    saisieOuverte = false;
     appliquer("replace");
   });
-  $("f-q").addEventListener("input", () => appliquer("replace"));
-  for (const id of ["f-famille", "f-prix", "f-tri"]) $(id).addEventListener("change", () => appliquer("push"));
-  $("f-univers").addEventListener("change", () => appliquer("push"));
+  $("f-q").addEventListener("input", saisir);
+  // « change » sur le champ de recherche = saisie validée (Entrée ou sortie du champ) : la suivante ouvrira une nouvelle entrée.
+  $("f-q").addEventListener("change", () => {
+    saisieOuverte = false;
+  });
+  const discret = () => {
+    saisieOuverte = false;
+    appliquer("push");
+  };
+  for (const id of ["f-famille", "f-prix", "f-tri"]) $(id).addEventListener("change", discret);
+  $("f-univers").addEventListener("change", discret);
 
   const effacer = (depuisVide) => {
+    saisieOuverte = false;
     const tri = $("f-tri").value || TRI_DEFAUT;
     const etat = { ...etatParDefaut(), tri };
     ecrireFormulaire(etat);
@@ -167,6 +193,7 @@ function demarrer(catalogue) {
   $("vide-effacer").addEventListener("click", () => effacer(true));
 
   window.addEventListener("popstate", () => {
+    saisieOuverte = false;
     const lu = lireEtatCatalogue(location.search, catalogue);
     ecrireFormulaire(lu.etat);
     rendre(lu.etat);
@@ -175,13 +202,13 @@ function demarrer(catalogue) {
 }
 
 async function amorcer() {
-  const resultat = await chargerCatalogue(validerCatalogue);
-  if (!resultat.ok) {
-    console.error("Ligne Posée : catalogue indisponible ou invalide —", resultat.erreurs.join(" | "));
-    afficherIndisponible();
-    return;
-  }
   try {
+    const resultat = await chargerCatalogue(validerCatalogue);
+    if (!resultat.ok) {
+      console.error("Ligne Posée : catalogue indisponible ou invalide —", resultat.erreurs.join(" | "));
+      afficherIndisponible();
+      return;
+    }
     demarrer(resultat.catalogue);
   } catch (e) {
     console.error("Ligne Posée : échec d'initialisation du catalogue —", e);

@@ -13,6 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as core from "../js/catalogue-core.js";
+import { chargerCatalogue } from "../js/dom.js";
 
 const racineSite = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const brut = JSON.parse(fs.readFileSync(path.join(racineSite, "data/catalogue.json"), "utf8"));
@@ -80,6 +81,7 @@ test("noms, descriptions, univers, famille et prix de base = tableau de DIRECTIO
     assert.equal(m.description, ligne.description, ligne.id);
     assert.deepEqual([...m.univers].sort(), ligne.univers.map((n) => NOMS_UNIVERS[n]).sort(), ligne.id);
     assert.equal(m.famille, ligne.id.slice(0, 3));
+    assert.equal(m.prixBaseCents, ligne.base * 100, `${ligne.id} prix de base`);
     assert.equal(m.references[0].prixCents, ligne.base * 100, `${ligne.id} variante 01`);
     assert.equal(m.prixMinCents, ligne.base * 100, `${ligne.id} « à partir de »`);
   }
@@ -376,5 +378,134 @@ test("aucune page n'utilise innerHTML, eval, stockage navigateur ni URL externe 
     const src = lirePage(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
     assert.ok(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\(|new Function|localStorage|sessionStorage|document\.cookie/.test(src), f);
     assert.ok(!/https?:\/\//.test(src), f);
+  }
+});
+
+
+/* ---------- BQ-01 : le contrat de prix est vérifié par le validateur ---------- */
+
+const rejete = (r, motif) => {
+  assert.equal(r.ok, false);
+  assert.ok(r.erreurs.length > 0);
+  if (motif) assert.ok(r.erreurs.some((e) => motif.test(e)), r.erreurs.join(" | "));
+};
+
+test("BQ-01 : LP-SUP-03-04 à 1 centime est refusé (aucun catalogue valide, aucun index)", () => {
+  const r = mutation((d) => { d.references.find((x) => x.sku === "LP-SUP-03-04").prixCents = 1; });
+  rejete(r, /LP-SUP-03-04 : prix 1 centimes au lieu de 16900/);
+  assert.equal(r.catalogue, undefined);
+});
+
+test("BQ-01 : chacun des 80 prix décalé d'un centime, en plus ou en moins, est refusé", () => {
+  let n = 0;
+  for (const ref of brut.references) {
+    for (const delta of [1, -1]) {
+      const r = mutation((d) => { d.references.find((x) => x.sku === ref.sku).prixCents += delta; });
+      rejete(r, new RegExp(`${ref.sku} : prix`));
+      n += 1;
+    }
+  }
+  assert.equal(n, 160);
+});
+
+test("BQ-01 : prix de base décalé, manquant ou mal typé, et variante 01 ≠ base ou ≠ minimum, sont refusés", () => {
+  for (const m of brut.modeles) {
+    rejete(mutation((d) => { d.modeles.find((x) => x.id === m.id).prixBaseCents += 1; }), new RegExp(`${m.id}`));
+    rejete(mutation((d) => { delete d.modeles.find((x) => x.id === m.id).prixBaseCents; }), /prix de base invalide/);
+    rejete(mutation((d) => { d.modeles.find((x) => x.id === m.id).prixBaseCents = "6900"; }), /prix de base invalide/);
+    rejete(mutation((d) => { d.modeles.find((x) => x.id === m.id).prixBaseCents = 0; }), /prix de base invalide/);
+  }
+  // Une variante moins chère que la 01 : refusée (prix hors règle) ; tous les prix de la famille décalés ensemble : refusés aussi.
+  rejete(mutation((d) => { d.references.find((x) => x.sku === "LP-TAP-03-04").prixCents = 100; }), /LP-TAP-03-04/);
+  rejete(mutation((d) => { for (const x of d.references.filter((y) => y.modele === "lum-01")) x.prixCents -= 100; }), /lum-01/);
+});
+
+test("BQ-01 : le catalogue livré reste accepté ; « à partir de » = prix de base = variante 01 = minimum", () => {
+  for (const m of cat.modeles) {
+    assert.equal(m.prixMinCents, m.prixBaseCents, m.id);
+    assert.equal(m.references[0].prixCents, m.prixBaseCents, m.id);
+    assert.ok(m.references.every((r) => r.prixCents >= m.prixBaseCents), m.id);
+  }
+  assert.deepEqual(
+    ["LP-SUP-03-04", "LP-TAP-03-03", "LP-RAN-05-03"].map((k) => cat.parSku.get(k).prixCents),
+    [16900, 8400, 11100]
+  );
+  assert.deepEqual(core.SUPPLEMENTS_CENTS.sup, [0, 0, 0, 1000]);
+});
+
+/* ---------- BQ-03 : JSON mal typé = échec contrôlé, jamais d'exception ---------- */
+
+const MAUVAIS = ['{"toString":null}', '{"toString":null,"valueOf":null}', "[]", "[1]", "null", "true", "42", "1.5", '""', '{"a":1}', '"x"'];
+
+/** Applique `fn` à chaque champ (récursivement) d'une copie du catalogue et rend le texte JSON résultant. */
+function* chemins(valeur, chemin = []) {
+  if (valeur !== null && typeof valeur === "object") {
+    for (const k of Object.keys(valeur)) {
+      yield [...chemin, k];
+      yield* chemins(valeur[k], [...chemin, k]);
+    }
+  }
+}
+
+test("BQ-03 : l'id du premier modèle remplacé par {\"toString\":null} → échec contrôlé, pas d'exception", () => {
+  const texte = JSON.stringify(brut).replace('"id":"sup-01"', '"id":{"toString":null}');
+  const donnees = JSON.parse(texte);
+  assert.equal(typeof donnees.modeles[0].id, "object");
+  let r;
+  assert.doesNotThrow(() => { r = core.validerCatalogue(donnees); });
+  rejete(r, /identifiant/);
+  assert.equal(r.catalogue, undefined);
+});
+
+test("BQ-03 : tout champ du catalogue remplacé par une valeur de mauvais type → jamais d'exception, jamais ok", () => {
+  let n = 0;
+  for (const chemin of chemins(brut)) {
+    for (const mauvais of MAUVAIS) {
+      const copie = structuredClone(brut);
+      let cible = copie;
+      for (const k of chemin.slice(0, -1)) cible = cible[k];
+      cible[chemin.at(-1)] = JSON.parse(mauvais);
+      let r;
+      assert.doesNotThrow(() => { r = core.validerCatalogue(copie); }, `${chemin.join(".")} = ${mauvais}`);
+      // Une chaîne peut être une valeur légitime (nom, marque…) ; tout autre type, sur un champ lu, doit être refusé.
+      const lu = !["devise", "avis"].includes(chemin[0]);
+      if (lu && typeof JSON.parse(mauvais) !== "string") assert.equal(r.ok, false, `${chemin.join(".")} = ${mauvais}`);
+      n += 1;
+    }
+  }
+  assert.ok(n > 3000, String(n));
+});
+
+test("BQ-03 : champs ajoutés ou supprimés, racines absurdes → échec contrôlé", () => {
+  for (const racine of [undefined, null, 0, "x", true, [], [[]], () => 1, Symbol("s"), 10n]) {
+    let r;
+    assert.doesNotThrow(() => { r = core.validerCatalogue(racine); });
+    assert.equal(r.ok, false);
+  }
+  const piege = { get id() { throw new Error("getter piégé"); } };
+  const copie = structuredClone(brut);
+  copie.modeles[0] = piege;
+  let r;
+  assert.doesNotThrow(() => { r = core.validerCatalogue(copie); });
+  assert.equal(r.ok, false);
+});
+
+test("BQ-03 : chargerCatalogue transforme aussi une exception du validateur en échec", async () => {
+  const fetchOrigine = globalThis.fetch;
+  try {
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => JSON.parse('{"modeles":[{"id":{"toString":null}}]}') });
+    const sansFiltre = await chargerCatalogue(core.validerCatalogue);
+    assert.equal(sansFiltre.ok, false);
+    const leve = await chargerCatalogue(() => { throw new TypeError("validateur défaillant"); });
+    assert.equal(leve.ok, false);
+    assert.ok(leve.erreurs.length > 0);
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => structuredClone(brut) });
+    assert.equal((await chargerCatalogue(core.validerCatalogue)).ok, true);
+    globalThis.fetch = async () => ({ ok: false, status: 404, json: async () => ({}) });
+    assert.equal((await chargerCatalogue(core.validerCatalogue)).ok, false);
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError("json"); } });
+    assert.equal((await chargerCatalogue(core.validerCatalogue)).ok, false);
+  } finally {
+    globalThis.fetch = fetchOrigine;
   }
 });
