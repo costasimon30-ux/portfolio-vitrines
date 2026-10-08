@@ -36,6 +36,10 @@ function faux(options = {}) {
     setItem(cle, valeur) {
       ecritures += 1;
       if (options.ecritureRefusee?.(cle, ecritures)) throw new Error("QuotaExceededError");
+      if (options.quota !== undefined) {
+        const apres = [...donnees].filter(([k]) => k !== cle).reduce((n, [k, v]) => n + k.length + v.length, cle.length + String(valeur).length);
+        if (apres > options.quota) throw new Error("QuotaExceededError");
+      }
       if (options.ecritureSilencieuse?.(cle, ecritures)) return;
       donnees.set(cle, String(valeur));
     },
@@ -107,7 +111,7 @@ test("ajout : le SKU exact, quantité 1 ; deux modèles différents → deux lig
   const etat = p.lirePanier(m);
   assert.deepEqual(etat.lignes, [{ sku: SKU_A, quantity: 1 }, { sku: SKU_B, quantity: 1 }]);
   assert.equal(m.donnees.get(AUTRE), "ne pas toucher");
-  assert.deepEqual([...m.donnees.keys()].sort(), [AUTRE, p.CLE_PANIER].sort());
+  assert.deepEqual([...m.donnees.keys()].sort(), [AUTRE, p.CLE_ETAT].sort(), "une seule clé Ligne Posée");
 });
 
 test("ajout répété du même SKU : une seule ligne, quantité incrémentée, plafond 99", () => {
@@ -168,7 +172,7 @@ test("quantité : 1 et 99 admises ; 0, 100, fraction, texte, SKU absent refusés
   assert.equal(absent.code, "ligne-absente");
 });
 
-test("retrait et panier vide : seule la clé du panier est touchée", () => {
+test("retrait et panier vide : seule la clé d'état de Ligne Posée est touchée", () => {
   const m = avecAutre();
   p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_A });
   p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_B });
@@ -176,12 +180,12 @@ test("retrait et panier vide : seule la clé du panier est touchée", () => {
   assert.equal(p.retirerDuPanier({ magasin: m, sku: SKU_A }).code, "ligne-absente");
   p.retirerDuPanier({ magasin: m, sku: SKU_B });
   assert.equal(p.lirePanier(m).statut, "vide");
-  assert.equal(m.donnees.has(p.CLE_PANIER), false, "clé supprimée quand le panier est vide");
+  assert.deepEqual(JSON.parse(m.donnees.get(p.CLE_ETAT)).lignes, [], "enveloppe conservée, panier vide");
   p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_C });
   assert.equal(p.viderLePanier(m).ok, true);
   assert.equal(p.lirePanier(m).statut, "vide");
   assert.equal(m.donnees.get(AUTRE), "ne pas toucher");
-  assert.deepEqual([...m.donnees.keys()], [AUTRE]);
+  assert.deepEqual([...m.donnees.keys()].sort(), [AUTRE, p.CLE_ETAT].sort());
 });
 
 /* ---------- Lecture du stockage ---------- */
@@ -282,29 +286,34 @@ test("écriture refusée, perdue en silence ou en quota : jamais présumée réu
     assert.match(r.message, /réessayer/);
   }
   assert.deepEqual(p.lirePanier(apres).lignes, [{ sku: SKU_A, quantity: 1 }]);
+  const sansEcriture = faux({ initial: Object.fromEntries(m.donnees), ecritureRefusee: () => true });
+  assert.equal(p.retirerDuPanier({ magasin: sansEcriture, sku: SKU_A }).code, "ecriture-echouee");
+  assert.equal(p.viderLePanier(sansEcriture).code, "ecriture-echouee");
+  assert.deepEqual(p.lirePanier(sansEcriture).lignes, [{ sku: SKU_A, quantity: 1 }], "panier intact");
+  // Aucune opération ne dépend plus d'une suppression : un stockage qui refuse removeItem n'empêche rien.
   const sansSuppression = faux({ initial: Object.fromEntries(m.donnees), suppressionRefusee: () => true });
-  assert.equal(p.retirerDuPanier({ magasin: sansSuppression, sku: SKU_A }).code, "ecriture-echouee");
-  assert.equal(p.viderLePanier(sansSuppression).code, "ecriture-echouee");
+  assert.equal(p.retirerDuPanier({ magasin: sansSuppression, sku: SKU_A }).ok, true);
+  assert.equal(p.lirePanier(sansSuppression).statut, "vide");
 });
 
 test("panier corrompu ou à lignes invalides : aucune modification tant qu'il n'est pas réparé explicitement", () => {
-  const corrompu = faux({ initial: { [p.CLE_PANIER]: "{pas du json" } });
+  const corrompu = faux({ initial: { [p.CLE_ETAT]: "{pas du json" } });
   for (const r of [
     p.ajouterAuPanier({ magasin: corrompu, catalogue: cat, sku: SKU_A }),
     p.definirQuantite({ magasin: corrompu, sku: SKU_A, valeur: 2 }),
     p.retirerDuPanier({ magasin: corrompu, sku: SKU_A }),
     p.terminerSimulation({ magasin: corrompu, catalogue: cat, livraisonId: "standard" }),
   ]) assert.equal(r.code, "panier-corrompu");
-  assert.equal(corrompu.donnees.get(p.CLE_PANIER), "{pas du json", "intact");
+  assert.equal(corrompu.donnees.get(p.CLE_ETAT), "{pas du json", "intact");
   assert.equal(p.ecarterLignesInvalides({ magasin: corrompu, catalogue: cat }).code, "panier-corrompu");
   assert.equal(p.viderLePanier(corrompu).ok, true, "la réparation d'un panier illisible est le vidage explicite");
   assert.equal(p.lirePanier(corrompu).statut, "vide");
 
-  const abime = JSON.stringify({ v: 1, lignes: [{ sku: SKU_A, quantity: 2 }, { sku: SKU_B, quantity: 500 }, { sku: "LP-SUP-09-09", quantity: 1 }] });
-  const m = avecAutre({ initial: { [p.CLE_PANIER]: abime } });
+  const abime = JSON.stringify({ v: 2, lignes: [{ sku: SKU_A, quantity: 2 }, { sku: SKU_B, quantity: 500 }, { sku: "LP-SUP-09-09", quantity: 1 }], confirmation: null });
+  const m = avecAutre({ initial: { [p.CLE_ETAT]: abime } });
   assert.equal(p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_C }).code, "panier-a-reparer");
   assert.equal(p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "standard" }).code, "panier-a-reparer");
-  assert.equal(m.donnees.get(p.CLE_PANIER), abime, "rien n'a changé");
+  assert.equal(m.donnees.get(p.CLE_ETAT), abime, "rien n'a changé");
   const rep = p.ecarterLignesInvalides({ magasin: m, catalogue: cat });
   assert.equal(rep.ok, true);
   assert.equal(rep.ecartees, 2);
@@ -372,21 +381,21 @@ test("parcours complet : une seule simulation, capture figée et cohérente, pan
   const lue = p.lireConfirmation(m);
   assert.equal(lue.statut, "ok");
   assert.deepEqual(lue.capture, c);
-  assert.deepEqual([...m.donnees.keys()].sort(), [AUTRE, p.CLE_CONFIRMATION].sort(), "aucune autre clé créée");
+  assert.deepEqual([...m.donnees.keys()].sort(), [AUTRE, p.CLE_ETAT].sort(), "aucune autre clé créée");
   assert.equal(m.donnees.get(AUTRE), "ne pas toucher");
 });
 
 test("double activation, rechargement ou retour sur la commande : aucune seconde réussite ni second montant", () => {
   const m = panierPret();
   const premiere = p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "standard" });
-  const figee = m.donnees.get(p.CLE_CONFIRMATION);
+  const figee = m.donnees.get(p.CLE_ETAT);
   assert.equal(premiere.ok, true);
   for (let i = 0; i < 3; i++) {
     const encore = p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "express" });
     assert.equal(encore.ok, false);
     assert.equal(encore.code, "panier-vide");
   }
-  assert.equal(m.donnees.get(p.CLE_CONFIRMATION), figee, "la capture reste celle de la première validation (Standard)");
+  assert.equal(m.donnees.get(p.CLE_ETAT), figee, "la capture reste celle de la première validation (Standard)");
   assert.equal(p.lireConfirmation(m).capture.livraison.id, "standard");
 });
 
@@ -396,7 +405,7 @@ test("la capture ne dépend pas de ce qui est affiché : revérifiée contre le 
   autre.references.find((r) => r.sku === SKU_B).prixCents += 100; // prix incohérent : le catalogue devient invalide
   assert.equal(validerCatalogue(autre).ok, false);
   assert.equal(p.terminerSimulation({ magasin: m, catalogue: null, livraisonId: "standard" }).code, "catalogue-invalide");
-  assert.equal(m.donnees.has(p.CLE_CONFIRMATION), false);
+  assert.equal(p.lireConfirmation(m).statut, "absente");
   assert.equal(p.lirePanier(m).lignes.length, 2, "panier intact");
 });
 
@@ -407,42 +416,311 @@ test("panier vide, livraison inconnue, SKU disparu : refus explicites, aucune ca
   for (const mauvais of [undefined, "", "gratuit", "EXPRESS", null, {}]) {
     assert.equal(p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: mauvais }).code, "livraison-invalide");
   }
-  assert.equal(m.donnees.has(p.CLE_CONFIRMATION), false);
-  const disparu = faux({ initial: { [p.CLE_PANIER]: JSON.stringify({ v: 1, lignes: [{ sku: "LP-SUP-09-09", quantity: 1 }] }) } });
+  assert.equal(p.lireConfirmation(m).statut, "absente");
+  const disparu = faux({ initial: { [p.CLE_ETAT]: JSON.stringify({ v: 2, lignes: [{ sku: "LP-SUP-09-09", quantity: 1 }], confirmation: null }) } });
   assert.equal(p.terminerSimulation({ magasin: disparu, catalogue: cat, livraisonId: "standard" }).code, "panier-a-reparer");
-  assert.equal(disparu.donnees.has(p.CLE_CONFIRMATION), false);
+  assert.equal(p.lireConfirmation(disparu).statut, "absente");
 });
 
-test("erreur d'écriture en finalisation : aucun succès, panier intact, nouvelle tentative sans doublon", () => {
-  const scenarios = {
-    "écriture de la capture refusée": { ecritureRefusee: (cle) => cle === p.CLE_CONFIRMATION },
-    "écriture de la capture perdue en silence": { ecritureSilencieuse: (cle) => cle === p.CLE_CONFIRMATION },
-    "suppression du panier refusée": { suppressionRefusee: (cle) => cle === p.CLE_PANIER },
-    "suppression du panier sans effet": { suppressionSilencieuse: (cle) => cle === p.CLE_PANIER },
+/* ---------- L2-01 : finalisation transactionnelle, matrice de pannes ---------- */
+
+/**
+ * Enveloppe défaillante au-dessus d'un faux magasin. `regle(op, cle)` renvoie « refus » (l'appel
+ * lève), « silence » (l'appel est accepté sans effet) ou rien. Les pannes peuvent être levées.
+ */
+function instable(m, regle) {
+  const etat = { actif: true, ecrit: false };
+  const decision = (op, cle) => (etat.actif ? regle(op, cle, etat) : undefined);
+  const lever = () => { throw new Error("refus du stockage"); };
+  return {
+    etat,
+    donnees: m.donnees,
+    getItem: (c) => (decision("get", c) === "refus" ? lever() : m.getItem(c)),
+    setItem: (c, v) => { const d = decision("set", c); if (d === "refus") lever(); if (d !== "silence") m.setItem(c, v); etat.ecrit = true; },
+    removeItem: (c) => { const d = decision("remove", c); if (d === "refus") lever(); if (d !== "silence") m.removeItem(c); },
   };
-  for (const [nom, panne] of Object.entries(scenarios)) {
-    const m = panierPret();
-    const avant = m.donnees.get(p.CLE_PANIER);
-    let active = true;
-    const defaillant = {
-      donnees: m.donnees,
-      getItem: (c) => m.getItem(c),
-      setItem: (c, v) => (active && panne.ecritureRefusee?.(c) ? (() => { throw new Error("Quota"); })() : active && panne.ecritureSilencieuse?.(c) ? undefined : m.setItem(c, v)),
-      removeItem: (c) => (active && panne.suppressionRefusee?.(c) ? (() => { throw new Error("Refus"); })() : active && panne.suppressionSilencieuse?.(c) ? undefined : m.removeItem(c)),
-    };
-    const echec = p.terminerSimulation({ magasin: defaillant, catalogue: cat, livraisonId: "standard" });
-    assert.equal(echec.ok, false, nom);
-    assert.equal(echec.code, "ecriture-echouee", nom);
-    assert.equal(echec.capture, undefined, nom);
-    assert.equal(m.donnees.get(p.CLE_PANIER), avant, `${nom} : panier intact`);
-    assert.equal(m.donnees.has(p.CLE_CONFIRMATION), false, `${nom} : aucune capture résiduelle`);
-    active = false; // la panne disparaît : on retente
-    const ok = p.terminerSimulation({ magasin: defaillant, catalogue: cat, livraisonId: "standard" });
-    assert.equal(ok.ok, true, `${nom} : nouvelle tentative`);
-    assert.equal(p.lirePanier(m).statut, "vide");
-    assert.equal(p.lireConfirmation(m).statut, "ok");
-    assert.deepEqual([...m.donnees.keys()].sort(), [AUTRE, p.CLE_CONFIRMATION].sort(), nom);
+}
+
+/** Panier de départ : { avecAncienne } ajoute une confirmation antérieure (autre commande, Express). */
+function departV2({ avecAncienne }) {
+  const m = avecAutre();
+  if (avecAncienne) {
+    p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_C });
+    assert.equal(p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "express" }).ok, true);
   }
+  p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_A });
+  p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_A });
+  p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_B });
+  return m;
+}
+
+/** Même contenu, mais dans l'ancien format à deux clés (première livraison du lot 2). */
+function departV1({ avecAncienne }) {
+  const ancienne = avecAncienne
+    ? { v: 1, lignes: [{ sku: SKU_C, modele: "Ancien", finition: "Ancienne finition", prixCents: prixOracle.get(SKU_C), quantite: 1, sousTotalCents: prixOracle.get(SKU_C) }], livraison: { id: "express", libelle: "Express", cents: 990 }, produitsCents: prixOracle.get(SKU_C), totalCents: prixOracle.get(SKU_C) + 990 }
+    : null;
+  const initial = { [AUTRE]: "ne pas toucher", [p.CLE_PANIER_V1]: JSON.stringify({ v: 1, lignes: [{ sku: SKU_A, quantity: 2 }, { sku: SKU_B, quantity: 1 }] }) };
+  if (ancienne) initial[p.CLE_CONFIRMATION_V1] = JSON.stringify(ancienne);
+  return faux({ initial });
+}
+
+const instantane = (m) => ({
+  panier: p.lirePanier(m),
+  confirmation: p.lireConfirmation(m),
+  brut: new Map(m.donnees),
+});
+
+const PANNES = {
+  "quota / écriture de l'état refusée": (op, c) => (op === "set" && c === p.CLE_ETAT ? "refus" : undefined),
+  "écriture de l'état perdue en silence": (op, c) => (op === "set" && c === p.CLE_ETAT ? "silence" : undefined),
+  "relecture refusée juste après l'écriture": (op, c, etat) => (op === "get" && c === p.CLE_ETAT && etat.ecrit ? "refus" : undefined),
+  "toutes les écritures refusées": (op) => (op === "set" ? "refus" : undefined),
+  "tous les accès en écriture et suppression refusés": (op) => (op === "set" || op === "remove" ? "refus" : undefined),
+};
+const SUPPRESSIONS = {
+  "suppression de l'ancien panier refusée": (op, c) => (op === "remove" && c === p.CLE_PANIER_V1 ? "refus" : undefined),
+  "suppression de l'ancienne confirmation refusée": (op, c) => (op === "remove" && c === p.CLE_CONFIRMATION_V1 ? "refus" : undefined),
+  "suppression de l'état v2 refusée": (op, c) => (op === "remove" && c === p.CLE_ETAT ? "refus" : undefined),
+  "refus combiné de toutes les suppressions": (op) => (op === "remove" ? "refus" : undefined),
+  "suppressions sans effet": (op) => (op === "remove" ? "silence" : undefined),
+};
+
+for (const [format, depart] of [["état v2", departV2], ["ancien état à deux clés", departV1]]) {
+  for (const avecAncienne of [false, true]) {
+    for (const [nom, regle] of Object.entries(PANNES)) {
+      test(`L2-01 ${format}, ${avecAncienne ? "avec" : "sans"} confirmation antérieure — ${nom} : échec annoncé = rien ne change, retry sans doublon`, () => {
+        const m = depart({ avecAncienne });
+        const avant = instantane(m);
+        const defaillant = instable(m, regle);
+        const echec = p.terminerSimulation({ magasin: defaillant, catalogue: cat, livraisonId: "standard" });
+        assert.equal(echec.ok, false);
+        assert.equal(echec.code, "ecriture-echouee");
+        assert.equal(echec.capture, undefined);
+        // Le magasin sous-jacent est exactement dans son état d'avant, octet pour octet.
+        assert.deepEqual([...m.donnees], [...avant.brut], "contenu brut inchangé");
+        // Accès direct à la confirmation / rechargement : la confirmation antérieure, ou rien, jamais la nouvelle.
+        for (let rechargement = 0; rechargement < 2; rechargement++) {
+          const apres = instantane(m);
+          assert.deepEqual(apres.confirmation, avant.confirmation, "confirmation antérieure préservée");
+          assert.equal(apres.confirmation.statut, avecAncienne ? "ok" : "absente");
+          assert.deepEqual(apres.panier.lignes, avant.panier.lignes, "panier intact");
+        }
+        if (avecAncienne) assert.equal(p.lireConfirmation(m).capture.livraison.id, "express", "c'est bien l'ancienne");
+        // Panne levée : nouvelle tentative, un seul succès, aucun doublon.
+        defaillant.etat.actif = false;
+        const ok = p.terminerSimulation({ magasin: defaillant, catalogue: cat, livraisonId: "standard" });
+        assert.equal(ok.ok, true);
+        assert.equal(p.lirePanier(m).statut, "vide");
+        const lue = p.lireConfirmation(m);
+        assert.deepEqual(lue.capture, ok.capture);
+        assert.equal(lue.capture.livraison.id, "standard");
+        assert.deepEqual(lue.capture.lignes.map((l) => [l.sku, l.quantite]), [[SKU_A, 2], [SKU_B, 1]]);
+        assert.equal(p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "standard" }).code, "panier-vide", "pas de seconde réussite");
+        assert.deepEqual([...m.donnees.keys()].sort(), [AUTRE, p.CLE_ETAT].sort(), "une seule clé Ligne Posée, anciennes clés nettoyées");
+        assert.equal(m.donnees.get(AUTRE), "ne pas toucher");
+      });
+    }
+
+    for (const [nom, regle] of Object.entries(SUPPRESSIONS)) {
+      test(`L2-01 ${format}, ${avecAncienne ? "avec" : "sans"} confirmation antérieure — ${nom} : aucun état mixte, jamais d'ancien panier ressuscité`, () => {
+        const m = depart({ avecAncienne });
+        const avant = instantane(m);
+        const defaillant = instable(m, regle);
+        const r = p.terminerSimulation({ magasin: defaillant, catalogue: cat, livraisonId: "standard" });
+        // La finalisation ne repose sur aucune suppression : elle aboutit, entièrement.
+        assert.equal(r.ok, true);
+        for (const lecteur of [m, defaillant]) {
+          assert.equal(p.lirePanier(lecteur).statut, "vide", "panier cohérent : vide");
+          assert.deepEqual(p.lireConfirmation(lecteur).capture, r.capture, "c'est la nouvelle confirmation qui est lue");
+        }
+        assert.notDeepEqual(p.lireConfirmation(m).capture, avant.confirmation.capture ?? null);
+        // Les restes éventuels des anciennes clés sont ignorés : ni panier ni ancienne confirmation ne reparaissent.
+        assert.equal(p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "express" }).code, "panier-vide");
+        assert.equal(p.viderLePanier(defaillant).ok, true);
+        assert.equal(p.lirePanier(m).statut, "vide");
+        assert.deepEqual(p.lireConfirmation(m).capture, r.capture);
+        assert.equal(m.donnees.get(AUTRE), "ne pas toucher");
+      });
+    }
+  }
+}
+
+test("L2-01 quota réel : la nouvelle confirmation ne tient pas, l'ancienne et le panier survivent à l'octet près", () => {
+  const m = departV2({ avecAncienne: true });
+  const avant = instantane(m);
+  const taille = [...m.donnees].reduce((n, [k, v]) => n + k.length + v.length, 0);
+  const serre = faux({ initial: Object.fromEntries(m.donnees), quota: taille + 20 });
+  // Le panier de départ tient ; la capture (noms, finitions, montants en plus) dépasse le quota.
+  const echec = p.terminerSimulation({ magasin: serre, catalogue: cat, livraisonId: "express" });
+  assert.equal(echec.ok, false);
+  assert.equal(echec.code, "ecriture-echouee");
+  assert.deepEqual([...serre.donnees], [...avant.brut]);
+  assert.deepEqual(p.lireConfirmation(serre), avant.confirmation);
+  assert.equal(p.lireConfirmation(serre).capture.livraison.id, "express");
+  assert.deepEqual(p.lirePanier(serre).lignes, avant.panier.lignes);
+  // Place faite (autre onglet libéré, quota relevé) : la même tentative aboutit une seule fois.
+  const large = faux({ initial: Object.fromEntries(serre.donnees) });
+  const ok = p.terminerSimulation({ magasin: large, catalogue: cat, livraisonId: "express" });
+  assert.equal(ok.ok, true);
+  assert.deepEqual(p.lireConfirmation(large).capture, ok.capture);
+  assert.equal(p.lirePanier(large).statut, "vide");
+});
+
+test("L2-01 écriture de l'état partiellement conservée (texte tronqué) : restauration, aucune confirmation lisible", () => {
+  const m = departV2({ avecAncienne: true });
+  const avant = instantane(m);
+  let deja = false;
+  const tronque = {
+    donnees: m.donnees,
+    getItem: (c) => m.getItem(c),
+    setItem: (c, v) => {
+      if (c === p.CLE_ETAT && !deja && String(v).includes('"totalCents"')) {
+        deja = true; // une seule écriture mutilée ; la restauration, elle, est fidèle
+        return m.setItem(c, String(v).slice(0, 80));
+      }
+      return m.setItem(c, v);
+    },
+    removeItem: (c) => m.removeItem(c),
+  };
+  const echec = p.terminerSimulation({ magasin: tronque, catalogue: cat, livraisonId: "standard" });
+  assert.equal(echec.code, "ecriture-echouee");
+  assert.deepEqual([...m.donnees], [...avant.brut], "état précédent restauré");
+  assert.deepEqual(p.lireConfirmation(m), avant.confirmation);
+});
+
+test("L2-01 mutations du panier : un échec n'altère jamais la confirmation antérieure, une réussite la conserve", () => {
+  const m = departV2({ avecAncienne: true });
+  const ancienne = p.lireConfirmation(m).capture;
+  const refus = instable(m, (op) => (op === "set" ? "refus" : undefined));
+  for (const r of [
+    p.ajouterAuPanier({ magasin: refus, catalogue: cat, sku: SKU_C }),
+    p.definirQuantite({ magasin: refus, sku: SKU_A, valeur: 7 }),
+    p.retirerDuPanier({ magasin: refus, sku: SKU_A }),
+    p.viderLePanier(refus),
+  ]) assert.equal(r.code, "ecriture-echouee");
+  assert.deepEqual(p.lireConfirmation(m).capture, ancienne);
+  assert.deepEqual(p.lirePanier(m).lignes, [{ sku: SKU_A, quantity: 2 }, { sku: SKU_B, quantity: 1 }]);
+  p.definirQuantite({ magasin: m, sku: SKU_A, valeur: 7 });
+  p.retirerDuPanier({ magasin: m, sku: SKU_B });
+  p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_C });
+  p.viderLePanier(m);
+  assert.deepEqual(p.lireConfirmation(m).capture, ancienne, "la confirmation survit à toutes les modifications du panier");
+});
+
+/* ---------- Migration et repli de l'ancien état à deux clés ---------- */
+
+test("migration : l'ancien état est lu tel quel, puis migré à la première écriture réussie", () => {
+  const m = departV1({ avecAncienne: true });
+  assert.deepEqual(p.lirePanier(m).lignes, [{ sku: SKU_A, quantity: 2 }, { sku: SKU_B, quantity: 1 }], "repli de lecture");
+  assert.equal(p.lireConfirmation(m).statut, "ok");
+  assert.equal(m.donnees.has(p.CLE_ETAT), false, "lire n'écrit rien");
+  p.definirQuantite({ magasin: m, sku: SKU_A, valeur: 3 });
+  assert.deepEqual([...m.donnees.keys()].sort(), [AUTRE, p.CLE_ETAT].sort(), "anciennes clés retirées");
+  assert.deepEqual(p.lirePanier(m).lignes, [{ sku: SKU_A, quantity: 3 }, { sku: SKU_B, quantity: 1 }]);
+  assert.equal(p.lireConfirmation(m).statut, "ok", "ancienne confirmation migrée");
+  assert.equal(p.lireConfirmation(m).capture.livraison.id, "express");
+});
+
+test("migration : la clé v2 fait foi ; les restes des anciennes clés sont ignorés, même si leur suppression est refusée", () => {
+  const m = departV1({ avecAncienne: true });
+  const sansSuppression = instable(m, (op) => (op === "remove" ? "refus" : undefined));
+  p.retirerDuPanier({ magasin: sansSuppression, sku: SKU_A });
+  assert.equal(m.donnees.has(p.CLE_PANIER_V1), true, "reste présent faute de pouvoir le supprimer");
+  assert.deepEqual(p.lirePanier(m).lignes, [{ sku: SKU_B, quantity: 1 }], "la ligne retirée ne ressuscite pas");
+  p.viderLePanier(sansSuppression);
+  assert.equal(p.lirePanier(m).statut, "vide");
+  assert.equal(p.lireConfirmation(m).capture.lignes[0].sku, SKU_C);
+});
+
+test("migration : ancien panier illisible → refus explicite ; réparation = vidage, confirmation lisible conservée", () => {
+  const m = departV1({ avecAncienne: true });
+  m.donnees.set(p.CLE_PANIER_V1, "{pas du json");
+  assert.equal(p.lirePanier(m).statut, "corrompu");
+  assert.equal(p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_A }).code, "panier-corrompu");
+  assert.equal(p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "standard" }).code, "panier-corrompu");
+  assert.equal(m.donnees.get(p.CLE_PANIER_V1), "{pas du json", "rien n'est modifié");
+  assert.equal(p.viderLePanier(m).ok, true);
+  assert.equal(p.lirePanier(m).statut, "vide");
+  assert.equal(p.lireConfirmation(m).statut, "ok");
+});
+
+test("migration : une ancienne confirmation illisible n'est ni effacée ni promue en succès", () => {
+  const m = departV1({ avecAncienne: false });
+  m.donnees.set(p.CLE_CONFIRMATION_V1, "{pas du json");
+  assert.equal(p.lireConfirmation(m).statut, "illisible");
+  p.definirQuantite({ magasin: m, sku: SKU_A, valeur: 4 });
+  assert.equal(p.lireConfirmation(m).statut, "illisible");
+  assert.equal(JSON.parse(m.donnees.get(p.CLE_ETAT)).confirmation, "{pas du json");
+});
+
+test("état v2 inattendu (version, champ en trop, types) : corrompu, jamais exploité ni écrasé en silence", () => {
+  for (const mauvais of [
+    JSON.stringify({ v: 3, lignes: [], confirmation: null }),
+    JSON.stringify({ v: 2, lignes: [], confirmation: null, extra: 1 }),
+    JSON.stringify({ v: 2, lignes: "x", confirmation: null }),
+    JSON.stringify({ v: 2, lignes: Array.from({ length: 81 }, () => ({ sku: SKU_A, quantity: 1 })), confirmation: null }),
+    "[]", "null", "12", "",
+  ]) {
+    const m = avecAutre({ initial: { [p.CLE_ETAT]: mauvais, [p.CLE_PANIER_V1]: serialiserV1() } });
+    assert.equal(p.lirePanier(m).statut, "corrompu", mauvais);
+    assert.equal(p.ajouterAuPanier({ magasin: m, catalogue: cat, sku: SKU_A }).code, "panier-corrompu");
+    assert.equal(p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "standard" }).code, "panier-corrompu");
+    assert.equal(m.donnees.get(p.CLE_ETAT), mauvais, "intact");
+    assert.notEqual(p.lireConfirmation(m).statut, "ok");
+  }
+  function serialiserV1() { return JSON.stringify({ v: 1, lignes: [{ sku: SKU_A, quantity: 1 }] }); }
+});
+
+/* ---------- L2-02 : montants hors limites ---------- */
+
+test("L2-02 capture à Number.MAX_SAFE_INTEGER ou au-delà : état « illisible » sans exception, jamais formatée", () => {
+  const M = Number.MAX_SAFE_INTEGER;
+  const gabarit = (ligne, extra = {}) => ({
+    v: 1,
+    lignes: ligne,
+    livraison: { id: "standard", libelle: "Standard", cents: 490 },
+    ...extra,
+  });
+  const l = (prix, quantite, sous, sku = SKU_A) => ({ sku, modele: "Modèle", finition: "Finition", prixCents: prix, quantite, sousTotalCents: sous });
+  const cas = {
+    "total = MAX_SAFE_INTEGER + 490 (arrondi flottant)": gabarit([l(M, 1, M)], { produitsCents: M, totalCents: M + 490 }),
+    "sous-total = MAX_SAFE_INTEGER + 1": gabarit([l(2 ** 52, 2, 2 ** 53)], { produitsCents: 2 ** 53, totalCents: 2 ** 53 + 490 }),
+    "cumul de deux lignes > MAX_SAFE_INTEGER": gabarit([l(2 ** 52, 1, 2 ** 52), l(2 ** 52, 1, 2 ** 52, SKU_B)], { produitsCents: 2 ** 53, totalCents: 2 ** 53 + 490 }),
+    "produits seuls à MAX_SAFE_INTEGER, total faux": gabarit([l(M, 1, M)], { produitsCents: M, totalCents: M }),
+    "valeurs non finies": gabarit([l(1e308, 1, 1e308)], { produitsCents: 1e308, totalCents: 1e308 }),
+  };
+  for (const [nom, capture] of Object.entries(cas)) {
+    assert.equal(p.analyserCapture(JSON.stringify(capture)).statut, "illisible", nom);
+    const m = avecAutre({ initial: { [p.CLE_ETAT]: JSON.stringify({ v: 2, lignes: [], confirmation: capture }) } });
+    let lecture;
+    assert.doesNotThrow(() => { lecture = p.lireConfirmation(m); }, nom);
+    assert.equal(lecture.statut, "illisible", nom);
+    assert.equal(lecture.capture, undefined, nom);
+  }
+  // Limite exacte : un total égal à MAX_SAFE_INTEGER est encore sûr, accepté et formatable.
+  const limite = gabarit([l(M - 490, 1, M - 490)], { produitsCents: M - 490, totalCents: M });
+  const dernier = p.analyserCapture(JSON.stringify(limite));
+  assert.equal(dernier.statut, "ok");
+  assert.doesNotThrow(() => p.formaterMontant(dernier.capture.totalCents));
+  // Témoin : la même structure avec des montants sûrs est acceptée et se formate.
+  const sain = gabarit([l(16900, 2, 33800)], { produitsCents: 33800, totalCents: 34290 });
+  const ok = p.analyserCapture(JSON.stringify(sain));
+  assert.equal(ok.statut, "ok");
+  assert.doesNotThrow(() => p.formaterMontant(ok.capture.totalCents));
+});
+
+test("L2-02 verifierPanier : prix × quantité hors limites écarté avant tout total, terminerSimulation refuse", () => {
+  const demesure = { parSku: new Map([[SKU_A, { sku: SKU_A, modele: "m", prixCents: 2 ** 52 }]]), parId: new Map([["m", { id: "m", nom: "Modèle", familleNom: "Famille" }]]) };
+  const v = p.verifierPanier({ lignes: [{ sku: SKU_A, quantity: 2 }], rejets: [] }, demesure);
+  assert.equal(v.fiable, false);
+  assert.equal(v.totalProduitsCents, null);
+  assert.equal(v.lignes.length, 0);
+  assert.match(v.problemes[0].raison, /hors limites/);
+  const m = faux({ initial: { [p.CLE_ETAT]: JSON.stringify({ v: 2, lignes: [{ sku: SKU_A, quantity: 2 }], confirmation: null }) } });
+  const avant = new Map(m.donnees);
+  const r = p.terminerSimulation({ magasin: m, catalogue: demesure, livraisonId: "standard" });
+  assert.equal(r.ok, false);
+  assert.deepEqual([...m.donnees], [...avant], "aucune écriture");
 });
 
 /* ---------- Capture de confirmation ---------- */
@@ -452,7 +730,7 @@ test("analyserCapture : arrivée directe, capture illisible ou incohérente → 
   assert.equal(p.lireConfirmation(faux()).statut, "absente");
   const m = panierPret();
   p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "standard" });
-  const bonne = JSON.parse(m.donnees.get(p.CLE_CONFIRMATION));
+  const bonne = JSON.parse(m.donnees.get(p.CLE_ETAT)).confirmation;
   assert.equal(p.analyserCapture(JSON.stringify(bonne)).statut, "ok");
   const trafics = [
     (c) => { c.totalCents += 1; },
@@ -483,7 +761,7 @@ test("analyserCapture : arrivée directe, capture illisible ou incohérente → 
 test("analyserCapture : mutations aléatoires, aucune exception", () => {
   const m = panierPret();
   p.terminerSimulation({ magasin: m, catalogue: cat, livraisonId: "express" });
-  const base = m.donnees.get(p.CLE_CONFIRMATION);
+  const base = JSON.stringify(JSON.parse(m.donnees.get(p.CLE_ETAT)).confirmation);
   let graine = 777;
   const alea = (n) => ((graine = (graine * 1103515245 + 12345) & 0x7fffffff) % n);
   for (let i = 0; i < 4000; i++) {
@@ -505,7 +783,9 @@ test("sources du lot 2 : pas de réseau métier, cookie, innerHTML, eval, autre 
     if (f !== "js/page-produit.js") assert.ok(!/\bfetch\(/.test(src), `${f} : aucune requête (le catalogue passe par chargerCatalogue)`);
   }
   const clefs = lire("js/panier-core.js").match(/lignePosee\.[\w.]+/g) ?? [];
-  assert.deepEqual([...new Set(clefs)].sort(), [p.CLE_CONFIRMATION, p.CLE_PANIER].sort());
+  assert.deepEqual([...new Set(clefs)].sort(), [p.CLE_ETAT, p.CLE_PANIER_V1, p.CLE_CONFIRMATION_V1].sort(), "une clé active ; deux anciennes, lues puis nettoyées seulement");
+  const ecrites = [...lire("js/panier-core.js").replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/\.(setItem|removeItem)\(([^)]*)\)/g)].map((x) => `${x[1]}:${x[2].split(",")[0].trim()}`);
+  assert.deepEqual([...new Set(ecrites)].sort(), ["removeItem:CLE_ETAT", "removeItem:cle", "setItem:CLE_ETAT"], "seule la clé v2 est écrite ; les anciennes ne sont que retirées");
 });
 
 test("pages du parcours : aucun champ personnel ni de paiement, aucune ressource externe", () => {

@@ -18,7 +18,9 @@ CHROMIUM = sys.argv[2] if len(sys.argv) > 2 else os.environ.get("CHROMIUM", "/op
 CAT = json.load(open(os.path.join(RACINE, "data/catalogue.json"), encoding="utf-8"))
 PRIX = {r["sku"]: r["prixCents"] for r in CAT["references"]}
 MODELE = {m["id"]: m for m in CAT["modeles"]}
-CLE_PANIER, CLE_CONF = "lignePosee.v1.panier", "lignePosee.v1.confirmation"
+CLE_ETAT = "lignePosee.v2.etat"  # une seule clé active : panier + dernière confirmation (L2-01)
+CLE_PANIER_V1, CLE_CONF_V1 = "lignePosee.v1.panier", "lignePosee.v1.confirmation"  # anciennes, lues puis nettoyées
+ETR = "autre-site.preferences"
 SKU_A, SKU_B = "LP-SUP-03-04", "LP-LUM-01-02"  # 169 € ; prix lu dans le catalogue
 MIME = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8",
         ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8"}
@@ -104,9 +106,31 @@ def stock(pg):
     return pg.evaluate("Object.fromEntries(Object.entries(sessionStorage))")
 
 
-def panier_stocke(pg):
-    brut = stock(pg).get(CLE_PANIER)
+def etat_stocke(pg):
+    brut = stock(pg).get(CLE_ETAT)
     return None if brut is None else json.loads(brut)
+
+
+def panier_stocke(pg):
+    """Panier au format {v:1, lignes} ; None si aucun état ou panier vide."""
+    e = etat_stocke(pg)
+    return None if e is None or not e["lignes"] else {"v": 1, "lignes": e["lignes"]}
+
+
+def conf_stockee(pg):
+    e = etat_stocke(pg)
+    return None if e is None else e.get("confirmation")
+
+
+def etat_json(lignes, conf=None):
+    return json.dumps({"v": 2, "lignes": lignes, "confirmation": conf})
+
+
+def capture_ancienne():
+    """Une confirmation antérieure valide (autre commande : 1 × LP-TAP-01-01, Express)."""
+    sku = "LP-TAP-01-01"
+    return {"v": 1, "lignes": [{"sku": sku, "modele": "Ancien modèle", "finition": "Ancienne finition", "prixCents": PRIX[sku], "quantite": 1, "sousTotalCents": PRIX[sku]}],
+            "livraison": {"id": "express", "libelle": "Express", "cents": 990}, "produitsCents": PRIX[sku], "totalCents": PRIX[sku] + 990}
 
 
 def sans_debordement(pg, nom):
@@ -197,7 +221,7 @@ def parcours(b, w):
     c.agir(pg.get_by_role("button", name="Oui, vider le panier"))
     check("panier vidé : état vide explicatif avec renvoi au catalogue", "Votre panier est vide" in txt(pg) and pg.get_by_role("link", name="Voir le catalogue").count() >= 1)
     s = stock(pg)
-    check("seule la clé du panier a été supprimée : donnée étrangère intacte", CLE_PANIER not in s and s.get("autre-site.preferences") == "ne pas toucher", s)
+    check("panier vidé dans la clé d'état unique : donnée étrangère intacte, aucune autre clé", panier_stocke(pg) is None and set(s) == {CLE_ETAT, ETR} and s.get(ETR) == "ne pas toucher", s)
 
     # --- 3. Nouveau panier : 2 × SKU A + 1 × SKU B, puis commande
     for _ in range(2):
@@ -238,8 +262,8 @@ def parcours(b, w):
     pg.evaluate("() => { const b = document.getElementById('terminer'); b.click(); b.click(); b.click(); }")
     pg.wait_for_url("**/confirmation.html")
     pg.wait_for_selector(".etat--succes")
-    ecritures = [k for k in json.loads(pg.evaluate("window.name") or "[]") if k == CLE_CONF]
-    check("double activation : une seule écriture de la confirmation", len(ecritures) == 1, ecritures)
+    ecritures = [k for k in json.loads(pg.evaluate("window.name") or "[]") if k == CLE_ETAT]
+    check("double activation : une seule écriture d'état (capture + panier vide en une fois)", len(ecritures) == 1, ecritures)
     t = txt(pg)
     check("confirmation : « Simulation terminée. Aucune commande n'a été envoyée et aucun paiement n'a été effectué. »",
           "Simulation terminée. Aucune commande n’a été envoyée et aucun paiement n’a été effectué." in t, t[:300])
@@ -249,14 +273,14 @@ def parcours(b, w):
     check("confirmation : ni numéro de commande, ni facture, ni e-mail, ni statut d'expédition",
           not any(x in t.replace("Il n’a ni numéro de commande, ni facture, ni statut d’expédition.", "").lower() for x in ["numéro de commande", "facture", "e-mail de confirmation", "expédi", "en cours de livraison"]))
     s = stock(pg)
-    check("stockage après succès : panier supprimé, capture présente, donnée étrangère intacte, aucune autre clé",
-          set(s) == {CLE_CONF, "autre-site.preferences"}, sorted(s))
+    check("stockage après succès : une seule clé Ligne Posée, panier vide et capture présente dans la même écriture, donnée étrangère intacte",
+          set(s) == {CLE_ETAT, ETR} and etat_stocke(pg)["lignes"] == [] and conf_stockee(pg) is not None, sorted(s))
     sans_debordement(pg, "confirmation")
-    avant = pg.evaluate(f"sessionStorage.getItem('{CLE_CONF}')")
+    avant = conf_stockee(pg)
     pg.reload()
     pg.wait_for_selector(".etat--succes")
     check("rechargement de la confirmation : même récapitulatif, aucune seconde opération",
-          pg.evaluate(f"sessionStorage.getItem('{CLE_CONF}')") == avant and len([k for k in json.loads(pg.evaluate("window.name") or "[]") if k == CLE_CONF]) == 1)
+          conf_stockee(pg) == avant and len([k for k in json.loads(pg.evaluate("window.name") or "[]") if k == CLE_ETAT]) == 1)
     pg.go_back()
     pg.wait_for_selector("#commande-zone .etat, #terminer")
     t = txt(pg)
@@ -264,7 +288,7 @@ def parcours(b, w):
           "Votre panier est vide" in t and pg.locator("#terminer").count() == 0, t[:200])
     pg.go_forward()
     pg.wait_for_selector(".etat--succes")
-    check("Avancer : la confirmation figée est inchangée", pg.evaluate(f"sessionStorage.getItem('{CLE_CONF}')") == avant)
+    check("Avancer : la confirmation figée est inchangée", conf_stockee(pg) == avant)
     # arrivée directe dans un autre onglet (autre session) : aucun succès
     autre = c.ctx.browser.new_context(viewport={"width": w, "height": 800})
     p2 = autre.new_page()
@@ -339,8 +363,7 @@ def pannes(b, w):
         return c, c.page()
 
     def cart(lignes):
-        return "if(!sessionStorage.getItem('%s')&&!sessionStorage.getItem('%s'))sessionStorage.setItem('%s',%s);" % (
-            CLE_PANIER, CLE_CONF, CLE_PANIER, json.dumps(json.dumps({"v": 1, "lignes": lignes})))
+        return "if(!sessionStorage.getItem('%s'))sessionStorage.setItem('%s',%s);" % (CLE_ETAT, CLE_ETAT, json.dumps(etat_json(lignes)))
 
     valide = [{"sku": SKU_A, "quantity": 2}, {"sku": SKU_B, "quantity": 1}]
 
@@ -373,7 +396,7 @@ def pannes(b, w):
     c.ctx.close()
 
     # 3. Panier illisible
-    c, pg = neuf(ETRANGER + ";sessionStorage.setItem('%s','{pas du json')" % CLE_PANIER)
+    c, pg = neuf(ETRANGER + ";sessionStorage.setItem('%s','{pas du json')" % CLE_ETAT)
     pg.goto(BASE + "/panier.html")
     pg.wait_for_selector("#panier-zone .etat")
     pg.wait_for_selector("text=illisible")
@@ -382,14 +405,14 @@ def pannes(b, w):
     pg.wait_for_selector("#ajouter")
     c.agir(pg.locator("#ajouter"))
     check("panier illisible : l'ajout est refusé avec renvoi vers le panier, rien n'est écrasé",
-          "illisible" in txt(pg, "#achat-retour") and stock(pg).get(CLE_PANIER) == "{pas du json", txt(pg, "#achat-retour"))
+          "illisible" in txt(pg, "#achat-retour") and stock(pg).get(CLE_ETAT) == "{pas du json", txt(pg, "#achat-retour"))
     pg.goto(BASE + "/commande.html")
     pg.wait_for_selector("text=illisible")
     check("panier illisible : pas de récapitulatif ni de bouton de validation", pg.locator("#terminer").count() == 0)
     pg.goto(BASE + "/panier.html")
     c.agir(pg.get_by_role("button", name="Repartir d’un panier vide"))
     s = stock(pg)
-    check("réparation explicite : seule la clé du panier est retirée, état vide affiché", CLE_PANIER not in s and s.get("autre-site.preferences") == "ne pas toucher" and "Votre panier est vide" in txt(pg), s)
+    check("réparation explicite : seul l'état de Ligne Posée est remplacé par un panier vide, donnée étrangère intacte", panier_stocke(pg) is None and etat_stocke(pg) is not None and s.get(ETR) == "ne pas toucher" and "Votre panier est vide" in txt(pg), s)
     c.ctx.close()
 
     # 4. Lignes invalides : quantité hors plage, SKU disparu
@@ -436,27 +459,140 @@ def pannes(b, w):
         check(f"catalogue invalide ({nom}) : fiche indisponible, aucun bouton d'ajout", pg.locator("#ajouter").count() == 0)
         c.ctx.close()
 
-    # 6. Erreur d'écriture à la finalisation : aucune page de succès, nouvelle tentative possible
-    for nom, init in {
-        "écriture de la confirmation refusée": "window.__panne=true;const o=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(window.__panne&&k==='%s')throw new DOMException('quota','QuotaExceededError');return o.call(this,k,v)}" % CLE_CONF,
-        "suppression du panier refusée": "window.__panne=true;const o=Storage.prototype.removeItem;Storage.prototype.removeItem=function(k){if(window.__panne&&k==='%s')throw new DOMException('refus','SecurityError');return o.call(this,k)}" % CLE_PANIER,
-    }.items():
-        c, pg = neuf(init + ";" + cart(valide))
-        pg.goto(BASE + "/commande.html")
-        pg.wait_for_selector("#terminer")
-        avant = stock(pg).get(CLE_PANIER)
-        c.agir(pg.locator("#terminer"))
-        pg.wait_for_selector("#erreur-terminer .etat--alerte")
-        s = stock(pg)
-        check(f"{nom} : pas de page de succès, erreur visible, panier intact, aucune capture résiduelle",
-              pg.url.endswith("/commande.html") and CLE_CONF not in s and s.get(CLE_PANIER) == avant and "La simulation n’a pas été terminée" in txt(pg) and pg.locator("#terminer").is_enabled(), (pg.url, sorted(s)))
-        pg.evaluate("window.__panne=false")
-        c.agir(pg.locator("#terminer"))
-        pg.wait_for_url("**/confirmation.html")
-        pg.wait_for_selector(".etat--succes")
-        s = stock(pg)
-        check(f"{nom} : nouvelle tentative réussie, une seule capture, panier vidé", CLE_PANIER not in s and CLE_CONF in s and json.loads(pg.evaluate("window.name") or "[]").count(CLE_CONF) <= 2, sorted(s))
+    # 6. L2-01 — pannes de stockage à la finalisation : aucune page de succès après un échec annoncé,
+    #    confirmation antérieure préservée, accès direct / rechargement sans nouvelle confirmation, retry sans doublon.
+    def panne_js(set_cle=None, remove_cles=None):
+        """Patch Storage.prototype : setItem refusé pour `set_cle`, removeItem refusé pour `remove_cles` ('*' = tout) tant que window.__panne."""
+        morceaux = ["window.__panne=true"]
+        if set_cle:
+            morceaux.append("const os=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(window.__panne&&k==='%s')throw new DOMException('quota','QuotaExceededError');return os.call(this,k,v)}" % set_cle)
+        if remove_cles:
+            morceaux.append("const orm=Storage.prototype.removeItem;Storage.prototype.removeItem=function(k){if(window.__panne&&(%s))throw new DOMException('refus','SecurityError');return orm.call(this,k)}" % " || ".join(f"k==='{k}'" for k in remove_cles))
+        return ";".join(morceaux)
+
+    ancienne = capture_ancienne()
+    total_ancien = norm(fmt(ancienne["totalCents"]))
+    prod = 2 * PRIX[SKU_A] + PRIX[SKU_B]
+    total_nouveau = norm(fmt(prod + 490))
+    pannes_fin = {
+        "quota sur l'écriture de l'état": dict(js=panne_js(set_cle=CLE_ETAT), echec=True),
+        "toutes suppressions refusées + écriture de l'état refusée": dict(js=panne_js(set_cle=CLE_ETAT, remove_cles=[CLE_ETAT, CLE_PANIER_V1, CLE_CONF_V1]), echec=True),
+        "suppression de l'état refusée seule": dict(js=panne_js(remove_cles=[CLE_ETAT]), echec=False),
+        "suppression de l'ancien panier refusée seule": dict(js=panne_js(remove_cles=[CLE_PANIER_V1]), echec=False),
+        "suppression de l'ancienne confirmation refusée seule": dict(js=panne_js(remove_cles=[CLE_CONF_V1]), echec=False),
+        "refus combiné des trois suppressions": dict(js=panne_js(remove_cles=[CLE_ETAT, CLE_PANIER_V1, CLE_CONF_V1]), echec=False),
+    }
+    for avec_ancienne in (True, False):
+        for nom, cfg in pannes_fin.items():
+            lib = f"{nom} ({'avec' if avec_ancienne else 'sans'} confirmation antérieure)"
+            if avec_ancienne:
+                graine = "if(!sessionStorage.getItem('%s'))sessionStorage.setItem('%s',%s);" % (CLE_ETAT, CLE_ETAT, json.dumps(etat_json(valide, ancienne)))
+            else:
+                graine = cart(valide)
+            c, pg = neuf(ETRANGER + ";" + graine + ";" + cfg["js"])
+            pg.goto(BASE + "/commande.html")
+            pg.wait_for_selector("#terminer")
+            avant_brut = stock(pg).get(CLE_ETAT)
+            c.agir(pg.locator("#terminer"))
+            if cfg["echec"]:
+                pg.wait_for_selector("#erreur-terminer .etat--alerte")
+                s = stock(pg)
+                check(f"{lib} : pas de page de succès, erreur visible, bouton réactivé",
+                      pg.url.endswith("/commande.html") and "La simulation n’a pas été terminée" in txt(pg) and pg.locator("#terminer").is_enabled(), (pg.url, sorted(s)))
+                check(f"{lib} : état stocké strictement inchangé (panier et confirmation antérieure)", s.get(CLE_ETAT) == avant_brut and s.get(ETR) == "ne pas toucher", sorted(s))
+                # accès direct et rechargement de la confirmation APRÈS l'échec annoncé
+                for acces in ("accès direct", "rechargement"):
+                    if acces == "accès direct":
+                        pg.goto(BASE + "/confirmation.html")
+                    else:
+                        pg.reload()
+                    pg.wait_for_selector("#confirmation-zone .etat, #confirmation-zone .etat--succes")
+                    t = txt(pg)
+                    if avec_ancienne:
+                        check(f"{lib} : {acces} → seule la confirmation ANTÉRIEURE ({fmt(ancienne['totalCents'])}), jamais la nouvelle ({fmt(prod + 490)})",
+                              total_ancien in t and total_nouveau not in t and "Ancien modèle" in t, t[:300])
+                    else:
+                        check(f"{lib} : {acces} → aucune page de succès",
+                              "Aucune simulation terminée dans cet onglet" in t and "Simulation terminée." not in t.replace("Aucune simulation terminée", "") and total_nouveau not in t, t[:300])
+                pg.goto(BASE + "/panier.html")
+                pg.wait_for_selector(".ligne-panier")
+                check(f"{lib} : panier cohérent (2 lignes) après l'échec", pg.locator(".ligne-panier").count() == 2 and norm(fmt(prod)) in txt(pg, ".totaux"), txt(pg)[:200])
+                pg.goto(BASE + "/commande.html")
+                pg.wait_for_selector("#terminer")
+                pg.evaluate("window.__panne=false")  # après le chargement : les scripts d'initialisation le rétabliraient
+                pg.evaluate("window.name = '[]'")
+                c.agir(pg.locator("#terminer"))
+            else:
+                pg.wait_for_url("**/confirmation.html")
+            pg.wait_for_selector(".etat--succes")
+            t = txt(pg)
+            s = stock(pg)
+            e = etat_stocke(pg)
+            check(f"{lib} : succès unique, nouvelle confirmation ({fmt(prod + 490)}), panier vide, une seule clé Ligne Posée active",
+                  total_nouveau in t and e["lignes"] == [] and e["confirmation"]["totalCents"] == prod + 490 and s.get(ETR) == "ne pas toucher", (t[:200], s.keys()))
+            if not cfg["echec"]:
+                pg.reload()
+                pg.wait_for_selector(".etat--succes")
+                pg.goto(BASE + "/panier.html")
+                pg.wait_for_selector("#panier-zone .etat")
+                check(f"{lib} : rechargements → toujours cohérent, panier vide sans ressusciter, pas de seconde simulation",
+                      "Votre panier est vide" in txt(pg) and total_nouveau not in txt(pg), txt(pg)[:150])
+            else:
+                check(f"{lib} : nouvelle tentative = une seule écriture d'état",
+                      json.loads(pg.evaluate("window.name") or "[]").count(CLE_ETAT) == 1, pg.evaluate("window.name"))
+            check(f"{lib} : aucune exception JavaScript non gérée", not c.erreurs, c.erreurs[:2])
+            c.ctx.close()
+
+    # 6 bis. L2-01 — migration depuis l'ancien état à deux clés : lecture, puis état unique après la première écriture.
+    c, pg = neuf(ETRANGER + ";if(!sessionStorage.getItem('%s')&&!sessionStorage.getItem('%s')){sessionStorage.setItem('%s',%s);sessionStorage.setItem('%s',%s)}" % (
+        CLE_ETAT, CLE_PANIER_V1, CLE_PANIER_V1, json.dumps(json.dumps({"v": 1, "lignes": valide})), CLE_CONF_V1, json.dumps(json.dumps(ancienne))))
+    pg.goto(BASE + "/panier.html")
+    pg.wait_for_selector(".ligne-panier")
+    check("ancien état à deux clés : le panier existant est lu (repli), 2 lignes, aucune écriture par la simple lecture",
+          pg.locator(".ligne-panier").count() == 2 and CLE_ETAT not in stock(pg), sorted(stock(pg)))
+    pg.goto(BASE + "/confirmation.html")
+    pg.wait_for_selector("#confirmation-zone .etat--succes")
+    check("ancien état à deux clés : l'ancienne confirmation reste lisible", total_ancien in txt(pg), txt(pg)[:200])
+    pg.goto(BASE + "/commande.html")
+    pg.wait_for_selector("#terminer")
+    c.agir(pg.locator("#terminer"))
+    pg.wait_for_url("**/confirmation.html")
+    pg.wait_for_selector(".etat--succes")
+    s = stock(pg)
+    check("migration à la première écriture : clé unique v2, anciennes clés retirées, nouvelle confirmation, donnée étrangère intacte",
+          set(s) == {CLE_ETAT, ETR} and total_nouveau in txt(pg) and etat_stocke(pg)["lignes"] == [], sorted(s))
+    c.ctx.close()
+
+    # 6 ter. L2-02 — capture corrompue à Number.MAX_SAFE_INTEGER : état explicatif, aucune exception, aucun succès
+    M = 2 ** 53 - 1
+    corrompues = {
+        "total au-delà de MAX_SAFE_INTEGER": {"v": 1, "lignes": [{"sku": SKU_A, "modele": "Modèle", "finition": "F", "prixCents": M, "quantite": 1, "sousTotalCents": M}],
+                                              "livraison": {"id": "standard", "libelle": "Standard", "cents": 490}, "produitsCents": M, "totalCents": M + 490},
+        "sous-total à 2^53": {"v": 1, "lignes": [{"sku": SKU_A, "modele": "Modèle", "finition": "F", "prixCents": 2 ** 52, "quantite": 2, "sousTotalCents": 2 ** 53}],
+                              "livraison": {"id": "standard", "libelle": "Standard", "cents": 490}, "produitsCents": 2 ** 53, "totalCents": 2 ** 53 + 490},
+    }
+    for nom, cap in corrompues.items():
+        c, pg = neuf("sessionStorage.setItem('%s',%s)" % (CLE_ETAT, json.dumps(etat_json([], cap))))
+        pg.goto(BASE + "/confirmation.html")
+        pg.wait_for_selector("#confirmation-zone .etat")
+        t = txt(pg)
+        check(f"capture corrompue ({nom}) : état explicatif « illisible ou incohérent », aucun succès, aucun montant, pas d'exception",
+              "Aucune simulation terminée dans cet onglet" in t and "illisible ou incohérent" in t and "Simulation terminée." not in t.replace("Aucune simulation terminée", "") and "Total" not in t and "€" not in t and not c.erreurs,
+              (t[:250], c.erreurs[:2]))
+        sans_debordement(pg, f"confirmation corrompue ({nom})")
         c.ctx.close()
+    # défense en profondeur : si le formatage lève malgré une capture jugée valide, repli explicatif (aucun succès partiel)
+    src_ui = open(os.path.join(RACINE, "js/panier-ui.js"), encoding="utf-8").read()
+    casse = src_ui.replace("export function totaux(", "export function totaux() { throw new RangeError('simulé'); }\nexport function _totauxOrigine(")
+    assert casse != src_ui
+    c, pg = neuf("sessionStorage.setItem('%s',%s)" % (CLE_ETAT, json.dumps(etat_json([], ancienne))))
+    pg.route("**/js/panier-ui.js", lambda route, req: route.fulfill(status=200, content_type="text/javascript; charset=utf-8", body=casse))
+    pg.goto(BASE + "/confirmation.html")
+    pg.wait_for_selector("#confirmation-zone .etat")
+    t = txt(pg)
+    check("rendu qui lève : repli explicatif, jamais de succès partiel ni de montant, pas d'exception non gérée",
+          "Aucune simulation terminée dans cet onglet" in t and "Simulation terminée." not in t.replace("Aucune simulation terminée", "") and "€" not in t and not c.erreurs, (t[:250], c.erreurs[:2]))
+    c.ctx.close()
 
     # 7. Sans JavaScript
     ctx = b.new_context(viewport={"width": w, "height": 800}, java_script_enabled=False)
@@ -478,7 +614,7 @@ def mise_en_page(b, w):
     pg = c.page()
     plein = [{"sku": r["sku"], "quantity": 99} for r in CAT["references"][:12]]
     pg.goto(BASE + "/index.html")
-    pg.evaluate("([k, v]) => sessionStorage.setItem(k, v)", [CLE_PANIER, json.dumps({"v": 1, "lignes": plein})])
+    pg.evaluate("([k, v]) => sessionStorage.setItem(k, v)", [CLE_ETAT, etat_json(plein)])
     for page in ["panier.html", "commande.html"]:
         pg.goto(f"{BASE}/{page}")
         pg.wait_for_selector(".ligne-panier, #terminer")
@@ -495,7 +631,7 @@ def retrait_clavier(b, w):
     c = Contexte(b, w)
     pg = c.page()
     pg.goto(BASE + "/index.html")
-    pg.evaluate("([k, v]) => sessionStorage.setItem(k, v)", [CLE_PANIER, json.dumps({"v": 1, "lignes": [{"sku": SKU_A, "quantity": 1}, {"sku": SKU_B, "quantity": 1}]})])
+    pg.evaluate("([k, v]) => sessionStorage.setItem(k, v)", [CLE_ETAT, etat_json([{"sku": SKU_A, "quantity": 1}, {"sku": SKU_B, "quantity": 1}])])
     pg.goto(BASE + "/panier.html")
     pg.wait_for_selector(".ligne-panier")
     ok = False
@@ -507,10 +643,35 @@ def retrait_clavier(b, w):
     check("clavier : bouton « Retirer » atteignable", ok)
     nom = pg.evaluate("document.activeElement.getAttribute('aria-label')")
     pg.keyboard.press("Enter")
-    check("clavier : Entrée retire la ligne, une ligne reste, le focus ne se perd pas dans le vide (zone du panier)",
-          pg.locator(".ligne-panier").count() == 1 and pg.evaluate("document.activeElement.id") == "panier-zone" and nom.startswith("Retirer du panier"), nom)
+    SONDE = """(() => { const e = document.activeElement; const cs = getComputedStyle(e); const r = e.getBoundingClientRect();
+      return { id: e.id, tag: e.tagName, texte: e.textContent.trim().slice(0, 60), visibleFocus: e.matches(':focus-visible'), style: cs.outlineStyle,
+               largeur: parseFloat(cs.outlineWidth), couleur: cs.outlineColor, dansPage: r.width > 0 && r.height > 0, estZone: e.id === 'panier-zone' } })()"""
+    check("clavier : Entrée retire la ligne, une ligne reste", pg.locator(".ligne-panier").count() == 1 and nom.startswith("Retirer du panier"), nom)
+    f1 = pg.evaluate(SONDE)
+    check("L2-03 panier NON vide après retrait : le focus est sur le titre « Contenu du panier », nœud qui survit, pas sur le conteneur",
+          f1["id"] == "panier-focus" and f1["tag"] == "H2" and "Contenu du panier" in f1["texte"] and not f1["estZone"] and f1["dansPage"], f1)
+    check("L2-03 panier non vide : anneau de focus VISIBLE (:focus-visible, trait plein ≥ 2 px, couleur non transparente)",
+          f1["visibleFocus"] and f1["style"] not in ("none", "hidden") and f1["largeur"] >= 2 and f1["couleur"] not in ("transparent", "rgba(0, 0, 0, 0)"), f1)
     pg.wait_for_function("document.getElementById('statut').textContent.startsWith('Retiré du panier')")
     check("retrait annoncé dans la zone de statut", "Retiré du panier" in txt(pg, "#statut"))
+    # on continue au clavier : Tab doit repartir de là vers « Retirer » de la ligne restante
+    ok = False
+    for _ in range(12):
+        pg.keyboard.press("Tab")
+        if pg.evaluate("document.activeElement.tagName === 'BUTTON' && document.activeElement.textContent === 'Retirer'"):
+            ok = True
+            break
+    check("L2-03 : l'ordre de tabulation reste utilisable après le retrait (le bouton « Retirer » restant est atteignable)", ok)
+    pg.keyboard.press("Enter")
+    pg.wait_for_selector("text=Votre panier est vide")
+    f2 = pg.evaluate(SONDE)
+    check("L2-03 panier VIDE après retrait : le focus est sur le bloc d'état « Votre panier est vide » (ne disparaît pas), pas sur le conteneur",
+          f2["id"] == "panier-focus" and "Votre panier est vide" in f2["texte"] and not f2["estZone"] and f2["dansPage"], f2)
+    check("L2-03 panier vide : anneau de focus VISIBLE (:focus-visible, trait plein ≥ 2 px, couleur non transparente)",
+          f2["visibleFocus"] and f2["style"] not in ("none", "hidden") and f2["largeur"] >= 2 and f2["couleur"] not in ("transparent", "rgba(0, 0, 0, 0)"), f2)
+    ecran = pg.evaluate("(() => { const r = document.activeElement.getBoundingClientRect(); return r.top >= 0 && r.bottom <= window.innerHeight && r.left >= 0 && r.right <= window.innerWidth })()")
+    check("L2-03 panier vide : l'élément focalisé est dans l'écran", ecran)
+    check("L2-03 : l'état vide est conservé après le retrait de la dernière ligne (stockage)", panier_stocke(pg) is None and etat_stocke(pg)["lignes"] == [])
     c.ctx.close()
 
 
@@ -524,7 +685,7 @@ SEED = [{"sku": SKU_A, "quantity": 2}, {"sku": SKU_B, "quantity": 1}, {"sku": "L
 def stabilite(b, w):
     print(f"\n=== Stabilité de mise en page et module en retard à {w} px", flush=True)
     for page, module, zone in [("panier.html", "page-panier.js", "#panier-zone"), ("commande.html", "page-commande.js", "#commande-zone")]:
-        seed = "sessionStorage.setItem('%s', %s);" % (CLE_PANIER, json.dumps(json.dumps({"v": 1, "lignes": SEED})))
+        seed = "sessionStorage.setItem('%s', %s);" % (CLE_ETAT, json.dumps(etat_json(SEED)))
         # 1. chargement normal, puis catalogue.json retardé de 3 s (routes retenues puis libérées)
         for retard in (0, 3000):
             c = Contexte(b, w)

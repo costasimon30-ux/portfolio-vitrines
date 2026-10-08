@@ -11,27 +11,20 @@ import { etat, lienCatalogue, ligneRecap, totaux } from "./panier-ui.js";
 
 const $ = (id) => document.getElementById(id);
 
-function rendre() {
-  const zone = $("confirmation-zone");
-  vider(zone);
-  $("confirmation-repli").hidden = true;
-  const lecture = P.lireConfirmation(P.obtenirMagasin(window));
+function etatSansSimulation(zone, statut) {
+  $("confirmation-chapeau").hidden = true;
+  const detail =
+    statut === "illisible"
+      ? "Le récapitulatif conservé dans cet onglet est illisible ou incohérent : il n’est pas affiché et ne vaut pas confirmation."
+      : statut === "stockage-indisponible"
+        ? "Le stockage de cet onglet est indisponible : aucune simulation ne peut y être retrouvée."
+        : "Une simulation se termine depuis la page de commande, une fois le panier validé.";
+  zone.append(etat("Aucune simulation terminée dans cet onglet.", [detail, "Aucune commande n’a été envoyée et aucun paiement n’a été effectué."], [lienCatalogue("Retour au catalogue")]));
+}
 
-  if (lecture.statut !== "ok") {
-    $("confirmation-chapeau").hidden = true;
-    const detail =
-      lecture.statut === "illisible"
-        ? "Le récapitulatif conservé dans cet onglet est illisible ou incohérent : il n’est pas affiché et ne vaut pas confirmation."
-        : lecture.statut === "stockage-indisponible"
-          ? "Le stockage de cet onglet est indisponible : aucune simulation ne peut y être retrouvée."
-          : "Une simulation se termine depuis la page de commande, une fois le panier validé.";
-    zone.append(etat("Aucune simulation terminée dans cet onglet.", [detail, "Aucune commande n’a été envoyée et aucun paiement n’a été effectué."], [lienCatalogue("Retour au catalogue")]));
-    return;
-  }
-
-  const c = lecture.capture;
-  $("confirmation-chapeau").hidden = false;
-  zone.append(
+/** Succès complet construit hors du DOM : si un montant ne se formate pas, rien n'est affiché du tout. */
+function construireSucces(c) {
+  return [
     el(
       "div",
       { class: "etat etat--succes", role: "status" },
@@ -41,8 +34,28 @@ function rendre() {
     el("ul", { class: "recap" }, c.lignes.map((l) => ligneRecap(l))),
     totaux({ produitsCents: c.produitsCents, livraison: c.livraison, totalCents: c.totalCents }),
     el("p", { class: "aide" }, "Ce récapitulatif est figé à la validation et reste le même tant que cet onglet est ouvert. Il n’a ni numéro de commande, ni facture, ni statut d’expédition."),
-    el("p", {}, el("a", { class: "bouton", href: "catalogue.html" }, "Retour au catalogue"))
-  );
+    el("p", {}, el("a", { class: "bouton", href: "catalogue.html" }, "Retour au catalogue")),
+  ];
+}
+
+function rendre() {
+  const zone = $("confirmation-zone");
+  vider(zone);
+  $("confirmation-repli").hidden = true;
+  const lecture = P.lireConfirmation(P.obtenirMagasin(window));
+
+  if (lecture.statut !== "ok") return etatSansSimulation(zone, lecture.statut);
+
+  let blocs;
+  try {
+    blocs = construireSucces(lecture.capture);
+  } catch (e) {
+    // Défense en profondeur : une capture que le formatage refuse n'est jamais présentée comme un succès.
+    console.error("Ligne Posée : récapitulatif de confirmation non affichable —", e);
+    return etatSansSimulation(zone, "illisible");
+  }
+  $("confirmation-chapeau").hidden = false;
+  zone.append(...blocs);
 }
 
 rendre();

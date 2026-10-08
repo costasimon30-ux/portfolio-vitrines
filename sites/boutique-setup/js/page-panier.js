@@ -19,12 +19,24 @@ let erreurLigne = null; // { sku, message } : saisie de quantité refusée, affi
 let confirmerVidage = false;
 let focus = null; // où replacer le focus après le rendu : "zone" | "vidage" | "qte:<sku>" | "retirer:<sku>"
 
+/**
+ * Cible de focus programmatique après une action qui supprime l'élément actif (Retirer, Vider,
+ * Écarter) : un nœud qui SURVIT au rendu et porte l'anneau de focus global (:focus-visible),
+ * jamais le conteneur #panier-zone. Panier non vide : le titre « Contenu du panier » ; panier
+ * vide ou état explicatif : le bloc d'état lui-même.
+ */
+function cibleFocus(noeud) {
+  noeud.id = "panier-focus";
+  noeud.setAttribute("tabindex", "-1");
+  return noeud;
+}
+
 function placerFocus() {
   const cible = focus;
   focus = null;
   if (!cible) return;
   const noeud =
-    cible === "zone" ? $("panier-zone")
+    cible === "zone" ? $("panier-focus") ?? $("panier-zone")
     : cible === "vidage" ? $("confirmer-vidage")
     : cible.startsWith("qte:") ? document.getElementById(`qte-${cible.slice(4)}`)
     : null;
@@ -135,33 +147,33 @@ function rendre(avis = null) {
 
   if (lecture.statut === "stockage-indisponible") {
     zone.append(
-      etat("Panier indisponible dans ce navigateur.", [
+      cibleFocus(etat("Panier indisponible dans ce navigateur.", [
         "Le stockage de cet onglet est absent ou refusé : un panier ne peut pas y être conservé, donc rien ne peut être ajouté ni validé.",
         "Le catalogue reste consultable.",
-      ], [lienCatalogue()])
+      ], [lienCatalogue()]))
     );
     return placerFocus();
   }
   if (lecture.statut === "corrompu") {
     zone.append(
-      etat("Le panier enregistré dans cet onglet est illisible.", [
+      cibleFocus(etat("Le panier enregistré dans cet onglet est illisible.", [
         "Il n’a pas été utilisé ni modifié, et aucun total n’est affiché. Vous pouvez repartir d’un panier vide : seul le panier de Ligne Posée est effacé, aucune autre donnée du navigateur.",
-      ], [el("p", {}, bouton("Repartir d’un panier vide", vider_, { secondaire: false }))], { alerte: true })
+      ], [el("p", {}, bouton("Repartir d’un panier vide", vider_, { secondaire: false }))], { alerte: true }))
     );
     return placerFocus();
   }
   if (lecture.statut === "vide") {
     zone.append(
-      etat("Votre panier est vide.", ["Ajoutez une variante depuis la fiche d’un modèle : elle apparaîtra ici avec sa référence et son prix de démonstration."], [lienCatalogue()])
+      cibleFocus(etat("Votre panier est vide.", ["Ajoutez une variante depuis la fiche d’un modèle : elle apparaîtra ici avec sa référence et son prix de démonstration."], [lienCatalogue()]))
     );
     return placerFocus();
   }
   if (!catalogue) {
     zone.append(
-      etat("Panier indisponible : le catalogue n’a pas pu être vérifié.", [
+      cibleFocus(etat("Panier indisponible : le catalogue n’a pas pu être vérifié.", [
         "Les noms, finitions et prix sont relus du catalogue : sans lui, aucune ligne ni aucun total ne peut être affiché. Rien n’a été modifié.",
         "Rechargez la page pour réessayer, ou videz le panier de cet onglet.",
-      ], [], { alerte: true }),
+      ], [], { alerte: true })),
       blocVidage(lecture.lignes.length + lecture.rejets.length)
     );
     return placerFocus();
@@ -169,8 +181,7 @@ function rendre(avis = null) {
 
   const verification = P.verifierPanier(lecture, catalogue);
   if (verification.problemes.length > 0) {
-    zone.append(
-      etat(
+    const probleme = etat(
         "Certaines lignes du panier ne peuvent pas être vérifiées.",
         ["Elles ne sont pas comptées et aucun total n’est affiché. Rien n’a été remplacé ni corrigé en silence."],
         [
@@ -178,12 +189,12 @@ function rendre(avis = null) {
           el("p", {}, bouton("Écarter les lignes invalides", ecarter, { secondaire: false })),
         ],
         { alerte: true }
-      )
-    );
+      );
+    zone.append(verification.lignes.length > 0 ? probleme : cibleFocus(probleme));
   }
 
   if (verification.lignes.length > 0) {
-    zone.append(el("h2", { class: "titre-liste" }, "Contenu du panier"), el("ul", { class: "lignes-panier" }, verification.lignes.map(ligneModifiable)));
+    zone.append(cibleFocus(el("h2", { class: "titre-liste" }, "Contenu du panier")), el("ul", { class: "lignes-panier" }, verification.lignes.map(ligneModifiable)));
   }
 
   if (verification.fiable) {

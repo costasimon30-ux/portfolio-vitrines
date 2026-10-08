@@ -403,7 +403,8 @@ html.page-attente .site-footer { visibility: hidden; }
 .liste-problemes { margin-top: var(--e-8); }
 .liste-problemes li { padding-block: var(--e-4); }
 .titre-liste { margin-top: var(--e-24); }
-#panier-zone:focus, #commande-zone:focus { outline: none; }
+#commande-zone:focus { outline: none; }
+/* #panier-zone n'est plus une cible de focus programmatique (L2-03) ; #panier-focus utilise l'anneau global. */
 #panier-zone > .etat:first-child, #commande-zone > .etat:first-child { margin-top: var(--e-24); }
 
 .erreur-champ { margin-top: var(--e-4); color: #8f1d1d; font-size: .9375rem; font-weight: 600; }

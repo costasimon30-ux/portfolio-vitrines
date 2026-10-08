@@ -11,14 +11,23 @@
   - tous les montants sont des centimes entiers, formatés en euros à l'affichage seulement ;
   - une écriture n'est jamais présumée réussie : elle est relue et comparée ;
   - rien n'est présenté comme fiable (total, confirmation) si une vérification échoue ;
-  - seules deux clés de stockage existent, toutes deux propres à Ligne Posée.
+  - UNE seule clé de stockage est écrite (lignePosee.v2.etat) : elle contient le panier ET la dernière
+    confirmation, de sorte que « figer la capture + vider le panier » est une unique écriture
+    atomique (setItem est tout-ou-rien). Un échec laisse l'état précédent intact, panier comme
+    confirmation antérieure ; il n'existe aucun état intermédiaire où une nouvelle confirmation
+    serait lisible alors que la finalisation a été annoncée en échec (L2-01) ;
+  - les deux clés du lot 2 initial (v1.panier, v1.confirmation) ne sont plus écrites. Tant que la
+    clé v2 n'existe pas, elles sont lues telles quelles (repli) puis migrées à la première
+    écriture réussie ; dès que la clé v2 existe, elles sont ignorées et nettoyées au mieux.
 */
 
 import { libelleVariante } from "./catalogue-core.js";
 
-export const SCHEMA_PANIER = 1;
-export const CLE_PANIER = "lignePosee.v1.panier";
-export const CLE_CONFIRMATION = "lignePosee.v1.confirmation";
+export const SCHEMA_PANIER = 1; // charge utile d'un panier v1 et schéma de la capture de confirmation
+export const SCHEMA_ETAT = 2; // enveloppe transactionnelle { v, lignes, confirmation }
+export const CLE_ETAT = "lignePosee.v2.etat";
+export const CLE_PANIER_V1 = "lignePosee.v1.panier"; // ancien, lecture et nettoyage seulement
+export const CLE_CONFIRMATION_V1 = "lignePosee.v1.confirmation"; // ancien, lecture et nettoyage seulement
 export const QUANTITE_MIN = 1;
 export const QUANTITE_MAX = 99;
 export const LIGNES_MAX = 80;
@@ -97,54 +106,16 @@ function lireBrut(magasin, cle) {
   }
 }
 
-/** Écrit puis relit : un stockage qui accepte l'appel sans rien conserver est un échec. */
-function ecrireVerifie(magasin, cle, texte) {
-  try {
-    magasin.setItem(cle, texte);
-    return magasin.getItem(cle) === texte;
-  } catch {
-    return false;
-  }
-}
-
-function effacerVerifie(magasin, cle) {
-  try {
-    magasin.removeItem(cle);
-    return magasin.getItem(cle) === null;
-  } catch {
-    return false;
-  }
-}
-
 /* ------------------------------------------------------------------ */
 /* Panier                                                              */
 /* ------------------------------------------------------------------ */
 
-/**
- * Texte stocké → { statut, lignes, rejets }.
- *  - « vide »    : aucune donnée ;
- *  - « corrompu » : JSON illisible, schéma ou structure inattendus (rien n'est exploité) ;
- *  - « ok »      : lignes valides (SKU bien formé, entier 1–99, sans doublon) ; les autres
- *                  lignes sont listées dans `rejets` avec leur raison, jamais corrigées en silence.
- */
-export function analyserPanier(texte) {
-  if (texte === null || texte === undefined) return { statut: "vide", lignes: [], rejets: [] };
-  let donnees;
-  try {
-    donnees = JSON.parse(texte);
-  } catch {
-    return { statut: "corrompu", lignes: [], rejets: [], raison: "contenu illisible" };
-  }
-  if (!estObjet(donnees) || donnees.v !== SCHEMA_PANIER || !Array.isArray(donnees.lignes)) {
-    return { statut: "corrompu", lignes: [], rejets: [], raison: "structure inattendue" };
-  }
-  if (donnees.lignes.length > LIGNES_MAX) {
-    return { statut: "corrompu", lignes: [], rejets: [], raison: "trop de lignes" };
-  }
+/** Lignes brutes (déjà décodées) → { lignes, rejets } ; jamais de correction silencieuse. */
+function trierLignes(brutes) {
   const lignes = [];
   const rejets = [];
   const vus = new Set();
-  for (const brut of donnees.lignes) {
+  for (const brut of brutes) {
     if (!estObjet(brut)) {
       rejets.push({ sku: null, raison: "ligne illisible" });
       continue;
@@ -164,24 +135,143 @@ export function analyserPanier(texte) {
       lignes.push({ sku, quantity: brut.quantity });
     }
   }
-  return { statut: "ok", lignes, rejets };
+  return { lignes, rejets };
+}
+
+/**
+ * Texte d'un ANCIEN panier (clé v1) → { statut, lignes, rejets }.
+ *  - « vide »    : aucune donnée ;
+ *  - « corrompu » : JSON illisible, schéma ou structure inattendus (rien n'est exploité) ;
+ *  - « ok »      : lignes valides (SKU bien formé, entier 1–99, sans doublon) ; les autres
+ *                  lignes sont listées dans `rejets` avec leur raison, jamais corrigées en silence.
+ */
+export function analyserPanier(texte) {
+  if (texte === null || texte === undefined) return { statut: "vide", lignes: [], rejets: [] };
+  let donnees;
+  try {
+    donnees = JSON.parse(texte);
+  } catch {
+    return { statut: "corrompu", lignes: [], rejets: [], raison: "contenu illisible" };
+  }
+  if (!estObjet(donnees) || donnees.v !== SCHEMA_PANIER || !Array.isArray(donnees.lignes)) {
+    return { statut: "corrompu", lignes: [], rejets: [], raison: "structure inattendue" };
+  }
+  if (donnees.lignes.length > LIGNES_MAX) {
+    return { statut: "corrompu", lignes: [], rejets: [], raison: "trop de lignes" };
+  }
+  return { statut: "ok", ...trierLignes(donnees.lignes) };
 }
 
 export function serialiserPanier(lignes) {
   return JSON.stringify({ v: SCHEMA_PANIER, lignes: lignes.map((l) => ({ sku: l.sku, quantity: l.quantity })) });
 }
 
-/** Lit le panier du magasin. Statuts : stockage-indisponible, vide, corrompu, ok. */
-export function lirePanier(magasin) {
-  const brut = lireBrut(magasin, CLE_PANIER);
-  if (!brut.ok) return { statut: "stockage-indisponible", lignes: [], rejets: [] };
-  return analyserPanier(brut.texte);
+/** Texte de l'état v2 : une seule chaîne, une seule écriture. `confirmation` : valeur JSON ou null. */
+function serialiserEtat(lignes, confirmation) {
+  return JSON.stringify({
+    v: SCHEMA_ETAT,
+    lignes: lignes.map((l) => ({ sku: l.sku, quantity: l.quantity })),
+    confirmation: confirmation === undefined ? null : confirmation,
+  });
 }
 
-/** Enregistre le panier (une clé supprimée si vide) et relit pour vérifier. */
-export function enregistrerPanier(magasin, lignes) {
+/**
+ * Charge l'état complet (panier + confirmation brute) depuis la clé v2, ou, à défaut, depuis les
+ * deux anciennes clés v1 (repli de lecture). Statuts :
+ *  - « stockage-indisponible » ;
+ *  - « corrompu » : état illisible ; `confirmation` reste exploitable quand l'enveloppe a pu être lue ;
+ *  - « ok » : `lignes`, `rejets`, `confirmation` (valeur décodée ou null), `texteV2` (texte exact lu
+ *    pour la clé v2, null s'il n'existe pas : sert à restaurer), `source` (« v2 », « v1 » ou « neuf »).
+ */
+function chargerEtat(magasin) {
+  const brut = lireBrut(magasin, CLE_ETAT);
+  if (!brut.ok) return { statut: "stockage-indisponible", lignes: [], rejets: [], confirmation: null };
+  if (brut.texte !== null && brut.texte !== undefined) {
+    const corrompu = (raison, confirmation = null) => ({ statut: "corrompu", raison, lignes: [], rejets: [], confirmation, texteV2: brut.texte, source: "v2" });
+    let d;
+    try {
+      d = JSON.parse(brut.texte);
+    } catch {
+      return corrompu("contenu illisible");
+    }
+    if (!estObjet(d) || d.v !== SCHEMA_ETAT) return corrompu("structure inattendue");
+    const confirmation = d.confirmation === undefined ? null : d.confirmation;
+    if (!Array.isArray(d.lignes) || Object.keys(d).some((k) => k !== "v" && k !== "lignes" && k !== "confirmation")) return corrompu("structure inattendue", confirmation);
+    if (d.lignes.length > LIGNES_MAX) return corrompu("trop de lignes", confirmation);
+    return { statut: "ok", ...trierLignes(d.lignes), confirmation, texteV2: brut.texte, source: "v2" };
+  }
+  // Repli : état de la première livraison du lot 2 (deux clés), tant que la clé v2 n'existe pas.
+  const ancienPanier = lireBrut(magasin, CLE_PANIER_V1);
+  const ancienneConf = lireBrut(magasin, CLE_CONFIRMATION_V1);
+  if (!ancienPanier.ok || !ancienneConf.ok) return { statut: "stockage-indisponible", lignes: [], rejets: [], confirmation: null };
+  let confirmation = null;
+  if (ancienneConf.texte !== null && ancienneConf.texte !== undefined) {
+    try {
+      confirmation = JSON.parse(ancienneConf.texte);
+    } catch {
+      confirmation = ancienneConf.texte; // conservée telle quelle : sera jugée illisible, jamais effacée en silence
+    }
+  }
+  const panier = analyserPanier(ancienPanier.texte);
+  const source = (ancienPanier.texte ?? null) === null && (ancienneConf.texte ?? null) === null ? "neuf" : "v1";
+  if (panier.statut === "corrompu") return { statut: "corrompu", raison: panier.raison, lignes: [], rejets: [], confirmation, texteV2: null, source };
+  return { statut: "ok", lignes: panier.lignes, rejets: panier.rejets, confirmation, texteV2: null, source };
+}
+
+/** Lit le panier. Statuts : stockage-indisponible, vide, corrompu, ok. */
+export function lirePanier(magasin) {
+  const e = chargerEtat(magasin);
+  if (e.statut !== "ok") return { statut: e.statut, lignes: [], rejets: [], ...(e.raison ? { raison: e.raison } : {}) };
+  return { statut: e.lignes.length === 0 && e.rejets.length === 0 ? "vide" : "ok", lignes: e.lignes, rejets: e.rejets };
+}
+
+/**
+ * Écriture transactionnelle : UN setItem sur la clé v2, relu et comparé. Réussite = la clé contient
+ * exactement le texte voulu. Échec (refus, quota, écriture perdue, relecture impossible) = l'état
+ * précédent est conservé ; si le stockage a bougé malgré l'échec, il est restauré. Le panier et la
+ * confirmation ne peuvent donc jamais être « à moitié » mis à jour.
+ */
+function ecrireEtat(magasin, base, lignes, confirmation) {
   if (!magasin) return false;
-  return lignes.length === 0 ? effacerVerifie(magasin, CLE_PANIER) : ecrireVerifie(magasin, CLE_PANIER, serialiserPanier(lignes));
+  const texte = serialiserEtat(lignes, confirmation);
+  const precedent = base.texteV2 ?? null;
+  try {
+    magasin.setItem(CLE_ETAT, texte);
+  } catch {
+    /* quota ou refus : la relecture ci-dessous décide */
+  }
+  let relu;
+  try {
+    relu = magasin.getItem(CLE_ETAT);
+  } catch {
+    relu = undefined;
+  }
+  if (relu === texte) {
+    if (base.source === "v1") {
+      for (const cle of [CLE_PANIER_V1, CLE_CONFIRMATION_V1]) {
+        try {
+          magasin.removeItem(cle); // au mieux : la clé v2 fait désormais foi, les anciennes sont ignorées
+        } catch {
+          /* ignoré */
+        }
+      }
+    }
+    return true;
+  }
+  if (relu !== precedent) {
+    try {
+      if (precedent === null) magasin.removeItem(CLE_ETAT);
+      else magasin.setItem(CLE_ETAT, precedent);
+    } catch {
+      /* restauration impossible : rien de plus à tenter */
+    }
+  }
+  return false;
+}
+
+/** Enregistre le panier en conservant la confirmation courante, dans la même écriture. */
+function enregistrerPanier(magasin, base, lignes) {
+  return ecrireEtat(magasin, base, lignes, base.confirmation);
 }
 
 const MESSAGES = Object.freeze({
@@ -196,29 +286,28 @@ const MESSAGES = Object.freeze({
   "panier-vide": "Le panier est vide : il n’y a rien à valider.",
   "catalogue-invalide": "Le catalogue n’a pas pu être vérifié : aucun calcul n’est possible.",
   "livraison-invalide": "Le mode de livraison fictive n’est pas reconnu : rien n’a été validé.",
+  "capture-invalide": "Les montants de la commande n’ont pas pu être vérifiés : rien n’a été validé et le panier est inchangé.",
 });
 
 const echec = (code, extra = {}) => ({ ok: false, code, message: MESSAGES[code], ...extra });
 
-/** Charge l'état du panier à modifier ; refuse tout état qui ne soit pas sain. */
+/** Charge l'état à modifier ; refuse tout état qui ne soit pas sain. */
 function chargerPourModification(magasin) {
-  const etat = lirePanier(magasin);
-  if (etat.statut === "stockage-indisponible") return echec("stockage-indisponible");
-  if (etat.statut === "corrompu") return echec("panier-corrompu");
-  if (etat.rejets.length > 0) return echec("panier-a-reparer");
-  return { ok: true, lignes: etat.lignes };
+  const base = chargerEtat(magasin);
+  if (base.statut === "stockage-indisponible") return echec("stockage-indisponible");
+  if (base.statut === "corrompu") return echec("panier-corrompu");
+  if (base.rejets.length > 0) return echec("panier-a-reparer");
+  return { ok: true, base, lignes: base.lignes };
 }
 
 /** Ajoute exactement ce SKU, quantité 1 ; un SKU déjà présent incrémente sa ligne (plafond 99). */
 export function ajouterAuPanier({ magasin, catalogue, sku }) {
+  const charge = chargerPourModification(magasin);
+  if (!charge.ok) return charge;
   if (!catalogue || !(catalogue.parSku instanceof Map) || !estSku(sku) || !catalogue.parSku.has(sku)) {
-    const base = chargerPourModification(magasin);
-    if (!base.ok) return base;
     return echec("sku-inconnu");
   }
-  const base = chargerPourModification(magasin);
-  if (!base.ok) return base;
-  const lignes = base.lignes.map((l) => ({ ...l }));
+  const lignes = charge.lignes.map((l) => ({ ...l }));
   const existante = lignes.find((l) => l.sku === sku);
   if (existante) {
     if (existante.quantity >= QUANTITE_MAX) return echec("plafond");
@@ -227,37 +316,42 @@ export function ajouterAuPanier({ magasin, catalogue, sku }) {
     if (lignes.length >= LIGNES_MAX) return echec("panier-corrompu");
     lignes.push({ sku, quantity: 1 });
   }
-  if (!enregistrerPanier(magasin, lignes)) return echec("ecriture-echouee");
+  if (!enregistrerPanier(magasin, charge.base, lignes)) return echec("ecriture-echouee");
   return { ok: true, quantite: (existante ?? lignes[lignes.length - 1]).quantity, lignes };
 }
 
 /** Fixe la quantité d'une ligne existante. */
 export function definirQuantite({ magasin, sku, valeur }) {
-  const base = chargerPourModification(magasin);
-  if (!base.ok) return base;
+  const charge = chargerPourModification(magasin);
+  if (!charge.ok) return charge;
   const quantite = lireQuantite(valeur);
   if (quantite === null) return echec("quantite-invalide", { saisie: valeur });
-  const lignes = base.lignes.map((l) => ({ ...l }));
+  const lignes = charge.lignes.map((l) => ({ ...l }));
   const ligne = lignes.find((l) => l.sku === sku);
   if (!ligne) return echec("ligne-absente");
   ligne.quantity = quantite;
-  if (!enregistrerPanier(magasin, lignes)) return echec("ecriture-echouee");
+  if (!enregistrerPanier(magasin, charge.base, lignes)) return echec("ecriture-echouee");
   return { ok: true, quantite, lignes };
 }
 
 export function retirerDuPanier({ magasin, sku }) {
-  const base = chargerPourModification(magasin);
-  if (!base.ok) return base;
-  if (!base.lignes.some((l) => l.sku === sku)) return echec("ligne-absente");
-  const lignes = base.lignes.filter((l) => l.sku !== sku);
-  if (!enregistrerPanier(magasin, lignes)) return echec("ecriture-echouee");
+  const charge = chargerPourModification(magasin);
+  if (!charge.ok) return charge;
+  if (!charge.lignes.some((l) => l.sku === sku)) return echec("ligne-absente");
+  const lignes = charge.lignes.filter((l) => l.sku !== sku);
+  if (!enregistrerPanier(magasin, charge.base, lignes)) return echec("ecriture-echouee");
   return { ok: true, lignes };
 }
 
-/** Vide uniquement la clé du panier de Ligne Posée : aucune autre donnée n'est touchée. */
+/**
+ * Vide le panier de Ligne Posée (réparation explicite d'un état illisible comprise). Aucune autre
+ * clé n'est touchée ; la confirmation antérieure, si elle est lisible dans l'enveloppe, est conservée.
+ */
 export function viderLePanier(magasin) {
   if (!magasin) return echec("stockage-indisponible");
-  return effacerVerifie(magasin, CLE_PANIER) ? { ok: true, lignes: [] } : echec("ecriture-echouee");
+  const base = chargerEtat(magasin);
+  if (base.statut === "stockage-indisponible") return echec("stockage-indisponible");
+  return enregistrerPanier(magasin, base, []) ? { ok: true, lignes: [] } : echec("ecriture-echouee");
 }
 
 /**
@@ -265,12 +359,12 @@ export function viderLePanier(magasin) {
  * au catalogue. Un panier illisible (statut « corrompu ») se répare par `viderLePanier`.
  */
 export function ecarterLignesInvalides({ magasin, catalogue }) {
-  const etat = lirePanier(magasin);
-  if (etat.statut === "stockage-indisponible") return echec("stockage-indisponible");
-  if (etat.statut === "corrompu") return echec("panier-corrompu");
-  const gardees = etat.lignes.filter((l) => catalogue && catalogue.parSku instanceof Map && catalogue.parSku.has(l.sku));
-  if (!enregistrerPanier(magasin, gardees)) return echec("ecriture-echouee");
-  return { ok: true, lignes: gardees, ecartees: etat.lignes.length - gardees.length + etat.rejets.length };
+  const base = chargerEtat(magasin);
+  if (base.statut === "stockage-indisponible") return echec("stockage-indisponible");
+  if (base.statut === "corrompu") return echec("panier-corrompu");
+  const gardees = base.lignes.filter((l) => catalogue && catalogue.parSku instanceof Map && catalogue.parSku.has(l.sku));
+  if (!enregistrerPanier(magasin, base, gardees)) return echec("ecriture-echouee");
+  return { ok: true, lignes: gardees, ecartees: base.lignes.length - gardees.length + base.rejets.length };
 }
 
 /* ------------------------------------------------------------------ */
@@ -295,6 +389,10 @@ export function verifierPanier({ lignes, rejets = [] }, catalogue) {
       continue;
     }
     const sousTotalCents = reference.prixCents * quantity;
+    if (!estCentimes(sousTotalCents) || !estCentimes(total + sousTotalCents)) {
+      problemes.push({ sku, raison: "montant hors limites", source: "catalogue" });
+      continue;
+    }
     total += sousTotalCents;
     verifiees.push({
       sku,
@@ -343,17 +441,11 @@ function construireCapture(verification, commande) {
 }
 
 /**
- * Texte stocké → { statut: "absente" | "illisible" | "ok", capture }. Une capture n'est « ok »
- * que si sa structure et son arithmétique sont cohérentes : sinon aucun succès n'est présenté.
+ * Capture décodée → { statut: "ok" | "illisible", capture }. Une capture n'est « ok » que si sa
+ * structure ET son arithmétique sont cohérentes, avec des entiers SÛRS à chaque étape (produit
+ * ligne, cumul, total) : aucun montant hors limites n'atteint jamais le formatage (L2-02).
  */
-export function analyserCapture(texte) {
-  if (texte === null || texte === undefined) return { statut: "absente" };
-  let c;
-  try {
-    c = JSON.parse(texte);
-  } catch {
-    return { statut: "illisible" };
-  }
+function validerCapture(c) {
   const illisible = { statut: "illisible" };
   if (!estObjet(c) || c.v !== SCHEMA_PANIER || !Array.isArray(c.lignes)) return illisible;
   if (c.lignes.length < 1 || c.lignes.length > LIGNES_MAX) return illisible;
@@ -364,19 +456,38 @@ export function analyserCapture(texte) {
     vus.add(l.sku);
     if (!estTexte(l.modele) || !estTexte(l.finition) || !estCentimes(l.prixCents)) return illisible;
     if (typeof l.quantite !== "number" || lireQuantite(l.quantite) === null) return illisible;
-    if (l.sousTotalCents !== l.prixCents * l.quantite) return illisible;
-    somme += l.sousTotalCents;
+    const produit = l.prixCents * l.quantite;
+    if (!estCentimes(produit) || !estCentimes(l.sousTotalCents) || l.sousTotalCents !== produit) return illisible;
+    const suivant = somme + l.sousTotalCents;
+    if (!estCentimes(suivant)) return illisible;
+    somme = suivant;
   }
   const modele = estObjet(c.livraison) ? livraisonParId(c.livraison.id) : null;
   if (!modele || c.livraison.libelle !== modele.libelle || c.livraison.cents !== modele.cents) return illisible;
-  if (!Number.isSafeInteger(somme) || c.produitsCents !== somme || c.totalCents !== somme + modele.cents) return illisible;
+  const total = somme + modele.cents;
+  if (!estCentimes(total) || !estCentimes(c.produitsCents) || !estCentimes(c.totalCents)) return illisible;
+  if (c.produitsCents !== somme || c.totalCents !== total) return illisible;
   return { statut: "ok", capture: c };
 }
 
+/** Texte d'une capture (ancien format ou test) → { statut: "absente" | "illisible" | "ok", capture }. */
+export function analyserCapture(texte) {
+  if (texte === null || texte === undefined) return { statut: "absente" };
+  let c;
+  try {
+    c = JSON.parse(texte);
+  } catch {
+    return { statut: "illisible" };
+  }
+  return validerCapture(c);
+}
+
+/** Dernière confirmation de l'onglet : lue dans l'état v2 (ou, à défaut, dans l'ancienne clé v1). */
 export function lireConfirmation(magasin) {
-  const brut = lireBrut(magasin, CLE_CONFIRMATION);
-  if (!brut.ok) return { statut: "stockage-indisponible" };
-  return analyserCapture(brut.texte);
+  const e = chargerEtat(magasin);
+  if (e.statut === "stockage-indisponible") return { statut: "stockage-indisponible" };
+  if (e.confirmation === null || e.confirmation === undefined) return e.statut === "corrompu" ? { statut: "illisible" } : { statut: "absente" };
+  return validerCapture(e.confirmation);
 }
 
 /* ------------------------------------------------------------------ */
@@ -385,30 +496,24 @@ export function lireConfirmation(magasin) {
 
 /**
  * « Terminer la simulation ». Relit le panier du stockage et le revérifie contre le catalogue
- * (rien n'est repris d'un affichage), fige la capture, puis vide le panier. Les deux écritures
- * sont relues ; si l'une échoue, la capture est retirée et AUCUN succès n'est renvoyé : le panier
- * reste intact et l'action peut être retentée sans rien dupliquer. Un second appel après un
- * succès trouve un panier vide et est refusé.
+ * (rien n'est repris d'un affichage), fige la capture, puis publie « capture + panier vide » en UNE
+ * écriture relue (voir ecrireEtat). Si elle échoue, le stockage garde exactement son état précédent
+ * — panier intact, confirmation antérieure intacte — et AUCUN succès n'est renvoyé : la nouvelle
+ * tentative ne peut rien dupliquer. Un second appel après un succès trouve un panier vide et est
+ * refusé.
  */
 export function terminerSimulation({ magasin, catalogue, livraisonId }) {
   if (!catalogue || !(catalogue.parSku instanceof Map) || !(catalogue.parId instanceof Map)) return echec("catalogue-invalide");
-  const etat = lirePanier(magasin);
-  if (etat.statut === "stockage-indisponible") return echec("stockage-indisponible");
-  if (etat.statut === "corrompu") return echec("panier-corrompu");
-  if (etat.statut === "vide" || (etat.lignes.length === 0 && etat.rejets.length === 0)) return echec("panier-vide");
-  const verification = verifierPanier(etat, catalogue);
+  const base = chargerEtat(magasin);
+  if (base.statut === "stockage-indisponible") return echec("stockage-indisponible");
+  if (base.statut === "corrompu") return echec("panier-corrompu");
+  if (base.lignes.length === 0 && base.rejets.length === 0) return echec("panier-vide");
+  const verification = verifierPanier(base, catalogue);
   if (!verification.fiable) return echec("panier-a-reparer", { problemes: verification.problemes });
   const commande = calculerCommande(verification.totalProduitsCents, livraisonId);
   if (!commande.ok) return commande;
   const capture = construireCapture(verification, commande);
-  const texte = JSON.stringify(capture);
-  if (!ecrireVerifie(magasin, CLE_CONFIRMATION, texte)) {
-    effacerVerifie(magasin, CLE_CONFIRMATION);
-    return echec("ecriture-echouee");
-  }
-  if (!effacerVerifie(magasin, CLE_PANIER)) {
-    effacerVerifie(magasin, CLE_CONFIRMATION);
-    return echec("ecriture-echouee");
-  }
+  if (validerCapture(capture).statut !== "ok") return echec("capture-invalide");
+  if (!ecrireEtat(magasin, base, [], capture)) return echec("ecriture-echouee");
   return { ok: true, capture };
 }
