@@ -196,16 +196,12 @@ function afficher(catalogue) {
   message d'erreur affiché. Ils ne sont donc jamais visibles à deux positions successives :
   aucun saut perceptible, quelle que soit la hauteur de l'état final (fiche complète ou erreur
   courte), et aucune hauteur réservée qui laisserait un vide. Un délai de sécurité les révèle
-  même si le chargement n'aboutit jamais.
+  même si le chargement n'aboutit jamais (voir js/attente-fiche.js).
 */
 function attendre() {
-  document.body.classList.add("fiche-attente"); // déjà présente dans le HTML : posée avant le premier rendu
-  const liberer = () => document.body.classList.remove("fiche-attente");
-  const securite = setTimeout(liberer, 8000);
-  return () => {
-    clearTimeout(securite);
-    liberer();
-  };
+  // La classe est posée avant le premier rendu par js/attente-fiche.js, qui la retire aussi si ce module échoue.
+  document.documentElement.setAttribute("data-fiche-module", "");
+  return () => document.documentElement.classList.remove("fiche-attente");
 }
 
 async function amorcer() {

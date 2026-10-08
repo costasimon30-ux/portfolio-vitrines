@@ -374,7 +374,7 @@ test("publication.json : pages et fichiers publics présents, sans fichier de te
 });
 
 test("aucune page n'utilise innerHTML, eval, stockage navigateur ni URL externe dans les scripts", () => {
-  for (const f of ["js/catalogue-core.js", "js/dom.js", "js/page-catalogue.js", "js/page-produit.js"]) {
+  for (const f of ["js/attente-fiche.js", "js/catalogue-core.js", "js/dom.js", "js/page-catalogue.js", "js/page-produit.js"]) {
     const src = lirePage(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
     assert.ok(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\(|new Function|localStorage|sessionStorage|document\.cookie/.test(src), f);
     assert.ok(!/https?:\/\//.test(src), f);
@@ -508,4 +508,21 @@ test("BQ-03 : chargerCatalogue transforme aussi une exception du validateur en �
   } finally {
     globalThis.fetch = fetchOrigine;
   }
+});
+
+
+/* ---------- BQ-04 (résiduel) : la libération de la fiche ne dépend ni d'une animation ni du module ---------- */
+test("BQ-04 : l'attente de la fiche est posée par un script classique de l'en-tête, sans animation CSS", () => {
+  const html = lirePage("produit.html");
+  const tete = html.slice(html.indexOf("<head>"), html.indexOf("</head>"));
+  assert.ok(/<script src="js\/attente-fiche\.js"><\/script>/.test(tete), "script classique dans <head>");
+  assert.ok(!/class="[^"]*fiche-attente/.test(html), "aucune classe d'attente écrite en dur dans le HTML");
+  const css = lirePage("css/style.css");
+  assert.ok(/html\.fiche-attente \.site-footer/.test(css));
+  assert.ok(!/fiche-liberer/.test(css), "plus de libération par animation");
+  assert.ok(!/body\.fiche-attente/.test(css));
+  const attente = lirePage("js/attente-fiche.js");
+  for (const garde of ['"error"', '"load"', "data-fiche-module", "8000", "classList.remove"]) assert.ok(attente.includes(garde), garde);
+  assert.ok(!/animation|matchMedia|reduced-motion/.test(attente.replace(/\/\*[\s\S]*?\*\//g, "")));
+  assert.ok(lirePage("js/page-produit.js").includes("data-fiche-module"));
 });

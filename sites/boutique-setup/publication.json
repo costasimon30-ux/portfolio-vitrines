@@ -13,6 +13,7 @@
     "css/style.css",
     "assets/favicon.svg",
     "data/catalogue.json",
+    "js/attente-fiche.js",
     "js/catalogue-core.js",
     "js/dom.js",
     "js/page-catalogue.js",

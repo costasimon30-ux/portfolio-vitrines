@@ -323,15 +323,9 @@ main { padding-block: var(--e-32) var(--e-48); }
 
 /* Fiche en cours de chargement : le pied de page et les liens de retour restent dans la mise en page
    mais sont invisibles, pour ne jamais être vus se déplacer quand la fiche (ou son erreur) s'affiche. */
-@media (scripting: enabled) {
-  body.fiche-attente .fiche-suite,
-  body.fiche-attente .site-footer {
-    visibility: hidden;
-    /* Filet de sécurité sans JS : si le script ne s'exécute jamais, tout redevient visible après 8 s. */
-    animation: fiche-liberer 0s linear 8s forwards;
-  }
-}
-@keyframes fiche-liberer { to { visibility: visible; } }
+/* La classe est posée (et retirée) par js/attente-fiche.js et js/page-produit.js : sans script, rien n'est caché. */
+html.fiche-attente .fiche-suite,
+html.fiche-attente .site-footer { visibility: hidden; }
 
 .liste-modeles section { margin-top: var(--e-24); }
 .liste-modeles h2 { font-size: 1.0625rem; }
