@@ -11,6 +11,7 @@ import {
   formaterPrix, libelleCompte, lienFiche, reduireEspaces, PLAFONDS_PRIX, TRI_DEFAUT,
 } from "./catalogue-core.js";
 import { el, vider, chargerCatalogue } from "./dom.js";
+import { visuelModele } from "./visuels.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -67,13 +68,14 @@ function ecrireFormulaire(e) {
   for (const c of document.querySelectorAll('#f-univers input[type="checkbox"]')) c.checked = e.univers.includes(c.value);
 }
 
-function carte(modele) {
+function carte(modele, rang) {
   return el(
     "li",
     {},
     el(
       "article",
       { class: "carte" },
+      visuelModele(modele, { contexte: "carte", rang }),
       el("p", { class: "carte__famille" }, modele.familleNom),
       el("h3", { class: "carte__titre" }, el("a", { href: lienFiche(modele.id) }, modele.nom)),
       el("p", { class: "carte__desc" }, modele.description),
@@ -96,7 +98,7 @@ function demarrer(catalogue) {
     if (compte.textContent !== texte) compte.textContent = texte;
     const liste = $("cartes");
     vider(liste);
-    for (const m of modelesAffichables(trouves)) liste.append(carte(m));
+    for (const [rang, m] of modelesAffichables(trouves).entries()) liste.append(carte(m, rang));
     $("vide").hidden = trouves.length !== 0;
     liste.hidden = trouves.length === 0;
   };

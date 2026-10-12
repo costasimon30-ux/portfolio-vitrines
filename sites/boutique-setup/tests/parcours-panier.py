@@ -23,7 +23,7 @@ CLE_PANIER_V1, CLE_CONF_V1 = "lignePosee.v1.panier", "lignePosee.v1.confirmation
 ETR = "autre-site.preferences"
 SKU_A, SKU_B = "LP-SUP-03-04", "LP-LUM-01-02"  # 169 € ; prix lu dans le catalogue
 MIME = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8",
-        ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8"}
+        ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8", ".webp": "image/webp"}
 
 
 class H(http.server.BaseHTTPRequestHandler):
@@ -303,7 +303,7 @@ def parcours(b, w):
     hors = [(m, u) for (m, u) in c.requetes if m != "GET" or not u.startswith(BASE)]
     check("aucune requête hors GET du site lui-même (pas de POST, pas de domaine externe)", not hors, hors[:5])
     chemins = sorted({urllib.parse.urlparse(u).path for (_, u) in c.requetes})
-    check("requêtes limitées aux fichiers du site", all(p.endswith((".html", ".css", ".js", ".json", ".svg", ".ico")) or p == "/" for p in chemins), chemins)
+    check("requêtes limitées aux fichiers du site", all(p.endswith((".html", ".css", ".js", ".json", ".svg", ".ico", ".webp")) or p == "/" for p in chemins), chemins)
     check("aucune erreur JavaScript non gérée sur tout le parcours", not c.erreurs, c.erreurs[:3])
     ls = pg.evaluate("localStorage.length")
     ck = pg.evaluate("document.cookie")

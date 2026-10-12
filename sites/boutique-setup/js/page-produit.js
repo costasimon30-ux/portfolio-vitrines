@@ -13,6 +13,7 @@ import {
 } from "./catalogue-core.js";
 import { el, vider, chargerCatalogue } from "./dom.js";
 import { ajouterAuPanier, lirePanier, obtenirMagasin } from "./panier-core.js";
+import { visuelModele } from "./visuels.js";
 
 const $ = (id) => document.getElementById(id);
 const MARQUE = "Ligne Posée";
@@ -165,7 +166,7 @@ function rendreFiche(catalogue, res) {
     el(
       "div",
       { class: "fiche__grille" },
-      el("p", { class: "visuel" }, el("span", {}, "Visuel à venir"), " Aucune photographie validée pour ce modèle."),
+      visuelModele(modele, { contexte: "fiche" }),
       el(
         "div",
         { class: "fiche__choix" },
