@@ -84,13 +84,47 @@ test("mentions : visuel d'illustration généré + variante non représentée, c
   assert.match(MENTION_FICHE, /variante sélectionnée.*n’est pas représentée/);
 });
 
-test("aucun texte résiduel ne prétend « pas encore d'images » ; l'accueil n'a pas de nouvelle section ni d'image", () => {
+test("aucun texte résiduel ne prétend « pas encore d'images » ; l'accueil n'a qu'une image (sup-01) et ses deux sections", () => {
   for (const f of ["index.html", "catalogue.html", "produit.html", "404.html", "js/page-produit.js", "js/page-catalogue.js", "css/style.css"]) {
     assert.ok(!/Visuel à venir|Aucune photographie validée|Pas encore de photographies|« à venir »/.test(lire(f)), f);
   }
   const accueil = lire("index.html");
-  assert.ok(!/<img\b|<picture|srcset/i.test(accueil));
+  assert.ok(!/<picture/i.test(accueil));
+  const images = accueil.match(/<img\b[^>]*>/g) ?? [];
+  assert.equal(images.length, 1, "une seule image sur l'accueil : le visuel d'ouverture");
+  assert.match(images[0], /srcset="assets\/produits\/sup-01-320\.webp 320w, assets\/produits\/sup-01-640\.webp 640w, assets\/produits\/sup-01-960\.webp 960w"/);
+  assert.match(images[0], /width="960"[^>]*height="640"/, "ratio 3:2 réservé avant chargement");
+  assert.match(images[0], /alt="Rehausseur d’écran, illustration générée : [^"]+"/);
+  assert.ok(!/noir|graphite|blanc|aluminium|mat\b/i.exec(images[0].match(/alt="([^"]*)"/)[1]), "alt sans finition");
   assert.equal((accueil.match(/<section\b/g) ?? []).length, 2, "l'accueil garde ses deux sections");
+});
+
+test("accueil « Le bureau prend forme » : ordre de lecture, textes validés, un seul bouton vers le catalogue", () => {
+  const accueil = lire("index.html");
+  const ordre = ["<h1", "hero__accroche", "<figure", "hero__legende", "Voir les 20 modèles", 'id="familles-titre"', 'id="demo-titre"'].map((m) => accueil.indexOf(m));
+  assert.ok(ordre.every((n) => n > 0), "tous les repères sont présents");
+  assert.deepEqual([...ordre].sort((a, b) => a - b), ordre, "H1 → accroche → image et légende → CTA → familles → démonstration");
+  assert.match(accueil, /<h1[^>]*>Ligne Posée<\/h1>/);
+  assert.match(accueil, /Des objets sobres pour un bureau bien pensé\./);
+  assert.match(accueil, /Illustration générée — modèle fictif, finitions non représentées\./);
+  assert.equal((accueil.match(/Voir les 20 modèles/g) ?? []).length, 1, "pas de doublon du CTA");
+  assert.match(accueil, /<a class="bouton bouton--hero" href="catalogue\.html">Voir les 20 modèles<\/a>/);
+  assert.ok(!/Boutique fictive · démonstration/.test(accueil), "pas de second libellé de fiction avant le H1");
+  assert.equal((accueil.match(/href="catalogue\.html\?famille=(sup|tap|lum|ran)"/g) ?? []).length, 4, "quatre familles liées");
+});
+
+test("en-tête commun : marque = lien d'accueil, trois liens permanents et mention de fiction sur les 7 pages", () => {
+  const attendu = { "index.html": "index.html", "catalogue.html": "catalogue.html", "panier.html": "panier.html" };
+  for (const f of ["index.html", "catalogue.html", "produit.html", "panier.html", "commande.html", "confirmation.html", "404.html"]) {
+    const html = lire(f);
+    assert.ok(html.includes("<strong>Boutique fictive — aucun achat possible.</strong>"), `${f} : mention permanente`);
+    assert.match(html, /<a class="marque" href="(index\.html|\/)"/, `${f} : marque = accueil`);
+    const nav = html.match(/<nav class="nav-principale"[\s\S]*?<\/nav>/)?.[0] ?? "";
+    const liens = [...nav.matchAll(/<a href="([^"]*)"([^>]*)>([^<]*)<\/a>/g)];
+    assert.deepEqual(liens.map((l) => l[3]), ["Accueil", "Catalogue", "Panier"], `${f} : trois liens permanents`);
+    const courants = liens.filter((l) => /aria-current="page"/.test(l[2])).map((l) => l[1]);
+    assert.deepEqual(courants, attendu[f] ? [attendu[f]] : [], `${f} : page courante`);
+  }
 });
 
 test("sources des visuels : texte inséré par le DOM, aucune ressource externe, aucun stockage", () => {

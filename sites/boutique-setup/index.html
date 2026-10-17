@@ -13,7 +13,7 @@
 <a class="skip-link" href="#contenu">Aller au contenu</a>
 <div class="avis-demo">
   <div class="container">
-    <p><strong>Démonstration — boutique fictive.</strong> Les produits, références et prix sont des données de démonstration : aucun achat n’est possible.</p>
+    <p><strong>Boutique fictive — aucun achat possible.</strong></p>
   </div>
 </div>
 <header class="site-header">
@@ -23,22 +23,31 @@
       <ul>
         <li><a href="index.html" aria-current="page">Accueil</a></li>
         <li><a href="catalogue.html">Catalogue</a></li>
-        <li><a href="produit.html">Fiche produit</a></li>
         <li><a href="panier.html">Panier</a></li>
-        <li><a href="commande.html">Commande</a></li>
-        <li><a href="confirmation.html">Fin de démo</a></li>
       </ul>
     </nav>
   </div>
 </header>
 
-<main id="contenu" tabindex="-1">
+<main id="contenu" class="accueil" tabindex="-1">
   <div class="container">
-    <p class="eyebrow">Boutique fictive · démonstration</p>
-    <h1>Ligne Posée</h1>
-    <p class="chapeau">Des accessoires de bureau et de setup, sobres et bien finis : supports, tapis, éclairage et rangement. Ligne Posée est une boutique imaginée pour un portfolio : tout ce que vous y voyez est fictif.</p>
+    <div class="hero">
+      <h1 class="hero__titre">Ligne Posée</h1>
+      <p class="hero__accroche">Des objets sobres pour un bureau bien pensé.</p>
+      <figure class="hero__figure">
+        <div class="hero__cadre">
+          <img src="assets/produits/sup-01-640.webp"
+               srcset="assets/produits/sup-01-320.webp 320w, assets/produits/sup-01-640.webp 640w, assets/produits/sup-01-960.webp 960w"
+               sizes="(min-width: 72em) 571px, (min-width: 64em) calc((100vw - 104px) * .58), (min-width: 48em) 600px, calc(100vw - 32px)"
+               width="960" height="640" decoding="async" fetchpriority="high"
+               alt="Rehausseur d’écran, illustration générée : plateau rectangulaire allongé posé sur deux pieds bas, avec un espace libre dessous.">
+        </div>
+        <figcaption class="hero__legende">Illustration générée — modèle fictif, finitions non représentées.</figcaption>
+      </figure>
+      <p class="hero__cta"><a class="bouton bouton--hero" href="catalogue.html">Voir les 20 modèles</a></p>
+    </div>
 
-    <section class="bloc bloc--large" aria-labelledby="familles-titre">
+    <section class="bloc bloc--large bloc--familles" aria-labelledby="familles-titre">
       <h2 id="familles-titre">Quatre familles, 20 modèles</h2>
       <ul class="familles">
         <li><a href="catalogue.html?famille=sup"><strong>Supports</strong><span>5 modèles · 20 références</span><span>Rehausser, incliner, soutenir : écran, ordinateur, tablette ou casque.</span></a></li>
@@ -46,10 +55,9 @@
         <li><a href="catalogue.html?famille=lum"><strong>Éclairage</strong><span>5 modèles · 20 références</span><span>Éclairer le poste de travail, directement, d’en haut ou en ambiance.</span></a></li>
         <li><a href="catalogue.html?famille=ran"><strong>Rangement</strong><span>5 modèles · 20 références</span><span>Ranger câbles, papiers et petits objets à portée de main.</span></a></li>
       </ul>
-      <p class="actions"><a class="bouton" href="catalogue.html">Voir les 20 modèles</a></p>
     </section>
 
-    <section class="bloc" aria-labelledby="demo-titre">
+    <section class="bloc bloc--secondaire" aria-labelledby="demo-titre">
       <h2 id="demo-titre">Ce que contient la démonstration</h2>
       <ul>
         <li>Un catalogue de 20 modèles, avec recherche, filtres et tris, et une fiche par modèle avec ses quatre variantes (80 références au total).</li>

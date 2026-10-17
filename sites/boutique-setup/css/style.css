@@ -23,6 +23,7 @@
   --e-16: 1rem;
   --e-24: 1.5rem;
   --e-32: 2rem;
+  --e-40: 2.5rem;
   --e-48: 3rem;
   --cible: 2.75rem; /* 44 px : surface tactile minimale */
   --largeur: 68rem;
@@ -94,7 +95,7 @@ main:focus { outline: none; }
 /* ---------- En-tête et navigation ---------- */
 
 .site-header { border-bottom: 1px solid var(--c-filet); background: var(--c-surface); }
-.site-header__inner { padding-block: var(--e-8); }
+.site-header__inner { padding-block: var(--e-12); }
 
 .marque {
   display: inline-flex;
@@ -108,7 +109,7 @@ main:focus { outline: none; }
 .marque small { font-weight: 400; color: var(--c-texte-doux); font-size: .8125rem; }
 .actions-filtres { display: flex; flex-wrap: wrap; gap: var(--e-12); }
 
-.nav-principale ul { display: flex; flex-wrap: wrap; gap: 0 var(--e-4); }
+.nav-principale ul { display: flex; flex-wrap: wrap; gap: 0 var(--e-8); }
 .nav-principale a {
   display: inline-flex;
   align-items: center;
@@ -119,7 +120,7 @@ main:focus { outline: none; }
 }
 .nav-principale a:hover { border-bottom-color: var(--c-filet); }
 .nav-principale a[aria-current="page"] {
-  font-weight: 700;
+  font-weight: 600;
   border-bottom-color: var(--c-texte);
 }
 
@@ -203,6 +204,43 @@ main { padding-block: var(--e-32) var(--e-48); }
 .familles a:hover { border-color: var(--c-texte); }
 .familles strong { display: block; font-size: 1.125rem; }
 .familles span { display: block; color: var(--c-texte-doux); font-size: .9375rem; }
+
+/* ---------- Accueil : ouverture « Le bureau prend forme » ---------- */
+/* Ordre de lecture (DOM) : titre → accroche → visuel et légende → bouton. Une colonne jusqu'à 1024 px. */
+
+main.accueil { padding-top: var(--e-16); }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr); }
+.hero__titre { font-size: 2rem; line-height: 1.1; font-weight: 700; }
+.hero__accroche { margin-top: var(--e-8); font-size: 1rem; line-height: 1.5; }
+.hero__figure { display: flex; flex-direction: column; gap: var(--e-8); min-width: 0; margin: var(--e-16) 0 0; }
+/* Cadre 3:2 réservé avant chargement ; l'image carrée est recadrée vers le bas (plateau et pieds entiers). */
+.hero__cadre {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: .125rem;
+  background: var(--c-aplat);
+}
+.hero__cadre img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 60%;
+  color: var(--c-texte-doux);
+  font-size: .875rem;
+}
+.hero__legende { color: var(--c-texte-doux); font-size: .875rem; line-height: 1.4; }
+.hero__cta { margin-top: var(--e-16); }
+.bouton--hero {
+  width: 100%;
+  min-height: 3rem;
+  padding-inline: 1.25rem;
+  border-radius: .125rem;
+}
+
+.bloc--familles { margin-top: var(--e-32); }
+.bloc--secondaire { margin-top: var(--e-48); color: var(--c-texte-doux); }
+.bloc--secondaire h2 { font-size: 1.0625rem; color: var(--c-texte); }
 
 /* ---------- Catalogue : recherche, filtres, tris ---------- */
 
@@ -364,6 +402,11 @@ html.fiche-attente .site-footer { visibility: hidden; }
 
 @media (min-width: 48em) {
   .container { padding-inline: var(--e-32); }
+  main.accueil { padding-top: var(--e-24); }
+  .hero { max-width: 37.5rem; margin-inline: auto; }
+  .hero__titre { font-size: 2.5rem; }
+  .bouton--hero { width: auto; }
+  .bloc--familles { margin-top: var(--e-48); }
   .cartes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .filtres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .fiche__grille { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
@@ -380,8 +423,25 @@ html.fiche-attente .site-footer { visibility: hidden; }
   main { padding-block: var(--e-48) calc(var(--e-48) + var(--e-16)); }
 }
 
+@media (min-width: 64em) {
+  main.accueil { padding-top: var(--e-48); }
+  .hero {
+    max-width: none;
+    margin-inline: 0;
+    grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
+    column-gap: var(--e-40);
+    grid-template-rows: 1fr auto auto auto 1fr;
+  }
+  .hero__titre { grid-column: 1; grid-row: 2; }
+  .hero__accroche { grid-column: 1; grid-row: 3; }
+  /* marge basse = légende + espace : le texte se centre sur le cadre de l'image, légende exclue */
+  .hero__cta { grid-column: 1; grid-row: 4; margin: var(--e-24) 0 1.75rem; }
+  .hero__figure { grid-column: 2; grid-row: 1 / -1; margin-top: 0; }
+}
+
 @media (min-width: 90em) {
   h1 { font-size: 2.5rem; }
+  .hero__titre { font-size: 3rem; line-height: 1.1; }
   .familles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
