@@ -1441,6 +1441,13 @@ Simon valide le lot UI/UX défini dans la sous-section artistique ci-dessous : o
 
 **Acceptation du lot.** Vérifier l'accueil à 320×568, 375×667, 768×1024 et 1440×900 dans le périmètre de la direction artistique ; vérifier la présence visible de la fiction, les trois liens permanents, les liens des familles, l'accès effectif au catalogue et au parcours jusqu'à la fin de simulation, le clavier/focus, le repli sans image et l'absence de débordement ou de décalage nouveau imputable au lot. Le rendu intégré doit être montré à Simon pour validation distincte. Cette décision n'autorise ni déploiement Cloudflare, ni ajout de Ligne Posée aux « Réalisations » du portfolio.
 
+#### Validation du rendu intégré — Ligne Posée, 17 octobre 2026
+
+Simon valide personnellement le rendu de l'accueil « Le bureau prend forme » livré au commit source `7e4032bc7ed4fb0588a8259a4d1430c2c4fb10a1`. Cette validation porte sur l'apparence et la composition observées dans les captures à 320×568, 375×667, 768×1024 et 1440×900, ainsi que sur la navigation permanente « Accueil / Catalogue / Panier ». Elle clôt l'arbitrage visuel de ce lot ; elle ne transforme pas les contrôles de l'Implémentation en recette indépendante.
+
+**Restent distincts avant une éventuelle republication :** reproduire l'assemblage sous Node `22.23.2` (l'Implémentation n'a contrôlé le lot que sous Node `24.21.0`) et figer/identifier l'artefact exact. Le zoom navigateur natif à 200 % demeure non vérifié et doit être déclaré comme limite, sans assimilation à l'émulation réalisée. Les réserves LP-QA-01 et LP-QA-02 restent ouvertes hors de ce lot. Aucune nouvelle revue générale n'est déclenchée par cette validation ; aucun déploiement Cloudflare ni ajout au portfolio n'est autorisé par cette décision.
+
+
 #### Direction artistique — lot accueil « Le bureau prend forme », 14 octobre 2026
 
 **Statut.** Brief ciblé soumis à Simon, appliquant le cap produit du commit `cecc5d3`. L'essai porte sur l'accueil et l'en-tête commun de Ligne Posée ; contenu et composition de la fiche produit, catalogue/filtres, données et commande restent ceux de la source publiée `a03b365`. La navigation à trois liens ci-dessous est une proposition produit encore à confirmer. La validation de ce brief et celle du futur rendu sont distinctes ; aucun déploiement ou audit général n'est demandé.
