@@ -157,18 +157,19 @@
   <section class="section" id="realisations" aria-labelledby="realisations-title">
     <div class="container defilement">
       <h2 id="realisations-title">Réalisations</h2>
-      <p class="section__intro">Deux démonstrations de sites vitrines, à découvrir en ligne.</p>
+      <p class="section__intro">Trois démonstrations, à découvrir en ligne.</p>
 
       <div class="projets">
-        <!-- Deux démonstrations, une seule carte affichée (docs/DIRECTION.md,
-             « Deux démos dans Réalisations » et § 11). La rangée d'onglets est
-             masquée (`hidden`) et n'est révélée que par js/realisations-onglets.js :
-             sans JavaScript, ou si l'initialisation échoue, les deux cartes
-             complètes restent visibles dans l'ordre du document, avec leurs
+        <!-- Trois démonstrations, une seule carte affichée (docs/DIRECTION.md,
+             « Deux démos dans Réalisations », § 11, puis ajout de Ligne Posée).
+             La rangée d'onglets est masquée (`hidden`) et n'est révélée que par
+             js/realisations-onglets.js : sans JavaScript, ou si l'initialisation
+             échoue, les trois cartes complètes restent visibles dans l'ordre du document, avec leurs
              liens réels — aucun faux onglet inerte. -->
         <div class="onglets" role="tablist" aria-label="Démonstrations" hidden>
           <button type="button" class="onglet" role="tab" id="onglet-creatif" aria-selected="true" aria-controls="projet-creatif"><span class="onglet__nom" data-nom="Créa’Tif">Créa’Tif</span></button>
           <button type="button" class="onglet" role="tab" id="onglet-tablee" aria-selected="false" aria-controls="projet-tablee" tabindex="-1"><span class="onglet__nom" data-nom="La Tablée des Forges">La Tablée des Forges</span></button>
+          <button type="button" class="onglet" role="tab" id="onglet-ligne-posee" aria-selected="false" aria-controls="projet-ligne-posee" tabindex="-1"><span class="onglet__nom" data-nom="Ligne Posée">Ligne Posée</span></button>
         </div>
 
         <div class="grille-projets">
@@ -226,6 +227,26 @@
               <h3>La Tablée des Forges — concept de brasserie-bar du soir</h3>
               <p>Un concept de brasserie-bar fictif, réalisé en démonstration&nbsp;: trois pages, une carte courte de burgers et de bières, une ambiance bois et métal, photographies d’illustration. Aucun établissement de ce nom n’existe&nbsp;; la carte, les prix, les horaires et la localisation du site sont fictifs.</p>
               <p class="carte-projet__lien"><a href="https://la-tablee-des-forges.costa-simon30.workers.dev/" aria-label="Voir la démo de La Tablée des Forges">Voir la démo</a></p>
+            </div>
+          </article>
+
+          <article class="carte carte-projet" id="projet-ligne-posee">
+            <!-- Aperçu réel de Ligne Posée : capture de l'accueil de la démo
+                 publiée (paquet de 84 fichiers, empreinte agrégée ce9e03d3…,
+                 source 7e4032b, version Cloudflare b7291ef2, 83 fichiers publics
+                 vérifiés identiques en ligne), viewport 1200 × 675 réduit à
+                 880 × 495 (16:9), bandeau de fiction, en-tête et ouverture de
+                 l'accueil visibles, aucune retouche, aucun filtre, aucun faux
+                 cadre de navigateur. Ce n'est pas une photographie de produit
+                 isolée. Provenance et limites dans assets/images/NOTICE.md. -->
+            <div class="visuel-projet visuel-projet--16-9">
+              <img src="assets/images/ligne-posee-accueil-16-9.webp" width="880" height="495" alt="Accueil de Ligne Posée : le bandeau « Boutique fictive — aucun achat possible. », la navigation Accueil, Catalogue et Panier, le titre « Ligne Posée », l’accroche « Des objets sobres pour un bureau bien pensé. », le bouton « Voir les 20 modèles » et une illustration générée d’un rehausseur d’écran." loading="lazy" decoding="async">
+            </div>
+            <div class="carte-projet__corps">
+              <p class="libelle">Démonstration</p>
+              <h3>Ligne Posée — concept de boutique en ligne fictive</h3>
+              <p>Une boutique d’accessoires de bureau fictive, réalisée en démonstration&nbsp;: 20 modèles, 80 références, panier et commande simulée. Aucun achat ni paiement n’est possible et aucune commande n’est envoyée&nbsp;; produits, prix et illustrations générées sont fictifs.</p>
+              <p class="carte-projet__lien"><a href="https://ligne-posee.costa-simon30.workers.dev/" aria-label="Voir la démo de Ligne Posée">Voir la démo</a></p>
             </div>
           </article>
         </div>

@@ -545,11 +545,12 @@ a:visited:hover { color: var(--c-accent-actif); }
   aspect-ratio: 16 / 9;
 }
 
-/* Deux démonstrations, une seule carte affichée (docs/DIRECTION.md, « Deux
-   démos dans Réalisations » et § 11). Sans JavaScript, la rangée d'onglets
-   reste masquée (`hidden`) et les deux cartes complètes s'empilent dans
+/* Trois démonstrations, une seule carte affichée (docs/DIRECTION.md, « Deux
+   démos dans Réalisations », § 11, puis ajout de Ligne Posée). Sans JavaScript,
+   la rangée d'onglets reste masquée (`hidden`) et les trois cartes complètes
+   s'empilent dans
    l'ordre du document. js/realisations-onglets.js révèle la rangée et pose
-   `.projets--onglets` : les deux cartes occupent alors la même cellule de
+   `.projets--onglets` : les trois cartes occupent alors la même cellule de
    grille, la carte inactive est seulement `visibility: hidden` (hors parcours
    Tab et hors arbre d'accessibilité). La zone prend ainsi toujours la hauteur
    de la carte la plus haute : changer d'onglet ne déplace ni le contenu qui
@@ -559,7 +560,7 @@ a:visited:hover { color: var(--c-accent-actif); }
 .projets--onglets .carte-projet { grid-area: 1 / 1; }
 .projets--onglets .carte-projet[data-inactif] { visibility: hidden; }
 
-/* Rangée de choix : deux colonnes égales sur téléphone, largeur naturelle
+/* Rangée de choix : trois colonnes égales sur téléphone, largeur naturelle
    dès 768px. Cible d'au moins 44 x 44px (56px de haut sur téléphone). Actif :
    nom en texte principal semi-gras et filet inférieur continu de 2px en
    accent ; inactif : texte secondaire opaque, filet neutre de 1px porté par
@@ -570,7 +571,7 @@ a:visited:hover { color: var(--c-accent-actif); }
    3px (voir 02), distinct du filet actif. */
 .onglets {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: var(--e-32);
   border-bottom: 1px solid var(--c-filet);
 }
@@ -580,7 +581,7 @@ a:visited:hover { color: var(--c-accent-actif); }
   justify-content: center;
   min-height: 56px;
   margin: 0 0 -1px;
-  padding: var(--e-08) var(--e-12);
+  padding: var(--e-08) var(--e-04);
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;

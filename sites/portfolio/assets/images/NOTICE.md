@@ -1,7 +1,8 @@
 # Aperçu de Créa’Tif — portfolio
 
-> Ce fichier documente deux aperçus de la section « Réalisations » : celui de
-> Créa’Tif (ci-dessous) et celui de La Tablée des Forges (en fin de fichier).
+> Ce fichier documente trois aperçus de la section « Réalisations » : celui de
+> Créa’Tif (ci-dessous), puis ceux de La Tablée des Forges et de Ligne Posée
+> (en fin de fichier).
 
 Ce dossier contient les deux fichiers utilisés par la carte Créa’Tif de la
 section « Réalisations » (`index.html`), en remplacement de la composition
@@ -192,3 +193,75 @@ Le statut de démonstration fictive est explicite sur la carte elle-même
 ce nom n'existe ») et sur le site source. L'adresse, les horaires et les prix de
 la démo ne sont pas repris dans le portfolio.
 
+
+---
+
+# Aperçu de Ligne Posée — portfolio
+
+Ce chapitre documente le fichier `ligne-posee-accueil-16-9.webp`, utilisé à
+toutes les largeurs par la carte « Ligne Posée » de la section « Réalisations »
+(`index.html`). Ligne Posée est une **boutique fictive** (20 modèles, 80
+références, commande simulée sans achat ni paiement). L'aperçu est la capture
+de l'accueil de la démo effectivement publiée : sans filtre, sans retouche de
+l'interface, sans faux navigateur. Ce n'est pas une photographie de produit
+isolée présentée comme capture du site.
+
+## Page capturée, date et méthode
+
+- **Page :** l'accueil de Ligne Posée,
+  <https://ligne-posee.costa-simon30.workers.dev/>, source figée
+  `7e4032bc7ed4fb0588a8259a4d1430c2c4fb10a1`, version Cloudflare active
+  `b7291ef2` (dépôt manuel du 17 octobre 2026).
+- **Zone capturée :** les 1200 × 675 px de la première fenêtre de l'accueil
+  (bandeau « Boutique fictive — aucun achat possible. », en-tête et
+  navigation, ouverture « Ligne Posée », illustration, début de la section
+  « Quatre familles »). Aucun recadrage : c'est la fenêtre elle-même, déjà 16:9.
+- **Date :** 17 octobre 2026.
+- **Méthode :** Chrome sans interface (protocole DevTools,
+  `Page.captureScreenshot`, format WebP, qualité 90), fenêtre de 1200 × 675
+  CSS px, `deviceScaleFactor` 1, sans zoom ni émulation d'appareil, avec
+  `clip.scale` = 0,7333 pour livrer **880 × 495 px** : le navigateur
+  re-rastérise la page à cette échelle, il ne s'agit pas d'un
+  redimensionnement après coup. Aucun traitement ultérieur.
+- **Écart à signaler :** la capture n'a **pas** été prise sur l'URL en ligne.
+  Les navigateurs de l'environnement de travail ont refusé de charger cette
+  adresse. Elle a été prise sur le paquet de dépôt conservé hors du dépôt
+  (`/Users/simoncosta/Sites/artefacts/ligne-posee-candidat-7e4032b/depot/`),
+  servi en HTTP local : 84 fichiers, 1 121 723 octets, empreinte agrégée
+  `ce9e03d309dc0a9c275ce3e49692bb31e5e18dad70764a67ad70b10c2d829099`
+  (`find . -type f | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256`).
+  Après le dépôt, les 83 fichiers publics servis sur 84 ont été comparés un à
+  un à ce paquet (83 identiques, 0 écart ; `_headers` n'est pas servi) : le
+  HTML, le CSS, le JavaScript et les images rendus sont donc ceux de la démo
+  publiée. Avant toute nouvelle publication de la démo, revérifier que la
+  version en ligne correspond toujours à cette source.
+
+## Le fichier
+
+| Fichier | Cadrage | Dimensions livrées | SHA-256 |
+| --- | --- | --- | --- |
+| `ligne-posee-accueil-16-9.webp` | 16:9, fenêtre entière | 880 × 495 px | `829fe2390853f7b3eba1090f2c19389050fb6a7c299eca0cc2fbe06c66ff0a31` |
+
+Les deux thèmes Clair et Sombre du portfolio utilisent ce même fichier, sans
+variante par thème, dans un filet neutre de 1 px (`--c-filet`) posé par
+`css/style.css`, comme pour La Tablée des Forges (même classe
+`visuel-projet--16-9`). Aucun texte de la carte n'est posé sur l'image.
+
+## Illustration visible dans la capture
+
+Le visuel affiché dans l'accueil est le rehausseur d'écran `sup-01`, une
+**illustration générée par IA** (produit fictif, sans fabricant ni marque),
+validée visuellement par Simon le 12 octobre 2026. Provenance, prompts et
+limites : `sites/boutique-setup/NOTICE-VISUELS.md` (notice locale de la démo,
+non publiée — réserve LP-QA-02 toujours ouverte). Cette capture ne représente
+aucune photographie réelle ni aucun produit existant.
+
+## Statut de la démonstration
+
+Le statut fictif est explicite sur la carte elle-même (« Une boutique
+d'accessoires de bureau fictive… Aucun achat ni paiement n'est possible et
+aucune commande n'est envoyée ; produits, prix et illustrations générées sont
+fictifs ») et dans la capture (bandeau « Boutique fictive — aucun achat
+possible. »). Les réserves LP-QA-01 (fiche produit avec données très lentes) et
+LP-QA-02 (notice détaillée des visuels non publiée) restent ouvertes ; cette
+carte ne les lève pas et ne présente pas la démo comme validée sans réserve.

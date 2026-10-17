@@ -2,8 +2,9 @@
   Onglets « Réalisations » — sites/portfolio/, docs/DIRECTION.md, décision
   « Deux démos dans Réalisations » (6 octobre 2026) et § 11.
 
-  Deux onglets nommés, « Créa’Tif » et « La Tablée des Forges », au-dessus
-  d'UNE carte affichée. Motif WAI-ARIA APG des onglets, activation MANUELLE :
+  Trois onglets nommés, « Créa’Tif », « La Tablée des Forges » et « Ligne
+  Posée », au-dessus d'UNE carte affichée (le script ne dépend pas du nombre
+  d'onglets : deux au minimum). Motif WAI-ARIA APG des onglets, activation MANUELLE :
     - Tab atteint l'onglet sélectionné (les autres ont tabindex="-1"), puis
       poursuit dans le panneau actif ;
     - flèches gauche/droite déplacent le focus (retour circulaire), Début/Fin
@@ -18,7 +19,7 @@
 
   Repli. La rangée d'onglets est masquée (`hidden`) dans le balisage ; ce
   script la révèle en dernier, une fois tout en place. Sans JavaScript, ou si
-  quoi que ce soit échoue, les deux cartes complètes restent visibles dans
+  quoi que ce soit échoue, les trois cartes complètes restent visibles dans
   l'ordre du document, avec leurs liens réels : aucun faux onglet inerte.
 */
 (function () {
