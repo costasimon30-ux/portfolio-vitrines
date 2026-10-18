@@ -23,5 +23,6 @@
     "assets/fonts/ibm-plex-mono/LICENSE.txt",
     "assets/fonts/ibm-plex-mono/ibm-plex-mono-400.woff2"
   ],
-  "sharedFiles": []
+  "sharedFiles": [],
+  "contentTypeRules": true
 }

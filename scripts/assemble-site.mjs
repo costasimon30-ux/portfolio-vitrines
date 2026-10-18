@@ -48,6 +48,47 @@ const DOSSIER_RESERVE = "shared";
 const BASES_NOTICE = new Set(["notice", "license", "licence", "copying", "credits"]);
 const EXTENSIONS_NOTICE = new Set([".md", ".txt", ""]);
 
+/**
+ * PUB-11 — Règles Content-Type explicites dans `_headers`, OPT-IN par site.
+ *
+ * Incident du 18 octobre 2026 : sur deux dépôts manuels (portfolio, Ligne
+ * Posée), le tableau de bord Cloudflare a enregistré les fichiers nouveaux ou
+ * modifiés avec `Content-Type: application/octet-stream` — les navigateurs
+ * téléchargeaient les pages au lieu de les afficher, alors que les octets
+ * étaient exacts. Workers Static Assets permet à `_headers` de remplacer les
+ * en-têtes par défaut ; ce mécanisme porte déjà le type des notices.
+ *
+ * Contraintes de la documentation Cloudflare (Workers — en-têtes des assets) :
+ *   - plusieurs règles qui matchent un même chemin se CUMULENT, et un en-tête
+ *     répété voit ses valeurs jointes par une virgule : chaque chemin servi doit
+ *     donc correspondre à UNE SEULE règle Content-Type. Aucune règle
+ *     « Content-Type » sur `/*` : elle écraserait ou doublerait le type des CSS,
+ *     images et scripts ;
+ *   - un seul « * » par motif ; 100 règles au plus ; 2 000 caractères par ligne.
+ *
+ * Activation : champ `contentTypeRules: true` du manifeste du site. Sans lui,
+ * le `_headers` est identique octet pour octet à celui d'avant PUB-11.
+ */
+const TYPES_MIME = Object.freeze({
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".svg": "image/svg+xml",
+  ".webp": "image/webp",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".avif": "image/avif",
+  ".gif": "image/gif",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+  ".woff": "font/woff",
+});
+const TYPE_TEXTE = "text/plain; charset=utf-8";
+const LIMITE_REGLES_HEADERS = 100;
+const LIMITE_LIGNE_HEADERS = 2000;
+
 /** PUB-05 — Exclusions imposées par le contrat, quelles que soient les listes. */
 const EXTENSIONS_INTERDITES = new Set([
   ".map", ".zip", ".tar", ".gz", ".tgz", ".7z", ".rar", ".bz2",
@@ -291,7 +332,7 @@ async function lireManifeste(dossierSite, slug) {
   if (manifeste === null || typeof manifeste !== "object" || Array.isArray(manifeste)) {
     throw new ErreurAssemblage("Manifeste : objet JSON attendu.");
   }
-  const champsConnus = new Set(["kind", "pages", "publicFiles", "sharedFiles"]);
+  const champsConnus = new Set(["kind", "pages", "publicFiles", "sharedFiles", "contentTypeRules"]);
   for (const cle of Object.keys(manifeste)) {
     if (!champsConnus.has(cle)) {
       throw new ErreurAssemblage(`Manifeste : champ inconnu « ${cle} ». Champs admis : ${[...champsConnus].join(", ")}.`);
@@ -300,6 +341,12 @@ async function lireManifeste(dossierSite, slug) {
   if (manifeste.kind !== "demo" && manifeste.kind !== "portfolio") {
     throw new ErreurAssemblage(
       `Manifeste : « kind » doit valoir "demo" ou "portfolio" (lu : ${JSON.stringify(manifeste.kind)}).`
+    );
+  }
+
+  if (manifeste.contentTypeRules !== undefined && typeof manifeste.contentTypeRules !== "boolean") {
+    throw new ErreurAssemblage(
+      `Manifeste : « contentTypeRules » doit être un booléen (lu : ${JSON.stringify(manifeste.contentTypeRules)}).`
     );
   }
 
@@ -318,7 +365,7 @@ async function lireManifeste(dossierSite, slug) {
       throw new ErreurAssemblage(`Manifeste : « pages » doit contenir ${obligatoire}.`);
     }
   }
-  return { chemin, slug, kind: manifeste.kind, pages, publicFiles, sharedFiles };
+  return { chemin, slug, kind: manifeste.kind, pages, publicFiles, sharedFiles, contentTypeRules: manifeste.contentTypeRules === true };
 }
 
 /* ================================================================== *
@@ -815,7 +862,106 @@ function construireRobotsTxt() {
 
    La non-indexation des Preview URLs du Worker relève d'un réglage du tableau
    de bord, pas de ce fichier. */
-function construireHeaders(politique, notices) {
+/* PUB-11 — Un « * » du motif vaut « tout caractère, « / » compris ». */
+function motifCorrespond(motif, chemin) {
+  const expression = motif.split("*").map((m) => m.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".*");
+  return new RegExp(`^${expression}$`).test(chemin);
+}
+
+/**
+ * PUB-11 — Règles Content-Type d'un site qui les demande. Renvoie une liste de
+ * { motif, type }. Les chemins servis sont dérivés du plan d'assemblage :
+ *   - pages : « / » pour index.html, « /nom » pour nom.html (html_handling
+ *     auto-trailing-slash, réglage attendu des Workers du dépôt) et un motif
+ *     « /*.html » qui couvre aussi les accès en « .html » ;
+ *   - fichiers publics : un motif de dossier « /dossier/* » seulement si tout
+ *     le sous-arbre porte le même type et ne contient ni notice ni fichier
+ *     généré ; sinon une règle exacte par fichier ;
+ *   - robots.txt ; les notices gardent leur propre règle (construireHeaders).
+ * Une extension inconnue, un caractère de motif dans un chemin, ou un chemin
+ * servi qui ne correspondrait pas à EXACTEMENT une règle de type lèvent une
+ * erreur : jamais de type deviné, jamais de valeurs cumulées.
+ */
+function construireReglesContentType(planifies, notices) {
+  const regles = new Map(); // motif -> type
+  const urlsAttendues = []; // { url, type } à contrôler
+  const ajouter = (motif, type) => {
+    if (regles.has(motif) && regles.get(motif) !== type) {
+      throw new ErreurAssemblage(`Règles Content-Type : deux types pour « ${motif} ».`);
+    }
+    regles.set(motif, type);
+  };
+  const typeDe = (destination) => {
+    const ext = path.posix.extname(destination).toLowerCase();
+    const type = TYPES_MIME[ext];
+    if (!type) {
+      throw new ErreurAssemblage(
+        `Règles Content-Type : aucun type MIME sûr pour « ${destination} » (extension « ${ext || "aucune"} »). ` +
+          `Extensions admises : ${Object.keys(TYPES_MIME).join(", ")}.`
+      );
+    }
+    return type;
+  };
+  for (const destination of planifies.keys()) {
+    if (/[*:#\s]/.test(destination)) {
+      throw new ErreurAssemblage(`Règles Content-Type : caractère interdit dans le chemin « ${destination} ».`);
+    }
+  }
+
+  const entrees = [...planifies].filter(([, v]) => v.type !== "généré");
+  for (const [destination, { type }] of entrees.filter(([, v]) => v.type === "pages").sort(([a], [b]) => (a < b ? -1 : 1))) {
+    const route = destination === "index.html" ? "/" : `/${destination.slice(0, -".html".length)}`;
+    ajouter(route, TYPES_MIME[".html"]);
+    urlsAttendues.push({ url: route, type: TYPES_MIME[".html"] }, { url: `/${destination}`, type: TYPES_MIME[".html"] });
+  }
+  ajouter("/*.html", TYPES_MIME[".html"]);
+
+  const fichiers = entrees.filter(([d, v]) => v.type !== "pages" && !estNotice(d)).map(([d]) => d).sort();
+  const sousArbre = (dossier) => [...planifies.keys()].filter((d) => d.startsWith(`${dossier}/`));
+  for (const destination of fichiers) {
+    const type = typeDe(destination);
+    urlsAttendues.push({ url: `/${destination}`, type });
+    const segments = destination.split("/");
+    let motif = `/${destination}`;
+    for (let i = 1; i < segments.length; i++) {
+      const dossier = segments.slice(0, i).join("/");
+      const contenu = sousArbre(dossier);
+      const homogene = contenu.every((d) => {
+        const v = planifies.get(d);
+        return v.type !== "généré" && v.type !== "pages" && !estNotice(d) && typeDe(d) === type;
+      });
+      if (homogene) {
+        motif = `/${dossier}/*`;
+        break;
+      }
+    }
+    ajouter(motif, type);
+  }
+  for (const notice of notices) {
+    urlsAttendues.push({ url: `/${notice}`, type: TYPE_TEXTE });
+  }
+  ajouter("/robots.txt", TYPE_TEXTE);
+  urlsAttendues.push({ url: "/robots.txt", type: TYPE_TEXTE });
+
+  // Contrôle final : chaque chemin servi correspond à UNE règle Content-Type
+  // (notices comprises), et à celle du bon type.
+  const toutes = [...[...regles].map(([motif, type]) => ({ motif, type })), ...notices.map((n) => ({ motif: `/${n}`, type: TYPE_TEXTE }))];
+  for (const { url, type } of urlsAttendues) {
+    const trouvees = toutes.filter((r) => motifCorrespond(r.motif, url));
+    if (trouvees.length !== 1 || trouvees[0].type !== type) {
+      throw new ErreurAssemblage(
+        `Règles Content-Type : « ${url} » correspond à ${trouvees.length} règle(s) ` +
+          `[${trouvees.map((r) => `${r.motif} → ${r.type}`).join(" ; ")}], attendu une seule règle « ${type} ».`
+      );
+    }
+  }
+  return [...regles].map(([motif, type]) => ({ motif, type })).sort((a, b) => {
+    const rang = (r) => (r.motif === "/" ? 0 : r.type === TYPES_MIME[".html"] ? 1 : 2);
+    return rang(a) - rang(b) || (a.motif < b.motif ? -1 : a.motif > b.motif ? 1 : 0);
+  });
+}
+
+function construireHeaders(politique, notices, reglesContentType = []) {
   const blocs = [];
   if (politique.reglenoindexGlobale) {
     blocs.push("/*\n  X-Robots-Tag: noindex, follow");
@@ -824,6 +970,20 @@ function construireHeaders(politique, notices) {
     const lignes = [`/${notice}`, "  Content-Type: text/plain; charset=utf-8"];
     if (!politique.reglenoindexGlobale) lignes.push("  X-Robots-Tag: noindex, follow");
     blocs.push(lignes.join("\n"));
+  }
+  for (const { motif, type } of reglesContentType) {
+    blocs.push(`${motif}\n  Content-Type: ${type}`);
+  }
+  if (blocs.length > LIMITE_REGLES_HEADERS) {
+    throw new ErreurAssemblage(
+      `_headers : ${blocs.length} règles, au-delà de la limite Cloudflare de ${LIMITE_REGLES_HEADERS}. ` +
+        `Regrouper des fichiers dans des dossiers homogènes plutôt que d'ajouter des règles.`
+    );
+  }
+  for (const ligne of blocs.join("\n").split("\n")) {
+    if (ligne.length > LIMITE_LIGNE_HEADERS) {
+      throw new ErreurAssemblage(`_headers : une ligne dépasse ${LIMITE_LIGNE_HEADERS} caractères.`);
+    }
   }
   return blocs.length ? blocs.join("\n\n") + "\n" : "";
 }
@@ -977,7 +1137,8 @@ async function assembler(slug, environnementDemande, env) {
 
   const notices = [...planifies.keys()].filter((d) => planifies.get(d).type !== "généré" && estNotice(d)).sort();
   await fs.writeFile(path.join(sortie, "robots.txt"), construireRobotsTxt(), "utf8");
-  await fs.writeFile(path.join(sortie, "_headers"), construireHeaders(politique, notices), "utf8");
+  const reglesContentType = manifeste.contentTypeRules ? construireReglesContentType(planifies, notices) : [];
+  await fs.writeFile(path.join(sortie, "_headers"), construireHeaders(politique, notices, reglesContentType), "utf8");
 
   /* --- 6. Contrôles finaux --- */
   const fichiers = await listerFichiers(sortie);
@@ -1001,7 +1162,10 @@ async function assembler(slug, environnementDemande, env) {
   let poids = 0;
   for (const f of fichiers) poids += (await fs.stat(path.join(sortie, f))).size;
 
-  return { slug, kind: manifeste.kind, mode, politique, sortie, fichiers, poids, remplacements: remplacementsTotal, notices };
+  return {
+    slug, kind: manifeste.kind, mode, politique, sortie, fichiers, poids, remplacements: remplacementsTotal, notices,
+    reglesContentType: manifeste.contentTypeRules ? reglesContentType.length : null,
+  };
 }
 
 /* ================================================================== *
@@ -1025,6 +1189,7 @@ async function principal() {
   console.log(`Poids total     : ${(r.poids / 1024).toFixed(1)} Kio`);
   console.log(`Liens réécrits  : ${r.remplacements}`);
   console.log(`Notices typées  : ${r.notices.length ? r.notices.join(", ") : "aucune"}`);
+  console.log(`Règles MIME     : ${r.reglesContentType === null ? "non activées (contentTypeRules absent)" : `${r.reglesContentType} règle(s) Content-Type`}`);
 }
 
 principal().catch((e) => {

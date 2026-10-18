@@ -991,6 +991,182 @@ async function principal() {
     affirmer(await existe(path.join(dist, "404.html")), "404.html absent");
   });
 
+  /* ---------------- PUB-11 : règles Content-Type opt-in ---------------- */
+  groupe("PUB-11. Règles Content-Type explicites dans _headers (opt-in)");
+
+  // Lecteur et correspondance INDÉPENDANTS du générateur : une erreur du
+  // générateur ne peut pas se valider elle-même.
+  const lireHeaders = (texte) =>
+    texte
+      .split(/\n\n+/)
+      .filter((b) => b.trim() !== "")
+      .map((b) => {
+        const [motif, ...lignes] = b.split("\n");
+        const entetes = {};
+        for (const l of lignes.filter((x) => x !== "")) {
+          const m = /^ {2}([A-Za-z-]+): (.*)$/.exec(l);
+          affirmer(m, `ligne d'en-tête illisible : « ${l} »`);
+          (entetes[m[1]] ??= []).push(m[2]);
+        }
+        return { motif, entetes };
+      });
+  const correspond = (motif, url) => {
+    const morceaux = motif.split("*");
+    affirmer(morceaux.length <= 2, `plus d'un « * » dans ${motif}`);
+    const echappe = (t) => t.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`^${morceaux.map(echappe).join(".*")}$`).test(url);
+  };
+  const TYPES_ATTENDUS = {
+    ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8",
+    ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".webp": "image/webp", ".woff2": "font/woff2",
+    ".md": "text/plain; charset=utf-8", ".txt": "text/plain; charset=utf-8",
+  };
+  const typeAttendu = (chemin) => TYPES_ATTENDUS[path.posix.extname(chemin).toLowerCase()];
+  /** Chaque URL doit recevoir UN SEUL Content-Type, du bon type, sans cumul. */
+  const exigerUnType = (blocs, url, type) => {
+    const trouves = blocs.filter((b) => b.entetes["Content-Type"] && correspond(b.motif, url));
+    affirmer(trouves.length === 1, `${url} : ${trouves.length} règle(s) Content-Type [${trouves.map((b) => b.motif)}]`);
+    affirmer(trouves[0].entetes["Content-Type"].length === 1 && trouves[0].entetes["Content-Type"][0] === type,
+      `${url} : « ${trouves[0].entetes["Content-Type"]} » au lieu de « ${type} »`);
+  };
+  const PAGE_HTML = `<!doctype html><html lang="fr"><head><meta charset="UTF-8"><title>t</title></head><body><a href="/">a</a></body></html>\n`;
+  const FICHIERS_FIXTURE = {
+    "catalogue.html": PAGE_HTML,
+    "css/s.css": "a{color:red}\n",
+    "js/a.js": "console.log(1);\n", "js/b.js": "console.log(2);\n",
+    "img/a.webp": "RIFFxxxxWEBP", "img/b.webp": "RIFFyyyyWEBP",
+    "fonts/f.woff2": "wOF2", "fonts/LICENSE.txt": "Licence factice\n",
+    "data/d.json": "{}\n", "favicon.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"/>\n", "assets/NOTICE.md": "Notice factice\n",
+  };
+  const manifesteFixture = (extra = {}) => ({
+    pages: ["index.html", "404.html", "catalogue.html"],
+    publicFiles: Object.keys(FICHIERS_FIXTURE).filter((f) => f !== "catalogue.html"),
+    contentTypeRules: true,
+    ...extra,
+  });
+
+  await test("sans opt-in : aucun Content-Type de page ou de ressource, _headers inchangé", async () => {
+    await assemblerNeuf(depot, "coiffeur-mixte");
+    const blocs = lireHeaders(await fs.readFile(path.join(depot, "sites/coiffeur-mixte/dist/_headers"), "utf8"));
+    const avecType = blocs.filter((b) => b.entetes["Content-Type"]).map((b) => b.motif).sort();
+    affirmer(JSON.stringify(avecType) === JSON.stringify(["/assets/photos/NOTICE.md", "/shared/design-system/fonts/NOTICE.md"]),
+      `Content-Type inattendus sans opt-in : ${avecType}`);
+    affirmer(blocs.some((b) => b.motif === "/*" && b.entetes["X-Robots-Tag"]), "règle globale noindex absente");
+    return `${blocs.length} blocs`;
+  });
+
+  await test("isolation : seuls portfolio et boutique-setup demandent l'opt-in, Créa'Tif et La Tablée non", async () => {
+    const demandes = {};
+    for (const site of (await fs.readdir(path.join(RACINE, "sites"))).sort()) {
+      const chemin = path.join(RACINE, "sites", site, "publication.json");
+      if (!(await existe(chemin))) continue;
+      demandes[site] = JSON.parse(await fs.readFile(chemin, "utf8")).contentTypeRules === true;
+    }
+    affirmer(demandes["coiffeur-mixte"] === false, "Créa'Tif ne doit pas activer les règles MIME");
+    affirmer(demandes["la-tablee-des-forges"] === false, "La Tablée des Forges ne doit pas activer les règles MIME");
+    affirmer(demandes["portfolio"] === true && demandes["boutique-setup"] === true, "portfolio et boutique-setup doivent l'activer");
+    return JSON.stringify(demandes);
+  });
+
+  await test("démo opt-in : chaque chemin servi reçoit une seule règle du bon type, noindex et notices préservés", async () => {
+    const d = await preparerCopie("depot-ct-demo");
+    await fixtureSite(d, "fixture-ct", { kind: "demo", extra: FICHIERS_FIXTURE, manifeste: manifesteFixture() });
+    await assemblerNeuf(d, "fixture-ct");
+    const texte = await fs.readFile(path.join(d, "sites/fixture-ct/dist/_headers"), "utf8");
+    const blocs = lireHeaders(texte);
+    for (const url of ["/", "/catalogue", "/404", "/index.html", "/catalogue.html", "/404.html"]) {
+      exigerUnType(blocs, url, TYPES_ATTENDUS[".html"]);
+    }
+    for (const f of Object.keys(FICHIERS_FIXTURE).filter((x) => x !== "catalogue.html")) {
+      exigerUnType(blocs, `/${f}`, typeAttendu(f));
+    }
+    exigerUnType(blocs, "/robots.txt", "text/plain; charset=utf-8");
+    const global = blocs.find((b) => b.motif === "/*");
+    affirmer(global && !global.entetes["Content-Type"] && global.entetes["X-Robots-Tag"][0] === "noindex, follow",
+      "la règle « /* » doit porter noindex et AUCUN Content-Type");
+    affirmer(!blocs.some((b) => b.motif === "/*" && b.entetes["Content-Type"]), "Content-Type unique sur /*");
+    const notice = blocs.find((b) => b.motif === "/assets/NOTICE.md");
+    affirmer(notice && notice.entetes["Content-Type"][0] === "text/plain; charset=utf-8" && !notice.entetes["X-Robots-Tag"],
+      "bloc de la notice altéré (démo : type seul, noindex déjà global)");
+    affirmer(blocs.some((b) => b.motif === "/img/*"), "dossier homogène : règle de dossier attendue");
+    affirmer(!blocs.some((b) => b.motif === "/fonts/*"), "dossier mixte (police + licence) : pas de règle de dossier");
+    affirmer(blocs.some((b) => b.motif === "/fonts/f.woff2"), "police : règle exacte attendue");
+    affirmer(blocs.length <= 100, `${blocs.length} règles`);
+    return `${blocs.length} blocs`;
+  });
+
+  await test("portfolio opt-in en production : aucune règle globale, notices avec noindex, types présents", async () => {
+    const d = await preparerCopie("depot-ct-portfolio");
+    await fixtureSite(d, "fixture-ct-pf", { kind: "portfolio", extra: FICHIERS_FIXTURE, manifeste: manifesteFixture() });
+    await assemblerNeuf(d, "fixture-ct-pf");
+    const blocs = lireHeaders(await fs.readFile(path.join(d, "sites/fixture-ct-pf/dist/_headers"), "utf8"));
+    affirmer(!blocs.some((b) => b.motif === "/*"), "règle globale présente sur un portfolio indexable");
+    for (const url of ["/", "/catalogue", "/js/a.js", "/css/s.css", "/img/a.webp", "/fonts/f.woff2", "/data/d.json"]) {
+      exigerUnType(blocs, url, url === "/" || url === "/catalogue" ? TYPES_ATTENDUS[".html"] : typeAttendu(url));
+    }
+    for (const n of ["/assets/NOTICE.md", "/fonts/LICENSE.txt"]) {
+      const b = blocs.find((x) => x.motif === n);
+      affirmer(b && b.entetes["X-Robots-Tag"]?.[0] === "noindex, follow" && b.entetes["Content-Type"][0] === "text/plain; charset=utf-8",
+        `${n} : bloc de notice incomplet`);
+    }
+    const html = await fs.readFile(path.join(d, "sites/fixture-ct-pf/dist/index.html"), "utf8");
+    affirmer(/content="index, follow"/.test(html), "page ordinaire non indexable");
+  });
+
+  await test("déterminisme : deux assemblages donnent le même _headers", async () => {
+    const d = await preparerCopie("depot-ct-deterministe");
+    await fixtureSite(d, "fixture-ct", { kind: "demo", extra: FICHIERS_FIXTURE, manifeste: manifesteFixture() });
+    await assemblerNeuf(d, "fixture-ct");
+    const un = await fs.readFile(path.join(d, "sites/fixture-ct/dist/_headers"), "utf8");
+    await assemblerNeuf(d, "fixture-ct");
+    const deux = await fs.readFile(path.join(d, "sites/fixture-ct/dist/_headers"), "utf8");
+    affirmer(un === deux, "_headers différent d'un assemblage à l'autre");
+  });
+
+  await test("refus : extension sans type MIME sûr, champ non booléen, plus de 100 règles", async () => {
+    const d = await preparerCopie("depot-ct-refus");
+    await fixtureSite(d, "fixture-ct-ext", { extra: { "x/a.xyz": "?" }, manifeste: { publicFiles: ["x/a.xyz"], contentTypeRules: true } });
+    await refus(d, "fixture-ct-ext", /type MIME sûr/);
+    await fixtureSite(d, "fixture-ct-bool", { manifeste: { contentTypeRules: "oui" } });
+    await refus(d, "fixture-ct-bool", /booléen/);
+    // 101 fichiers dans un dossier rendu non homogène par une notice : une règle exacte par fichier.
+    const trop = { "big/NOTICE.md": "n\n" };
+    for (let i = 0; i < 101; i++) trop[`big/i-${i}.webp`] = "RIFFxxxxWEBP";
+    await fixtureSite(d, "fixture-ct-trop", { extra: trop, manifeste: { publicFiles: Object.keys(trop), contentTypeRules: true } });
+    await refus(d, "fixture-ct-trop", /limite Cloudflare/);
+  });
+
+  await test("sites réels (portfolio, boutique-setup) : toutes les URL servies ont une seule règle Content-Type correcte", async () => {
+    const d = await preparerCopie("depot-ct-reels");
+    for (const site of ["portfolio", "boutique-setup"]) {
+      await fs.cp(path.join(RACINE, "sites", site), path.join(d, "sites", site), { recursive: true });
+      await fs.rm(path.join(d, "sites", site, "dist"), { recursive: true, force: true });
+      await assemblerNeuf(d, site);
+      const dist = path.join(d, "sites", site, "dist");
+      const m = JSON.parse(await fs.readFile(path.join(d, "sites", site, "publication.json"), "utf8"));
+      const blocs = lireHeaders(await fs.readFile(path.join(dist, "_headers"), "utf8"));
+      affirmer(blocs.length <= 100, `${site} : ${blocs.length} règles`);
+      affirmer(!blocs.some((b) => b.motif === "/*" && b.entetes["Content-Type"]), `${site} : Content-Type sur /*`);
+      for (const page of m.pages) {
+        const route = page === "index.html" ? "/" : `/${page.replace(/\.html$/, "")}`;
+        exigerUnType(blocs, route, TYPES_ATTENDUS[".html"]);
+        exigerUnType(blocs, `/${page}`, TYPES_ATTENDUS[".html"]);
+      }
+      for (const f of m.publicFiles) {
+        const type = typeAttendu(f);
+        affirmer(type, `${site} : pas de type attendu pour ${f}`);
+        exigerUnType(blocs, `/${f}`, type);
+      }
+      exigerUnType(blocs, "/robots.txt", "text/plain; charset=utf-8");
+      const global = blocs.find((b) => b.motif === "/*");
+      if (site === "boutique-setup") {
+        affirmer(global && global.entetes["X-Robots-Tag"][0] === "noindex, follow", "boutique-setup : noindex global absent");
+      } else {
+        affirmer(!global, "portfolio : règle globale noindex présente");
+      }
+    }
+  });
+
   /* ---------------- PUB-03 : auto-tests de la suite ---------------- */
   groupe("PUB-03. Auto-tests : la suite doit échouer quand elle le doit");
 
