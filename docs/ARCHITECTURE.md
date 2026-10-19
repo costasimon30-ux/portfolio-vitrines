@@ -2,6 +2,8 @@
 
 Ce document fixe les décisions structurelles communes à `portfolio-vitrines`. Il complète `CLAUDE.md` et `docs/WORKFLOW.md` ; il ne remplace pas les décisions produit ou de direction artistique propres à un site dans `docs/DIRECTION.md`.
 
+**Lecture au 19 octobre 2026.** Les cadrages datés des sections 1, 3, 5.1, 5.7 et 6 conservent leur contexte historique : les mentions « à créer » ou « pas encore livré » ne décrivent plus l'état courant de La Tablée des Forges et de Ligne Posée. Leur livraison et leurs publications sont suivies dans `docs/DIRECTION.md`. Les compléments du 19 octobre ci-dessous documentent le contrat MIME livré dans Git et la traçabilité ; ils ne certifient aucune version actuellement servie. Les décisions produit postérieures au cadrage du 6 octobre restent dans DIRECTION, sans rouvrir les arbitrages déjà clos.
+
 ## Principes directeurs
 
 - Le portfolio reste en **HTML, CSS et JavaScript statiques**. Aucun framework JavaScript ne doit être livré au navigateur.
@@ -93,7 +95,7 @@ Une extraction vers `shared/` suppose deux usages effectifs, une API de variatio
 - Aucun fichier généré n'est modifié manuellement.
 - Avant publication publique, le rendu ne dépend plus de Google Fonts ou d'un autre CDN de polices tiers.
 
-## 5. Publication indépendante — contrat actualisé le 8 septembre 2026
+## 5. Publication indépendante — contrat du 8 septembre 2026, complété le 19 octobre 2026
 
 Ce contrat conserve les garanties de sortie du cadrage `174ebdb` et applique l'arbitrage de `docs/DIRECTION.md` au commit **`0154069`** : Créa'Tif est publié sur **Workers Static Assets par dépôt manuel de l'artefact local**, sans connexion Git. Pages + Git reste une proposition historique, non activée (§ 5.4). Le changement d'hébergement ne justifie ni migration, ni refonte de l'assembleur déjà audité.
 
@@ -129,12 +131,13 @@ L'option explicite sert aux essais **et à la préparation locale de la publicat
 
 Le garde-fou Pages livré est conservé : si `CF_PAGES=1` ou `CF_PAGES_BRANCH` est défini, une demande `production` est ramenée à `preview` lorsque `CF_PAGES_BRANCH` est absent ou différent de `main`. Ce contexte Pages n'est pas actif dans le flux manuel Workers ; ne pas fabriquer ces variables ni les assimiler à Workers Builds. Vérifier le mode effectif annoncé. La production d'une démo reste non indexable dans tous les cas ; le mode local `preview` ne crée aucune URL distante.
 
-**Configuration : `sites/<slug>/publication.json`**, exclue de la sortie. Petit manifeste de données, avec quatre champs :
+**Configuration : `sites/<slug>/publication.json`**, exclue de la sortie. Petit manifeste de données, avec quatre champs obligatoires et un booléen facultatif :
 
 - `kind` : `demo` ou `portfolio` ; `coiffeur-mixte` vaut `demo`. Le type ne se déduit jamais du nom du dossier ou de la branche.
 - `pages` : liste explicite des fichiers HTML à la racine du site ; actuellement les quatre pages plus `404.html`, déjà livrée. `index.html` et `404.html` sont obligatoires.
 - `publicFiles` : liste de fichiers exacts, relatifs au site, à copier avec leurs chemins conservés. Pour Créa'Tif : `css/style.css`, `js/main.js`, `assets/favicon.svg`, les 24 WebP actuels et `assets/photos/NOTICE.md`. Cette liste est déjà versionnée dans le manifeste ; toute évolution reste explicite.
 - `sharedFiles` : liste de fichiers exacts, relatifs à `shared/`. Pour Créa'Tif : `design-system/fonts.css`, `design-system/tokens.css`, les quatre WOFF2 effectivement référencés et `design-system/fonts/NOTICE.md`, ainsi que tout fichier de licence nécessaire associé. Aucun autre site ni bibliothèque complète n'est inclus automatiquement.
+- `contentTypeRules` : booléen facultatif, absent ou `false` par défaut. `true` active les règles MIME explicites du § 5.5. Une autre valeur est refusée, ainsi que tout champ inconnu. Au commit `f66274fa0c9915846722824421284716358a8e1a`, seuls `portfolio` et `boutique-setup` l'activent ; Créa'Tif et La Tablée restent sans activation. Ce champ ne change ni `kind`, ni l'indexation, ni l'autorisation de publication.
 
 Le choix de listes explicites rend l'artefact prévisible et évite les copies récursives du dépôt. Ajouter une photo optimisée ou une nouvelle dépendance implique d'ajouter son chemin au manifeste. Les répertoires `shared/` et les noms `robots.txt`, `_headers`, `sitemap.xml` dans la sortie sont réservés à l'assembleur ; refuser les collisions et les destinations dupliquées. Aucun chemin absolu, remontée `..` ou lien symbolique n'est accepté dans les entrées. Un slug doit correspondre à un enfant direct existant de `sites/`, en kebab-case.
 
@@ -197,6 +200,32 @@ Workers sert ici des fichiers statiques, sans backend applicatif demandé. Aucun
 
 Pour rendre les empreintes reproductibles, conserver l'inventaire complet des chemins relatifs triés et des SHA-256 de chaque fichier, ainsi que la commande et le format exacts de calcul de tout agrégat. L'empreinte shell déclarée ci-dessus n'est **pas directement comparable** à l'agrégat du Reviewer `61baa3bee04b5a01a478f29523b052453ed26c0ebec90a64dd1da0e9f72838c4` (dictionnaire JSON trié des chemins vers leurs SHA-256). Ne pas requalifier l'une en l'autre ni inventer une méthode absente du handoff ; en cas de doute, comparer les empreintes individuelles. Les identifiants Cloudflare manquants restent une limite de traçabilité explicite, pas une raison de republier pour les recréer.
 
+#### Complément du 19 octobre — source Git, artefact et réponse servie
+
+Trois preuves distinctes sont nécessaires : le hash Git identifie les sources versionnées ; l'inventaire SHA-256 identifie les octets de l'artefact préparé ; les réponses HTTP et le rendu identifient le comportement réellement servi à une date et une URL données. Une égalité des corps téléchargés ne démontre ni leur bon `Content-Type`, ni l'application de `_headers`, ni la version active dans le tableau de bord. `_headers` n'étant pas une ressource publique, contrôler ses effets ; relever séparément les identifiants de version et de déploiement lorsqu'ils sont accessibles.
+
+**État rapporté, non inspecté par l'Architecte :** le relevé d'Implémentation du 18 octobre transmis par Simon indique un incident `application/octet-stream` sur les publications du portfolio et de Ligne Posée, puis une restauration du portfolio vers `4ef728e4` et de Ligne Posée vers `cca19c6e`. Les versions `efe27a81`, `b7291ef2` et `7b4663b4` sont rapportées retirées. Au moment de ce relevé, les candidats corrigés de `f66274fa0c9915846722824421284716358a8e1a` ne sont pas déployés :
+
+| Candidat rapporté | Fichiers | Octets | SHA-256 agrégé rapporté |
+| --- | ---: | ---: | --- |
+| Portfolio | 21 | 308 673 | `4e254e681495302a9638691c5cbe388cfb995fdbf8dd2b098bad0566fe7227c5` |
+| Ligne Posée | 84 | 1 122 438 | `9895d746ffba78768d4eb281868e9938772bcc930e8e5a666d9381ce90a0bff5` |
+
+Ces empreintes ne sont pas recalculées dans cette mission ; la méthode exacte et l'inventaire individuel de ces deux candidats ne sont pas joints au relevé reçu. Ils doivent accompagner toute future comparaison. Le Chef de projet réconcilie la chronologie de publication dans DIRECTION et le journal du portfolio ; les entrées historiques annonçant les versions retirées comme actives ne prouvent plus l'état courant. Aucun état distant de Créa'Tif ou de La Tablée n'est revérifié par ce complément.
+
+#### Reproductibilité entre Windows et macOS
+
+**Observation locale du 19 octobre, sur la source `f66274f` :** la copie Windows a `core.autocrlf=true`, sans `.gitattributes` versionné ; `git ls-files --eol` indique `i/lf w/crlf` pour `sites/portfolio/index.html` et `scripts/assemble-site.mjs`. Le runtime disponible est Node `24.19.0`, alors que `.node-version` prescrit `22.23.2`. Aucun assemblage n'est rejoué dans cette mission documentaire. Ces observations ne démontrent pas un écart des candidats ci-dessus ; elles empêchent de promettre leur reproduction à l'identique depuis cette copie de travail.
+
+Pour une comparaison entre machines, fixer dans le relevé :
+
+- le même commit complet et une extraction propre des mêmes octets Git, sans conversion implicite LF/CRLF ni filtre de checkout ; consigner la méthode d'extraction et les éventuels attributs applicables ;
+- la version Node prescrite, le mode effectif de publication et les variables qui peuvent le modifier ; un essai sous une autre version reste identifié comme contrôle alternatif ;
+- l'inventaire des chemins relatifs utilisant `/`, la taille et le SHA-256 des octets de chaque fichier ; comparer cet inventaire avant tout agrégat ;
+- pour l'agrégat, un ordre de tri indépendant de la locale, l'encodage, les séparateurs, les fins de ligne et la présence ou l'absence de ligne finale. Conserver la commande et sa version ou la spécification exacte de la sérialisation.
+
+Une méthode shell historique, un dictionnaire JSON et une sortie PowerShell ne deviennent pas comparables par le seul emploi de SHA-256. Deux builds identiques sur une machine prouvent leur déterminisme dans ces conditions, pas leur identité sur un autre système. Si les octets diffèrent, expliquer les écarts et identifier un nouvel artefact avant toute décision de publication ; ne pas normaliser silencieusement un paquet déjà approuvé. Aucune modification de configuration Git ou de l'assembleur n'est effectuée par ce protocole documentaire.
+
 #### Retour à une version connue — uniquement sur nouvel accord
 
 1. Identifier précisément le problème, la version active et la cible de retour à partir du handoff et des preuves QA. Choisir une version réellement connue, pas simplement « le commit précédent ». L'état de référence actuel est validé localement ; sa recette hébergée reste distincte.
@@ -217,7 +246,7 @@ Aujourd'hui, **aucun push ne déclenche de publication**, documentaire ou non. L
 
 Ajouter un site garde les conventions `sites/<slug>/`, manifeste local, brief et sortie isolée. Le portfolio existant utilise `kind=portfolio` ; La Tablée utilisera `kind=demo`. Simon arbitre le produit d'hébergement de chaque nouvelle publication et autorise chaque version ; ni création automatique d'un Worker, ni obligation de Pages, ni changement d'URL des sites existants. Si une automatisation est réexaminée au deuxième site, séparer tests/builds et déploiement avec validation humaine. Connecter Workers à Git serait une autre décision technique : cela ne créerait pas un projet Pages et ne rendrait pas ses réglages applicables.
 
-### 5.5 Indexation par site, environnement et ressource
+### 5.5 Indexation et types MIME par site, environnement et ressource
 
 L'assembleur calcule une politique à partir de `kind` et du mode effectif ; il ne copie jamais un `_headers` global commun aux sites. Dans chaque HTML de sortie, ajouter une seule balise `<meta name="robots" content="…">` dans le `<head>`, ou remplacer la balise standard existante. Refuser une structure ambiguë (plusieurs balises ou consignes contradictoires spécifiques à un robot) pour correction explicite des sources. Cette substitution limitée ne transforme pas l'assembleur en moteur HTML.
 
@@ -240,6 +269,26 @@ Pour une démo ou un artefact local `preview`, le bloc global conservé est :
 ```
 
 **Notice de crédits :** conserver le lien et les octets de `assets/photos/NOTICE.md`. Elle reste publiquement consultable mais non indexable, même servie séparément. Conserver le bloc à son chemin exact avec `Content-Type: text/plain; charset=utf-8` ; hors règle globale, y ajouter aussi `X-Robots-Tag: noindex, follow`. Appliquer la même convention aux notices/licences textuelles explicitement incluses, notamment `/shared/design-system/fonts/NOTICE.md`. Il n'y a pas de conversion Markdown vers HTML, de renommage du lien ou de réécriture des crédits. Une balise meta dans les quatre pages ne s'appliquerait pas à ces ressources non HTML. [Workers — fichier _headers](https://developers.cloudflare.com/workers/static-assets/headers/), [Google — en-tête pour les ressources non HTML](https://developers.google.com/search/docs/crawling-indexing/block-indexing).
+
+#### Complément MIME du 19 octobre — contrat livré PUB-11
+
+Le commit `f66274fa0c9915846722824421284716358a8e1a` ajoute une génération de `Content-Type` activée par `contentTypeRules: true`. Ce complément décrit l'interface existante, sans nouvelle implémentation ni validation hébergée. Sans activation, les règles MIME supplémentaires sont absentes et le comportement antérieur des notices et de l'indexation est conservé ; à entrées identiques, le contrat PUB-11 exige le même `_headers` pour les sites non activés.
+
+L'assembleur dérive les règles du plan de fichiers publiés :
+
+- `/` pour `index.html`, `/nom` pour chaque autre page plate `nom.html`, et `/*.html` pour les accès avec extension ; les redirections et le réglage `auto-trailing-slash` restent à vérifier sur l'hôte ;
+- un motif `/dossier/*` seulement si tout le sous-arbre déclaré a le même type et ne contient ni notice ni fichier généré ; sinon, un chemin exact par ressource ;
+- `/robots.txt` en texte brut ; chaque notice conserve son bloc exact, son type texte et sa politique d'indexation.
+
+Types actuellement admis : HTML `text/html`, CSS `text/css`, JS `text/javascript`, JSON `application/json`, SVG `image/svg+xml`, WebP `image/webp`, PNG `image/png`, JPG/JPEG `image/jpeg`, AVIF `image/avif`, GIF `image/gif`, ICO `image/x-icon`, WOFF2 `font/woff2`, WOFF `font/woff`. HTML, CSS, JS et JSON portent `charset=utf-8` ; robots et notices portent `text/plain; charset=utf-8`. Une extension non prise en charge hors notices n'est pas devinée : l'assemblage échoue.
+
+**Invariant : chaque URL attendue d'un fichier publié reçoit exactement une règle de type correcte, notices comprises.** Aucun `Content-Type` sur `/*`. Les motifs de chemins ambigus sont refusés ; le fichier final est limité à 100 blocs de règles et chaque ligne à 2 000 caractères, notices et indexation comprises. Les règles de type ne modifient pas la matrice `kind`/environnement ci-dessus. Cloudflare cumule les valeurs d'un même en-tête lorsque plusieurs règles correspondent ; un seul astérisque est permis par motif. [Documentation des en-têtes Workers, consultée le 19 octobre 2026](https://developers.cloudflare.com/workers/static-assets/headers/).
+
+**Limite sur les URL absentes :** cet invariant porte sur les URL attendues des fichiers, pas sur tous les chemins arbitraires d'une vraie 404. Une requête inconnue sans extension peut ne recevoir aucune règle MIME explicite ; une requête inconnue sous un dossier typé peut recevoir le type de ce dossier alors que le corps est la page 404. Par exemple, `/css/inconnu.css` peut correspondre à `/css/*`. Il s'agit d'une limite déduite des motifs générés et du contrat de correspondance par chemin, non d'un défaut reproduit sur les Workers dans cette mission. La règle de `/404` ou `/*.html` ne suffit donc pas à garantir le type HTML de toute réponse introuvable. Les règles ne donnent pas de garantie MIME sur les réponses d'un éventuel code Worker applicatif.
+
+Le Chef de projet transmet le 19 octobre un constat indépendant du Code Reviewer : `/css/inexistant.html` peut correspondre à la fois à `/*.html` et à `/css/*`, donc à deux types différents. Cette collision hors inventaire doit aussi figurer dans la recette des URL inconnues ; aucune garantie générale « une seule règle par URL demandable » n'est acquise. Le Reviewer rapporte les sept nouveaux contrôles réussis, mais huit échecs dans le reste de la suite sur Windows, liés à ses scénarios de liens symboliques/concurrence et encore à qualifier dans son rapport. Ces résultats transmis ne constituent ni un rejeu par l'Architecte ni une validation globale de l'assembleur sur Windows.
+
+Après tout dépôt autorisé du correctif, contrôler le statut, le type et le rendu de vraies 404 : chemin inconnu simple, chemin imbriqué et chemin absent sous un dossier typé. Si une réponse est téléchargée, mal typée ou inutilisable, consigner le cas avant de déclarer la correction hébergée validée ; faire arbitrer une solution ciblée sans généraliser `Content-Type: text/html` à `/*`. L'arbitrage historique ci-dessous sur l'absence de `X-Robots-Tag` des vraies 404 du portfolio concerne l'indexation et reste distinct de cette limite MIME. Il ne faut pas supprimer une règle MIME d'accès direct à `/404` au motif que l'ancienne règle d'indexation `/404.html` était insuffisante.
 
 Pour le portfolio en production, les pages ordinaires doivent effectivement rester indexables : ne pas tenter d'annuler une règle globale `noindex` par une seconde règle `index`. Générer un fichier sans cette règle globale, avec seulement les exceptions nécessaires. Les balises et en-têtes ne doivent pas se contredire.
 
@@ -269,6 +318,10 @@ Cette absence reste sans effet pratique. Google n'indexe pas le contenu d'une UR
 6. Lire les metas, `robots.txt` et `_headers` générés, et vérifier la présence de `404.html`. Un simple serveur local ne reproduit ni l'interprétation de `_headers`, ni le routage/redirections/404 de Workers Static Assets : ce contrôle ne prouve pas le comportement HTTP hébergé.
 
 La validation locale acquise n'est pas rouverte par le changement de documentation. Les prochains rejeux vérifieront les candidats concernés, sans relancer une revue générale de l'assembleur ou PUB-A1 pour ce seul besoin.
+
+**Complément de recette PUB-11 (19 octobre).** Avant un candidat, rejouer la suite d'assemblage sur la version Node prescrite et contrôler les deux sites activés ainsi que l'absence de changement de sortie des deux sites non activés, à sources et conditions comparables. Le commit `f66274f` annonce sept contrôles supplémentaires, soit 97 ; ce résultat est celui rapporté par l'Implémentation, non rejoué par l'Architecte. Après un dépôt autorisé, relever les réponses finales et redirections pour l'accueil, les pages sans/avec extension, CSS, JS/modules, JSON, images, polices, notices et robots, puis les cas 404 du § 5.5. Exiger les types attendus sans valeurs MIME cumulées, des pages affichées sans téléchargement imposé, les ressources utilisables et l'indexation propre au site. Comparer également les corps publics à l'inventaire du candidat, en conservant la méthode de décodage HTTP utilisée. La présence locale de `_headers`, un code HTTP 200 ou l'égalité des corps seuls ne clôturent pas l'incident.
+
+**Réserves conservées au 19 octobre.** P06, PUB-A1 différé et les limites QA déjà acceptées ne sont pas rouverts. Le réglage « Preview URLs » du portfolio doit être relevé lors d'un accès autorisé au tableau de bord ; aucun état actuel n'est présumé ici. Les clôtures et autorisations de diffusion postérieures aux premières recettes restent celles de DIRECTION : les formulations historiques ci-dessous ne les annulent pas. Le report d'Eleventy et les conditions de mutualisation des sections 1 et 3 demeurent applicables ; le correctif MIME ne justifie aucune migration.
 
 **Recette QA hébergée autorisée par `0154069`, sans attendre cette note :** relever date, URL, révision source annoncée et identifiants Cloudflare accessibles ; signaler toute liaison non démontrée entre source et publication. Vérifier HTTPS, redirections `.html` et variantes avec/sans slash, accès directs/rechargements et ancre Contact sans boucle ; un 307 n'est pas en soi un défaut. Contrôler CSS/polices/photos et MIME, notices avec `X-Robots-Tag`, robots et metas réellement servis. Confirmer une vraie 404 simple et imbriquée avec retour fonctionnel, et l'absence de contenu interne sur `/docs/`, `/publication.json`, les configurations et un chemin d'un autre site.
 
