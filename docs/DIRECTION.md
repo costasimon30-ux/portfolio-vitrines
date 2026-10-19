@@ -4,6 +4,48 @@ Ce fichier centralise les décisions de direction (produit, contenu, périmètre
 
 ## Portfolio global
 
+### Point de reprise et suivi des quatre sites — 19 octobre 2026
+
+**Mandat.** Simon autorise le Chef de projet à coordonner les conversations Windows Architecte, UI/UX, Code Reviewer et QA, à faire consigner leurs bilans dans leurs fichiers et à vérifier leurs commits/push. Cette passe est documentaire et de contrôle : Claude Code reste l'implémenteur ; les déploiements Cloudflare, retours arrière et changements de compte exigent toujours l'accord distinct de Simon sur la version et l'artefact ciblés. Les validations historiques restent valables dans leur périmètre ; aucune revue générale ou refonte automatique n'est déclenchée.
+
+**Incident et restaurations rapportés.** Selon le relevé de l'Implémentation du 18 octobre transmis par Simon, les versions portfolio `efe27a81` et Ligne Posée `b7291ef2` / `7b4663b4` ont été retirées après des réponses `application/octet-stream` provoquant le téléchargement des pages. Simon a restauré respectivement `4ef728e4` (source historique `e88dd25`) et `cca19c6e` (source `a03b365`). Les entrées de publication des 17–18 octobre ci-dessous sont donc des constats historiques au moment du dépôt, pas une preuve de version active actuelle. Les affirmations historiques « aucun retour arrière exécuté » sont dépassées par ce relevé. Aucune inspection du tableau de bord n'est effectuée par le Chef de projet pendant cette passe.
+
+**Contrôle public indépendant plus récent.** QA rapporte ses GET du 19 octobre, entre 05 h 52 et 05 h 54 (Europe/Paris). Les quatre sites répondent avec les types attendus sur les pages et ressources échantillonnées, une vraie 404 personnalisée sur un chemin inconnu imbriqué, et un refus 404 du manifeste interne. Les démos conservent `noindex, follow` ; le portfolio reste indexable. L'incident de téléchargement n'est pas reproduit sur cet échantillon. Ces contrôles ne sont pas des interactions navigateur, un audit exhaustif ni une preuve de version Cloudflare.
+
+| Site | État constaté ou documenté | Suite nécessaire |
+| --- | --- | --- |
+| Portfolio | Le HTML public observé par QA contient **trois onglets**, 18 934 octets, SHA-256 `5288f4b07a039b1dbbe3c0f54ef625b6438244b0595370ff31a09c22a1fb32f7`. Il correspond au HTML de `506211f` / `f66274f` après insertion en mémoire de la meta robots de production, et non au contenu à deux onglets de `e88dd25`. | Réconcilier le contenu observé avec le relevé de restauration : relever la version active et l'artefact associé lors du prochain accès autorisé au tableau de bord, puis vérifier les trois onglets, la vignette, les liens, les thèmes, le focus et la console dans un navigateur. |
+| Ligne Posée | L'accueil public observé par QA correspond à `a03b365`, 4 171 octets, SHA-256 `9a2d643f57fed31b4d925d4ee835a227286fdb093ce40d2f97a523702574eb52`. Le nouvel accueil « Le bureau prend forme » n'est pas servi dans ce contrôle. C'est cohérent avec le relevé de restauration, sans démontrer l'identifiant `cca19c6e` ni tout l'artefact. | Conserver la validation visuelle acquise du nouvel accueil comme validation du candidat. LP-QA-01 et LP-QA-02 restent ouvertes ; toute future republication demande une recette ciblée et l'accord de Simon. |
+| La Tablée des Forges | Dernière publication documentée : `2d325b5` / `b462d268`. Les contrôles HTTP actuels complètent les preuves, sans inspecter la version Cloudflare ni rejouer les interactions. Rendu validé par Simon le 6 octobre. | Conserver les réserves photographiques et limites QA déjà acceptées ; aucun défaut nouveau démontré ni chantier à rouvrir automatiquement. |
+| Créa’Tif | Livraison close, HQA-02 clos ; dernier lien retour publié documenté : `3ed69d2` / `866c86cd`. Contrôles HTTP actuels favorables sur leur échantillon. | Conserver P06, HQA-01/HQA-03 acceptés et PUB-A1 différé ; aucun contrôle supplémentaire requis pour terminer la livraison historique. |
+
+**Ne pas conclure « le portfolio est actuellement restauré à deux onglets ».** Le relevé du 18 octobre et la mesure publique du 19 octobre ne décrivent pas le même contenu. La correspondance du HTML ne permet pas de départager les versions partageant ce fichier, d'identifier un déploiement Cloudflare ou de certifier l'application du correctif `_headers`. La requête complémentaire avec paramètre distinct et `Cache-Control: no-cache` reproduit les trois onglets, mais le CDN indique encore `HIT` ; cette limite est conservée dans le rapport QA.
+
+**Candidats corrigés présents dans Git.** La source de code est `f66274fa0c9915846722824421284716358a8e1a`. Au moment du relevé de l'Implémentation, les paquets corrigés ne sont pas déployés. Le Reviewer a reproduit leurs tailles et empreintes dans une extraction isolée, sous Node `24.19.0` : cela recoupe les paquets annoncés sous Node `22.23.2`, sans constituer un rejeu de la suite sous le runtime prescrit.
+
+| Candidat | Fichiers | Octets | SHA-256 agrégé |
+| --- | ---: | ---: | --- |
+| Portfolio | 21 | 308 673 | `4e254e681495302a9638691c5cbe388cfb995fdbf8dd2b098bad0566fe7227c5` |
+| Ligne Posée | 84 | 1 122 438 | `9895d746ffba78768d4eb281868e9938772bcc930e8e5a666d9381ce90a0bff5` |
+
+Le Reviewer constate que seul `_headers` change par rapport au parent pour ces deux paquets, et que les sorties de Créa’Tif et de La Tablée restent identiques en production et preview. Ces preuves locales ne démontrent aucune nouvelle publication.
+
+**Réserve MIME/404 et décision de suivi.** La revue ciblée confirme un P2 : les règles de `/*.html` et de dossiers tels que `/css/*` peuvent se cumuler pour une URL inconnue comme `/css/inexistant.html`. Une URL absente sous un dossier typé peut recevoir un type non HTML ; une URL inconnue sans extension ne reçoit pas de correction MIME explicite. L'unicité vérifiée pour les fichiers de l'inventaire ne garantit donc pas le type de toutes les vraies 404. Le comportement du candidat sur Cloudflare n'est pas déclaré reproduit. Avant de présenter la correction comme close, faire traiter ces cas par l'Implémentation sur un contrat précisé par l'Architecte, puis une contre-vérification bornée par le Reviewer et QA. Aucun nouveau défaut P0/P1 n'est établi par cette passe.
+
+Les sept contrôles MIME ajoutés passent dans le contrôle alternatif du Reviewer ; la suite complète donne 89 réussites et huit échecs dans cet environnement Windows (sept scénarios de liens symboliques et un de concurrence). La création des liens symboliques reçoit `EPERM`. Ne pas confondre ce résultat avec 97 contrôles réussis sous Node `22.23.2`, ni avec une régression démontrée des garanties historiquement closes. Le prochain contrôle technique devra qualifier les échecs et fournir le résultat sous le runtime prescrit.
+
+**Ordre des prochaines actions.**
+
+1. Réconcilier l'état Cloudflare actif avec les preuves HTTP, sans republier pour résoudre une simple incertitude de journal.
+2. Cadrer et faire corriger uniquement le point MIME/404 ; identifier à nouveau tout paquet dont les octets changent. Conserver l'absence de changement des deux sites non activés.
+3. Après vérification du candidat et accord explicite de Simon, traiter le portfolio en premier (paquet plus petit), contrôler ses types HTTP et son rendu ; Ligne Posée vient ensuite sur autorisation distincte. Cet ordre ne constitue aucune autorisation de dépôt.
+4. Pour Ligne Posée, traiter ou faire accepter explicitement LP-QA-01 avant un verdict final sans réserve ; traiter LP-QA-02 avant mise en avant définitive. Le nouveau contrôle 404 de `/NOTICE-VISUELS.md` conforte LP-QA-02. Le zoom natif du nouvel accueil reste non vérifié. Ces points sont distincts du lot MIME.
+5. Garder en suivi accepté le P2 de redimensionnement du portfolio, le CLS initial et les limites de zoom/preview ; ne pas lancer de retouche de confort isolée. Les réserves photographiques de Créa’Tif et La Tablée ne sont pas rouvertes.
+
+Les rapports de chaque rôle portent leurs méthodes et limites ; ce bilan du Chef de projet ne requalifie pas leurs contrôles en recette complète. Aucun changement de code ou déploiement n'est réalisé par cette consolidation.
+
+Références de cette passe : `docs/ARCHITECTURE.md` § 5, `docs/CODE-REVIEW-portfolio.md` (PUB-11-01), et les bilans du 19 octobre dans les quatre rapports QA et UI/UX. Les sections suivantes conservent l'historique du cadrage initial et de ses évolutions ; leurs formulations préparatoires ne remplacent pas l'état de reprise ci-dessus.
+
 Le portfolio professionnel présentera plusieurs projets ; **Créa’Tif est une démo parmi d'autres, pas la page d'accueil du portfolio**. Le positionnement commercial, le contenu, l'arborescence et la direction artistique du portfolio feront l'objet d'un cadrage distinct. Aucun écran de portfolio n'est à construire dans la présente étape.
 
 ### Cadrage de publication — décisions produit du 7 septembre 2026
@@ -444,6 +486,8 @@ Le paquet sauvegardé n'a pas été modifié, et le nouveau commit Créa’Tif n
 Après les dépôts manuels du portfolio et de Créa’Tif, Simon a consulté lui-même les rendus Cloudflare du **portfolio, de Créa’Tif et de La Tablée des Forges** et les juge « propres ». Cette validation confirme que le résultat visible lui convient pour ce cycle ; elle ne change ni les sources ni les versions publiées, et ne transforme pas les contrôles de fumée en recette QA exhaustive. Le zoom natif 200 % reste une limite connue acceptée pour le portfolio. Aucun correctif ni nouveau déploiement n'est demandé.
 
 #### Publication du troisième onglet « Ligne Posée » — 18 octobre 2026
+
+**Statut historique, actualisé le 19 octobre :** la version ci-dessous est rapportée retirée après l'incident Content-Type. Le retour arrière rapporté et le HTML public à trois onglets observé ensuite par QA restent à réconcilier ; voir « Point de reprise et suivi des quatre sites » en tête du document. Cette entrée ne prouve plus la version active.
 
 Simon a autorisé explicitement le dépôt du paquet exact issu de la source `506211f4de929f39c8ddc7d01cb7dbb8768d2337`, qui ajoute Ligne Posée comme troisième démonstration dans « Réalisations ». Le paquet de production a été assemblé sous Node `22.23.2` depuis une copie propre : **21 fichiers, 307 760 octets**, empreinte SHA-256 agrégée `64d3a866896e7e00c2579c5c14b050f24934a228e2826e3be93abd9cfd23ed16`. Deux assemblages concordent ; la suite d'assemblage passe 90/90 et les tests Node annoncés 120/120. Le dossier déposé est conservé hors dépôt dans `/Users/simoncosta/Sites/artefacts/portfolio-506211f-candidat/depot/`.
 
@@ -1467,6 +1511,8 @@ La source `7e4032bc7ed4fb0588a8259a4d1430c2c4fb10a1`, validée visuellement par 
 **Périmètre si Simon autorise la publication :** remplacer uniquement l'artefact de Ligne Posée sur le Worker existant `ligne-posee`, par dépôt manuel de la sortie isolée de `7e4032b` portant l'empreinte ci-dessus ; conserver les autres Workers et l'absence de connexion Git. Après dépôt, vérifier au minimum les fichiers servis et l'identité de version, l'accueil aux formats essentiels, le catalogue et un parcours simulé jusqu'à la confirmation, le noindex, la vraie 404 et l'absence de fichiers internes. Ces contrôles de fumée ne constituent pas une nouvelle recette QA générale. Aucun déploiement n'est autorisé par cette entrée documentaire.
 
 #### Troisième publication provisoire — accueil produit, 17 octobre 2026
+
+**Statut historique, actualisé le 19 octobre :** Simon rapporte le retrait de `b7291ef2` et `7b4663b4` et le retour à `cca19c6e`. QA observe ensuite l'ancien accueil de `a03b365`, sans identifier la version Cloudflare active. Voir le point de reprise en tête du document ; le nouvel accueil ci-dessous n'est pas celui servi dans ce contrôle.
 
 **Autorisation de Simon et cible.** Simon a autorisé la publication de la source exacte `7e4032bc7ed4fb0588a8259a4d1430c2c4fb10a1`, validée visuellement, sur le Worker Cloudflare existant `ligne-posee`. Dépôt manuel du seul dossier assemblé en production sous Node `22.23.2` : **84 fichiers, 1 121 723 octets**, empreinte SHA-256 agrégée `ce9e03d309dc0a9c275ce3e49692bb31e5e18dad70764a67ad70b10c2d829099`. Aucune connexion Git, aucun nouveau Worker, domaine ou achat ; les trois autres sites n'ont pas été republiés. URL : https://ligne-posee.costa-simon30.workers.dev/ . Le tableau de bord a affiché la version Cloudflare **`b7291ef2` active**, la précédente `cca19c6e` restant dans l'historique. Le paquet précédent issu de `a03b365` est conservé hors dépôt pour retour arrière ; aucun retour arrière n'a été exécuté ou testé.
 

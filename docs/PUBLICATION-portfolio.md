@@ -4,6 +4,8 @@ Ce fichier consigne les mises en ligne du site `sites/portfolio`, conformément
 à `docs/ARCHITECTURE.md` § 5.4 et § 5.6. Une entrée par dépôt. Aucune entrée
 n'est rédigée par anticipation : chaque ligne est un constat, pas une intention.
 
+**État documentaire au 19 octobre 2026 :** les dépôts n° 1 à 5 sont historiques. Le rapprochement en fin de journal consigne les publications ultérieures, l'incident et le retour arrière rapportés, puis l'écart observé par QA (trois onglets actuellement reçus). L'identifiant Cloudflare actif reste à confirmer ; aucune nouvelle publication n'est effectuée par cette mise à jour.
+
 ## Dépôt n° 1 — 18 septembre 2026
 
 ### Identification
@@ -668,3 +670,17 @@ Ces contrôles **ne constituent pas la recette QA hébergée** (§ 5.6, dernier 
   chargement si ce critère doit être levé.
 - Confirmer par accès direct au tableau de bord l'état du réglage « Preview URLs »
   (réserve n° 3).
+
+## Rapprochement du journal après l'incident Content-Type — 19 octobre 2026
+
+Cette entrée consolide les faits déjà rapportés et les contrôles récents ; elle ne consigne aucun nouveau dépôt. Les dépôts n° 1 à 5 ci-dessus sont historiques. Les opérations suivantes avaient été consignées dans `docs/DIRECTION.md` plutôt que dans ce journal :
+
+- **6 octobre :** publication de la source `e88dd25af92feeef40b233047d1285c76b3347b8`, portfolio à deux démonstrations, version Cloudflare relevée `4ef728e4`. Paquet de 20 fichiers, agrégat `cc09c52999e70532d20469c3295231a03be12aea60a19b5bce0066da6d3f5248`. La validation visuelle de Simon et les contrôles de fumée sont ceux documentés à cette date.
+- **18 octobre :** publication du troisième onglet depuis `506211f4de929f39c8ddc7d01cb7dbb8768d2337`, version relevée `efe27a81`. Paquet de 21 fichiers, 307 760 octets, agrégat `64d3a866896e7e00c2579c5c14b050f24934a228e2826e3be93abd9cfd23ed16`. Les contrôles de corps HTTP rapportés ne démontraient pas le bon type MIME ni l'affichage dans un navigateur.
+- **Incident et retour arrière rapportés par Simon, relevé du 18 octobre :** des pages étaient servies en `application/octet-stream` et téléchargées. `efe27a81` a été retirée et `4ef728e4` restaurée. Le correctif source `f66274fa0c9915846722824421284716358a8e1a` et le nouveau paquet portfolio (21 fichiers, 308 673 octets, agrégat `4e254e681495302a9638691c5cbe388cfb995fdbf8dd2b098bad0566fe7227c5`) sont annoncés préparés, non déployés au moment du relevé. Le Chef de projet n'a pas inspecté le tableau de bord pendant cette consolidation.
+
+**Écart actuel à réconcilier.** QA observe le 19 octobre entre 05 h 52 et 05 h 54 (Europe/Paris) un accueil public HTTP 200, `text/html; charset=utf-8`, contenant **trois onglets**. Le corps de 18 934 octets, SHA-256 `5288f4b07a039b1dbbe3c0f54ef625b6438244b0595370ff31a09c22a1fb32f7`, correspond au HTML de `506211f` / `f66274f` après insertion en mémoire de la meta robots de production. Il ne correspond pas au contenu à deux onglets attendu de `e88dd25`. Une requête complémentaire avec paramètre distinct et `Cache-Control: no-cache` reproduit le contenu ; le CDN indique encore `HIT`. La restauration rapportée est conservée comme fait historique, sans être présentée comme description certaine du contenu actuel.
+
+Les GET de QA contrôlent aussi CSS, deux scripts, une police, robots, redirection d'accueil, vraie 404 imbriquée et refus du manifeste interne ; leurs types sont cohérents sur l'échantillon. Les détails et limites figurent dans `docs/QA-portfolio.md`. Ces preuves ne déterminent ni l'identifiant Cloudflare actif, ni l'identité exhaustive de l'artefact, ni l'efficacité hébergée du nouveau `_headers` ; le HTML est commun à plusieurs sources. Aucun parcours navigateur n'est rejoué dans ce complément HTTP.
+
+**Suite.** Relever la version active et l'artefact associé lors d'un prochain accès autorisé au tableau de bord, réconcilier l'écart puis contrôler les trois onglets, la vignette, les thèmes, les liens, le focus et la console dans un navigateur. La réserve MIME/404 du Reviewer et le protocole de `docs/ARCHITECTURE.md` restent à traiter avant de déclarer le correctif clos. Aucun nouveau dépôt ou retour arrière n'est autorisé par cette entrée. Les réserves et décisions de diffusion historiques restent valables uniquement dans leur périmètre.
