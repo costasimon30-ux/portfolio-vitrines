@@ -146,3 +146,19 @@ Complément : [premier écran d’accueil desktop, panneau opaque et geste déga
 La précédente contre-vérification du commit `9f60163` clôturait les réserves sur les compositions provisoires et le ratio du hero Coiffure. Elle ne valait pas validation de cette livraison photographique. Les corrections fonctionnelles déjà clôturées ne sont pas rouvertes.
 
 **Suite recommandée : présentation des captures à Simon pour validation du rendu.** Aucune passe de refonte, recherche photo ni correction fonctionnelle n’est demandée par cette revue. Seuls ce rapport et ses captures justificatives sont ajoutés/modifiés ; ni le site ni le brief artistique ne sont changés.
+
+---
+
+## Bilan documentaire — 19 octobre 2026
+
+**Portée : état des validations, sans nouvelle recette visuelle.** Dépôt synchronisé à `4ebc4d61f1dc289034bfb5c23c0325da481f137d`. Aucun navigateur, contrôle HTTP ou tableau de bord Cloudflare inspecté par UI/UX pour ce bilan.
+
+**Acquis.** Le rendu photographique P01–P07, l'identité ivoire/cuivre/sauge et le compromis P04 sont validés par Simon depuis le 7 septembre. Le libellé « Crédits et licences photographiques » est livré et clos. La demande de validation finale de la revue historique ci-dessus est satisfaite, conformément à `DIRECTION.md`, « Suivi produit — passe photographique » et « Décisions actées et réserve restante ». La clôture de la démo et HQA-02 restent acquises dans leur périmètre.
+
+**Publication documentée.** Le lien retour vers le portfolio a été publié depuis `3ed69d253b28e8419adb7bc58a2ff2a1181a58f8` le 6 octobre, sur https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev/ . Simon a ensuite validé le rendu public avec ceux du portfolio et de La Tablée (« Validation visuelle des trois sites publiés »). Aucun retrait de Créa’Tif n'est rapporté dans le mandat ; l'état présent n'a pas été inspecté ici.
+
+**Réserves conservées.** P06 reste maintenue sur décision de Simon, avec réserve documentaire de droits non levée. Aucune nouvelle recherche, substitution ou suppression demandée. HQA-01, HQA-03 et PUB-A1 gardent leurs statuts déjà consignés ; les limites des recettes antérieures ne deviennent pas des contrôles nouveaux réussis.
+
+**Actions nécessaires.** Aucun arbitrage artistique encore requis pour le rendu livré, aucune nouvelle passe photographique ou revue générale. Le lien retour dépend du portfolio : son affichage et son comportement actuels ne sont pas attestés par ce bilan. N'intervenir qu'en cas de défaut reproductible ou de nouvelle décision explicite concernant une réserve.
+
+Agent: claude-ui-ux

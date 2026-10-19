@@ -134,3 +134,25 @@ Ces observations portent sur les états effectivement rendus. Elles ne mesurent 
 - Les états de survol et un parcours clavier complet ne relevaient pas de cette contre-vérification ciblée et ne sont pas déclarés validés.
 
 Agent: claude-ui-ux
+
+---
+
+## Bilan documentaire — 19 octobre 2026
+
+**Portée : état des validations, sans nouvelle recette visuelle.** Dépôt synchronisé à `4ebc4d61f1dc289034bfb5c23c0325da481f137d`. Aucun navigateur ni tableau de bord Cloudflare inspecté par UI/UX pour ce bilan. Les revues précédentes conservent leurs preuves et limites.
+
+**Acquis.** « Clarté et structure », les thèmes Clair/Sombre et le rendu à deux démos `e88dd25` restent validés. Simon a accepté le cadrage 16:9 de La Tablée, le petit texte dans sa capture et l'espace résiduel possible sous sa carte. Le zoom natif 200 % reste non vérifié et accepté pour ce cycle ; les réserves historiques de CLS et de transition au redimensionnement ne déclenchent aucune retouche automatique. Références : `DIRECTION.md`, « Validation du rendu à deux démos », « Validation visuelle des trois sites publiés » et « Décision de diffusion ».
+
+**Git et publication.** Le code courant contient trois onglets et la vignette Ligne Posée. La comparaison de `506211f` au dépôt lu ne montre, sous `sites/portfolio/`, qu'un changement du manifeste de publication. Simon a rapporté la restauration de `4ef728e4` et le retrait de `efe27a81` après l'incident Content-Type : événements historiques rapportés, pas preuve du contenu actuellement servi.
+
+Le Chef de projet transmet les GET propres à QA du **19 octobre, entre 05 h 52 et 05 h 54 (Europe/Paris)** sur https://portfolio-simon-costa.costa-simon30.workers.dev/ : HTML de **18 934 octets**, SHA-256 `5288f4b07a039b1dbbe3c0f54ef625b6438244b0595370ff31a09c22a1fb32f7`, identique au HTML `506211f`/`f66274f` avec meta robots de production et contenant **trois onglets**. Mesures attribuées à QA, non rejouées ici. Elles contredisent l'état courant à deux onglets déduit du seul retour arrière dans le premier bilan UI/UX en conversation. Elles ne prouvent ni l'affichage des images, ni les interactions, ni l'identifiant Cloudflare actif, ni le déploiement de tout le correctif `f66274f`.
+
+**Suites nécessaires, par priorité.**
+
+1. Réconcilier le journal de publication avec l'historique rapporté et les réponses observées par QA ; ne plus annoncer deux onglets comme état courant certain.
+2. Confirmer sur l'URL réellement servie le rendu du troisième onglet, sa vignette, la sélection des trois démos et le lien vers Ligne Posée. La validation esthétique finale de cette extension reste à Simon, sans nouvelle direction artistique.
+3. Vérifier la cohérence entre la vignette du nouvel accueil Ligne Posée et sa destination : QA rapporte encore l'ancien accueil sur cette dernière. Cet écart de versions appelle une décision de publication cohérente, pas une refonte.
+
+Les paquets corrigés `f66274f` sont rapportés comme non déployés ; leurs empreintes n'ont pas été recalculées par UI/UX. Aucun contrôle visuel, de zoom, de console ou d'interaction déclaré réussi par ce bilan. Aucune republication autorisée ici.
+
+Agent: claude-ui-ux

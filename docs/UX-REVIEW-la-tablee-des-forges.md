@@ -57,3 +57,19 @@ Sur les écrans examinés, les crédits P01–P04 bis sont en texte visible sous
 **Préférence facultative à soumettre à Simon :** sur les captures 1440, le rythme des lames est franchement visible dans les grandes marges ; sur 320/375, les interstices très courts évoquent parfois une suite de rectangles plutôt qu’un panneau continu. Je le trouve acceptable comme décor périphérique et ne demande pas de retouche préventive. Simon peut préférer un contraste légèrement moindre après avoir vu les planches ; ce serait un choix esthétique, non un défaut reproduit.
 
 **Non vérifié par cette revue :** fluidité et durée réelles des transitions, absence de clignotement entre images fixes, cycle de chaque groupe à chacune des quatre largeurs, Tab/focus et accès directs, retour d’historique, JavaScript désactivé, réduction des mouvements, zoom navigateur natif 200 %, contraste chiffré, CLS, console et absence de débordement mesuré. Les planches montrent le bas des pages mais ne prouvent pas seules l’utilisabilité au clavier ni tous les replis. Ces contrôles relèvent de QA. La présente section ne modifie ni les réserves photographiques antérieures ni l’interdiction de déployer sans décision de Simon.
+
+---
+
+## Bilan documentaire — 19 octobre 2026
+
+**Portée : état des validations, sans nouvelle recette visuelle.** Dépôt synchronisé à `4ebc4d61f1dc289034bfb5c23c0325da481f137d`. Aucune observation navigateur, mesure HTTP ou inspection Cloudflare effectuée par UI/UX pour ce bilan.
+
+**Acquis.** L'identité nocturne graphite/ambre, les photographies, le fond noyer et les apparitions sont validés. Les demandes historiques de validation ci-dessus ont été suivies des décisions de Simon dans `DIRECTION.md` : « Clôture de l'intégration photographique », « Décision de publication de Simon » (5 octobre) et « Validation visuelle des trois sites publiés » (6 octobre). P01 mobile conserve le 4:3 pleine largeur ; le plafond initial de 210 px n'est plus un défaut à corriger. P02 et le couple P03/P04 bis sont maintenus par décision explicite.
+
+**Publication documentée.** Source `2d325b560a9be87f72d1912b95a543649eddc71a`, version Cloudflare historiquement relevée `b462d268`, URL https://la-tablee-des-forges.costa-simon30.workers.dev/ . Aucun retrait de ce site n'est rapporté dans le mandat. Cette documentation n'est pas une nouvelle vérification de la version active ou du rendu actuel.
+
+**Réserves conservées.** Divergence de crédit EXIF/fiche pour P02 ; droits tiers du lieu, décor et personne de P03/P04 bis non établis. Leur acceptation ne les résout pas. Le zoom natif 200 % et les scénarios QA partiellement non certifiés restent au suivi, avec l'exception de publication déjà accordée. Le contraste facultatif des lames ne justifie aucune retouche préventive.
+
+**Actions nécessaires.** Aucun nouvel arbitrage artistique ni correction visuelle démontrée. Préserver crédits et mentions de fiction. Une correction ciblée ne devient nécessaire qu'en présence d'un défaut d'usage reproduit ou d'un élément nouveau sur les réserves photographiques ; ne pas relancer la sélection ou une revue générale à partir des anciennes demandes désormais arbitrées.
+
+Agent: claude-ui-ux
