@@ -1,5 +1,56 @@
 # QA — La Tablée des Forges
 
+## Bilan QA et GET publics ciblés — 19 octobre 2026
+
+**Verdict borné : pages et ressources échantillonnées accessibles, types cohérents, vraie 404 et non-indexation observées. Les couvertures manquantes de la recette du 5 octobre restent non certifiées ; aucune nouvelle recette navigateur n'a été menée.** La publication a été autorisée par Simon avec dérogation explicite après le verdict local ci-dessous : ne pas interpréter ce verdict historique comme une interdiction actuelle de maintenir la démo.
+
+### Version, méthode et traçabilité
+
+- URL : `https://la-tablee-des-forges.costa-simon30.workers.dev`. GET indépendants le **19 octobre, 05 h 52–05 h 54 Europe/Paris** (UTC+02) ; première série horodatée `2026-10-19T03:52:44.9586380+00:00`, complément de redirection terminé à `03:53:22.9519337+00:00`.
+- PowerShell / `System.Net.Http.HttpClient`, GET HTTPS, validation TLS normale, suivi des redirections puis complément sans suivi. SHA-256 par `SHA256.HashData` sur les octets reçus en mémoire avant décodage UTF-8. Aucun fichier de preuve créé, aucun build ou test local exécuté.
+- Résolution DNS initialement impossible dans le bac à sable, outil web également inaccessible ; **limite levée par l'accès réseau hors bac à sable autorisé**. Les réponses ci-dessous remplacent la conclusion préparatoire d'impossibilité de contrôle HTTP.
+- Dernière publication documentée dans DIRECTION : source **2d325b5**, version Cloudflare **b462d268**. Aucun nouvel identifiant distant n'a été inspecté. L'accueil reçu fait **5 823 octets**, SHA-256 `c0093d321f331d3db15095ad7d4446fcc97ac436c64f558b63dc9404506bdbc9`, identique aux octets HTML de `2d325b5` lus depuis Git. Le script reçu conserve le hash de la recette locale du 5 octobre. Ces correspondances ne prouvent pas l'identité complète du paquet ni sa version Cloudflare actuelle.
+
+### Chemins réellement demandés et résultats
+
+Toutes les réponses contrôlées portent `X-Robots-Tag: noindex, follow`. Les pages finales et les 404 portent aussi la meta `noindex, follow`.
+
+| Chemin GET | Résultat observé |
+| --- | --- |
+| `/`, `/le-lieu` | 200 ; `text/html` |
+| `/la-carte.html` | 307 vers `/la-carte`, puis 200 `text/html` ; redirection sans suivi : corps vide, aucun Content-Type |
+| `/css/style.css` | 200 ; `text/css` |
+| `/js/defilement.js` | 200 ; `text/javascript` |
+| `/assets/NOTICE.md` | 200 ; `text/plain; charset=utf-8` |
+| `/robots.txt` | 200 ; `text/plain` ; corps `User-agent: *` puis `Allow: /` |
+| `/inexistant-qa-bilan/niveau` | **404 réelle** ; `text/html` ; titre « Page introuvable — La Tablée des Forges » |
+| `/publication.json` | 404 ; même corps HTML que la 404 imbriquée |
+
+Empreintes complémentaires des corps reçus :
+
+| Ressource | Octets | SHA-256 |
+| --- | ---: | --- |
+| `/la-carte` après redirection | 8 707 | `cacc471734cdabfb15f4dc0c7972103697bcda654263ff07b782cd2b1be58bc7` |
+| `/le-lieu` | 6 122 | `c1c46c939d1208ae8576df5d3307f275dda02fae529784eb5cf33e552e472bce` |
+| `/css/style.css` | 18 130 | `09343021ca342f1b035cafae04b78e979c962bbdc1e3f55f762a21bad9631e48` |
+| `/js/defilement.js` | 11 019 | `3cce129704492ffb0076d7eca27ebaa40ecd639989c8675ede4aa9ed54c6e640` |
+| `/assets/NOTICE.md` | 7 607 | `7d57214b14125831aeac8decb4f893d6df46af6b20aa4cda623622cd3e08e736` |
+| 404 imbriquée | 1 593 | `a91c55e914baab2002671b523f3d2cc8b4ed3d9dc8c9e0df864fbe27b6723973` |
+
+### Acquis, réserves et suite
+
+La matrice locale trois pages/quatre formats, les contrôles d'évitement, les replis sans JS/mouvement réduit et le bas de page restent acquis dans le périmètre de la recette du 5 octobre. DIRECTION consigne ensuite l'autorisation de publication par Simon, **avec exception pour le zoom natif non prouvé**, puis la publication du 6 octobre et la comparaison historique de 30 fichiers publics. Cette décision n'a pas transformé les contrôles incomplets en réussites.
+
+**Restent au suivi accepté, non retestés :** zoom natif 200 %, sortie/réentrée de La carte à 768 après franchissement réel du seuil, clic réel du CTA La carte vers Le lieu à 1440, focus dans chaque groupe, échec d'observation, contrastes détaillés et CLS du chargement froid. Hystérésis acceptée ; P02/P03/P04 bis maintenues avec leurs réserves de crédits/droits/cadrage. Aucun défaut nouveau n'est démontré par cette passe.
+
+**Action nécessaire :** aucune correction ni nouvelle recette générale automatique. Si une clôture complémentaire est demandée, limiter les essais aux scénarios non certifiés ci-dessus. Les HTTP actuels apportent une preuve hébergée ciblée ; ils ne remplacent pas ces interactions et n'autorisent aucune republication.
+
+### Ce qui n'a pas été vérifié
+
+Aucun navigateur, rendu, clic, clavier, zoom, appareil physique, console ou mesure de performance nouvelle ; pas de contrôle des images, polices, crédits externes/droits, inventaire complet des fichiers ou compte Cloudflare. Aucun code, réglage ou déploiement ; seul ce rapport est modifié dans le créneau documentaire QA.
+
+---
+
 ## Recette ciblée du 5 octobre 2026 — source 2d325b560a9be87f72d1912b95a543649eddc71a
 
 **Verdict : impossible de clore la prépublication.** La matrice locale demandée a cette fois été exécutée sur les trois pages aux quatre dimensions. Aucun défaut nouveau du code n'est démontré sur les contrôles passés. Le zoom navigateur **natif** 200 % demeure non testé et un clic CTA desktop automatisé reste ambigu ; ces limites ne valent ni conformité ni demande de correction présumée. Aucun code, réglage ou déploiement n'a été changé. Ce résultat remplace l'état préparatoire du commit QA `6f2c12b`.

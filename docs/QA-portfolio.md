@@ -1,5 +1,56 @@
 # QA / Audit — portfolio
 
+## Bilan QA et GET publics ciblés — 19 octobre 2026
+
+**Verdict borné : les réponses HTTP échantillonnées sont utilisables et correctement typées ; le HTML public contient trois onglets. La version Cloudflare et l'artefact complet servis ne sont pas identifiés.** Cette passe documentaire/HTTP ne constitue pas une nouvelle recette navigateur, une validation du candidat MIME ni une autorisation de publication. Les conclusions historiques ci-dessous restent attachées à leurs sources et périmètres.
+
+### Version, méthode et traçabilité
+
+- Mesures indépendantes le **19 octobre, 05 h 52–05 h 54 Europe/Paris** (UTC+02), sur `https://portfolio-simon-costa.costa-simon30.workers.dev`. Première série horodatée `2026-10-19T03:52:44.9586380+00:00` ; complément terminé à `03:53:22.9519337+00:00`.
+- GET HTTPS par `System.Net.Http.HttpClient` sous PowerShell, validation TLS normale, corps lus en mémoire ; première série avec suivi des redirections, complément avec `AllowAutoRedirect=false`. SHA-256 calculé par `SHA256.HashData` sur les octets reçus, avant décodage UTF-8. Aucun fichier de preuve créé, aucun build ou test local exécuté. Les mesures déterminantes sont transcrites ici.
+- L'essai initial dans le bac à sable a échoué en résolution DNS ; l'outil web était également inaccessible. **La limite réseau a été levée par l'accès hors bac à sable explicitement autorisé** : ces échecs initiaux ne décrivent ni une panne des sites ni le résultat final.
+- Le relevé du 18 octobre transmis par Simon rapporte une restauration vers **4ef728e4** et le retrait des versions liées à l'incident. Il s'agit d'un relevé historique, pas d'une inspection du Dashboard par QA. Les GET actuels montrent **trois** boutons `role="tab"` nommés Créa’Tif, La Tablée des Forges et Ligne Posée ; la source `e88dd25` associée à 4ef728e4 en comporte deux. Ne plus décrire le contenu public observé comme le portfolio à deux onglets.
+- L'accueil reçu fait **18 934 octets**, SHA-256 `5288f4b07a039b1dbbe3c0f54ef625b6438244b0595370ff31a09c22a1fb32f7`. Le HTML source commun à `506211f` et `f66274f` fait 18 889 octets ; l'insertion en mémoire de `<meta name="robots" content="index, follow">` suivie d'un saut de ligne avant `</head>`, conformément à l'assembleur, produit exactement les 18 934 octets et le même SHA-256. Cette comparaison ciblée n'est pas un assemblage complet et **ne distingue pas les déploiements partageant ce HTML**, notamment avec ou sans correctif MIME.
+- `/` puis `/?qa-bilan=20261019` avec demande `Cache-Control: no-cache` servent le même hash et trois onglets. Le CDN répond `CF-Cache-Status: HIT`, y compris au complément ; aucun cache CDN froid n'est revendiqué.
+- Le candidat `f66274fa0c9915846722824421284716358a8e1a` est rapporté non déployé : **21 fichiers, 308 673 octets**, agrégat `4e254e681495302a9638691c5cbe388cfb995fdbf8dd2b098bad0566fe7227c5`. Cet inventaire et cet agrégat ne sont pas recalculés par QA dans cette passe et ne sont pas attribués au site public.
+
+### Chemins réellement demandés et résultats
+
+| Chemin GET | Résultat observé |
+| --- | --- |
+| `/`, `/?qa-bilan=20261019` | 200 ; `text/html; charset=utf-8` ; meta `index, follow` ; aucun en-tête global `X-Robots-Tag` |
+| `/index.html` | 307 vers `/`, puis 200 ; complément sans suivi : redirection à corps vide |
+| `/css/style.css`, `/css/fonts.css` | 200 ; `text/css; charset=utf-8` |
+| `/js/realisations-onglets.js`, `/js/mouvement-sections.js` | 200 ; `text/javascript; charset=utf-8` |
+| `/assets/fonts/inter/inter-400.woff2` | 200 ; `font/woff2` |
+| `/robots.txt` | 200 ; `text/plain; charset=utf-8` ; corps `User-agent: *` puis `Allow: /` |
+| `/inexistant-qa-bilan/niveau` | **404 réelle** ; `text/html` ; titre « Page introuvable — Simon COSTA », meta `noindex, follow`, sans `X-Robots-Tag` |
+| `/publication.json`, `/_headers` | 404 ; même corps HTML et même meta que la 404 ci-dessus |
+
+Empreintes complémentaires des corps reçus :
+
+| Ressource | Octets | SHA-256 |
+| --- | ---: | --- |
+| `/css/style.css` | 31 721 | `da7f0b482effcb510dd97c7cd486be1f386d4f77b7197837e2a35e34a13216a0` |
+| `/css/fonts.css` | 1 673 | `69865183e16a1f1cb32aecb1e60a3e250ae9fbc7aaf96ce1b815f8da577fe956` |
+| `/js/realisations-onglets.js` | 3 812 | `0845670456f34702bd0b5fbc389a88fcb5628a77c1dbf8c35a47bf27a0148ff7` |
+| `/js/mouvement-sections.js` | 13 404 | `708985a1b60febc1c3ac38cc6527ff9c8166ca41dfb8c29fd5ee6568df05238c` |
+| `/assets/fonts/inter/inter-400.woff2` | 23 664 | `8909904ab6c872eb994093482a88a28eca2cd95912d7b6fecd72103b0dc07edc` |
+| 404 imbriquée | 2 245 | `d0a957736c3a8a7339c418d07439af80cf264172464dcdd0cf0226fb6d085e72` |
+
+### Clôtures conservées, réserves et suite nécessaire
+
+- **Clos dans leurs périmètres :** PORT-01/02, PORT-05/06, QA-MVT-01/02 ; recette hébergée du 5 octobre sur `4f9f192` favorable et diffusion autorisée par DIRECTION. Ce bilan n'étend pas cette recette aux trois onglets actuels.
+- **Réserves héritées :** HTTP sans redirection HTTPS, MIME WOFF2, absence d'en-tête sur vraie 404, CLS initial mineur, zoom natif des cycles récents, Preview URLs non reconfirmé et P2 de sortie animée au redimensionnement. Le MIME désormais correct d'Inter 400 ne clôt pas PORT-04 pour toutes les polices ; HTTP simple, autres fontes et Dashboard non contrôlés ici. PORT-03 reste soumis aux décisions déjà actées.
+- **Priorité :** réconcilier le relevé de restauration avec les observations actuelles et identifier la version/paquet réellement actif, sans déduire un identifiant Cloudflare du HTML. Puis, sur demande ciblée, observer les trois onglets, leur image/lien, le clavier, les thèmes et la console dans un navigateur.
+- La revue indépendante du 19 octobre, `CODE-REVIEW-portfolio.md`, porte **PUB-11-01, P2**, sur les motifs MIME du candidat et les URL absentes. Constat du Reviewer, non reproduit par cette passe QA. Le GET réussi de `/inexistant-qa-bilan/niveau` ne couvre ni `/css/inexistant.html`, ni `/js/inexistant.html`, ni `/css/inexistant.css`. Après correction et futur dépôt autorisé d'un artefact identifié, contrôler ces chemins, la 404 simple/imbriquée, les types uniques des ressources et les octets servis ; une 404 directe seule ne suffit pas.
+
+### Ce qui n'a pas été vérifié
+
+Aucune interaction navigateur, capture, console, exécution JS, zoom, responsive, performance ou mesure terrain nouvelle ; aucun contrôle exhaustif des fichiers publics, des chemins internes ou de tous les types de ressources. Aucun accès au compte Cloudflare. Aucun diagnostic de panne publique actuelle n'est déduit de la revue du candidat. Les limites et réserves acceptées ne déclenchent pas une nouvelle recette générale. Seul ce rapport est modifié dans le créneau documentaire QA ; aucun code ou déploiement.
+
+---
+
 ## Recette QA hébergée — 5 octobre 2026 — source 4f9f192
 
 **Verdict : avis favorable à la diffusion de cette URL auprès de prospects et d’employeurs, avec les limites ci-dessous.** Aucun défaut bloquant ou majeur nouveau n’a été reproduit sur la version hébergée. Ce verdict concerne uniquement l’URL et les parcours testés ; il ne constitue pas une certification du zoom natif, d’autres navigateurs ni du réglage Cloudflare « Preview URLs ».

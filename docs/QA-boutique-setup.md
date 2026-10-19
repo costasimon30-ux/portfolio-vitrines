@@ -1,5 +1,59 @@
 # QA — Ligne Posée / boutique-setup
 
+## Bilan QA et GET publics ciblés — 19 octobre 2026
+
+**Verdict borné : pages et ressources échantillonnées accessibles avec des types cohérents ; l'accueil public correspond à l'ancien accueil de `a03b365`. LP-QA-02 reste ouvert, son URL de notice répond encore 404 ; LP-QA-01 reste ouvert, non retesté.** Aucune nouvelle recette navigateur ni validation du candidat MIME n'est prononcée.
+
+### Version, méthode et traçabilité
+
+- URL : `https://ligne-posee.costa-simon30.workers.dev`. GET indépendants le **19 octobre, 05 h 52–05 h 54 Europe/Paris** (UTC+02) ; première série horodatée `2026-10-19T03:52:44.9586380+00:00`, complément terminé à `03:53:22.9519337+00:00`.
+- PowerShell / `System.Net.Http.HttpClient`, GET HTTPS avec validation TLS normale. Corps conservés en mémoire ; SHA-256 calculé par `SHA256.HashData` sur les octets reçus avant décodage UTF-8. Première série avec suivi des redirections, complément sans suivi. Aucun fichier de preuve créé, aucun assemblage ni suite de tests exécuté.
+- Le premier essai a échoué en DNS dans le bac à sable ; l'outil web était inaccessible. **Accès réseau hors bac à sable autorisé, limite levée et réponses obtenues** : l'échec initial n'est pas le verdict final et ne démontre aucune panne du site.
+- Simon rapporte une restauration vers **cca19c6e** après l'incident du 18 octobre et le retrait de versions dont b7291ef2. Aucun identifiant de Dashboard n'a été inspecté par QA. L'accueil reçu fait **4 171 octets**, SHA-256 `9a2d643f57fed31b4d925d4ee835a227286fdb093ce40d2f97a523702574eb52`, identique aux octets HTML de `a03b365` lus depuis Git ; le nouvel accueil « Le bureau prend forme » de `7e4032b` est absent. Cela concorde avec le relevé de restauration, sans identifier la version Cloudflare ni l'artefact complet.
+- `/` et `/?qa-bilan=20261019` servent le même hash. Le complément demande `Cache-Control: no-cache`, mais reçoit `CF-Cache-Status: HIT` : aucun cache CDN froid revendiqué.
+- Le candidat `f66274fa0c9915846722824421284716358a8e1a`, contenant le nouvel accueil et les règles MIME, est rapporté non déployé : **84 fichiers, 1 122 438 octets**, agrégat `9895d746ffba78768d4eb281868e9938772bcc930e8e5a666d9381ce90a0bff5`. Cet agrégat n'a pas été recalculé par QA et n'est pas attribué à la publication actuelle.
+
+### Chemins réellement demandés et résultats
+
+Toutes les réponses contrôlées de cette série portent `X-Robots-Tag: noindex, follow`. Les pages HTML finales et les 404 portent aussi la meta `noindex, follow`.
+
+| Chemin GET | Résultat observé |
+| --- | --- |
+| `/`, `/?qa-bilan=20261019`, `/catalogue`, `/panier`, `/commande`, `/confirmation` | 200 ; `text/html` |
+| `/produit.html?modele=sup-03` | 307 vers `/produit?modele=sup-03`, puis 200 `text/html` ; paramètre conservé. Redirection sans suivi : corps vide, aucun Content-Type |
+| `/css/style.css` | 200 ; `text/css` |
+| `/js/page-produit.js` | 200 ; `text/javascript` |
+| `/data/catalogue.json` | 200 ; `application/json` |
+| `/robots.txt` | 200 ; `text/plain` ; corps `User-agent: *` puis `Allow: /` |
+| `/inexistant-qa-bilan/niveau` | **404 réelle** ; `text/html` ; titre « Page introuvable — Ligne Posée (démonstration) » |
+| `/NOTICE-VISUELS.md`, `/publication.json`, `/_headers` | 404 ; même corps HTML que la 404 imbriquée |
+
+Empreintes complémentaires des corps reçus :
+
+| Ressource | Octets | SHA-256 |
+| --- | ---: | --- |
+| `/catalogue` | 6 506 | `55042230f5586c792e9128bb056198a487951dc6bc4da5b6d328da926815a277` |
+| Fiche après redirection | 3 288 | `a64e2cf4b481bd994317e0615336b49cf4407724354128411fe90b86352d6638` |
+| `/css/style.css` | 18 417 | `4f5a6a2d5bb26a6f20e153d18fe9ec8c65929b47d27ace2efddfb2890a3c3bae` |
+| `/js/page-produit.js` | 10 639 | `0ece8bdce58a252fe28b361d07fade2041cd3c0c6a6eaedc357bc7fd0cd0cece` |
+| `/data/catalogue.json` | 13 754 | `036969a50f0acd7e668036aaf01f7f276f97bf6eb837c4a6108f1cba0a081d8a` |
+| 404 imbriquée / notice absente | 1 846 | `85213a71d35fdef3eca7851defe488971e28e8450e32cdce7223a3742032b8e8` |
+
+### Clôtures conservées, réserves et suite nécessaire
+
+- **Acquis historiques :** lots BQ-01 à BQ-04 et L2-01 à L2-03 clos dans leurs périmètres ; recette nominale hébergée du 12 octobre sur `a03b365` favorable avec réserves, 20 modèles/80 variantes et parcours panier/livraison/confirmation vérifiés. Le zoom natif avait été testé sur une fenêtre desktop (1680 vers 840 px CSS), pas sur quatre appareils. Aucun de ces parcours n'est déclaré rejoué aujourd'hui.
+- **LP-QA-01, majeur : ouvert, non retesté.** La preuve historique du JSON retardé de 10 s et des déplacements de 537 à 937 px reste applicable à son périmètre ; pas de nouvelle injection de panne. La tolérance pour la démo provisoire ne clôt pas ce point.
+- **LP-QA-02, mineur : ouvert.** Le GET indépendant du 19 octobre confirme que `/NOTICE-VISUELS.md` répond 404. L'absence de notice publique reste au suivi ; pas de nouvel inventaire exhaustif ni inspection des liens de l'interface pour cette passe.
+- **Avant un verdict final :** correction ou arbitrage explicite de LP-QA-01, et notice publique adaptée pour LP-QA-02, selon les décisions de DIRECTION. Ne pas rouvrir les lots techniques clos pour ces seuls constats hérités.
+- Le Reviewer a établi **PUB-11-01, P2**, sur les URL absentes du candidat MIME (`CODE-REVIEW-portfolio.md`, bilan du 19 octobre, et `CODE-REVIEW-boutique-setup.md`). Cette preuve locale est attribuée au Reviewer, non à QA. Après correction et dépôt autorisé d'un artefact identifié : contrôler notamment `/css/inexistant.html`, `/js/inexistant.html`, `/assets/produits/inexistant.html`, `/css/inexistant.css`, ainsi que les vrais replis simples/imbriqués, les types des ressources et les octets servis. Ces chemins supplémentaires n'ont pas été demandés par QA aujourd'hui.
+- Puis recette navigateur bornée au nouvel accueil/en-tête s'il est publié : quatre formats, zoom natif, image et replis, navigation/focus, accès catalogue et un parcours jusqu'à confirmation, console. Le GET de l'ancien accueil ne valide pas le nouveau rendu.
+
+### Ce qui n'a pas été vérifié
+
+Aucune interaction navigateur, console, responsive, zoom, image décodée ou mesure de performance nouvelle ; aucun rejeu des 80 variantes ni des pannes de stockage/réseau. Pas de comparaison complète des 83 fichiers publics ni d'identification Cloudflare. Les réponses correctes échantillonnées ne certifient pas le déploiement du correctif MIME. Aucun code, réglage ou déploiement effectué ; seuls les rapports QA sont modifiés dans le créneau documentaire.
+
+---
+
 ## Verdict sur la version publiée — 12 octobre 2026
 
 **Recette nominale favorable avec réserves pour la démo provisoire publiée. Aucun défaut bloquant du parcours nominal reproduit.** Le catalogue, les 80 références sélectionnables, le panier, les deux livraisons fictives et la confirmation unique passent dans les scénarios ci-dessous. Deux constats restent ouverts : **LP-QA-01, majeur, déjà connu** (fiche avec JSON retardé de 10 s) et **LP-QA-02, mineur** (notice détaillée des visuels non publiée). Ce résultat ne valide pas la direction artistique encore provisoire et ne constitue aucune autorisation de republication ou de mise en avant finale.

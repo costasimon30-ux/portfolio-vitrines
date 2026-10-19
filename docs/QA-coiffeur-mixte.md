@@ -1,5 +1,57 @@
 # QA / Audit — coiffeur-mixte
 
+## Bilan QA et GET publics ciblés — 19 octobre 2026
+
+**Créa’Tif reste une démo livrée avec réserves acceptées ; HQA-02 reste CLOS.** Les GET actuels confirment l'accès aux pages et ressources échantillonnées, leurs types cohérents, une vraie 404 et les directives de non-indexation. Ce complément n'est pas une nouvelle recette navigateur et ne rouvre aucune clôture historique.
+
+### Version, méthode et traçabilité
+
+- URL : `https://portfolio-vitrines-coiffeur-mixte.costa-simon30.workers.dev`. GET indépendants le **19 octobre, 05 h 52–05 h 54 Europe/Paris** (UTC+02) ; première série horodatée `2026-10-19T03:52:44.9586380+00:00`, complément de redirection terminé à `03:53:22.9519337+00:00`.
+- PowerShell / `System.Net.Http.HttpClient`, GET HTTPS avec validation TLS normale ; suivi des redirections puis complément sans suivi. Empreintes SHA-256 par `SHA256.HashData` sur les octets des corps reçus en mémoire, avant décodage UTF-8. Aucun fichier de preuve créé, aucun build ou test local exécuté.
+- Le premier essai dans le bac à sable échouait en DNS ; l'outil web était inaccessible. **La limite réseau est levée par l'accès hors bac à sable autorisé** ; les réponses actuelles sont mesurées, pas déduites de l'échec initial.
+- Dernière publication documentée : lien retour portfolio, source **3ed69d2**, version Cloudflare **866c86cd**, le 6 octobre. Aucun identifiant distant ni paquet complet n'a été identifié par QA aujourd'hui. Le CSS reçu diffère du CSS historique de `edeeb30`, ce qui est compatible avec le lot ultérieur documenté ; aucune régression d'ancres n'en est déduite sans interaction.
+
+### Chemins réellement demandés et résultats
+
+Toutes les réponses contrôlées portent `X-Robots-Tag: noindex, follow`. Les pages finales et les 404 portent aussi la meta `noindex, follow`.
+
+| Chemin GET | Résultat observé |
+| --- | --- |
+| `/`, `/coiffure`, `/barbier` | 200 ; `text/html` |
+| `/salon.html` | 307 vers `/salon`, puis 200 `text/html` ; redirection sans suivi : corps vide, aucun Content-Type |
+| `/css/style.css` | 200 ; `text/css` |
+| `/js/main.js` | 200 ; `application/javascript` |
+| `/assets/photos/NOTICE.md` | 200 ; `text/plain; charset=utf-8` |
+| `/robots.txt` | 200 ; `text/plain` ; corps `User-agent: *` puis `Allow: /` |
+| `/inexistant-qa-bilan/niveau` | **404 réelle** ; `text/html` ; titre « Page introuvable — Créa’Tif » |
+| `/publication.json` | 404 ; même corps HTML que la 404 imbriquée |
+
+Empreintes des corps reçus, sans attribution à un artefact complet :
+
+| Ressource | Octets | SHA-256 |
+| --- | ---: | --- |
+| `/` | 10 253 | `c578cf88b7f259537134cb948645c9034f2375786bcd8231ff715638a13a4d2f` |
+| `/coiffure` | 7 272 | `73bba9c03487254a91fcdc976a931af8eed3c137df53b1b3803f1c0b4ed002e4` |
+| `/barbier` | 7 255 | `ef3385a5e7781be7e12446e6f42d0565a4f17f19699c0db2e294b302efe9700c` |
+| `/salon` après redirection | 6 732 | `7a92ef9f613fcb80637a118294673de0dcb360ddca5f92474c5ab63efa967abf` |
+| `/css/style.css` | 18 779 | `35081aa8b73901c7862eb53bb478dca662d76c723e6759992ba8e3b84e4edb7e` |
+| `/js/main.js` | 1 894 | `272b7a23bb4f3023ecb22aefa7060ab3bff312c387ecf6d532c3e9dea3e75e63` |
+| `/assets/photos/NOTICE.md` | 9 716 | `073e38920d8886dfbfaf072a1d917350884aae3a02c235d8384bd5f9f8204f39` |
+| 404 imbriquée | 1 248 | `e07400067a84531c034fd430c274ae653be0a53816c789028862e48dea48027f` |
+
+### Clôtures conservées, réserves et suite
+
+- **HQA-02 CLOS :** conserver les 105 scénarios d'ancres et 20 contrôles complémentaires du 8 septembre, zoom natif inclus. QA-07/08, CR2-04 et les autres clôtures restent acquises dans leurs périmètres. Aucun de ces scénarios n'est déclaré rejoué aujourd'hui.
+- **Réserves acceptées :** HQA-01 (HTTP sans redirection), HQA-03 (favicon implicite de notice), P06 maintenue avec réserve documentaire de droits, PUB-A1 différé. HTTP simple et favicon implicite ne sont pas demandés dans cette série ; la notice reçue n'apporte aucune preuve nouvelle sur les droits.
+- Le lien retour du lot du 6 octobre dispose de contrôles de fumée documentés dans DIRECTION ; aucun nouveau clic ou parcours responsive de ce lot n'est revendiqué ici.
+- **Action nécessaire : aucune pour terminer la livraison close.** Si un incident reproductible ou une évolution explicitement demandée apparaît, limiter correction et contre-vérification au scénario concerné. Le correctif MIME opt-in des autres sites ne commande pas une nouvelle recette générale de Créa’Tif.
+
+### Ce qui n'a pas été vérifié
+
+Aucune interaction navigateur, capture, console, ancre, focus, menu, zoom, responsive, image/police décodée ou mesure de performance nouvelle. Pas de comparaison exhaustive des 41 fichiers publics ni d'inspection Cloudflare. Safari/Firefox, lecteurs d'écran et appareils physiques restent hors de cette passe, sans nouvelle condition de clôture. Aucun code, réglage ou déploiement ; seul ce rapport est modifié dans le créneau documentaire QA.
+
+---
+
 ## Verdict actuel — clôture HQA-02, 8 septembre 2026
 
 **HQA-02 CLOS. Créa’Tif : démo de portfolio livrée, avec réserves acceptées.**
