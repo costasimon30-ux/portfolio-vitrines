@@ -108,3 +108,41 @@ Ce passage n'est ni un 97/97 ni un rejeu de référence sur Node 22.23.2. Les é
 1. Avant clôture de PUB-11 : corriger le P2 de recouvrement MIME, sécuriser et contre-vérifier le véritable repli 404 ; rejouer les contrôles sous le runtime figé. Aucun déploiement implicite.
 2. Réconcilier les journaux avec le relevé de restauration du 18 octobre et les observations HTTP ultérieures de QA, sans déduire une version Cloudflare ni un paquet complet depuis le seul HTML.
 3. Garder le P2 historique de redimensionnement et les réserves acceptées au suivi. Aucune nouvelle revue générale des sites déjà clos n'est demandée par ce bilan.
+
+---
+
+## Contre-vérification PUB-11-01 — 23 octobre 2026 — source 0934de3
+
+**Verdict local ciblé : le P2 de recouvrement MIME est corrigé dans l'artefact ; la publication et la clôture HTTP restent conditionnelles.** Source exacte `0934de3ff666047f5efdde8f6fa17dcb3efde49c`, comparée à son parent `caf367fce2fda6dc5550ee7870b4622802715061` et au contrat de `docs/ARCHITECTURE.md` § 5.5 (décision du 23 octobre). Cette conclusion actualise le constat du 19 octobre sans effacer son historique. Aucun autre fonctionnement des sites n'a été réaudité.
+
+### Assemblages et règles, vérification indépendante
+
+Copies temporaires hors dépôt obtenues par `git -c core.autocrlf=false archive` ; Node **v22.23.2**, version exacte de `.node-version`. Parent et correctif, quatre sites, production et preview : **16 assemblages réussis**. Comparaison par chemins et SHA-256 individuels dans les deux modes : seul `_headers` change pour portfolio et boutique-setup ; les sorties de Créa'Tif et de La Tablée des Forges sont identiques octet pour octet au parent, `_headers` compris.
+
+| Site, production à 0934de3 | Fichiers / octets | Blocs `_headers` | SHA-256 agrégé |
+| --- | ---: | ---: | --- |
+| Portfolio | 21 / 308833 | 21 | `1e507fbedea0cc4039c394a0e514232f1c1080a3a4e040670175baec491191a8` |
+| Ligne Posée | 84 / 1126826 | 85 | `7c53ca21f2668d713acb7b926d52b28632cfaf5db6f948c1aef31247ebdff1df` |
+| Créa'Tif | 42 / 1274859 | Hors opt-in | Identique au parent dans les deux modes |
+| La Tablée des Forges | 31 / 880174 | Hors opt-in | Identique au parent dans les deux modes |
+
+Méthode d'agrégation : SHA-256 de chaque fichier, chemins triés, lignes `<sha256>  ./<chemin>\n` concaténées, puis SHA-256 de cette liste UTF-8. SHA-256 de `_headers` seul : portfolio `4b8dc27f78c9535fcea98d022be95ced55bda35e93c5866f509e0d5749fd086a`, Ligne Posée `0165ea0ed57849615efabc17108606849a7c5d9fa1e36ce741ed412f07072a74`. Ces empreintes identifient les **candidats locaux**, pas une version Cloudflare servie.
+
+Un lecteur de blocs `_headers` et de correspondances indépendant des fonctions du générateur a contrôlé chaque URL de fichier publié, pages avec et sans extension et notices incluses : **une seule règle `Content-Type` de la bonne valeur par URL**. Parmi les règles MIME, le seul motif à astérisque est `/*.html` ; CSS, JS, JSON, images et fontes ont des règles exactes. Le plus grand `_headers` a 85 blocs, sous la limite Cloudflare de 100 ; lignes maximales : 51 caractères pour portfolio et 47 pour Ligne Posée, sous 2000. L'indexation de production demeure distincte : pas de `noindex` global sur le portfolio ; `X-Robots-Tag: noindex, follow` global sur Ligne Posée.
+
+| URL absente sondée, sur les deux sorties | Règles MIME correspondantes |
+| --- | --- |
+| `/inexistant.html`, `/css/inexistant.html`, `/js/inexistant.html`, `/assets/produits/inexistant.html` | Une seule : `text/html; charset=utf-8`, par `/*.html` |
+| `/css/inexistant.css`, `/js/inexistant.js`, `/assets/produits/inexistant.webp`, `/assets/images/inexistant.webp`, `/data/inexistant.json` | Aucune |
+| `/inexistant`, `/inexistant/imbrique` | Aucune |
+| `/404`, `/404.html` (contrôles d'accès direct) | Une seule règle HTML chacun |
+
+Les chemins « inexistant » ne figurent pas aux inventaires. Les anciens cumuls HTML+CSS, HTML+JS et HTML+WebP ne se produisent plus ; aucune URL absente sondée n'hérite d'un type de dossier. Pour les URL sans extension ou portant une extension de ressource, le type de la **vraie** réponse 404 dépend encore du type enregistré pour l'asset `404.html` lors du dépôt, limite acceptée sous conditions par le contrat du 23 octobre. Le type HTTP et le rendu navigateur du candidat `0934de3` **n'ont pas été mesurés** ; `/404` direct ne les prouve pas pour une adresse inconnue.
+
+### Suite prescrite : 89/97 sous Node 22.23.2
+
+La suite non modifiée `node scripts/verif-assemblage.mjs`, lancée dans une copie temporaire extraite sans conversion des fins de ligne, donne **89 réussis, 8 échecs, code 1**. Ses contrôles PUB-11 passent. Sept échecs apparaissent à la **création** des liens symboliques des fixtures : `EPERM: operation not permitted` dans ce sandbox Windows. Une sonde indépendante de création de lien y donne aussi `EPERM` ; les sept tests n'atteignent donc pas la vérification du refus attendu et ne sont pas validés ici.
+
+Le huitième échec est l'auto-test de concurrence, dont les deux enfants rendent 1. Pour qualifier leur résultat, deux exécutions `--self-test-enfant` ont été relancées indépendamment et en parallèle depuis la même copie : chacune emploie un bac temporaire distinct et obtient **85 réussis, 7 échecs**, exclusivement les sept mêmes `EPERM`. Aucune collision supplémentaire n'apparaît dans leurs résultats. Cela explique les codes 1 observés ici, sans faire passer le contrôle de concurrence pour réussi. Aucun défaut du nouveau code MIME n'est démontré par ces huit échecs ; **la suite complète reste rouge dans cet environnement**.
+
+**Décision de revue :** les critères locaux ciblés PUB-11-01 sont satisfaits dans les artefacts examinés, sans défaut restant démontré dans ce périmètre. Avant de proposer l'artefact au dépôt, obtenir le passage complet de la suite sous Node 22.23.2 dans un environnement qui permet ses fixtures symboliques, puis figer le paquet destiné à la cible précise ; ne pas présenter 89/97 comme 97/97. Après un dépôt autorisé, QA doit relever par HTTP les vraies 404 simples, imbriquées et sous CSS/JS/médias, avec et sans extension : statut 404, `Content-Type: text/html` unique, corps personnalisé, affichage sans téléchargement et liens de retour. **PUB-11-01 ne sera clos sur l'hébergement qu'après cette preuve.** Un type `application/octet-stream`, cumulé ou un rendu inutilisable y bloque la recette et appelle le retour arrière prévu au contrat. Aucun compte, code produit, réglage Cloudflare ou déploiement modifié par le Reviewer.
