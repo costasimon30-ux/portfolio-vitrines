@@ -874,13 +874,14 @@ function motifCorrespond(motif, chemin) {
  *   - pages : « / » pour index.html, « /nom » pour nom.html (html_handling
  *     auto-trailing-slash, réglage attendu des Workers du dépôt) et un motif
  *     « /*.html » qui couvre aussi les accès en « .html » ;
- *   - fichiers publics : un motif de dossier « /dossier/* » seulement si tout
- *     le sous-arbre porte le même type et ne contient ni notice ni fichier
- *     généré ; sinon une règle exacte par fichier ;
+ *   - fichiers publics : une règle EXACTE par fichier (PUB-11-01 : aucun motif
+ *     de dossier, qui typerait aussi une 404 sous ce dossier) ;
  *   - robots.txt ; les notices gardent leur propre règle (construireHeaders).
  * Une extension inconnue, un caractère de motif dans un chemin, ou un chemin
  * servi qui ne correspondrait pas à EXACTEMENT une règle de type lèvent une
- * erreur : jamais de type deviné, jamais de valeurs cumulées.
+ * erreur : jamais de type deviné, jamais de valeurs cumulées. PUB-11-01 : la
+ * même exigence vaut pour des URL ABSENTES sondées (« /inexistant.html » à la
+ * racine et sous chaque dossier) : une seule règle, de type HTML.
  */
 function construireReglesContentType(planifies, notices) {
   const regles = new Map(); // motif -> type
@@ -917,25 +918,13 @@ function construireReglesContentType(planifies, notices) {
   ajouter("/*.html", TYPES_MIME[".html"]);
 
   const fichiers = entrees.filter(([d, v]) => v.type !== "pages" && !estNotice(d)).map(([d]) => d).sort();
-  const sousArbre = (dossier) => [...planifies.keys()].filter((d) => d.startsWith(`${dossier}/`));
   for (const destination of fichiers) {
     const type = typeDe(destination);
     urlsAttendues.push({ url: `/${destination}`, type });
-    const segments = destination.split("/");
-    let motif = `/${destination}`;
-    for (let i = 1; i < segments.length; i++) {
-      const dossier = segments.slice(0, i).join("/");
-      const contenu = sousArbre(dossier);
-      const homogene = contenu.every((d) => {
-        const v = planifies.get(d);
-        return v.type !== "généré" && v.type !== "pages" && !estNotice(d) && typeDe(d) === type;
-      });
-      if (homogene) {
-        motif = `/${dossier}/*`;
-        break;
-      }
-    }
-    ajouter(motif, type);
+    // PUB-11-01 — une règle EXACTE par fichier : aucun motif « /dossier/* » ni
+    // « /dossier/*.ext », qui typeraient aussi une URL absente (dont le corps
+    // servi est 404.html) comme CSS, JavaScript ou image.
+    ajouter(`/${destination}`, type);
   }
   for (const notice of notices) {
     urlsAttendues.push({ url: `/${notice}`, type: TYPE_TEXTE });
@@ -953,6 +942,38 @@ function construireReglesContentType(planifies, notices) {
         `Règles Content-Type : « ${url} » correspond à ${trouvees.length} règle(s) ` +
           `[${trouvees.map((r) => `${r.motif} → ${r.type}`).join(" ; ")}], attendu une seule règle « ${type} ».`
       );
+    }
+  }
+  // PUB-11-01 — URL ABSENTES. Workers Static Assets sert 404.html pour une URL
+  // sans fichier, mais évalue `_headers` sur le chemin demandé : pour des
+  // chemins d'inventaire absent, une URL « .html » inconnue (quel que soit le
+  // dossier) doit recevoir UNE règle de type HTML, celui du corps servi ; une URL
+  // « .css », « .js », image, police, JSON ou texte inconnue ne doit recevoir
+  // AUCUNE règle ; une URL sans extension aucune règle (limite documentée :
+  // `/*` est interdit) ou une règle HTML.
+  const dossiers = new Set([""]);
+  for (const destination of planifies.keys()) {
+    const segments = destination.split("/");
+    for (let i = 1; i < segments.length; i++) dossiers.add(`/${segments.slice(0, i).join("/")}`);
+  }
+  const extensionsSondees = [".html", ...Object.keys(TYPES_MIME), ".txt", ".md", ""];
+  for (const dossier of dossiers) {
+    for (const extension of extensionsSondees) {
+      for (const url of [`${dossier}/inexistant${extension}`, `${dossier}/inexistant/imbrique${extension}`]) {
+        if (planifies.has(url.slice(1))) continue;
+        const trouvees = toutes.filter((r) => motifCorrespond(r.motif, url));
+        const exigeHtml = extension === ".html";
+        const incorrect = exigeHtml
+          ? trouvees.length !== 1 || trouvees[0].type !== TYPES_MIME[".html"]
+          : trouvees.length > 0 && (extension !== "" || trouvees[0].type !== TYPES_MIME[".html"] || trouvees.length > 1);
+        if (incorrect) {
+          throw new ErreurAssemblage(
+            `Règles Content-Type : l'URL absente « ${url} » correspond à ${trouvees.length} règle(s) ` +
+              `[${trouvees.map((r) => `${r.motif} → ${r.type}`).join(" ; ")}] ; une vraie 404 doit recevoir une seule règle HTML` +
+              `${exigeHtml ? "" : extension === "" ? " ou aucune" : " : aucune règle n'est admise pour cette extension (le corps servi est du HTML)"}.`
+          );
+        }
+      }
     }
   }
   return [...regles].map(([motif, type]) => ({ motif, type })).sort((a, b) => {

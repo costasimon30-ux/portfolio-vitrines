@@ -1022,6 +1022,36 @@ async function principal() {
     ".md": "text/plain; charset=utf-8", ".txt": "text/plain; charset=utf-8",
   };
   const typeAttendu = (chemin) => TYPES_ATTENDUS[path.posix.extname(chemin).toLowerCase()];
+  /**
+   * PUB-11-01 — URL ABSENTES (vraie 404 : le corps servi est 404.html). Matrice
+   * indépendante du générateur : pour la racine et chaque dossier, une URL
+   * « .html » inconnue reçoit UNE règle de type HTML ; aucune URL absente ne
+   * reçoit deux règles ; une URL « .css », « .js », image, police, JSON ou texte
+   * absente ne reçoit AUCUNE règle (le corps servi est du HTML) ; une URL sans
+   * extension reçoit zéro règle ou une règle HTML.
+   */
+  const exigerUrlsAbsentes = (blocs, dossiers, inventaire) => {
+    const avecType = blocs.filter((b) => b.entetes["Content-Type"]);
+    for (const dossier of ["", ...dossiers]) {
+      for (const ext of [".html", ".css", ".js", ".json", ".webp", ".svg", ".woff2", ".txt", ""]) {
+        for (const url of [`${dossier}/inexistant${ext}`, `${dossier}/inexistant/imbrique${ext}`]) {
+          if (inventaire.has(url)) continue;
+          const t = avecType.filter((b) => correspond(b.motif, url));
+          affirmer(t.length <= 1, `${url} : ${t.length} règles Content-Type cumulées [${t.map((b) => b.motif)}]`);
+          if (ext !== ".html" && ext !== "") {
+            affirmer(t.length === 0, `${url} : URL absente typée par [${t.map((b) => b.motif + " → " + b.entetes["Content-Type"])}], corps servi = HTML`);
+          }
+          if (ext === ".html") {
+            affirmer(t.length === 1 && t[0].entetes["Content-Type"][0] === "text/html; charset=utf-8",
+              `${url} : vraie 404 .html sans règle HTML unique [${t.map((b) => b.motif + " → " + b.entetes["Content-Type"])}]`);
+          }
+          if (ext === "" && t.length === 1) {
+            affirmer(t[0].entetes["Content-Type"][0] === "text/html; charset=utf-8", `${url} : repli sans extension typé autrement que HTML`);
+          }
+        }
+      }
+    }
+  };
   /** Chaque URL doit recevoir UN SEUL Content-Type, du bon type, sans cumul. */
   const exigerUnType = (blocs, url, type) => {
     const trouves = blocs.filter((b) => b.entetes["Content-Type"] && correspond(b.motif, url));
@@ -1088,8 +1118,15 @@ async function principal() {
     const notice = blocs.find((b) => b.motif === "/assets/NOTICE.md");
     affirmer(notice && notice.entetes["Content-Type"][0] === "text/plain; charset=utf-8" && !notice.entetes["X-Robots-Tag"],
       "bloc de la notice altéré (démo : type seul, noindex déjà global)");
-    affirmer(blocs.some((b) => b.motif === "/img/*"), "dossier homogène : règle de dossier attendue");
-    affirmer(!blocs.some((b) => b.motif === "/fonts/*"), "dossier mixte (police + licence) : pas de règle de dossier");
+    affirmer(blocs.some((b) => b.motif === "/img/a.webp") && blocs.some((b) => b.motif === "/img/b.webp"), "règle exacte par image attendue");
+    // PUB-11-01 : seul « /*.html » est un motif générique ; aucun motif de dossier.
+    const motifsGlob = blocs.filter((b) => b.entetes["Content-Type"] && b.motif.includes("*")).map((b) => b.motif);
+    affirmer(JSON.stringify(motifsGlob) === JSON.stringify(["/*.html"]), `motifs glob Content-Type inattendus : ${motifsGlob}`);
+    for (const url of ["/css/inexistant.css", "/js/inexistant.js", "/img/inexistant.webp", "/fonts/inexistant.woff2", "/data/inexistant.json", "/css/inexistant.html"]) {
+      const t = blocs.filter((b) => b.entetes["Content-Type"] && correspond(b.motif, url));
+      affirmer(url.endsWith(".html") ? t.length === 1 && t[0].motif === "/*.html" : t.length === 0, `${url} : [${t.map((b) => b.motif)}]`);
+    }
+    exigerUrlsAbsentes(blocs, ["/css", "/js", "/img", "/fonts", "/data", "/assets"], new Set(Object.keys(FICHIERS_FIXTURE).map((f) => "/" + f)));
     affirmer(blocs.some((b) => b.motif === "/fonts/f.woff2"), "police : règle exacte attendue");
     affirmer(blocs.length <= 100, `${blocs.length} règles`);
     return `${blocs.length} blocs`;
@@ -1158,6 +1195,23 @@ async function principal() {
         exigerUnType(blocs, `/${f}`, type);
       }
       exigerUnType(blocs, "/robots.txt", "text/plain; charset=utf-8");
+      const inventaire = new Set(m.publicFiles.map((f) => "/" + f));
+      const dossiersReels = new Set();
+      for (const f of m.publicFiles) {
+        const seg = f.split("/");
+        for (let i = 1; i < seg.length; i++) dossiersReels.add("/" + seg.slice(0, i).join("/"));
+      }
+      exigerUrlsAbsentes(blocs, [...dossiersReels].sort(), inventaire);
+      for (const url of ["/css/inexistant.html", "/js/inexistant.html", "/assets/produits/inexistant.html"]) {
+        const t = blocs.filter((b) => b.entetes["Content-Type"] && correspond(b.motif, url));
+        affirmer(t.length === 1 && t[0].motif === "/*.html", `${site} ${url} : ${t.map((b) => b.motif)}`);
+      }
+      for (const url of ["/css/inexistant.css", "/js/inexistant.js", "/assets/produits/inexistant.webp", "/assets/images/inexistant.webp", "/data/inexistant.json", "/inexistant.css", "/inexistant", "/inexistant/imbrique"]) {
+        const t = blocs.filter((b) => b.entetes["Content-Type"] && correspond(b.motif, url));
+        affirmer(t.length === 0, `${site} ${url} : URL absente typée par [${t.map((b) => b.motif)}]`);
+      }
+      const globs = blocs.filter((b) => b.entetes["Content-Type"] && b.motif.includes("*")).map((b) => b.motif);
+      affirmer(JSON.stringify(globs) === JSON.stringify(["/*.html"]), `${site} : motifs glob Content-Type ${globs}`);
       const global = blocs.find((b) => b.motif === "/*");
       if (site === "boutique-setup") {
         affirmer(global && global.entetes["X-Robots-Tag"][0] === "noindex, follow", "boutique-setup : noindex global absent");
