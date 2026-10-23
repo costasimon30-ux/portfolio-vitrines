@@ -9,3 +9,6 @@ dist/
 
 # Sorties locales de l’app Claude (dossier conservé sur le poste, hors dépôt)
 /Claude outputs/
+
+# Cache local de Wrangler (voie manuelle PUB-11-01)
+.wrangler/

@@ -1,0 +1,19 @@
+// Configuration Wrangler de la SEULE démo Ligne Posée (voie manuelle PUB-11-01, docs/ARCHITECTURE.md § 5.5).
+// Ce fichier n'est pas publié (il n'est pas dans publication.json) et ne doit jamais servir à un autre site.
+// Il vise le Worker existant « ligne-posee » : assets statiques seulement, sans « main », sans route, sans
+// variable ni binding, sans connexion Git. « directory » est relatif à CE fichier : lancer la commande depuis
+// une copie figée du commit (git archive) où « sites/boutique-setup/dist » vient d'être assemblé en production.
+// Valeurs relevées sur le Dashboard le 23 octobre 2026 (relevé de Simon) : workers.dev actif, Preview URLs
+// désactivées, aucun domaine personnalisé, compatibility_date 2026-10-23, aucun flag.
+// Réglages NON relevés (inconnus) : observabilité/logs, tags, placement explicite, limites de CPU.
+{
+  "name": "ligne-posee",
+  "compatibility_date": "2026-10-23",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}
