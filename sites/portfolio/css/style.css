@@ -3,17 +3,21 @@
   Direction artistique : docs/DIRECTION.md § « Direction artistique » >
   « 12. Refonte esthétique pilote — proposition UI/UX du 26 octobre 2026 »
   (commit 0cc78da), dans le cadre de la décision « Refonte esthétique des
-  quatre sites » (commit 0eec6de). Cette feuille remplace, pour le portfolio,
+  quatre sites » (commit 0eec6de), puis « Amendement palette achromatique »
+  (décision de Simon, commits 4c1ed64 et dbac8b5) qui remplace TOUTES les
+  valeurs de couleur bleu froid du § 12 par des noirs, blancs et gris neutres. Cette feuille remplace, pour le portfolio,
   les couleurs, surfaces, proportions, espacements et amplitudes de mouvement
   des directions précédentes (« Clarté et structure », commits 856f6f1 et
   87d2c5c) ; leurs comportements (page unique, onglets, bascule Clair / Sombre,
   apparition réversible, repli sans JavaScript) sont conservés.
 
-  Parti pris : une page d'auteur claire et précise. Trame éditoriale bleu
-  froid, grand nom, filets francs, captures réelles de projets. Le bleu guide
-  l'œil ; il ne teinte jamais les captures. Pas d'ombre, pas de verre, pas de
-  halo, pas de pictogramme ajouté. Clair (feuille bleutée) et Sombre (encre
-  marine) ont exactement la même composition.
+  Parti pris : une page d'auteur typographique noire, blanche et grise. La
+  précision vient du contraste, des axes, des filets francs et des captures
+  réelles de projets, qui gardent leurs couleurs naturelles (jamais
+  désaturées, filtrées ni voilées). Aucune teinte dans l'interface : tous les
+  jetons ont des canaux R = G = B. Pas d'ombre, pas de verre, pas de halo, pas
+  de pictogramme ajouté. Clair (blanc et gris très clair) et Sombre (noir et
+  charbon neutres) ont exactement la même composition.
 
   NOTE DE MISE EN ŒUVRE — pourquoi ce site n'utilise pas shared/design-system/
   Le fichier partagé shared/design-system/tokens.css porte aujourd'hui, sous des
@@ -58,21 +62,25 @@
   Ratios de contraste (WCAG 2.x, aplats sRGB opaques, calculés lors de cette
   implémentation par la formule de luminance relative) :
                                     Clair                 Sombre
-    Texte principal / fond ...... 13,77                 16,18
-    Texte principal / surface ... 14,92                 13,94
-    Texte secondaire / fond ..... 6,79                  11,64
-    Texte secondaire / respir. .. 6,31                  8,08
-    Accent / fond ............... 7,26                  9,33
-    Accent / surface ............ 7,86                  8,04
-    Accent / respiration ........ 6,74                  6,47
-    Texte CTA / CTA ............. 7,86                  10,15
-    Texte CTA / survol .......... 10,72                 12,39
-    Texte CTA / activation ...... 12,91                 14,56
-    Focus / fond ................ 7,26                  10,46
-    Focus / surface ............. 7,86                  9,01
-    Focus / respiration ......... 6,74                  7,26
-    Contour de contrôle / fond .. 3,84                  5,62
-    Contour de contrôle / resp. . 3,56                  3,90
+    Texte principal / fond ...... 17,18                 17,45
+    Texte principal / surface ... 17,93                 15,80
+    Texte principal / respir. ... 15,73                 13,88
+    Texte secondaire / fond ..... 7,49                  11,14
+    Texte secondaire / surface .. 7,81                  10,08
+    Texte secondaire / respir. .. 6,86                  8,86
+    Lien (accent) / fond ........ 14,50                 17,45
+    Lien (accent) / surface ..... 15,13                 15,80
+    Lien (accent) / respiration . 13,28                 13,88
+    Lien au survol / fond ....... 20,12                 19,03
+    Texte CTA / CTA ............. 17,93                 17,45
+    Texte CTA / survol .......... 11,73                 13,61
+    Texte CTA / activation ...... 21,00                 19,03
+    Focus / fond ................ 17,18                 19,03
+    Focus / surface ............. 17,93                 17,22
+    Focus / respiration ......... 15,73                 15,13
+    Contour de contrôle / fond .. 4,54                  7,54
+    Contour de contrôle / surf. . 4,74                  6,83
+    Contour de contrôle / resp. . 4,16                  6,00
 
   Le filet passif (--c-filet) n'atteint pas 3:1 : il ne sert jamais seul à
   identifier un contrôle, ni à signifier une sélection ou un focus. Le
@@ -83,20 +91,20 @@
 :root {
   color-scheme: light;
 
-  --c-fond: #F3F6FB;
+  --c-fond: #FAFAFA;
   --c-surface: #FFFFFF;
-  --c-respiration: #E7EEFA;
-  --c-texte: #172743;
-  --c-texte-doux: #465676;
-  --c-accent: #2B46B8;
-  --c-accent-actif: #1D358F;
-  --c-filet: #C9D3E6;
-  --c-contour: #6B7CA5;
-  --c-focus: #2B46B8;
-  --c-cta-fond: #2B46B8;
+  --c-respiration: #F0F0F0;
+  --c-texte: #171717;
+  --c-texte-doux: #525252;
+  --c-accent: #262626;
+  --c-accent-actif: #000000;
+  --c-filet: #D4D4D4;
+  --c-contour: #737373;
+  --c-focus: #171717;
+  --c-cta-fond: #171717;
   --c-cta-texte: #FFFFFF;
-  --c-cta-survol: #1D358F;
-  --c-cta-actif: #162B73;
+  --c-cta-survol: #383838;
+  --c-cta-actif: #000000;
 
   /* Typographie — Inter pour tout, IBM Plex Mono pour les seuls libellés
      courts. Replis système lisibles : le texte n'est jamais bloqué. */
@@ -143,39 +151,39 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --c-fond: #101B31;
-    --c-surface: #182747;
-    --c-respiration: #243758;
-    --c-texte: #F6F8FF;
-    --c-texte-doux: #CAD5EC;
-    --c-accent: #A9BDFF;
-    --c-accent-actif: #D0DAFF;
-    --c-filet: #33466D;
-    --c-contour: #7F93C4;
-    --c-focus: #F2C36B;
-    --c-cta-fond: #B6C5FF;
-    --c-cta-texte: #101B31;
-    --c-cta-survol: #D0DAFF;
-    --c-cta-actif: #E6ECFF;
+    --c-fond: #101010;
+    --c-surface: #1B1B1B;
+    --c-respiration: #262626;
+    --c-texte: #F5F5F5;
+    --c-texte-doux: #C6C6C6;
+    --c-accent: #F5F5F5;
+    --c-accent-actif: #FFFFFF;
+    --c-filet: #444444;
+    --c-contour: #A3A3A3;
+    --c-focus: #FFFFFF;
+    --c-cta-fond: #F5F5F5;
+    --c-cta-texte: #101010;
+    --c-cta-survol: #DADADA;
+    --c-cta-actif: #FFFFFF;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --c-fond: #101B31;
-  --c-surface: #182747;
-  --c-respiration: #243758;
-  --c-texte: #F6F8FF;
-  --c-texte-doux: #CAD5EC;
-  --c-accent: #A9BDFF;
-  --c-accent-actif: #D0DAFF;
-  --c-filet: #33466D;
-  --c-contour: #7F93C4;
-  --c-focus: #F2C36B;
-  --c-cta-fond: #B6C5FF;
-  --c-cta-texte: #101B31;
-  --c-cta-survol: #D0DAFF;
-  --c-cta-actif: #E6ECFF;
+  --c-fond: #101010;
+  --c-surface: #1B1B1B;
+  --c-respiration: #262626;
+  --c-texte: #F5F5F5;
+  --c-texte-doux: #C6C6C6;
+  --c-accent: #F5F5F5;
+  --c-accent-actif: #FFFFFF;
+  --c-filet: #444444;
+  --c-contour: #A3A3A3;
+  --c-focus: #FFFFFF;
+  --c-cta-fond: #F5F5F5;
+  --c-cta-texte: #101010;
+  --c-cta-survol: #DADADA;
+  --c-cta-actif: #FFFFFF;
 }
 
 /* ---------- 02. Base, reset, accessibilité ---------- */
