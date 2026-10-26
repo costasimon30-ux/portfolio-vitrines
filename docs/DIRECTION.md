@@ -4,6 +4,26 @@ Ce fichier centralise les décisions de direction (produit, contenu, périmètre
 
 ## Portfolio global
 
+### Refonte esthétique des quatre sites — décision du 26 octobre 2026
+
+**Mandat de Simon.** Reprendre la conception et la réalisation visuelle du portfolio, de Créa’Tif, de La Tablée des Forges et de Ligne Posée pour obtenir des sites plus actuels et une meilleure qualité visuelle d’ensemble. La mention des quatre sites est interprétée comme le périmètre complet ; Simon peut en retirer un avant son lot d’implémentation. Cette décision rouvre les choix esthétiques antérieurement validés, sans effacer les validations ni les réserves documentées.
+
+**Socle conservé par défaut.** Garder les noms, les textes et informations validés, les parcours et interactions déjà validés, les URL et ancres utiles, le statut de démonstration et les règles d’indexation, ainsi que les contraintes d’accessibilité, de performance, de licences et d’hébergement des polices. Une proposition de modification de contenu, d’image, de parcours ou de structure majeure remonte séparément au Chef de projet et à Simon avant réalisation. Les réserves P06 de Créa’Tif, photographiques de La Tablée, LP-QA-01/02, zoom natif de Ligne Posée et MIME/404 restent suivies dans leurs lots existants : cette refonte ne les clôt pas implicitement.
+
+**Résultat attendu.** Chaque site garde une identité propre. L’UI/UX définit pour chacun une hiérarchie plus nette, une typographie et des espacements cohérents, un traitement des images et des appels à l’action, un rythme de page, des états interactifs et un comportement mobile/desktop. Éviter qu’un même habillage soit copié sur les quatre sites. Le portfolio doit relier l’ensemble de manière lisible, sans emprunter l’identité d’une vitrine. Les choix de couleur, forme et animation relèvent des sous-sections « Direction artistique » tenues par l’UI/UX, pas de la présente décision produit.
+
+**Séquence et lot courant.**
+
+1. **Cadrage transversal, puis portfolio pilote.** L’UI/UX relève les forces et les écarts visuels observables des quatre sites et inscrit d’abord sa nouvelle direction artistique du portfolio dans sa sous-section de `docs/DIRECTION.md`, avec références aux acquis qu’elle conserve ou remplace. Après cette inscription seulement, l’Implémentation réalise le portfolio en local et pousse une révision identifiable. Le lot courant s’arrête à ce pilote et à sa revue ; il ne contient aucune publication Cloudflare.
+2. **Créa’Tif, puis La Tablée des Forges.** Après retour sur le pilote, l’UI/UX définit une direction distincte pour chaque vitrine avant que l’Implémentation ne la réalise. Les photographies et leurs réserves ne changent pas automatiquement avec le style.
+3. **Ligne Posée en dernier.** Sa nouvelle direction part de l’accueil « Le bureau prend forme » déjà validé comme candidat, tout en examinant le reste du site. La résolution MIME/404 et toute nouvelle recette de publication restent un chantier technique séparé ; le retour arrière `cca19c6e` demeure l’état hébergé de référence jusqu’à décision distincte.
+
+**Intervenants et contrôle du pilote.** Le Chef de projet tient le périmètre et tranche les écarts au brief. L’UI/UX conçoit en amont puis examine le rendu indépendamment après la réalisation. Claude Code reste seul responsable de l’implémentation ; il remet le relevé factuel des outils de design installés et choisit leur usage au service de la direction écrite, sans leur donner autorité sur les décisions de produit. L’Architecte intervient seulement si une modification de structure ou de `shared/` est proposée. Code Reviewer et QA contrôlent le commit réalisé dans leurs périmètres, à partir du résultat et sans reprendre l’autoévaluation de l’Implémentation.
+
+**Critères de sortie du pilote.** Le dossier de revue doit identifier le commit source et montrer le rendu des sections principales à 320, 375, 768 et 1440 px ainsi qu’au zoom natif 200 %. Vérifier navigation clavier, focus visible, contrastes, mouvement réduit, absence de débordement horizontal et fonctionnement des liens et interactions conservés. Les changements visuels doivent être justifiés par la direction écrite et la comparaison avant/après ; les écarts sont listés, pas déclarés clos par intention. Simon peut juger le résultat visuellement sur un artefact local identifié.
+
+**Publication.** Ce mandat autorise conception, réalisation, commits et revues. Il n’autorise aucun dépôt ni retour arrière Cloudflare. Chaque publication future requiert l’accord explicite de Simon pour l’artefact précis, après bilan des revues et des réserves connues.
+
 ### Ligne Posée — dépôt refusé en recette et retour arrière, 23 octobre 2026
 
 **État actif vérifié :** le Worker `ligne-posee` sert de nouveau la version Cloudflare `cca19c6e` à 100 %, après retour arrière explicitement autorisé par Simon. L'accueil public répond `200 text/html`, 4 171 octets, SHA-256 `9a2d643f57fed31b4d925d4ee835a227286fdb093ce40d2f97a523702574eb52`. Les vraies 404 vérifiées (`/inexistant` et `/css/inexistant.css`) répondent `404 text/html` avec la page personnalisée de 1 846 octets. Le nouvel accueil n'est donc pas actuellement servi.
