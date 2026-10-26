@@ -208,20 +208,23 @@
   }
 
   function resynchroniser() {
-    // Redimensionnement ou zoom : aucune animation liée au changement de
-    // fenêtre lui-même (ce n'est pas un défilement), seulement une mise à
-    // jour immédiate si les seuils, recalculés avec la nouvelle hauteur,
-    // changent l'état attendu.
+    // Redimensionnement ou zoom : ce n'est pas un défilement. On ne fait donc
+    // que RÉVÉLER, sans animation, un groupe armé que les seuils recalculés
+    // avec la nouvelle hauteur donnent désormais pour atteint (ou que la page,
+    // devenue sans défilement, laisse tout entier visible). On ne MASQUE
+    // jamais ici : un groupe déjà visible le reste, même si le même ratio de
+    // position, divisé par une hauteur plus petite, passerait au-delà du seuil
+    // de sortie. Le masquage reste réservé au véritable défilement vers le
+    // haut (verifier). Revue du 26 octobre 2026, P2 « le redimensionnement
+    // masque encore Réalisations sans défilement ».
     var h = hauteurViewport();
     var sMax = scrollYMax();
     var pasDeDefilement = sMax <= 0;
     var distanceBas = sMax - window.scrollY;
     GROUPES.forEach(function (g) {
-      if (g.verrouille) return;
+      if (g.verrouille || !g.armee) return;
       var ratio = g.titre.getBoundingClientRect().top / h;
-      var doitEtreVisible = pasDeDefilement || entreeDue(g, ratio, distanceBas, h);
-      if (doitEtreVisible && g.armee) reveler(g, true);
-      else if (!doitEtreVisible && !g.armee) masquer(g);
+      if (pasDeDefilement || entreeDue(g, ratio, distanceBas, h)) reveler(g, true);
     });
   }
 

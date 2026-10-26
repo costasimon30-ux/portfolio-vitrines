@@ -658,13 +658,17 @@ a:visited:hover { color: var(--c-accent-actif); }
 
 .grille-prestations {
   display: grid;
+  /* minmax(0, 1fr) et non la colonne implicite « auto » : une colonne auto
+     garde sa largeur minimale intrinsèque et déborde de la page vers 160px
+     CSS (zoom 200 % sur petit écran). Revue du 26 octobre 2026, P2. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--gouttiere);
   margin-top: var(--e-32);
 }
 /* Cartes non interactives : aucun effet de survol ni de clic. Seuls les vrais
    liens reçoivent le focus ; la carte n'est pas rendue cliquable. Un trait
    franc de 32px précède chaque H3. */
-.prestation { padding: var(--carte-padding); }
+.prestation { padding: var(--carte-padding); min-width: 0; }
 .prestation h3::before {
   content: "";
   display: block;
@@ -781,7 +785,7 @@ a:visited:hover { color: var(--c-accent-actif); }
   .hero__inner { padding-top: var(--e-48); }
   .hero { padding-block-end: var(--e-24); }
   .contact { padding-block: var(--e-64); }
-  .grille-prestations { grid-template-columns: repeat(2, 1fr); }
+  .grille-prestations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .prestation { padding: var(--e-32); }
   .site-footer { padding-block: var(--e-48); }
   .site-footer__inner {
