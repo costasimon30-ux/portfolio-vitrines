@@ -148,7 +148,7 @@
   function masquer(g) {
     if (g.armee) return;
     g.armee = true;
-    // Toujours animée (300ms/250ms déclarés en CSS) : la sortie n'est
+    // Toujours animée (180ms/160ms déclarés en CSS) : la sortie n'est
     // jamais instantanée, seule l'entrée peut l'être (accès prioritaire,
     // saut important, état initial).
     g.conteneur.classList.add(CLASSE_ARMEE);

@@ -1,14 +1,19 @@
 /*
   Portfolio — Simon COSTA
   Direction artistique : docs/DIRECTION.md § « Direction artistique » >
-  « Clarté et structure », Clair / Sombre — proposition UI/UX du commit 856f6f1,
-  validée par Simon au commit 87d2c5c.
+  « 12. Refonte esthétique pilote — proposition UI/UX du 26 octobre 2026 »
+  (commit 0cc78da), dans le cadre de la décision « Refonte esthétique des
+  quatre sites » (commit 0eec6de). Cette feuille remplace, pour le portfolio,
+  les couleurs, surfaces, proportions, espacements et amplitudes de mouvement
+  des directions précédentes (« Clarté et structure », commits 856f6f1 et
+  87d2c5c) ; leurs comportements (page unique, onglets, bascule Clair / Sombre,
+  apparition réversible, repli sans JavaScript) sont conservés.
 
-  Cette feuille remplace intégralement l'ambiance « boisée et cocooning »
-  (commits c9266ab, 02b0665, 9d6c64c) : palette, typographie, formes, texture.
-  Aucune couleur, aucun grain ni aucune surface boisée ne subsiste. Les
-  décisions bois restées ailleurs dans DIRECTION.md sont l'historique de
-  l'orientation précédente, pas une consigne à recombiner avec celle-ci.
+  Parti pris : une page d'auteur claire et précise. Trame éditoriale bleu
+  froid, grand nom, filets francs, captures réelles de projets. Le bleu guide
+  l'œil ; il ne teinte jamais les captures. Pas d'ombre, pas de verre, pas de
+  halo, pas de pictogramme ajouté. Clair (feuille bleutée) et Sombre (encre
+  marine) ont exactement la même composition.
 
   NOTE DE MISE EN ŒUVRE — pourquoi ce site n'utilise pas shared/design-system/
   Le fichier partagé shared/design-system/tokens.css porte aujourd'hui, sous des
@@ -50,39 +55,48 @@
   Sans JavaScript, seule l'étape 2 joue : le contenu suit le système et reste
   lisible. Avec JavaScript, data-theme tranche.
 
-  Ratios de contraste recalculés lors de cette implémentation, et non recopiés
-  de la direction artistique (ordre : fond de page / surface / surface alt.) :
+  Ratios de contraste (WCAG 2.x, aplats sRGB opaques, calculés lors de cette
+  implémentation par la formule de luminance relative) :
                                     Clair                 Sombre
-    Texte principal .......... 14,64 / 15,98 / 13,60   15,47 / 13,92 / 12,18
-    Texte secondaire .......... 6,11 /  6,67 /  5,68    9,37 /  8,43 /  7,38
-    Accent .................... 6,13 /  6,69 /  5,69   10,15 /  9,13 /  7,99
-    Accent actif .............. 8,72 /  9,52 /  8,10   13,13 / 11,82 / 10,34
-    Contour de contrôle ....... 4,02 /  4,39 /  3,74    5,02 /  4,52 /  3,96
-    Focus ..................... 5,37 /  5,86 /  4,99    9,97 /  8,97 /  7,85
-    Texte CTA sur son fond (repos / survol / activation) :
-                              15,98 / 11,49 / 18,63   15,47 / 12,91 / 10,64
+    Texte principal / fond ...... 13,77                 16,18
+    Texte principal / surface ... 14,92                 13,94
+    Texte secondaire / fond ..... 6,79                  11,64
+    Texte secondaire / respir. .. 6,31                  8,08
+    Accent / fond ............... 7,26                  9,33
+    Accent / surface ............ 7,86                  8,04
+    Accent / respiration ........ 6,74                  6,47
+    Texte CTA / CTA ............. 7,86                  10,15
+    Texte CTA / survol .......... 10,72                 12,39
+    Texte CTA / activation ...... 12,91                 14,56
+    Focus / fond ................ 7,26                  10,46
+    Focus / surface ............. 7,86                  9,01
+    Focus / respiration ......... 6,74                  7,26
+    Contour de contrôle / fond .. 3,84                  5,62
+    Contour de contrôle / resp. . 3,56                  3,90
 
-  Le filet décoratif n'atteint pas 3:1 : il ne sert donc jamais seul à
-  identifier un contrôle, ni à signifier une sélection ou un focus.
+  Le filet passif (--c-filet) n'atteint pas 3:1 : il ne sert jamais seul à
+  identifier un contrôle, ni à signifier une sélection ou un focus. Le
+  contour franc (--c-contour) porte les bordures de commandes et les filets
+  de séparation de sections.
 */
 
 :root {
   color-scheme: light;
 
-  --c-fond: #F5F5F3;
+  --c-fond: #F3F6FB;
   --c-surface: #FFFFFF;
-  --c-surface-alt: #ECEDEB;
-  --c-texte: #202223;
-  --c-texte-doux: #585D60;
-  --c-accent: #2F6651;
-  --c-accent-actif: #244D3E;
-  --c-filet: #D0D3D2;
-  --c-contour: #737A78;
-  --c-focus: #245FCC;
-  --c-cta-fond: #202223;
+  --c-respiration: #E7EEFA;
+  --c-texte: #172743;
+  --c-texte-doux: #465676;
+  --c-accent: #2B46B8;
+  --c-accent-actif: #1D358F;
+  --c-filet: #C9D3E6;
+  --c-contour: #6B7CA5;
+  --c-focus: #2B46B8;
+  --c-cta-fond: #2B46B8;
   --c-cta-texte: #FFFFFF;
-  --c-cta-survol: #363A3C;
-  --c-cta-actif: #111314;
+  --c-cta-survol: #1D358F;
+  --c-cta-actif: #162B73;
 
   /* Typographie — Inter pour tout, IBM Plex Mono pour les seuls libellés
      courts. Replis système lisibles : le texte n'est jamais bloqué. */
@@ -92,23 +106,25 @@
   /* Échelle de tailles, en unités relatives : la préférence de taille du
      navigateur reste respectée, rien n'est verrouillé en pixels.
      Les valeurs changent aux paliers (voir 13). */
-  --t-h1: 2.5rem;
-  --t-accroche: 1.5rem;
-  --t-h2: 1.75rem;
+  --t-h1: 2.75rem;
+  --t-accroche: 1.375rem;
+  --t-h2: 2rem;
   --t-h3: 1.25rem;
   --t-corps: 1rem;
   --t-petit: 0.875rem;
-  --t-mono: 0.8125rem;
+  --t-mono: 0.875rem;
 
-  /* Échelle d'espacement 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 / 128 */
+  /* Échelle d'espacement 4 / 8 / 12 / 16 / 24 / 32 / 48 / 72 / 96 / 128 */
   --e-04: 4px;
   --e-08: 8px;
   --e-12: 12px;
   --e-16: 16px;
+  --e-20: 20px;
   --e-24: 24px;
   --e-32: 32px;
   --e-48: 48px;
   --e-64: 64px;
+  --e-72: 72px;
   --e-96: 96px;
   --e-128: 128px;
 
@@ -116,50 +132,50 @@
   --conteneur-max: 1200px;
   --marge-ext: var(--e-16);
   --gouttiere: var(--e-16);
-  --rythme-section: var(--e-32); /* deux sections voisines = 64px, voir 03 */
-  --carte-padding: 20px;         /* subdivision de la base 4px */
+  --rythme-section: 36px;         /* deux sections voisines = 72px, voir 03 */
+  --carte-padding: var(--e-24);
 
   --rayon-carte: 2px;
   --rayon-bouton: 4px;
-  --mesure: 65ch; /* largeur de lecture : 65 caractères au plus */
+  --mesure: 62ch; /* largeur de lecture : 62 caractères au plus */
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --c-fond: #1B1D1E;
-    --c-surface: #232628;
-    --c-surface-alt: #2C3032;
-    --c-texte: #F4F5F3;
-    --c-texte-doux: #BDC2BF;
-    --c-accent: #ABD1BE;
-    --c-accent-actif: #D1E8DD;
-    --c-filet: #42484A;
-    --c-contour: #858E8A;
-    --c-focus: #A8C8FF;
-    --c-cta-fond: #F4F5F3;
-    --c-cta-texte: #1B1D1E;
-    --c-cta-survol: #DDE2DF;
-    --c-cta-actif: #C7CFCA;
+    --c-fond: #101B31;
+    --c-surface: #182747;
+    --c-respiration: #243758;
+    --c-texte: #F6F8FF;
+    --c-texte-doux: #CAD5EC;
+    --c-accent: #A9BDFF;
+    --c-accent-actif: #D0DAFF;
+    --c-filet: #33466D;
+    --c-contour: #7F93C4;
+    --c-focus: #F2C36B;
+    --c-cta-fond: #B6C5FF;
+    --c-cta-texte: #101B31;
+    --c-cta-survol: #D0DAFF;
+    --c-cta-actif: #E6ECFF;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --c-fond: #1B1D1E;
-  --c-surface: #232628;
-  --c-surface-alt: #2C3032;
-  --c-texte: #F4F5F3;
-  --c-texte-doux: #BDC2BF;
-  --c-accent: #ABD1BE;
-  --c-accent-actif: #D1E8DD;
-  --c-filet: #42484A;
-  --c-contour: #858E8A;
-  --c-focus: #A8C8FF;
-  --c-cta-fond: #F4F5F3;
-  --c-cta-texte: #1B1D1E;
-  --c-cta-survol: #DDE2DF;
-  --c-cta-actif: #C7CFCA;
+  --c-fond: #101B31;
+  --c-surface: #182747;
+  --c-respiration: #243758;
+  --c-texte: #F6F8FF;
+  --c-texte-doux: #CAD5EC;
+  --c-accent: #A9BDFF;
+  --c-accent-actif: #D0DAFF;
+  --c-filet: #33466D;
+  --c-contour: #7F93C4;
+  --c-focus: #F2C36B;
+  --c-cta-fond: #B6C5FF;
+  --c-cta-texte: #101B31;
+  --c-cta-survol: #D0DAFF;
+  --c-cta-actif: #E6ECFF;
 }
 
 /* ---------- 02. Base, reset, accessibilité ---------- */
@@ -189,13 +205,13 @@ body {
   font-family: var(--font-sans);
   font-weight: 400;
   font-size: var(--t-corps);
-  line-height: 1.65;
+  line-height: 1.6;
   color: var(--c-texte);
   background-color: var(--c-fond);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Bascule de thème : seules les couleurs changent, de 140 ms, sur les
+/* Bascule de thème : seules les couleurs changent, en 150 ms au plus, sur les
    propriétés concernées. Aucun fondu de texte, aucune translation, aucune
    animation d'entrée. Au premier affichage rien ne transitionne, le thème
    étant déjà résolu avant le rendu. */
@@ -204,7 +220,7 @@ body,
 .contact,
 .visuel-projet,
 .bascule {
-  transition: background-color .14s ease, border-color .14s ease, color .14s ease;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
 
 img, svg { max-width: 100%; display: block; }
@@ -218,16 +234,17 @@ button { font: inherit; }
 h1, h2, h3, p, li { overflow-wrap: break-word; }
 
 h1, h2, h3 { margin: 0; }
+/* Inter 800 est réservé au seul H1 ; H2, H3, onglets et commandes en 600. */
 h1 {
   font-size: var(--t-h1);
   font-weight: 800;
-  line-height: 1.05;
+  line-height: 1;
   letter-spacing: -0.03em;
 }
 h2 {
   font-size: var(--t-h2);
-  font-weight: 800;
-  line-height: 1.2;
+  font-weight: 600;
+  line-height: 1.1;
   letter-spacing: -0.02em;
 }
 h3 {
@@ -236,6 +253,18 @@ h3 {
   line-height: 1.3;
 }
 p { margin: 0; }
+
+/* Signature : filet de 3px, long de 64px, avant le sur-titre du hero et
+   avant chaque H2. Purement décoratif, jamais un état interactif. */
+h2::before,
+.hero .libelle::before {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 3px;
+  margin-bottom: var(--e-16);
+  background-color: var(--c-accent);
+}
 
 /* Libellé court en monospace : sur-titre métier, mention « Démonstration ».
    Jamais un paragraphe, jamais un bouton. Couleur de texte secondaire pleine,
@@ -292,13 +321,13 @@ p { margin: 0; }
 .skip-link:focus { top: var(--e-16); }
 /* PORT-05 : la règle générale `a:hover, a:focus-visible` porte la couleur
    d'accent et l'emporte, par spécificité, sur `.skip-link` (0,1,1 contre
-   0,1,0). Au focus, le texte du lien passait donc à l'accent sur le fond
-   sombre du CTA : 1,68:1 en clair, 1,18:1 en sombre. Ces trois sélecteurs
-   rendent au lien la couleur de texte de son fond, sans toucher à l'anneau.
-   Même piège déjà neutralisé sur `.btn:focus-visible`. */
+   0,1,0). Au focus, le texte du lien prenait donc la couleur d'accent sur le
+   fond du CTA. Ces sélecteurs rendent au lien la couleur de texte de son
+   fond, sans toucher à l'anneau. Même piège neutralisé sur `.btn`. */
 .skip-link:hover,
 .skip-link:focus,
-.skip-link:focus-visible {
+.skip-link:focus-visible,
+.skip-link:visited {
   color: var(--c-cta-texte);
   text-decoration: none;
 }
@@ -323,19 +352,14 @@ p { margin: 0; }
 }
 
 /* Rythme vertical : chaque section porte la moitié de l'écart, deux sections
-   voisines totalisent donc 64px en mobile, 96 en tablette, 128 en desktop —
-   sans cumuler deux marges entières de part et d'autre. */
+   voisines totalisent donc 72px en mobile, 96 en tablette, 128 en desktop —
+   sans cumuler deux marges entières de part et d'autre. Une bande colorée
+   (Contact) assure déjà la séparation : elle ne double pas ces marges. */
 .section { padding-block: var(--rythme-section); }
 
-/* Colonnes de composition : repères d'alignement, jamais des blocs visibles.
-   Une seule colonne de lecture sous 1024px (voir 13 pour les paliers). */
-.grille {
-  display: grid;
-  gap: var(--gouttiere);
-}
-
 .prose { max-width: var(--mesure); }
-.prose p + p { margin-top: var(--e-16); }
+/* Espace de 20px entre paragraphes : évite la nappe uniforme. */
+.prose p + p { margin-top: var(--e-20); }
 
 .section__intro {
   max-width: var(--mesure);
@@ -376,9 +400,9 @@ p { margin: 0; }
   text-align: center;
   cursor: pointer;
 }
-.bascule:hover { background-color: var(--c-surface-alt); }
+.bascule:hover { background-color: var(--c-respiration); }
 .bascule:active {
-  background-color: var(--c-surface-alt);
+  background-color: var(--c-respiration);
   text-decoration: underline;
 }
 .bascule__icone {
@@ -415,9 +439,9 @@ a:focus-visible {
 a:visited { color: var(--c-accent); }
 a:visited:hover { color: var(--c-accent-actif); }
 
-/* CTA principal : neutre et fortement contrasté, inversé d'un thème à l'autre.
-   min-height, jamais height : le bouton grandit au zoom 200 %. Pas de pilule,
-   pas d'ombre, pas d'élévation au survol. */
+/* CTA principal : même action visuelle en hero et en Contact. min-height,
+   jamais height : le bouton grandit au zoom 200 %. Pas de pilule, pas d'ombre,
+   pas d'élévation ni de déplacement au survol. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -434,7 +458,7 @@ a:visited:hover { color: var(--c-accent-actif); }
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color .14s ease;
+  transition: background-color .15s ease;
 }
 /* Sous 768px, les CTA prennent la largeur utile et peuvent passer sur deux
    lignes plutot que de deborder. Au-dela, ils reprennent leur largeur propre. */
@@ -444,28 +468,24 @@ a:visited:hover { color: var(--c-accent-actif); }
   .hero__actions .btn,
   .contact__actions .btn { width: auto; }
 }
-.btn:hover { background-color: var(--c-cta-survol); color: var(--c-cta-texte); }
-.btn:active { background-color: var(--c-cta-actif); color: var(--c-cta-texte); }
-.btn:focus-visible { color: var(--c-cta-texte); }
+.btn:hover { background-color: var(--c-cta-survol); }
+.btn:active { background-color: var(--c-cta-actif); }
 
-/* CTA du hero uniquement : Simon demande que son texte suive exactement
-   --c-fond (et non --c-cta-texte) dans tous les etats. Sans ces regles,
-   `a:visited` et `a:visited:hover` (section ci-dessus, specificite
-   0,1,1 et 0,2,1) l'emportaient sur `.btn`/`.btn:hover` (0,1,0 et 0,2,0)
-   des que ce lien d'ancrage interne passait a l'etat visite, faisant
-   apparaitre le texte en vert (--c-accent) au lieu du blanc/texte du
-   bouton. Portee strictement limitee a `.hero__actions .btn` : le CTA
-   e-mail du bloc contact et les autres liens ne sont pas concernes. */
-.hero__actions .btn,
-.hero__actions .btn:hover,
-.hero__actions .btn:active,
-.hero__actions .btn:focus-visible,
-.hero__actions .btn:visited,
-.hero__actions .btn:visited:hover { color: var(--c-fond); }
+/* Le texte du CTA suit --c-cta-texte dans TOUS les états, y compris visité :
+   sans ces règles, `a:visited` et `a:visited:hover` (spécificité 0,1,1 et
+   0,2,1) l'emportaient sur `.btn` (0,1,0) dès qu'un lien d'ancrage interne
+   passait à l'état visité, et le texte prenait la couleur d'accent sur le
+   fond du bouton. Portée : les boutons `.btn` seulement. */
+.btn,
+.btn:hover,
+.btn:active,
+.btn:focus-visible,
+.btn:visited,
+.btn:visited:hover { color: var(--c-cta-texte); text-decoration: none; }
 
 /* ---------- 06. Hero ---------- */
 
-.hero { padding-block: 0 var(--rythme-section); }
+.hero { padding-block: 0 var(--e-24); }
 /* Départ du contenu après le rail : 32 / 48 / 64px selon le palier. */
 .hero__inner { padding-top: var(--e-32); }
 
@@ -476,7 +496,7 @@ a:visited:hover { color: var(--c-accent-actif); }
   max-width: 32ch;
   font-size: var(--t-accroche);
   font-weight: 400;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .hero__actions { margin-top: var(--e-24); }
@@ -485,7 +505,7 @@ a:visited:hover { color: var(--c-accent-actif); }
   margin-top: var(--e-12);
   color: var(--c-texte-doux);
   font-size: var(--t-petit);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* ---------- 07. À propos ---------- */
@@ -495,80 +515,100 @@ a:visited:hover { color: var(--c-accent-actif); }
   margin-top: var(--e-24);
 }
 
+/* Filet franc sur l'axe du conteneur : transition vers Réalisations, sans
+   encadrer chaque paragraphe. Porté par Réalisations (voir 08). */
+
 /* ---------- 08. Réalisations ---------- */
+
+/* Filet horizontal de 1px, sur la largeur utile du conteneur (marges
+   extérieures déduites), qui marque le passage d'À propos à Réalisations. Il
+   appartient à la section, hors du groupe animé : il reste en place quand le
+   groupe apparaît ou disparaît. */
+#realisations::before {
+  content: "";
+  display: block;
+  height: 1px;
+  width: calc(100% - 2 * var(--marge-ext));
+  max-width: calc(var(--conteneur-max) - 2 * var(--marge-ext));
+  margin: 0 auto var(--e-48);
+  background-color: var(--c-contour);
+}
 
 .grille-projets { margin-top: var(--e-32); }
 
-/* Carte pleine largeur : une seule réalisation, aucune case vide réservée pour
-   un second projet. */
+/* Les réalisations ne sont plus des fiches encadrées : la capture est la
+   première preuve visuelle, sur sa propre surface, et le texte suit. */
 .carte {
   background-color: var(--c-surface);
   border: 1px solid var(--c-filet);
   border-radius: var(--rayon-carte);
 }
-.carte-projet { padding: var(--carte-padding); }
+.carte-projet {
+  display: block;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
 .carte-projet__corps {
   display: flex;
   flex-direction: column;
   gap: var(--e-12);
 }
 .carte-projet__corps h3 { margin-top: var(--e-04); }
+.carte-projet__corps p:not(.libelle):not(.carte-projet__lien) { max-width: var(--mesure); }
 .carte-projet__lien { margin-top: var(--e-04); }
 
-/* Aperçu réel de Créa'Tif (arbitrage du 23 septembre 2026, docs/DIRECTION.md) :
-   filet neutre de 1px, sans fond visible une fois l'image chargée. Cadre 3:2
-   par défaut (capture à 1024px, carte mobile) ; 16:9 à partir de 1024px de
-   large (capture à 1200px, carte desktop), où .carte-projet passe en deux
-   colonnes ci-dessous. background-color reste un simple aplat de secours
-   avant chargement, pas un habillage décoratif. */
+/* Aperçu réel : bordure de 1px discrète, jamais de faux cadre de navigateur,
+   couleurs naturelles dans les deux thèmes, aucun filtre. Cadre 3:2 par
+   défaut (capture de Créa'Tif à 1024px, carte mobile) ; 16:9 à partir de
+   1024px de large (capture à 1200px). background-color reste un simple aplat
+   de secours avant chargement : la place de l'image est réservée. */
 .visuel-projet {
   aspect-ratio: 3 / 2;
   overflow: hidden;
-  background-color: var(--c-surface-alt);
+  background-color: var(--c-respiration);
   border: 1px solid var(--c-filet);
   border-radius: var(--rayon-carte);
-  margin-bottom: var(--e-16);
+  margin-bottom: var(--e-24);
 }
 .visuel-projet img { width: 100%; height: 100%; object-fit: cover; }
-/* Aperçu de La Tablée des Forges : capture complète du hero, 16:9 à toutes
-   les largeurs (arbitrage du 6 octobre 2026). Le fichier fait exactement
-   880 × 495. Le cadre garde le rapport 16:9 sur sa boîte de contenu (et non sur
-   la boîte de bordure, que le filet de 1 px rendrait très légèrement différent
-   de 16:9 pour l'image) : `content-box` et une largeur de 100 % moins les deux
-   filets. L'image remplit donc exactement le cadre, sans rognage, sans
-   étirement, sans bande de fond ; et la hauteur reste réservée même si le
-   fichier ne se charge pas (le texte alternatif ne fait pas grandir la zone).
-   Réservé à cette seule vignette : Créa'Tif garde son cadre 3:2 sur mobile. */
+/* Aperçus de La Tablée des Forges et de Ligne Posée : capture complète, 16:9
+   à toutes les largeurs. Le fichier fait exactement 880 × 495. Le cadre garde
+   le rapport 16:9 sur sa boîte de contenu (et non sur la boîte de bordure,
+   que le filet de 1 px rendrait très légèrement différent de 16:9 pour
+   l'image) : `content-box` et une largeur de 100 % moins les deux filets.
+   L'image remplit donc exactement le cadre, sans rognage ni étirement, et la
+   hauteur reste réservée même si le fichier ne se charge pas. */
 .visuel-projet.visuel-projet--16-9 {
   box-sizing: content-box;
   width: calc(100% - 2px);
   aspect-ratio: 16 / 9;
 }
 
-/* Trois démonstrations, une seule carte affichée (docs/DIRECTION.md, « Deux
-   démos dans Réalisations », § 11, puis ajout de Ligne Posée). Sans JavaScript,
-   la rangée d'onglets reste masquée (`hidden`) et les trois cartes complètes
-   s'empilent dans
-   l'ordre du document. js/realisations-onglets.js révèle la rangée et pose
-   `.projets--onglets` : les trois cartes occupent alors la même cellule de
-   grille, la carte inactive est seulement `visibility: hidden` (hors parcours
-   Tab et hors arbre d'accessibilité). La zone prend ainsi toujours la hauteur
-   de la carte la plus haute : changer d'onglet ne déplace ni le contenu qui
-   suit, ni la position de lecture, et ne rejoue pas le groupe `.defilement`. */
-.grille-projets { display: grid; gap: var(--e-32); }
-.projets--onglets .grille-projets { margin-top: var(--e-16); gap: 0; }
+/* Trois démonstrations, une seule carte affichée. Sans JavaScript, la rangée
+   d'onglets reste masquée (`hidden`) et les trois cartes complètes s'empilent
+   dans l'ordre du document. js/realisations-onglets.js révèle la rangée et
+   pose `.projets--onglets` : les trois cartes occupent alors la même cellule
+   de grille, la carte inactive est seulement `visibility: hidden` (hors
+   parcours Tab et hors arbre d'accessibilité). La zone prend ainsi toujours la
+   hauteur de la carte la plus haute : changer d'onglet ne déplace ni le
+   contenu qui suit, ni la position de lecture, et ne rejoue pas le groupe
+   `.defilement`. */
+.grille-projets { display: grid; gap: var(--e-48); }
+.projets--onglets .grille-projets { margin-top: var(--e-24); gap: 0; }
 .projets--onglets .carte-projet { grid-area: 1 / 1; }
 .projets--onglets .carte-projet[data-inactif] { visibility: hidden; }
 
-/* Rangée de choix : trois colonnes égales sur téléphone, largeur naturelle
-   dès 768px. Cible d'au moins 44 x 44px (56px de haut sur téléphone). Actif :
-   nom en texte principal semi-gras et filet inférieur continu de 2px en
-   accent ; inactif : texte secondaire opaque, filet neutre de 1px porté par
-   la rangée. L'information ne repose pas sur la couleur seule (graisse,
-   épaisseur du filet, aria-selected). Pas de changement de hauteur ni de
-   largeur à la sélection : la graisse semi-grasse est réservée par un double
-   invisible du nom. Le focus clavier reste l'anneau commun de 3px décalé de
-   3px (voir 02), distinct du filet actif. */
+/* Rangée de choix : trois colonnes égales sur téléphone (rangée stable d'au
+   moins 64px, noms entiers sur plusieurs lignes), largeur naturelle dès
+   768px. Actif : nom en texte principal semi-gras et filet inférieur continu
+   de 3px en accent ; inactif : texte secondaire opaque, filet passif de 1px
+   porté par la rangée. L'information ne repose pas sur la couleur seule
+   (graisse, épaisseur du filet, aria-selected). Pas de changement de hauteur
+   ni de largeur à la sélection : la graisse semi-grasse est réservée par un
+   double invisible du nom. Le focus clavier reste l'anneau commun de 3px
+   décalé de 3px (voir 02), distinct du filet actif. */
 .onglets {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -579,11 +619,11 @@ a:visited:hover { color: var(--c-accent-actif); }
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 56px;
+  min-height: 64px;
   margin: 0 0 -1px;
   padding: var(--e-08) var(--e-04);
   border: 0;
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
   border-radius: 0;
   background: none;
   color: var(--c-texte-doux);
@@ -592,7 +632,7 @@ a:visited:hover { color: var(--c-accent-actif); }
   line-height: 1.3;
   text-align: center;
   cursor: pointer;
-  transition: color .14s ease, border-color .14s ease;
+  transition: color .15s ease, border-color .15s ease;
 }
 .onglet__nom { display: block; text-wrap: balance; }
 .onglet__nom::after {
@@ -622,8 +662,17 @@ a:visited:hover { color: var(--c-accent-actif); }
   margin-top: var(--e-32);
 }
 /* Cartes non interactives : aucun effet de survol ni de clic. Seuls les vrais
-   liens reçoivent le focus ; la carte n'est pas rendue cliquable. */
+   liens reçoivent le focus ; la carte n'est pas rendue cliquable. Un trait
+   franc de 32px précède chaque H3. */
 .prestation { padding: var(--carte-padding); }
+.prestation h3::before {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 3px;
+  margin-bottom: var(--e-12);
+  background-color: var(--c-accent);
+}
 .prestation p {
   margin-top: var(--e-08);
   color: var(--c-texte-doux);
@@ -638,12 +687,12 @@ a:visited:hover { color: var(--c-accent-actif); }
 
 /* ---------- 10. Contact ---------- */
 
-/* Surface alternative dans les deux thèmes, filet supérieur, padding propre —
-   jamais un bandeau noir isolé du reste de la page. */
+/* Surface de respiration dans les deux thèmes, filet supérieur franc, padding
+   propre — jamais un bandeau noir isolé du reste de la page. */
 .contact {
-  background-color: var(--c-surface-alt);
-  border-top: 1px solid var(--c-filet);
-  padding-block: var(--e-32);
+  background-color: var(--c-respiration);
+  border-top: 1px solid var(--c-contour);
+  padding-block: var(--e-48);
 }
 .contact__actions { margin-top: var(--e-24); }
 .contact__adresse {
@@ -656,10 +705,10 @@ a:visited:hover { color: var(--c-accent-actif); }
 /* ---------- 11. Pied de page ---------- */
 
 .site-footer {
-  border-top: 1px solid var(--c-filet);
-  padding-block: var(--e-32);
+  border-top: 1px solid var(--c-contour);
+  padding-block: var(--e-48);
   font-size: var(--t-petit);
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--c-texte-doux);
 }
 .site-footer__inner {
@@ -671,9 +720,9 @@ a:visited:hover { color: var(--c-accent-actif); }
   color: var(--c-texte);
 }
 
-/* Mentions légales : vrai texte lisible, sans accordéon ni opacité réduite.
-   L'adresse y reste du texte simple, sans second lien mailto (décision
-   produit du 18 septembre). */
+/* Mentions légales : vrai texte lisible, sans accordéon ni opacité réduite,
+   à 14px au minimum. L'adresse y reste du texte simple, sans second lien
+   mailto (décision produit du 18 septembre). */
 .mentions {
   max-width: var(--mesure);
   margin-top: var(--e-08);
@@ -686,7 +735,9 @@ a:visited:hover { color: var(--c-accent-actif); }
 
 /* ---------- 12. Page 404 ---------- */
 
-.page-404 { padding-block: var(--e-64); }
+/* Mêmes couleurs, même bouton ; aucune illustration, aucune promesse
+   nouvelle. */
+.page-404 { padding-block: var(--e-72); }
 .page-404 p {
   margin-top: var(--e-24);
   max-width: var(--mesure);
@@ -696,11 +747,10 @@ a:visited:hover { color: var(--c-accent-actif); }
 /* ---------- 13. Paliers responsive ---------- */
 
 /*
-  Trois paliers, conformes à la direction artistique : mobile sous 768px,
-  tablette de 768 à 1023px, desktop dès 1024px. Aucune largeur minimale de page
-  n'est posée : sous 320px la colonne unique demeure, les paddings se resserrent
-  et les mots très longs se coupent en dernier recours. Rien n'est masqué par
-  débordement.
+  Trois paliers : mobile sous 768px, tablette de 768 à 1023px, desktop dès
+  1024px. Aucune largeur minimale de page n'est posée : sous 320px la colonne
+  unique demeure, les paddings se resserrent et les mots très longs se coupent
+  en dernier recours. Rien n'est masqué par débordement.
 */
 
 /* Sous 320px : resserrement de dernier recours, aucun masquage. */
@@ -711,24 +761,28 @@ a:visited:hover { color: var(--c-accent-actif); }
   }
 }
 
-/* 768px : tablette. Grille de 8 colonnes, prestations en 2 × 2. */
+/* 768px : tablette. Prestations en 2 × 2. */
 @media (min-width: 768px) {
   .projets--onglets .grille-projets { margin-top: var(--e-24); }
   .onglets { display: flex; gap: var(--e-32); }
   .onglet { min-height: 48px; padding-inline: var(--e-04); text-align: left; }
   :root {
-    --t-h1: 4rem;
+    /* 4,25rem à 768px jusqu'à 6,25rem à 1440px, puis plafonné. */
+    --t-h1: clamp(4.25rem, 1.964rem + 4.762vw, 6.25rem);
     --t-accroche: 1.75rem;
-    --t-h2: 2rem;
+    --t-h2: 2.375rem;
     --t-h3: 1.375rem;
+    --t-corps: 1.0625rem;
     --marge-ext: var(--e-24);
     --gouttiere: var(--e-24);
     --rythme-section: var(--e-48);
     --carte-padding: var(--e-24);
   }
   .hero__inner { padding-top: var(--e-48); }
-  .contact { padding-block: var(--e-48); }
+  .hero { padding-block-end: var(--e-24); }
+  .contact { padding-block: var(--e-64); }
   .grille-prestations { grid-template-columns: repeat(2, 1fr); }
+  .prestation { padding: var(--e-32); }
   .site-footer { padding-block: var(--e-48); }
   .site-footer__inner {
     grid-template-columns: 1fr auto;
@@ -736,135 +790,132 @@ a:visited:hover { color: var(--c-accent-actif); }
   }
 }
 
-/* 1024px : desktop. Grille de 12 colonnes pour le hero, À propos et le projet. */
+/* 1024px : desktop. Grille de 12 colonnes pour le hero, À propos, Réalisations
+   et Contact. */
 @media (min-width: 1024px) {
   :root {
-    --t-h1: 5rem;
     --t-accroche: 2rem;
-    --t-h2: 2.5rem;
+    --t-h2: 3rem;
     --t-h3: 1.5rem;
     --t-corps: 1.125rem;
     --marge-ext: var(--e-32);
     --gouttiere: var(--e-32);
     --rythme-section: var(--e-64);
-    --carte-padding: var(--e-32);
   }
   .hero__inner { padding-top: var(--e-64); }
-  .contact { padding-block: var(--e-64); }
+  .hero { padding-block-end: var(--e-32); }
+  .contact { padding-block: var(--e-96); }
+  .site-footer { padding-block: var(--e-64); }
+  #realisations::before { margin-bottom: var(--e-64); }
 
-  /* Le nom occupe la largeur disponible ; sous lui, l'accroche sur 8 colonnes
-     et le groupe CTA + disponibilité sur 4, aligné au début de l'accroche. */
+  /* Le nom occupe la largeur disponible ; sous lui, l'accroche sur 7 colonnes
+     et le groupe CTA + disponibilité sur 5, aligné au haut de l'accroche. */
   .hero__bas {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: var(--gouttiere);
     align-items: start;
   }
-  .hero__bas > .hero__accroche { grid-column: 1 / span 8; margin-top: var(--e-24); }
-  .hero__bas > .hero__groupe-action { grid-column: 9 / span 4; margin-top: var(--e-24); }
+  .hero__bas > .hero__accroche { grid-column: 1 / span 7; margin-top: var(--e-24); }
+  .hero__bas > .hero__groupe-action { grid-column: 8 / span 5; margin-top: var(--e-24); }
   .hero__groupe-action .hero__actions { margin-top: 0; }
 
-  /* À propos : H2 sur 4 colonnes, texte sur 8. */
+  /* À propos : H2 sur 3 colonnes, texte sur 9 (mesure de lecture conservée). */
   .a-propos__grille {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: var(--gouttiere);
     align-items: start;
   }
-  .a-propos__grille > h2 { grid-column: 1 / span 4; }
-  .a-propos__grille > .a-propos__texte { grid-column: 5 / span 8; margin-top: 0; }
+  .a-propos__grille > h2 { grid-column: 1 / span 3; }
+  .a-propos__grille > .a-propos__texte { grid-column: 4 / span 9; margin-top: 0; }
 
-  /* Projet : visuel à gauche sur environ 40 %, contenu à droite. */
+  /* Réalisations : image 48 %, texte 52 %, gouttière de 32px. */
   .carte-projet {
     display: grid;
-    grid-template-columns: 40fr 60fr;
+    grid-template-columns: 48fr 52fr;
     gap: var(--e-32);
     align-items: start;
   }
   .visuel-projet { aspect-ratio: 16 / 9; margin-bottom: 0; }
+
+  /* Contact : texte à gauche, action à droite, tant que la mesure de lecture
+     et l'adresse restent confortables. */
+  .contact > .container {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: var(--gouttiere);
+    align-items: start;
+  }
+  .contact > .container > h2 { grid-column: 1 / span 7; }
+  .contact > .container > .section__intro { grid-column: 1 / span 7; }
+  .contact > .container > .contact__actions { grid-column: 9 / span 4; grid-row: 1 / span 2; margin-top: 0; }
 }
 
 /* ---------- 14. Apparition réversible par seuil de défilement (§ 10 DIRECTION.md) ---------- */
 
-/* Remplace intégralement l'ancien § 10 « Rythme de défilement global
-   discret » (classes `.mouvement*`, retirées du balisage et de cette
-   feuille), à la suite de la décision produit du 27 septembre 2026 —
-   orientation corrigée au § 10 de docs/DIRECTION.md : apparition
-   RÉVERSIBLE par seuil de position, et non plus un déclenchement unique.
-   Portée exclusive à sites/portfolio/.
+/* Comportement inchangé (décision produit du 27 septembre 2026, orientation
+   corrigée au § 10 de docs/DIRECTION.md) : apparition RÉVERSIBLE par seuil de
+   position, et non un déclenchement unique. Portée exclusive à sites/portfolio/.
+   Seules la présence visuelle et les durées changent (§ 12, 26 octobre 2026) :
+   translation de 12px, entrée 220ms, sortie 180ms ; pied de page 8px, 180ms et
+   160ms.
 
    Hero et « À propos » restent pleinement visibles et immobiles en
-   permanence : ils ne portent aucune des classes ci-dessous, à aucun
-   moment — ce n'était pas le cas d'« À propos » dans l'ancien § 10, qui
-   lui appliquait une entrée latérale ; cette direction l'annule.
+   permanence : ils ne portent aucune des classes ci-dessous.
 
-   Quatre groupes entiers, chacun un seul bloc sans cascade interne,
-   portent la classe `.defilement` directement dans index.html : le
-   conteneur de Réalisations (titre au lien « Voir la démo »), celui de Ce
-   que je fais (titre au paragraphe technique), celui de Contact (titre,
-   texte, CTA, adresse) et `.site-footer__inner` pour le pied de page (nom,
-   mentions légales, retour en haut), qui porte en plus `.defilement--pied`
-   pour son amplitude et ses durées réduites. sites/portfolio/js/
-   mouvement-sections.js pose et RETIRE lui-même `--armee` selon le sens du
-   défilement — jamais une seule fois pour toutes : voir ce fichier pour
-   les seuils exacts du § 10 et les replis (accès prioritaire par ancre/
+   Quatre groupes entiers, chacun un seul bloc sans cascade interne, portent la
+   classe `.defilement` directement dans index.html : le conteneur de
+   Réalisations (titre au lien « Voir la démo »), celui de Ce que je fais
+   (titre au paragraphe technique), celui de Contact (titre, texte, CTA,
+   adresse) et `.site-footer__inner` pour le pied de page, qui porte en plus
+   `.defilement--pied` pour son amplitude et ses durées réduites.
+   sites/portfolio/js/mouvement-sections.js pose et RETIRE lui-même `--armee`
+   selon le sens du défilement — jamais une seule fois pour toutes : voir ce
+   fichier pour les seuils exacts et les replis (accès prioritaire par ancre/
    focus/historique, mouvement réduit, mesure indisponible).
 
    Sans JavaScript, avec un mouvement réduit, ou si la mesure du défilement
    échoue : `.defilement` seule, sans `--armee`, EST déjà l'état final —
-   opacity: 1, transform: none — à TOUTES les largeurs, y compris sous
-   768px (aucun seuil de largeur ne désactive plus l'effet, à la différence
-   de l'ancien § 10). C'est pourquoi la classe de base ne déclare aucune
-   opacité réduite : tout l'effet est conditionné par `--armee` seule.
+   opacity: 1, transform: none — à TOUTES les largeurs. La classe de base ne
+   déclare donc aucune opacité réduite : tout l'effet est conditionné par
+   `--armee` seule.
 
-   Aucun déplacement de mise en page : seuls opacity et transform varient,
-   les éléments gardent leur place et leurs dimensions dans le flux. Pas de
-   délai, flou, rotation, zoom ni mouvement horizontal — une translation
-   verticale uniquement, vers le haut à l'entrée (l'état caché est décalé
-   vers le bas).
+   Aucun déplacement de mise en page : seuls opacity et transform varient. Pas
+   de délai, flou, rotation, zoom ni mouvement horizontal — une translation
+   verticale uniquement, vers le haut à l'entrée (l'état caché est décalé vers
+   le bas). Ni carte, ni image, ni onglet, ni changement de thème ne rejoue
+   l'apparition.
 
-   Durées et easings asymétriques (entrée 420ms ease-out / sortie 300ms
-   ease-in, 350/250ms pour le pied de page) obtenus par le changement de
-   classe lui-même, sans minuteur JS : la transition appliquée à un
-   changement de propriété est celle déclarée sur l'état d'ARRIVÉE de ce
-   changement. `.defilement` (sans `--armee`) déclare la transition
-   d'entrée ; `.defilement--armee`, plus spécifique, déclare la transition
-   de sortie. Ajouter `--armee` applique donc la sortie, le retirer
-   applique l'entrée — un seul couple de règles suffit pour un mouvement
-   bidirectionnel qui reprend sans saut si le sens change en cours
-   d'animation : la transition CSS déjà en cours se retargete simplement
-   vers la nouvelle valeur finale, depuis l'opacité/translation courante. */
+   Durées et easings asymétriques obtenus par le changement de classe
+   lui-même, sans minuteur JS : la transition appliquée à un changement de
+   propriété est celle déclarée sur l'état d'ARRIVÉE de ce changement.
+   `.defilement` (sans `--armee`) déclare la transition d'entrée ;
+   `.defilement--armee`, plus spécifique, déclare la transition de sortie.
+   Un seul couple de règles suffit pour un mouvement bidirectionnel qui
+   reprend sans saut si le sens change en cours d'animation. */
 
 .defilement {
-  --defilement-decalage: 24px;
-  --defilement-duree-entree: .42s;
-  --defilement-duree-sortie: .3s;
+  --defilement-decalage: 12px;
+  --defilement-duree-entree: .22s;
+  --defilement-duree-sortie: .18s;
   opacity: 1;
   transform: none;
   transition: opacity var(--defilement-duree-entree) ease-out,
               transform var(--defilement-duree-entree) ease-out;
 }
-@media (max-width: 767.98px) {
-  .defilement { --defilement-decalage: 16px; }
-}
 
-/* Pied de page : amplitude réduite (12px, 8px sous 768px) et durées plus
-   courtes (350ms / 250ms), seules valeurs qui diffèrent — mêmes classes,
-   mêmes règles, par simple redéfinition des propriétés personnalisées. */
+/* Pied de page : amplitude et durées réduites, mêmes classes, mêmes règles,
+   par simple redéfinition des propriétés personnalisées. */
 .defilement.defilement--pied {
-  --defilement-decalage: 12px;
-  --defilement-duree-entree: .35s;
-  --defilement-duree-sortie: .25s;
-}
-@media (max-width: 767.98px) {
-  .defilement.defilement--pied { --defilement-decalage: 8px; }
+  --defilement-decalage: 8px;
+  --defilement-duree-entree: .18s;
+  --defilement-duree-sortie: .16s;
 }
 
 /* État caché : opacity nulle, translation vers le bas au repos (d'où une
    entrée perçue « depuis le bas », vers le haut). La transition ci-dessous
-   régit la SORTIE (moment où cette classe est AJOUTÉE) ; voir la note de
-   tête de section pour celle qui régit l'entrée, déclarée sur `.defilement`
-   seule. */
+   régit la SORTIE (moment où cette classe est AJOUTÉE). */
 .defilement.defilement--armee {
   opacity: 0;
   transform: translateY(var(--defilement-decalage));
