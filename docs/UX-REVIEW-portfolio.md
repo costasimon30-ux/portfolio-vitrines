@@ -156,3 +156,37 @@ Le Chef de projet transmet les GET propres à QA du **19 octobre, entre 05 h 52 
 Les paquets corrigés `f66274f` sont rapportés comme non déployés ; leurs empreintes n'ont pas été recalculées par UI/UX. Aucun contrôle visuel, de zoom, de console ou d'interaction déclaré réussi par ce bilan. Aucune republication autorisée ici.
 
 Agent: claude-ui-ux
+
+---
+
+# Revue ciblée — refonte esthétique pilote (26 octobre 2026)
+
+**Commit source audité :** `af3127fbdb1c05404121207bc9936f2389bf606f`, tête de `main` lors de la lecture. **Référence :** `docs/DIRECTION.md`, portfolio, « Refonte esthétique pilote », § 12 (commit `0cc78da`). Ce bilan porte sur le résultat du dépôt, sans reprendre le compte rendu de l'Implémentation. Les revues précédentes ci-dessus restent historiques.
+
+## Verdict ciblé
+
+**Alignement de source constaté ; rendu visuel non validé.** Les fichiers du commit portent la palette, les paliers typographiques, la composition et les règles de mouvement définis au § 12. Aucun écart de source reproductible n'a été établi dans les contrôles ci-dessous. Le navigateur a refusé l'ouverture du fichier local au titre de sa politique de sécurité ; aucune capture du rendu `af3127f` n'a donc pu être observée. Ce verdict ne dit rien de la qualité visuelle finale, des interactions effectivement rendues ni de la mise en ligne. La validation esthétique reste à Simon.
+
+## Contrôles reproductibles sur la source
+
+- **Révision exacte.** La branche distante `main` pointe sur `af3127f`. Les blobs distants de `sites/portfolio/css/style.css` et `sites/portfolio/js/mouvement-sections.js` portent respectivement les SHA Git `293e6de09e3fd119d45732c4b5e17136276f61c5` et `03f447f3672d208c59e3bbf787057d6099bbe500`. Les autres fichiers du portfolio, dont `index.html`, `404.html`, les captures, les polices et le script d'onglets, ont les mêmes blobs que dans l'arbre local suivi par Git ; la licence IBM Plex Mono a seulement des fins de ligne converties dans la copie de travail Windows.
+- **Deux thèmes et contrastes de conception.** `style.css` déclare les dix rôles de couleur du § 12 pour Clair et Sombre. Recalcul indépendant à partir des hexadécimaux de la feuille, sur aplats sRGB opaques : texte principal/fond 13,77:1 et 16,18:1 ; secondaire/fond 6,79:1 et 11,64:1 ; accent/fond 7,26:1 et 9,33:1 ; accent/Contact 6,74:1 et 6,47:1 ; texte/CTA 7,86:1 et 10,15:1 ; focus/fond 7,26:1 et 10,46:1 (Clair puis Sombre). Ces chiffres vérifient les couleurs déclarées, pas les pixels effectivement affichés.
+- **Hiérarchie et structure.** La source réserve Inter 800 au H1, Inter 600 aux H2/H3/commandes, et IBM Plex Mono 400 aux libellés courts. Les fichiers de ces graisses sont présents localement. Les tailles H1 2,75 rem mobile, 4,25 rem à partir de 768 px puis jusqu'à 6,25 rem, les H2/H3 et le corps aux trois paliers sont déclarés. Le hero utilise 7/5 colonnes dès 1024 px, « À propos » 3/9, Réalisations 48/52 avec une gouttière de 32 px, et les quatre prestations passent en deux colonnes dès 768 px. `index.html` conserve l'ordre des sections, les trois démonstrations et les textes.
+- **Réalisations.** Le HTML conserve les trois captures prévues, deux cadrages de Créa’Tif selon le palier et les rapports 16:9 de La Tablée et Ligne Posée. Le CSS ne pose aucun filtre sur leurs images ; les cadres réservent leur place avec `aspect-ratio`. À moins de 768 px, la rangée d'onglets est une grille de trois colonnes et chaque commande a `min-height: 64px` ; dès 768 px elle passe en rangée flexible. Le script d'onglets affiche un seul panneau, laisse les autres hors visibilité et du parcours clavier, et garde les trois cartes visibles si JavaScript ne s'exécute pas. L'exécution réelle de ces états n'a pas été testée.
+- **Focus et mouvement déclarés.** La feuille prévoit un anneau `3px` décalé de `3px`, des cibles de bascule/CTA de 48 px minimum, le repli `prefers-reduced-motion: reduce` et les durées/amplitudes demandées : sections 12 px, 220/180 ms ; pied 8 px, 180/160 ms. L'état de base des groupes reste opaque sans la classe posée par JavaScript. Le code conserve les accès par ancre et focus comme voies prioritaires. Ces vérifications portent sur les règles écrites, sans preuve de leur comportement à l'écran.
+
+## Défauts établis et suites
+
+**Aucun défaut visuel ou d'interaction établi dans cette passe.** Il manque la preuve de rendu requise pour prononcer « conforme » ou recommander la mise en avant. La prochaine recette doit ouvrir cette révision exacte, puis parcourir Clair et Sombre à **320×568, 375×667, 768×1024 et 1440×900** : hero, À propos, les trois panneaux Réalisations, prestations, Contact, footer et 404. Elle doit vérifier l'absence de débordement, les images naturelles, le focus et le survol, la bascule, les onglets au clavier, le mode sans JavaScript, l'accès par ancre, le mouvement réduit et le zoom navigateur **natif** à 200 %. Il faudra alors comparer les choix de composition à la direction, pas seulement les valeurs CSS.
+
+L'écart déjà documenté entre la vignette de Ligne Posée et son éventuelle destination publiée relève toujours de l'arbitrage de cohérence de publication avant mise en avant ; aucune visite de cette destination n'a été faite ici.
+
+## Ce qui n'a pas été vérifié, ou seulement partiellement
+
+- **Rendu visuel du commit : non vérifié.** L'ouverture locale dans le navigateur intégré a été refusée par la politique de sécurité de l'outil (`file:` non autorisé). Aucun autre moyen d'ouverture n'a été employé après ce refus. Aucun écran à 320, 375, 768 ou 1440 px n'a été vu dans cette passe.
+- **Zoom natif 200 % et débordement : non vérifiés.** Les media queries et `overflow-wrap` sont présents dans la source, ce qui ne prouve pas le reflow réel, notamment des noms d'onglets sur écran étroit.
+- **Interactions : non vérifiées dans un navigateur.** Ni clic, ni tabulation, ni `document.activeElement`, ni changement effectif des panneaux, du thème, des ancres ou des groupes animés n'ont été observés.
+- **Mouvement réduit, sans JavaScript, polices et images : contrôle de source seulement.** Les règles, chemins et fichiers existent ; leur chargement et leur rendu ne sont pas constatés.
+- **URL hébergée et 404 HTTP : non vérifiées.** Aucun déploiement du commit `af3127f` n'est établi par cette revue, et l'ancienne URL publique ne peut pas servir de preuve pour cette révision.
+
+Agent: claude-ui-ux
