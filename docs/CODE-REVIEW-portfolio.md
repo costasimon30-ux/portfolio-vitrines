@@ -170,3 +170,21 @@ Une copie propre de `af3127f`, extraite sans conversion des fins de ligne, a ét
 Dans Chrome local, à 320, 375, 768, 1024 et 1440 px CSS, la page n'a pas de débordement horizontal ; les onglets conservent une seule carte visible, `aria-selected` et le parcours Tab. Flèche gauche depuis Ligne Posée déplace le focus vers La Tablée sans la sélectionner ; Entrée sélectionne ensuite La Tablée, avec contour `:focus-visible` calculé bleu plein de 3 px en Clair. Le bouton de thème change son libellé de destination et les couleurs calculées ; Inter et IBM Plex Mono locales sont chargées. Contact et mentions restent présents en fin de page à 320 px. La page `404.html` à 320 et 768 px Sombre conserve son texte et son retour, sans débordement. Ces sondes bornées ne valident pas chaque paire largeur × thème × interaction.
 
 **Non vérifié ou seulement statique :** le zoom **natif** du navigateur à 200 % (la sonde à 160 px CSS n'en est pas une preuve), le repli avec JavaScript réellement désactivé, le changement de préférence `prefers-reduced-motion` en cours de visite, les autres navigateurs et l'URL hébergée. Les règles CSS de mouvement réduit et les trois cartes présentes sans script ont été inspectées, pas rejouées dans ces états. Aucun changement de code produit, d'autre rapport, de réglage externe ou déploiement par le Reviewer.
+
+---
+
+## Contre-vérification des deux P2 du portfolio pilote — 26 octobre 2026 — source 35b1056
+
+**Verdict ciblé : les deux P2 sont corrigés dans les scénarios reproduits localement.** Source exacte `35b1056ba9bcb53e2c907c5f63d3da42a0211dbf`, comparée à son parent `f4e79b4b1172511045a33cdf94073776b6efa050`. Le diff ne change que `sites/portfolio/js/mouvement-sections.js` et `sites/portfolio/css/style.css`. Cette contre-vérification actualise les deux constats de la revue de `af3127f` sans effacer leur historique ; elle n'est pas une nouvelle revue générale.
+
+### P2 redimensionnement — corrigé dans le scénario ciblé
+
+Dans Chrome local à 1440 × 900, Réalisations est révélée par un vrai défilement : le groupe n'a plus `defilement--armee` et son opacité calculée vaut 1, sans focus dans le groupe. En réduisant **seulement** la hauteur du viewport à 300 px, sans commande de défilement, le groupe reste sans cette classe et à opacité 1, y compris après la durée de transition de sortie de 180 ms. Au relevé stabilisé avant et après le redimensionnement, `scrollY = 804` et le titre est à 309,7 px du haut. À cette position, le rapport titre/hauteur aurait dépassé le seuil de sortie et l'ancien `resynchroniser` masquait le groupe. Le nouveau `resynchroniser` ne masque plus un groupe déjà révélé.
+
+La réversibilité reste observée : à 300 px de hauteur, une vraie remontée jusqu'à `scrollY = 201` réarme Réalisations (`defilement--armee`, opacité 0) ; en redescendant à `scrollY = 880`, le titre revient à 233,7 px et le groupe redevient visible, sans classe armée, opacité 1. La sonde valide ce chemin précis de remontée et de revisite, pas toutes les combinaisons de seuils ou de focus.
+
+### P2 débordement des prestations — corrigé à 160 px CSS
+
+Dans Chrome local à 160 × 568, thèmes clair et sombre, `documentElement.clientWidth = scrollWidth = 145` : aucun débordement horizontal mesuré. La grille et la première carte occupent chacune 121 px, de `x = 12` à `x = 133`, et la colonne calculée vaut 121 px. À `af3127f`, la colonne implicite atteignait 136,03 px et le document débordait de 3 px. Le correctif déclare une colonne `minmax(0, 1fr)` et `min-width: 0` sur les cartes. Contrôle complémentaire à 375 × 812 en thème sombre : `clientWidth = scrollWidth = 360`, colonne calculée 328 px, aucun débordement.
+
+Le script modifié passe `node --check` sous Node 22.23.2. **Limite conservée :** la largeur CSS de 160 px ne remplace pas un essai de zoom **natif** du navigateur à 200 % sur petit écran ; ce zoom n'a pas été testé. Ni autre navigateur, ni URL hébergée, ni déploiement n'ont été contrôlés dans cette passe. Aucun code produit n'a été modifié par le Reviewer.
