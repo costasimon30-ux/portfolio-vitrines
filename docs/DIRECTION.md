@@ -4,6 +4,16 @@ Ce fichier centralise les décisions de direction (produit, contenu, périmètre
 
 ## Portfolio global
 
+### Portfolio — palette noire et blanche, correction de Simon du 26 octobre 2026
+
+**Décision.** Simon rejette le fond bleuté du thème Sombre de la refonte pilote et demande que l’interface du portfolio reste en noir, blanc et gris neutres dans **les deux thèmes**. Le thème Sombre doit avoir un fond réellement noir ou charbon neutre, avec texte clair ; le thème Clair un fond blanc ou gris neutre très clair, avec texte foncé. Aucun bleu, cobalt, teinte froide colorée ou accent chromatique dans les fonds, surfaces, filets, liens, boutons, focus ou états interactifs. Les captures des trois projets conservent leurs couleurs naturelles et ne sont pas désaturées : elles montrent les vitrines, tandis que l’interface du portfolio reste achromatique.
+
+**Périmètre courant.** Seul `sites/portfolio/` est repris maintenant. Les noms, textes, trois onglets, liens, parcours, composition du pilote, polices locales, comportement Clair/Sombre, mouvement et contraintes d’accessibilité restent acquis, sauf ajustement strictement nécessaire à la lisibilité de la palette. Les vitrines Créa’Tif, La Tablée des Forges et Ligne Posée ne sont pas à modifier dans ce lot. La séquence transversale décidée plus bas est suspendue après le portfolio jusqu’à nouvelle instruction de Simon.
+
+**Ordre.** L’UI/UX complète d’abord sa sous-section « Direction artistique » du portfolio avec les couples de couleurs précis et leurs contrastes, ainsi que les états de lien, bouton, focus et onglet pour les deux thèmes. Cette décision de Simon prime les couleurs bleu froid/cobalt du § 12 antérieur ; le reste de ce § demeure la base. Claude Code implémente ensuite uniquement le portfolio, sur un commit identifiable ; Code Reviewer et QA contrôlent le résultat à ce commit, puis Simon juge le rendu. Le choix d’un outil ou modèle Claude relève de l’exécution et ne remplace pas la direction écrite.
+
+**Publication.** Selon le relevé de l’Implémentation, la refonte bleutée a été publiée sur le Worker `portfolio-simon-costa` en version `8042ec93` avant cette correction. Cette version n’est pas une validation de la nouvelle palette. Aucun paquet noir et blanc n’est encore identifié ni autorisé pour Cloudflare ; une nouvelle publication requerra l’accord explicite de Simon sur son artefact précis et la recette associée.
+
 ### Refonte esthétique des quatre sites — décision du 26 octobre 2026
 
 **Mandat de Simon.** Reprendre la conception et la réalisation visuelle du portfolio, de Créa’Tif, de La Tablée des Forges et de Ligne Posée pour obtenir des sites plus actuels et une meilleure qualité visuelle d’ensemble. La mention des quatre sites est interprétée comme le périmètre complet ; Simon peut en retirer un avant son lot d’implémentation. Cette décision rouvre les choix esthétiques antérieurement validés, sans effacer les validations ni les réserves documentées.
