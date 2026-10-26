@@ -1,5 +1,43 @@
 # QA / Audit — portfolio
 
+## Recette locale ciblée — 26 octobre 2026 — source 35b1056
+
+**Verdict : favorable sur les parcours locaux exercés ; les deux P2 constatés sur `af3127f` ne se reproduisent plus dans leurs scénarios de référence. Aucun P0/P1 nouveau observé.** Ce verdict porte exclusivement sur la sortie de production locale de `35b1056ba9bcb53e2c907c5f63d3da42a0211dbf`. Il ne qualifie ni le paquet réellement servi par Cloudflare, ni un déploiement futur. Les réserves historiques acceptées restent dans leur état antérieur.
+
+### Source, méthode et build
+
+- Copie Git isolée au commit exact `35b1056`, sans reprise du commit local `5aa0226`. Comparaison de `af3127f` à `35b1056` sur `sites/portfolio/` : seuls `css/style.css` et `js/mouvement-sections.js` diffèrent ; HTML, images et destinations sont inchangés. Les observations faites sur `af3127f` sont conservées comme **avant correctif**, sans être attribuées au candidat final.
+- `node scripts/assemble-site.mjs portfolio --environment production` sous **Node 22.23.2** : code 0, **21 fichiers, 305,8 Kio**, accueil `index, follow`, 404 `noindex, follow`, 17 règles MIME. `node --check sites/portfolio/js/mouvement-sections.js` : code 0. Sortie servie à `127.0.0.1:8766` par un serveur statique Python ; seconde copie à `127.0.0.1:8767` avec en-tête CSP `script-src 'none'` pour bloquer les scripts. Aucun Worker ou réglage Cloudflare touché.
+- Interactions réalisées dans Chrome via navigateur réel, sans dispatch d'événements synthétiques par le code QA. États relevés dans le DOM rendu (`document.activeElement`, `aria-selected`, `getComputedStyle`, boîtes et largeurs). L'attribut `isTrusted` des événements n'a pas été instrumenté ; il n'est donc pas revendiqué comme mesure séparée.
+
+### Résultats reproduits sur le candidat final
+
+| Contrôle | Observation |
+| --- | --- |
+| 320 × 568, 375 × 667, 768 × 1024, 1440 × 900 ; Clair et Sombre | Huit combinaisons mesurées : `scrollWidth = clientWidth` (305, 360, 753, 1425 px respectivement), une seule carte de projet visible, les trois images chargées (`naturalWidth > 0`) et les quatre fontes locales Inter 400/600/800 et IBM Plex Mono 400 disponibles. Cibles d'onglets ≥ 48 px de haut ; CTA 48–49 px. |
+| Onglets et clavier | Clic sur La Tablée : `aria-selected=true`, seul `projet-tablee` visible, focus sur l'onglet. Flèche droite : focus sur Ligne Posée sans activation ; Entrée : Ligne Posée sélectionné et seul panneau visible. Tab depuis cet onglet atteint directement son lien de démo, avec `:focus-visible`, contour plein de 3 px et décalage de 3 px. |
+| Liens et navigation | Clics réels depuis les trois cartes : les accueils HTTPS de Créa’Tif, La Tablée des Forges et Ligne Posée chargent chacun sous leur titre attendu. Le CTA `#contact` aboutit au fragment voulu avec le groupe Contact opaque (`opacity: 1`, `transform: none`). Le lien d'évitement aboutit à `#main` et `document.activeElement.id = main`. Le lien e-mail pointe vers `mailto:costa.simon30@outlook.com`. Aucune erreur JavaScript relevée dans le journal de l'onglet local. |
+| Thèmes, couleurs et typographie | Le bouton annonce le thème de destination ; choix Sombre conservé après rechargement. Les couleurs calculées correspondent à la palette du § 12. Contrastes recalculés sur les valeurs CSS rendues : texte principal/fond 13,77:1 en Clair et 16,18:1 en Sombre ; secondaire/fond 6,79:1 et 11,64:1 ; accent/fond 7,26:1 et 9,33:1 ; texte/CTA 7,86:1 et 10,15:1 ; focus/fond 7,26:1 et 10,46:1. |
+| Repli quand les scripts sont bloqués | En-tête CSP `script-src 'none'` : aux quatre formats ci-dessus, les trois cartes et leurs liens sont visibles dans l'ordre du document ; rangée d'onglets cachée, bouton de thème inerte caché, aucun débordement horizontal. Cette méthode bloque les scripts du site, mais n'est pas un réglage global « JavaScript désactivé » du navigateur. |
+| 404 locale | `/404.html` affiche « Page introuvable », `noindex, follow` et le lien de retour `/`, sans débordement observé. Le serveur Python sert ce fichier directement ; il ne reproduit pas la réponse HTTP d'une URL inconnue sur Cloudflare. |
+
+### Contre-vérification des deux P2 de `af3127f`
+
+1. **Grille des prestations à 160 × 568 CSS — CLOS sur ce scénario local.** Avant correctif, en Clair et Sombre : `clientWidth=145`, `scrollWidth=148`, première carte de `x=12` à `x=148,03` (3 px de débordement). Sur `35b1056`, dans les deux thèmes : `clientWidth=scrollWidth=145`, carte de `x=12` à `x=133`, colonne calculée de 121 px. Cette largeur CSS extrême n'est pas une preuve de zoom natif à 200 %.
+2. **Masquage de Réalisations sur resize seul — CLOS sur ce scénario local.** À 1440 × 900, après défilement clavier réel, `scrollY=825`, titre à 288,7 px, groupe non armé et opaque ; focus sur le bouton de thème, hors du groupe. À `af3127f`, passer la seule hauteur à 300 px réarmait le groupe et son opacité descendait de 0,742 à 0. À `35b1056`, la même réduction de hauteur laisse `scrollY=825`, titre à 288,7 px, groupe non armé et `opacity=1` après stabilisation. La remontée puis revisite n'a pas été rejouée par QA dans cette passe ; la contre-vérification du Reviewer la documente séparément.
+
+### Limites et suivi
+
+- **Zoom navigateur natif à 200 % non exécuté.** Les raccourcis de zoom envoyés à l'onglet piloté n'ont pas changé `innerWidth` ni `devicePixelRatio`. Les largeurs CSS ci-dessus ne lui sont pas assimilées.
+- **`prefers-reduced-motion: reduce` non activé dans le navigateur.** Inspection statique seulement : le CSS force les groupes à `opacity: 1`, `transform: none`, `transition: none`, et le script quitte l'initialisation lorsque la préférence est présente. Aucun verdict dynamique sur un changement de préférence en cours de visite.
+- Pas de lecteur d'écran réel, d'appareil physique, de Firefox/Safari, de simulation de police ou d'image retardée, de mesure Web Vitals terrain, ni de vérification de l'artefact hébergé. Les liens externes chargent, mais leur paquet publié n'a pas été identifié par cette recette.
+- La suite `node scripts/verif-assemblage.mjs` sous Node 22.23.2 termine à **89 réussites / 8 échecs, code 1** dans cet environnement Windows : sept contrôles de fixtures symboliques échouent et le contrôle des deux exécutions concurrentes reçoit deux codes enfants 1. Cette passe n'est **pas** un 97/97 ; les échecs ne sont pas qualifiés comme défaut du rendu portfolio. Le rapport de revue du 23 octobre documente `EPERM` à la création des liens symboliques dans un environnement comparable, sans transformer cette observation historique en preuve complète pour cette exécution.
+- Les vraies 404 simples, imbriquées et sous CSS/JS/médias, leurs en-têtes uniques, la redirection HTTP, le type MIME de toutes les fontes hébergées et « Preview URLs » demandent un contrôle HTTP/Dashboard d'un paquet déployé et identifié. PORT-04, PUB-11-01 hébergé, la réserve CLS initiale et les arbitrages PORT-03/P06 ne sont pas clos par cette recette locale.
+
+**Conclusion :** les deux P2 locaux du pilote sont levés dans leurs cas de reproduction et les parcours testés de `35b1056` fonctionnent. Avant une décision de publication, conserver les limites ci-dessus et le résultat rouge de la suite comme tels ; aucun dépôt Cloudflare n'a été réalisé par QA.
+
+---
+
 ## Bilan QA et GET publics ciblés — 19 octobre 2026
 
 **Verdict borné : les réponses HTTP échantillonnées sont utilisables et correctement typées ; le HTML public contient trois onglets. La version Cloudflare et l'artefact complet servis ne sont pas identifiés.** Cette passe documentaire/HTTP ne constitue pas une nouvelle recette navigateur, une validation du candidat MIME ni une autorisation de publication. Les conclusions historiques ci-dessous restent attachées à leurs sources et périmètres.
