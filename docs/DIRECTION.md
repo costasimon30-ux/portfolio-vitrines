@@ -789,6 +789,33 @@ Conserver l'entrée réversible des grandes sections du § 10 comme comportement
 
 **Conditions de passage au rendu.** Comparer l'ancien et le nouveau aux quatre largeurs et au zoom natif 200 % en Clair et Sombre : premier écran, À propos, les trois états de Réalisations, grille des quatre prestations, Contact, footer et 404. Vérifier visuellement les couples de couleurs ci-dessus, le chargement des deux polices locales, les images naturelles, les retours à la ligne, les états hover/focus et le mouvement réduit. Rejouer au clavier bascule, onglets, liens de démo, contact et retour haut ; contrôler l'accès direct par ancre, sans JavaScript, ainsi que l'absence de débordement. L'UI/UX jugera le rendu d'un commit précis indépendamment de l'autoévaluation de l'Implémentation ; QA et Code Reviewer gardent leurs contrôles propres. Le résultat esthétique final appartient à Simon. Aucun arbitrage produit nouveau n'est requis pour proposer cette direction ; tout changement de texte, image, parcours ou structure majeure doit d'abord lui être soumis via le Chef de projet.
 
+###### Amendement palette achromatique — décision de Simon du 26 octobre 2026
+
+**Portée et priorité.** La décision « Portfolio — palette noire et blanche » inscrite en tête de ce document remplace, pour le seul portfolio, **toutes** les prescriptions de couleur bleu froid, cobalt, marine teinté et surfaces bleutées du présent § 12, y compris dans le diagnostic, le parti pris, les filets de signature, les onglets, les prestations et la 404. Le parti pris devient une page d'auteur typographique noire, blanche et grise : la précision vient du contraste, des axes, des filets et des captures réelles. La composition, les textes, Inter/IBM Plex Mono locales, les trois onglets, les images, les deux thèmes, le responsive, les interactions et le mouvement du § 12 restent inchangés. Les photos et captures des trois projets restent **en couleurs naturelles**, sans désaturation, filtre, teinte ou voile. Aucun site de démonstration, fichier partagé ou contrat de publication n'est concerné.
+
+| Rôle / jeton de mise en œuvre | Clair | Sombre | Application |
+| --- | --- | --- | --- |
+| Fond `--c-fond` | `#FAFAFA` | `#101010` | Page et hero |
+| Surface `--c-surface` | `#FFFFFF` | `#1B1B1B` | Prestations ; fond de secours des cartes |
+| Surface de respiration `--c-respiration` | `#F0F0F0` | `#262626` | Contact et bande de séparation |
+| Texte principal `--c-texte` | `#171717` | `#F5F5F5` | Titres, corps, onglet actif |
+| Texte secondaire `--c-texte-doux` | `#525252` | `#C6C6C6` | Sur-titres, descriptions secondaires, mentions et onglets inactifs |
+| Lien / filet actif `--c-accent` | `#262626` | `#F5F5F5` | Liens soulignés, signature de 3 px, trait d'onglet actif |
+| Lien au survol `--c-accent-actif` | `#000000` | `#FFFFFF` | Renforcement du trait de 1 à 2 px, sans déplacement |
+| Filet passif `--c-filet` | `#D4D4D4` | `#444444` | Bordures décoratives seulement ; ne signale jamais seul un état |
+| Contour de commande `--c-contour` | `#737373` | `#A3A3A3` | Bord de bascule, séparateur de section, repère de survol d'onglet |
+| Focus externe `--c-focus` | `#171717` | `#FFFFFF` | Anneau clavier continu 3 px, décalé de 3 px |
+| CTA `--c-cta-fond` / `--c-cta-texte` | `#171717` / `#FFFFFF` | `#F5F5F5` / `#101010` | Même action en hero, Contact et 404 |
+| CTA au survol `--c-cta-survol` | `#383838` | `#DADADA` | Couleur seule, aucun déplacement ni ombre |
+| CTA à l'activation `--c-cta-actif` | `#000000` | `#FFFFFF` | Retour visuel bref ; le texte du CTA ne change pas |
+
+**Contrastes de conception.** Ratios WCAG 2.x recalculés sur ces aplats sRGB opaques, arrondis à deux décimales, dans l'ordre Clair / Sombre : texte principal/fond **17,18:1 / 17,45:1** ; principal/surface **17,93:1 / 15,80:1** ; secondaire/fond **7,49:1 / 11,14:1** ; secondaire/Contact **6,86:1 / 8,86:1** ; lien/fond **14,50:1 / 17,45:1** ; lien/surface **15,13:1 / 15,80:1** ; lien/Contact **13,28:1 / 13,88:1** ; texte/CTA **17,93:1 / 17,45:1** ; texte/CTA survol **11,73:1 / 13,61:1**. Le contour de commande atteint au moins **4,16:1** en Clair et **6,00:1** en Sombre sur les fonds, surfaces et Contact ; le focus externe au moins **15,73:1** et **15,13:1** sur ces trois supports. Ces valeurs dépassent 4,5:1 pour les textes et 3:1 pour les repères de commande prescrits. Le filet passif, volontairement plus discret, n'est jamais l'unique indice d'un état. Ces calculs ne valident pas à eux seuls le rendu du navigateur.
+
+**États et application.** Les liens restent soulignés au repos, y compris visités ; le survol et le focus renforcent le trait à 2 px et emploient le noir ou le blanc ci-dessus. Les CTA conservent leur texte contrasté au repos, au survol, à l'activation et après visite. La bascule de thème conserve son fond de page, son texte principal et son contour de commande ; au survol, elle prend la surface de respiration du thème courant. Les trois onglets gardent leurs noms entiers, leur hauteur et leur clavier : inactif en texte secondaire et filet passif, survol en texte principal avec filet de `--c-contour`, actif en texte principal Inter 600 avec trait inférieur de 3 px en `--c-accent` et `aria-selected`. Aucune sélection ne dépend de la teinte seule. La signature avant le sur-titre, les H2 et les H3 des prestations devient gris anthracite ou blanc selon le thème ; la géométrie ne change pas. Le focus reste visible sur fond, surface et Contact, avec les 3 px d'espace du support entre contrôle et anneau ; sur un CTA, cet espace le sépare du remplissage. Les contours décoratifs fins restent neutres. Toutes les valeurs d'interface, y compris favicon et 404 si une couleur y est portée, doivent être achromatiques ; aucune conversion des pixels des captures n'est demandée.
+
+**Contrôle de la prochaine intégration.** Vérifier les couleurs **calculées et rendues** dans les deux thèmes à 320, 375, 768 et 1440 px, puis au zoom natif 200 %. Mesurer texte, liens, CTA (repos/survol/visité), bascule, onglets (inactif/survol/actif), contours et anneau de focus sur chaque support où ils paraissent ; observer la séparation de l'anneau des CTA. Comparer les captures des trois projets aux fichiers naturels, sans filtre ni voile. Rejouer le clavier, le repli sans JavaScript, le mouvement réduit et la 404 selon les conditions du § 12. Le noir et blanc de l'interface ne constitue ni une validation esthétique anticipée, ni une autorisation de déploiement.
+
+
 ## Sites
 
 ### coiffeur-mixte
