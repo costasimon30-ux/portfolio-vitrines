@@ -37,9 +37,11 @@
     if (racine.hasAttribute("data-fiche-pret") || racine.hasAttribute("data-fiche-repli") || racine.hasAttribute("data-fiche-lent")) return;
     racine.setAttribute("data-fiche-lent", "");
     var afficher = function () {
-      var lent = document.getElementById("fiche-repli-lent");
+      var region = document.getElementById("fiche-repli-lent");
+      var modele = document.getElementById("fiche-repli-lent-modele");
+      // Région status déjà présente (vide) : l'insertion du texte est annoncée une seule fois par les technologies d'assistance.
+      if (region && modele && modele.content) region.appendChild(modele.content.cloneNode(true));
       var neutre = document.getElementById("fiche-repli");
-      if (lent) lent.hidden = false;
       if (neutre) neutre.hidden = true;
       liberer();
     };

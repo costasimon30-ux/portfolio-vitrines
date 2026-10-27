@@ -815,12 +815,14 @@ async function lancerAttentePage({ demarrerAvant = false } = {}) {
     setAttribute: (a) => attrs.add(a),
     hasAttribute: (a) => attrs.has(a),
   };
-  const lent = { hidden: true };
+  // Région status présente (vide) dès le chargement ; le modèle n'est rendu qu'au basculement « trop lent ».
+  const lent = { enfants: [], appendChild(n) { this.enfants.push(n); } };
+  const modele = { content: { cloneNode: () => ({ clone: true }) } };
   const chargement = { hidden: false };
   const document = {
     documentElement: racine,
     addEventListener: (t, f) => { (ecouteurs.doc[t] ??= []).push(f); },
-    getElementById: (id) => (id === "page-lent" ? lent : null),
+    getElementById: (id) => ({ "page-lent": lent, "page-lent-modele": modele })[id] ?? null,
     querySelectorAll: (sel) => (sel === ".chargement" ? [chargement] : []),
   };
   const window = { addEventListener: (t, f) => { (ecouteurs.win[t] ??= []).push(f); } };
@@ -828,8 +830,9 @@ async function lancerAttentePage({ demarrerAvant = false } = {}) {
   if (demarrerAvant) racine.setAttribute("data-page-module");
   return {
     etat: () => ({ attente: classes.has("page-attente"), repli: attrs.has("data-page-repli") }),
-    lent: () => ({ marqueur: attrs.has("data-page-lent"), message: !lent.hidden, chargementMasque: chargement.hidden }),
+    lent: () => ({ marqueur: attrs.has("data-page-lent"), message: lent.enfants.length > 0, chargementMasque: chargement.hidden }),
     racine,
+    lentRegion: lent,
     avancer: (ms) => minuteurs.filter((m) => m.ms <= ms).sort((a, b) => a.ms - b.ms).forEach((m) => m.f()),
     ecouteurs,
   };
@@ -861,6 +864,8 @@ test("attente de page / LP-QA-01 : module démarré → pas de repli à 2 s ; à
   a.avancer(8000);
   assert.deepEqual(a.etat(), { attente: false, repli: false });
   assert.deepEqual(a.lent(), { marqueur: true, message: true, chargementMasque: true }, "message stable affiché, texte de chargement retiré, marqueur lu par les modules");
+  a.avancer(8000);
+  assert.equal(a.lentRegion.enfants.length, 1, "une seule insertion dans la région live : pas de doublon d'annonce");
 });
 
 test("attente de page / LP-QA-01 : contenu déjà prêt avant 8 s → aucun état « trop lent »", async () => {
@@ -876,8 +881,9 @@ test("LP-QA-01 (catalogue, panier, commande) : garde après await, message stabl
     const apres = src.slice(src.indexOf("await chargerCatalogue(validerCatalogue)"));
     assert.ok(/lentAffiche\(\)\)\s*return;|data-page-lent"\)\)\s*return;/.test(apres.slice(0, 700)), `${f} : aucun rendu tardif après l'état lent`);
     const html = lire(`${page}.html`);
-    assert.match(html, /id="page-lent"[^>]*hidden/, `${page}.html : message lent masqué par défaut`);
-    assert.match(html, /<a class="bouton" href="">Réessayer<\/a>/, `${page}.html : relance volontaire`);
+    assert.match(html, /<div id="page-lent" role="status"><\/div>/, `${page}.html : région status présente et vide avant le basculement`);
+    assert.match(html, /<template id="page-lent-modele">[\s\S]*<a class="bouton" href="">Réessayer<\/a>[\s\S]*<\/template>/, `${page}.html : message et relance dans le modèle injecté`);
+    assert.ok(!/id="page-lent"[^>]*(hidden|aria-live)/.test(html), `${page}.html : ni hidden ni aria-live redondant`);
   }
   assert.ok(lire("js/panier-ui.js").includes('"data-page-pret"'), "le module signale que le contenu est prêt");
 });

@@ -50,10 +50,13 @@
     <div class="etat" id="fiche-repli-indispo" role="note" hidden>
       <p><strong>Fiche indisponible.</strong> Les données du catalogue n’ont pas pu être chargées ou n’ont pas passé leur vérification : aucune fiche ni aucun prix n’est affiché.</p>
     </div>
-    <div class="etat" id="fiche-repli-lent" role="note" hidden>
-      <p><strong>Le catalogue met trop de temps à répondre.</strong> La fiche n’a pas pu s’afficher : aucun prix ni aucune référence n’est montré, et rien ne sera remplacé tant que la page reste ouverte.</p>
-      <p class="actions"><a class="bouton" href="">Réessayer</a><a class="bouton bouton--secondaire" href="catalogue.html">Retour au catalogue</a></p>
-    </div>
+    <div id="fiche-repli-lent" role="status"></div>
+    <template id="fiche-repli-lent-modele">
+      <div class="etat">
+        <p><strong>Le catalogue met trop de temps à répondre.</strong> La fiche n’a pas pu s’afficher : aucun prix ni aucune référence n’est montré, et rien ne sera remplacé tant que la page reste ouverte.</p>
+        <p class="actions"><a class="bouton" href="">Réessayer</a><a class="bouton bouton--secondaire" href="catalogue.html">Retour au catalogue</a></p>
+      </div>
+    </template>
     <div id="fiche"></div>
     </div>
 

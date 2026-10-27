@@ -24,8 +24,10 @@
   var ralentir = function () {
     if (racine.hasAttribute("data-page-pret") || racine.hasAttribute("data-page-repli") || racine.hasAttribute("data-page-lent")) return;
     racine.setAttribute("data-page-lent", "");
-    var lent = document.getElementById("page-lent");
-    if (lent) lent.hidden = false;
+    var region = document.getElementById("page-lent");
+    var modele = document.getElementById("page-lent-modele");
+    // Région status déjà présente (vide) : l'insertion du texte est annoncée une seule fois par les technologies d'assistance.
+    if (region && modele && modele.content) region.appendChild(modele.content.cloneNode(true));
     var chargements = document.querySelectorAll ? document.querySelectorAll(".chargement") : [];
     for (var i = 0; i < chargements.length; i++) chargements[i].hidden = true;
     liberer();

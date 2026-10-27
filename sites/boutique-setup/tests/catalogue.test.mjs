@@ -552,7 +552,10 @@ async function lancerAttente({ demarrerAvant = null, evenement = null, lecture =
   const minuteurs = [];
   const ecouteurs = { doc: {}, win: {} };
   const noeud = (hidden) => ({ hidden });
-  const indispo = noeud(true), neutre = noeud(false), lent = noeud(true);
+  const indispo = noeud(true), neutre = noeud(false);
+  // Région status présente dès le chargement (vide) ; le modèle n'est rendu qu'au basculement « trop lent ».
+  const lent = { enfants: [], appendChild(n) { this.enfants.push(n); } };
+  const modele = { content: { cloneNode: () => ({ clone: true }) } };
   const racine = {
     classList: { add: (c) => classes.add(c), remove: (c) => classes.delete(c) },
     setAttribute: (a) => attrs.add(a),
@@ -561,7 +564,7 @@ async function lancerAttente({ demarrerAvant = null, evenement = null, lecture =
   const document = {
     documentElement: racine,
     readyState: lecture,
-    getElementById: (id) => ({ "fiche-repli-indispo": indispo, "fiche-repli": neutre, "fiche-repli-lent": lent })[id] ?? null,
+    getElementById: (id) => ({ "fiche-repli-indispo": indispo, "fiche-repli": neutre, "fiche-repli-lent": lent, "fiche-repli-lent-modele": modele })[id] ?? null,
     addEventListener: (t, f) => { (ecouteurs.doc[t] ??= []).push(f); },
   };
   const window = { addEventListener: (t, f) => { (ecouteurs.win[t] ??= []).push(f); } };
@@ -570,8 +573,8 @@ async function lancerAttente({ demarrerAvant = null, evenement = null, lecture =
   const etat = () => ({ attente: classes.has("fiche-attente"), repli: attrs.has("data-fiche-repli"), indispo: !indispo.hidden, neutre: !neutre.hidden });
   const avancer = (ms) => minuteurs.filter((m) => m.ms <= ms).sort((a, b) => a.ms - b.ms).forEach((m) => m.f());
   if (demarrerAvant) racine.setAttribute("data-fiche-module");
-  const messageLent = () => !lent.hidden;
-  return { etat, avancer, ecouteurs, racine, document, messageLent, attrs };
+  const messageLent = () => lent.enfants.length > 0;
+  return { etat, avancer, ecouteurs, racine, document, messageLent, attrs, region: lent };
 }
 
 test("BQ-04 : module non démarré à 2 s → repli « Fiche indisponible » et liens libérés ; l'arrivée tardive ne le défait pas", async () => {
@@ -591,6 +594,8 @@ test("BQ-04 / LP-QA-01 : module démarré → aucun repli à 2 s ; à 8 s, état
   a.avancer(8000);
   assert.deepEqual(a.etat(), { attente: false, repli: false, indispo: false, neutre: false }, "libéré, message neutre retiré");
   assert.equal(a.messageLent(), true, "message « trop de temps » affiché, avec relance volontaire");
+  a.avancer(8000);
+  assert.equal(a.region.enfants.length, 1, "une seule insertion dans la région live : pas de doublon d'annonce");
   assert.ok(a.attrs.has("data-fiche-lent"), "marqueur lu par page-produit.js : aucun remplacement tardif");
   // Une erreur de script ou la fin du chargement ne déclenche pas de repli quand le module a démarré.
   const b = await lancerAttente({ demarrerAvant: true });
@@ -610,7 +615,9 @@ test("LP-QA-01 : fiche déjà prête avant 8 s → aucun message « trop lent »
   assert.ok(/data-fiche-lent[\s\S]{0,120}return;/.test(apresAwait.slice(0, 400)), "page-produit.js s'abstient de tout rendu après l'état lent");
   assert.ok(src.includes('setAttribute("data-fiche-pret"'), "le module signale que la fiche est prête");
   const html = lirePage("produit.html");
-  assert.match(html, /id="fiche-repli-lent"[^>]*hidden/, "message stable présent, masqué par défaut (sans JS rien n'est affiché de lent)");
+  assert.match(html, /<div id="fiche-repli-lent" role="status"><\/div>/, "région status présente et vide avant le basculement");
+  assert.match(html, /<template id="fiche-repli-lent-modele">[\s\S]*Réessayer[\s\S]*<\/template>/, "message et relance dans un modèle injecté au basculement");
+  assert.ok(!/id="fiche-repli-lent"[^>]*(hidden|aria-live)/.test(html), "ni hidden (région non annoncée) ni aria-live redondant");
   assert.match(html, /<a class="bouton" href="">Réessayer<\/a>/, "relance volontaire");
 });
 

@@ -38,10 +38,13 @@
       <p class="chapeau">Les variantes ajoutées depuis une fiche restent dans cet onglet, le temps de la démonstration. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
     </header>
     <div id="statut" class="sr-seulement" role="status" aria-live="polite"></div>
-    <div class="etat" id="page-lent" role="note" hidden>
-      <p><strong>Le catalogue met trop de temps à répondre.</strong> Le panier ne peut pas être affiché : aucun montant n’est calculé, rien n’est modifié ni validé. Rien ne sera remplacé tant que la page reste ouverte.</p>
-      <p class="actions"><a class="bouton" href="">Réessayer</a></p>
-    </div>
+    <div id="page-lent" role="status"></div>
+    <template id="page-lent-modele">
+      <div class="etat">
+        <p><strong>Le catalogue met trop de temps à répondre.</strong> Le panier ne peut pas être affiché : aucun montant n’est calculé, rien n’est modifié ni validé. Rien ne sera remplacé tant que la page reste ouverte.</p>
+        <p class="actions"><a class="bouton" href="">Réessayer</a></p>
+      </div>
+    </template>
     <div class="etat" id="panier-repli" role="note">
       <p><strong>Le panier a besoin de JavaScript.</strong> Il est conservé dans le navigateur, dans cet onglet : si JavaScript est désactivé ou n’a pas pu démarrer, aucun article ne peut être ajouté, modifié ni validé. Rien n’est enregistré et aucune commande n’est possible. Rechargez la page pour réessayer, ou consultez le catalogue.</p>
     </div>
