@@ -203,7 +203,17 @@ function demarrer(catalogue) {
   });
 }
 
+/*
+  Chargement : tant que le catalogue n'est pas arrivé, la liste de repli, le pied de page et les liens de retour
+  sont invisibles (sans quitter la mise en page, voir css/style.css) : la liste de repli ne s'affiche donc pas
+  une fraction de seconde avant d'être remplacée par les filtres et les cartes (CLS). js/attente-page.js les libère
+  au bout de 2 s si ce module ne démarre pas, et au bout de 8 s au plus : le repli textuel reste alors lisible.
+*/
 async function amorcer() {
+  const racine = document.documentElement;
+  // Repli déjà affiché par js/attente-page.js (module arrivé trop tard) : on ne remplace rien et rien ne bouge.
+  if (racine.hasAttribute("data-page-repli")) return;
+  racine.setAttribute("data-page-module", "");
   try {
     const resultat = await chargerCatalogue(validerCatalogue);
     if (!resultat.ok) {
@@ -215,6 +225,8 @@ async function amorcer() {
   } catch (e) {
     console.error("Ligne Posée : échec d'initialisation du catalogue —", e);
     afficherIndisponible();
+  } finally {
+    racine.classList.remove("page-attente");
   }
 }
 

@@ -1,6 +1,6 @@
 # Ligne Posée — notice des visuels produits
 
-Notice **locale** : ce fichier n'est pas listé dans `publication.json`, il n'est donc pas publié.
+Notice **locale** : ce fichier n'est pas listé dans `publication.json`, il n'est donc pas publié. Sa version **publique** courte, sans informations de suivi, est `assets/produits/NOTICE.md` (publiée et liée depuis le pied de page des sept pages, LP-QA-02).
 
 ## Provenance
 
@@ -43,7 +43,7 @@ Notice **locale** : ce fichier n'est pas listé dans `publication.json`, il n'es
 - Mention visible sous chaque visuel : « Visuel d’illustration généré ; variantes non représentées. » sur les cartes du catalogue ; « Visuel d’illustration généré ; la variante sélectionnée (finition, format) n’est pas représentée. » sur la fiche.
 - Textes alternatifs : nom du modèle, « illustration générée » et forme visible de l'objet ; aucune couleur, finition, matière de variante ni caractéristique technique.
 - Dimensions réservées avant chargement (attributs `width`/`height` et ratio 1/1) ; si l'image ne charge pas, un cadre de même taille affiche « Visuel indisponible » et la mention est retirée.
-- Aucun visuel sur l'accueil : sa structure (liste de familles en texte) n'en accueille pas sans nouvelle section.
+- Accueil : seul le visuel du modèle sup-01 ouvre la page (cadre 4:3, légende « Illustration générée — modèle fictif, finitions non représentées. »).
 
 ## Limites connues
 

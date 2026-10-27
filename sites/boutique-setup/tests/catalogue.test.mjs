@@ -537,7 +537,7 @@ async function lancerAttente({ demarrerAvant = null, evenement = null, lecture =
   const minuteurs = [];
   const ecouteurs = { doc: {}, win: {} };
   const noeud = (hidden) => ({ hidden });
-  const indispo = noeud(true), neutre = noeud(false);
+  const indispo = noeud(true), neutre = noeud(false), lent = noeud(true);
   const racine = {
     classList: { add: (c) => classes.add(c), remove: (c) => classes.delete(c) },
     setAttribute: (a) => attrs.add(a),
@@ -546,7 +546,7 @@ async function lancerAttente({ demarrerAvant = null, evenement = null, lecture =
   const document = {
     documentElement: racine,
     readyState: lecture,
-    getElementById: (id) => ({ "fiche-repli-indispo": indispo, "fiche-repli": neutre })[id] ?? null,
+    getElementById: (id) => ({ "fiche-repli-indispo": indispo, "fiche-repli": neutre, "fiche-repli-lent": lent })[id] ?? null,
     addEventListener: (t, f) => { (ecouteurs.doc[t] ??= []).push(f); },
   };
   const window = { addEventListener: (t, f) => { (ecouteurs.win[t] ??= []).push(f); } };
@@ -555,7 +555,8 @@ async function lancerAttente({ demarrerAvant = null, evenement = null, lecture =
   const etat = () => ({ attente: classes.has("fiche-attente"), repli: attrs.has("data-fiche-repli"), indispo: !indispo.hidden, neutre: !neutre.hidden });
   const avancer = (ms) => minuteurs.filter((m) => m.ms <= ms).sort((a, b) => a.ms - b.ms).forEach((m) => m.f());
   if (demarrerAvant) racine.setAttribute("data-fiche-module");
-  return { etat, avancer, ecouteurs, racine, document };
+  const messageLent = () => !lent.hidden;
+  return { etat, avancer, ecouteurs, racine, document, messageLent, attrs };
 }
 
 test("BQ-04 : module non démarré à 2 s → repli « Fiche indisponible » et liens libérés ; l'arrivée tardive ne le défait pas", async () => {
@@ -567,17 +568,35 @@ test("BQ-04 : module non démarré à 2 s → repli « Fiche indisponible » et 
   assert.ok(a.racine.hasAttribute("data-fiche-repli"));
 });
 
-test("BQ-04 : module démarré → aucun repli à 2 s (le JSON peut arriver plus tard) ; la sécurité libère à 8 s", async () => {
+test("BQ-04 / LP-QA-01 : module démarré → aucun repli à 2 s ; à 8 s, état définitif « catalogue trop lent » (message stable, liens libérés)", async () => {
   const a = await lancerAttente({ demarrerAvant: true });
   a.avancer(2000);
   assert.deepEqual(a.etat(), { attente: true, repli: false, indispo: false, neutre: true }, "toujours en attente, sans repli");
+  assert.equal(a.messageLent(), false);
   a.avancer(8000);
-  assert.deepEqual(a.etat(), { attente: false, repli: false, indispo: false, neutre: true }, "libéré par la sécurité, sans repli");
+  assert.deepEqual(a.etat(), { attente: false, repli: false, indispo: false, neutre: false }, "libéré, message neutre retiré");
+  assert.equal(a.messageLent(), true, "message « trop de temps » affiché, avec relance volontaire");
+  assert.ok(a.attrs.has("data-fiche-lent"), "marqueur lu par page-produit.js : aucun remplacement tardif");
   // Une erreur de script ou la fin du chargement ne déclenche pas de repli quand le module a démarré.
   const b = await lancerAttente({ demarrerAvant: true });
   for (const f of b.ecouteurs.win.load) f({});
   for (const f of b.ecouteurs.doc.error) f({ target: { tagName: "SCRIPT" } });
   assert.equal(b.etat().repli, false);
+});
+
+test("LP-QA-01 : fiche déjà prête avant 8 s → aucun message « trop lent » ; le module ne remplace rien après l'état lent", async () => {
+  const prete = await lancerAttente({ demarrerAvant: true });
+  prete.racine.setAttribute("data-fiche-pret");
+  prete.avancer(8000);
+  assert.equal(prete.messageLent(), false, "fiche prête : pas de message");
+  assert.equal(prete.attrs.has("data-fiche-lent"), false);
+  const src = lirePage("js/page-produit.js");
+  const apresAwait = src.slice(src.indexOf("await chargerCatalogue(validerCatalogue)"));
+  assert.ok(/data-fiche-lent[\s\S]{0,120}return;/.test(apresAwait.slice(0, 400)), "page-produit.js s'abstient de tout rendu après l'état lent");
+  assert.ok(src.includes('setAttribute("data-fiche-pret"'), "le module signale que la fiche est prête");
+  const html = lirePage("produit.html");
+  assert.match(html, /id="fiche-repli-lent"[^>]*hidden/, "message stable présent, masqué par défaut (sans JS rien n'est affiché de lent)");
+  assert.match(html, /<a class="bouton" href="">Réessayer<\/a>/, "relance volontaire");
 });
 
 test("BQ-04 : échec franc du module (erreur de script ou fin de chargement sans module) → repli immédiat", async () => {

@@ -42,15 +42,21 @@ test("20 modèles, 20 visuels : chaque modèle a ses trois largeurs, carrées, l
 
 test("aucun fichier d'image orphelin ou manquant ; le manifeste ne liste que des ressources existantes", () => {
   const attendus = new Set(catalogue.modeles.flatMap((m) => cheminsVisuel(m.id)).map((c) => path.basename(c)));
-  const presents = fs.readdirSync(path.join(racine, "assets/produits"));
+  const presents = fs.readdirSync(path.join(racine, "assets/produits")).filter((f) => f !== "NOTICE.md");
   assert.equal(attendus.size, 60);
   assert.deepEqual([...presents].sort(), [...attendus].sort());
-  const images = manifeste.publicFiles.filter((f) => f.startsWith("assets/produits/"));
+  const images = manifeste.publicFiles.filter((f) => f.startsWith("assets/produits/") && f.endsWith(".webp"));
   assert.equal(images.length, 60);
   assert.equal(new Set(manifeste.publicFiles).size, manifeste.publicFiles.length, "pas de doublon");
   for (const f of manifeste.publicFiles) assert.ok(fs.existsSync(path.join(racine, f)), f);
   assert.ok(manifeste.publicFiles.includes("js/visuels.js"));
-  assert.ok(!manifeste.publicFiles.some((f) => /NOTICE|\.png$/i.test(f)), "notice locale et PNG maîtres non publiés");
+  // LP-QA-02 : la notice PUBLIQUE courte est publiée ; la notice interne (suivi, sources locales) et les PNG maîtres ne le sont pas.
+  assert.ok(manifeste.publicFiles.includes("assets/produits/NOTICE.md"), "notice publique des visuels publiée");
+  assert.ok(!manifeste.publicFiles.some((f) => /NOTICE-VISUELS|\.png$/i.test(f)), "notice interne et PNG maîtres non publiés");
+  assert.ok(!/\/Users\/|INVENTAIRE|PILOTE|prompt|SHA-256|sha256/i.test(fs.readFileSync(path.join(racine, "assets/produits/NOTICE.md"), "utf8")), "la notice publique ne contient aucune information de suivi interne");
+  for (const f of ["index.html", "catalogue.html", "produit.html", "panier.html", "commande.html", "confirmation.html", "404.html"]) {
+    assert.match(fs.readFileSync(path.join(racine, f), "utf8"), /href="\/?assets\/produits\/NOTICE\.md"[^>]*>Provenance et limites des visuels générés</, `${f} : lien vers la notice publique`);
+  }
 });
 
 test("les 20 images sont distinctes entre elles (aucun visuel dupliqué d'un modèle à l'autre)", () => {

@@ -42,10 +42,10 @@ const DESCRIPTIONS = Object.freeze({
   "ran-05": "bloc à deux tiroirs, dont un entrouvert",
 });
 
-/** Tailles d'affichage (px CSS) selon la mise en page de css/style.css : cartes en 1/2/3 colonnes, fiche en 1/2 colonnes. */
+/** Tailles d'affichage (px CSS) selon la mise en page de css/style.css : cartes en 1 / 2 / 4 colonnes (600 et 1200 px), fiche en 1 / 2 colonnes (1024 px). */
 const SIZES = Object.freeze({
-  carte: "(min-width: 68em) 297px, (min-width: 48em) calc((100vw - 96px) / 3 - 34px), (min-width: 36em) calc((100vw - 48px) / 2 - 34px), calc(100vw - 66px)",
-  fiche: "(min-width: 68em) 500px, (min-width: 48em) calc((100vw - 88px) / 2), min(calc(100vw - 32px), 512px)",
+  carte: "(min-width: 90em) 212px, (min-width: 75em) calc((min(100vw, 1200px) - 120px) / 4 - 32px), (min-width: 48em) calc((100vw - 72px) / 2 - 32px), (min-width: 37.5em) calc((100vw - 48px) / 2 - 32px), calc(100vw - 64px)",
+  fiche: "(min-width: 90em) 532px, (min-width: 64em) calc((min(100vw, 1200px) - 96px) * .52), (min-width: 48em) min(calc(100vw - 48px), 640px), min(calc(100vw - 32px), 640px)",
 });
 
 /** Vrai si le modèle a un visuel dans assets/produits/. */

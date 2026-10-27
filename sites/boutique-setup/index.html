@@ -38,7 +38,7 @@
         <div class="hero__cadre">
           <img src="assets/produits/sup-01-640.webp"
                srcset="assets/produits/sup-01-320.webp 320w, assets/produits/sup-01-640.webp 640w, assets/produits/sup-01-960.webp 960w"
-               sizes="(min-width: 72em) 571px, (min-width: 64em) calc((100vw - 104px) * .58), (min-width: 48em) 600px, calc(100vw - 32px)"
+               sizes="(min-width: 90em) 594px, (min-width: 64em) calc((min(100vw, 1200px) - 96px) * .58), (min-width: 48em) calc(100vw - 48px), calc(100vw - 32px)"
                width="960" height="640" decoding="async" fetchpriority="high"
                alt="Rehausseur d’écran, illustration générée : plateau rectangulaire allongé posé sur deux pieds bas, avec un espace libre dessous.">
         </div>
@@ -46,33 +46,39 @@
       </figure>
       <p class="hero__cta"><a class="bouton bouton--hero" href="catalogue.html">Voir les 20 modèles</a></p>
     </div>
+  </div>
 
-    <section class="bloc bloc--large bloc--familles" aria-labelledby="familles-titre">
+  <section class="tableau" aria-labelledby="familles-titre">
+    <div class="container">
       <h2 id="familles-titre">Quatre familles, 20 modèles</h2>
-      <ul class="familles">
+      <ul class="familles" data-apparition>
         <li><a href="catalogue.html?famille=sup"><strong>Supports</strong><span>5 modèles · 20 références</span><span>Rehausser, incliner, soutenir : écran, ordinateur, tablette ou casque.</span></a></li>
         <li><a href="catalogue.html?famille=tap"><strong>Tapis de bureau</strong><span>5 modèles · 20 références</span><span>Quelques surfaces de travail, du plus compact au très grand format.</span></a></li>
         <li><a href="catalogue.html?famille=lum"><strong>Éclairage</strong><span>5 modèles · 20 références</span><span>Éclairer le poste de travail, directement, d’en haut ou en ambiance.</span></a></li>
         <li><a href="catalogue.html?famille=ran"><strong>Rangement</strong><span>5 modèles · 20 références</span><span>Ranger câbles, papiers et petits objets à portée de main.</span></a></li>
       </ul>
-    </section>
+    </div>
+  </section>
 
-    <section class="bloc bloc--secondaire" aria-labelledby="demo-titre">
+  <section class="pause" aria-labelledby="demo-titre">
+    <div class="container">
       <h2 id="demo-titre">Ce que contient la démonstration</h2>
-      <ul>
+      <ul data-apparition>
         <li>Un catalogue de 20 modèles, avec recherche, filtres et tris, et une fiche par modèle avec ses quatre variantes (80 références au total).</li>
         <li>Des prix de démonstration, calculés à partir de la variante choisie.</li>
         <li>Un visuel d’illustration généré par modèle, sur le catalogue et les fiches : une seule image par modèle, qui ne représente pas la variante choisie.</li>
         <li>Un panier et une commande simulée, conservés dans l’onglet : aucune commande n’est envoyée, aucun paiement ni donnée personnelle n’est demandé.</li>
       </ul>
-    </section>
-  </div>
+    </div>
+  </section>
 </main>
 
 <footer class="site-footer">
   <div class="container">
     <p>Ligne Posée est une marque fictive de démonstration, imaginée pour le portfolio de Simon Costa. Produits, références et prix sont fictifs. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
+    <p class="mention-notice"><a href="assets/produits/NOTICE.md">Provenance et limites des visuels générés</a></p>
   </div>
 </footer>
+<script src="js/apparition.js" defer></script>
 </body>
 </html>

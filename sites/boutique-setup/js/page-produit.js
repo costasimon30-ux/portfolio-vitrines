@@ -243,7 +243,10 @@ function afficher(catalogue) {
 function attendre() {
   // La classe est posée avant le premier rendu par js/attente-fiche.js, qui la retire aussi si ce module échoue.
   document.documentElement.setAttribute("data-fiche-module", "");
-  return () => document.documentElement.classList.remove("fiche-attente");
+  return () => {
+    document.documentElement.setAttribute("data-fiche-pret", "");
+    document.documentElement.classList.remove("fiche-attente");
+  };
 }
 
 async function amorcer() {
@@ -252,6 +255,8 @@ async function amorcer() {
   const liberer = attendre();
   try {
     const resultat = await chargerCatalogue(validerCatalogue);
+    // LP-QA-01 : l'état « catalogue trop lent » est définitif pour cette page ; une réponse tardive ne le remplace pas.
+    if (document.documentElement.hasAttribute("data-fiche-lent")) return;
     if (!resultat.ok) {
       console.error("Ligne Posée : catalogue indisponible ou invalide —", resultat.erreurs.join(" | "));
       $("fiche-repli-indispo").hidden = false;
@@ -261,7 +266,7 @@ async function amorcer() {
     window.addEventListener("popstate", () => afficher(resultat.catalogue));
   } catch (e) {
     console.error("Ligne Posée : échec d'initialisation de la fiche —", e);
-    $("fiche-repli-indispo").hidden = false;
+    if (!document.documentElement.hasAttribute("data-fiche-lent")) $("fiche-repli-indispo").hidden = false;
   } finally {
     liberer();
   }

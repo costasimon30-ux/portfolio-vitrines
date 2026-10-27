@@ -87,19 +87,29 @@ function rendre(avis = null) {
   const terminer = el("button", { type: "button", class: "bouton", id: "terminer", "aria-describedby": "terminer-note" }, "Terminer la simulation");
   terminer.addEventListener("click", () => finaliser(terminer));
 
+  // Deux colonnes dès 1024 px (css/style.css) : le récapitulatif, puis les choix, le total et le bouton final. L'ordre du
+  // document reste l'ordre de lecture et de tabulation.
   zone.append(
-    el("h2", { class: "titre-liste" }, "Votre panier"),
-    el("ul", { class: "recap" }, verification.lignes.map(ligneRecap)),
-    el("p", {}, el("a", { class: "lien-action", href: "panier.html" }, "Modifier le panier")),
-    choix,
-    totaux(commande, { id: "totaux", live: true }),
     el(
       "div",
-      { class: "validation" },
-      terminer,
-      el("p", { class: "aide", id: "terminer-note" }, "Aucune commande ne sera envoyée et aucun paiement ne sera effectué.")
+      { class: "commande__recap" },
+      el("h2", { class: "titre-liste" }, "Votre panier"),
+      el("ul", { class: "recap" }, verification.lignes.map(ligneRecap)),
+      el("p", {}, el("a", { class: "lien-action", href: "panier.html" }, "Modifier le panier"))
     ),
-    el("div", { id: "erreur-terminer" })
+    el(
+      "div",
+      { class: "commande__choix" },
+      choix,
+      totaux(commande, { id: "totaux", live: true }),
+      el(
+        "div",
+        { class: "validation" },
+        terminer,
+        el("p", { class: "aide", id: "terminer-note" }, "Aucune commande ne sera envoyée et aucun paiement ne sera effectué.")
+      ),
+      el("div", { id: "erreur-terminer" })
+    )
   );
 }
 

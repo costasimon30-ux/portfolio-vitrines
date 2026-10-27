@@ -30,11 +30,13 @@
   </div>
 </header>
 
-<main id="contenu" tabindex="-1">
+<main id="contenu" class="page-commande" tabindex="-1">
   <div class="container">
-    <p class="eyebrow">Démonstration · commande simulée</p>
-    <h1>Commande simulée</h1>
-    <p class="chapeau">Récapitulatif de votre panier avec une livraison fictive. Aucun nom, adresse, e-mail, téléphone ni moyen de paiement n’est demandé ; rien n’est envoyé.</p>
+    <header class="ouverture ouverture--compacte">
+      <p class="eyebrow">Démonstration · commande simulée</p>
+      <h1>Commande simulée</h1>
+      <p class="chapeau">Récapitulatif de votre panier avec une livraison fictive. Aucun nom, adresse, e-mail, téléphone ni moyen de paiement n’est demandé ; rien n’est envoyé.</p>
+    </header>
     <div id="statut" class="sr-seulement" role="status" aria-live="polite"></div>
     <div class="etat" id="commande-repli" role="note">
       <p><strong>La commande simulée a besoin de JavaScript.</strong> Le récapitulatif est calculé dans le navigateur à partir du panier de cet onglet : si JavaScript est désactivé ou n’a pas pu démarrer, aucune simulation ne peut être terminée. Aucune commande n’est possible. Rechargez la page pour réessayer.</p>
@@ -50,6 +52,7 @@
 <footer class="site-footer">
   <div class="container">
     <p>Ligne Posée est une marque fictive de démonstration, imaginée pour le portfolio de Simon Costa. Produits, références et prix sont fictifs. Aucune commande n’est possible et aucune donnée personnelle n’est demandée.</p>
+    <p class="mention-notice"><a href="assets/produits/NOTICE.md">Provenance et limites des visuels générés</a></p>
   </div>
 </footer>
 <script type="module" src="js/page-commande.js"></script>

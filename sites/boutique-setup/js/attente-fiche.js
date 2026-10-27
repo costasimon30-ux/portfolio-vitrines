@@ -14,7 +14,10 @@
       (aucune fiche ne surgit, rien ne bouge) ; un rechargement volontaire retente l'accès.
     - CHARGEMENT du catalogue JSON, une fois le module démarré (marqueur data-fiche-module) : il
       n'est pas limité à 2 s ; la classe est retirée par le module quand la fiche ou son erreur
-      est affichée. Un délai de sécurité de 8 s la retire en dernier recours.
+      est affiché. LP-QA-01 : si le catalogue n'est toujours pas arrivé au bout de 8 s, la page bascule dans un
+      état DÉFINITIF « le catalogue met trop de temps » (message stable, lien de relance volontaire, liens de
+      retour et pied de page libérés) et le module ne remplace plus rien si le JSON arrive plus tard : le
+      pied de page, déjà lisible, ne bouge donc jamais.
 
   Aucune animation, aucune média query de mouvement. Sans JavaScript, ou si ce fichier est lui-même
   bloqué, la classe n'existe pas : tout reste visible.
@@ -28,6 +31,20 @@
   };
   var liberer = function () {
     racine.classList.remove("fiche-attente");
+  };
+  // Module démarré, catalogue encore absent à 8 s : état définitif, sans remplacement tardif (LP-QA-01).
+  var ralentir = function () {
+    if (racine.hasAttribute("data-fiche-pret") || racine.hasAttribute("data-fiche-repli") || racine.hasAttribute("data-fiche-lent")) return;
+    racine.setAttribute("data-fiche-lent", "");
+    var afficher = function () {
+      var lent = document.getElementById("fiche-repli-lent");
+      var neutre = document.getElementById("fiche-repli");
+      if (lent) lent.hidden = false;
+      if (neutre) neutre.hidden = true;
+      liberer();
+    };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", afficher);
+    else afficher();
   };
   var replier = function () {
     if (demarre() || racine.hasAttribute("data-fiche-repli")) return;
@@ -57,5 +74,5 @@
   });
   window.addEventListener("load", replier);
   setTimeout(replier, DELAI_DEMARRAGE_MS);
-  setTimeout(liberer, DELAI_SECURITE_MS);
+  setTimeout(ralentir, DELAI_SECURITE_MS);
 })();

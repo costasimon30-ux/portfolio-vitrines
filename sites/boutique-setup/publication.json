@@ -84,7 +84,9 @@
     "assets/produits/ran-04-960.webp",
     "assets/produits/ran-05-320.webp",
     "assets/produits/ran-05-640.webp",
-    "assets/produits/ran-05-960.webp"
+    "assets/produits/ran-05-960.webp",
+    "js/apparition.js",
+    "assets/produits/NOTICE.md"
   ],
   "sharedFiles": [],
   "contentTypeRules": true
