@@ -1,5 +1,24 @@
 # QA — Ligne Posée / boutique-setup
 
+## Recette publique indépendante de la bêta — 27 octobre 2026
+
+**Verdict QA hébergé : maintien en ligne de la bêta, aucun défaut motivant un retour arrière observé.** La source annoncée pour l'artefact est `50e1e1d` ; le Chef de projet a relevé la version Cloudflare `28bd89da` du Worker existant `ligne-posee`, avec `cca19c6e` conservée pour un éventuel retour. Ces identifiants de déploiement sont ceux du Chef de projet ; les observations ci-dessous portent sur l'URL publique [Ligne Posée](https://ligne-posee.costa-simon30.workers.dev/), lue après publication.
+
+### Contrôles directement réalisés dans Chrome
+
+- Les sept pages demandées — accueil, catalogue, fiche valide `sup-01`, panier, commande simulée, confirmation et `/404.html` — s'ouvrent en `document.contentType = text/html`, avec un H1 pertinent, la mention « Boutique fictive — aucun achat possible » et la métadonnée `noindex, follow`. Une vraie URL absente `/__qa_absent_20261027` affiche « Cette page n’existe pas » en `text/html`, sans téléchargement.
+- Le catalogue affiche **20 cartes** dynamiques. La fiche `sup-01` donne quatre variantes et `LP-SUP-01-01` à **69 €** ; son illustration porte un texte alternatif et la mention des variantes non représentées. Parcours réel dans un même onglet : ajout d'une unité → panier **69,00 €** → livraison fictive Standard **4,90 €** → total **73,90 €** → « Terminer la simulation » → confirmation du même SKU et du même total, avec l'annonce explicite qu'aucune commande ni aucun paiement n'a eu lieu.
+- Navigation directe : `/data/catalogue.json` s'affiche en `application/json`, `/assets/produits/sup-01-640.webp` en `image/webp` avec image **640×640**, `/assets/produits/NOTICE.md` en `text/plain`. Le CSS est effectivement appliqué (fond calculé `rgb(251, 251, 250)`) et les modules JavaScript font fonctionner catalogue, fiche et panier.
+- À des largeurs CSS de **720 px** (approximation de l'espace d'une fenêtre 1440 px zoomée à 200 %) et **320 px**, les sept pages et la vraie 404 n'ont pas de débordement horizontal mesuré : `documentElement.scrollWidth === documentElement.clientWidth`. Ce contrôle **ne vaut pas zoom natif du navigateur à 200 %**.
+
+### Contrôle HTTP séparé et limites
+
+- Le Chef de projet a vérifié séparément les réponses HTTP brutes : une vraie 404 sans extension et une vraie 404 sous `/js/` répondent **404, `text/html`, `X-Robots-Tag: noindex, follow`** ; pages **200 `text/html`**, CSS **200 `text/css`**, scripts réels **200 `text/javascript`**, JSON **200 `application/json`**, WebP **200 `image/webp`**, notice **200 `text/plain`**. Ces mesures ne sont **pas** attribuées à la présente session QA : son navigateur ne livre pas les en-têtes bruts et son shell ne résout pas le domaine Cloudflare.
+- La navigation directe du navigateur QA vers les fichiers CSS et JS est bloquée par le contrôle du navigateur (`ERR_BLOCKED_BY_CLIENT`) ; leur type HTTP est donc rapporté uniquement depuis la vérification distincte du Chef de projet, tandis que leur effet en page est vérifié ici.
+- Le retard artificiel du seul JSON à **10 s**, le zoom **natif** à 200 %, le mouvement réduit en cours de visite et l'annonce d'un état lent aux technologies d'assistance n'ont pas été rejoués sur la version hébergée. La contre-recette locale de `33b1005` ci-dessous démontre le correctif du saut tardif, mais ne remplace pas ces contrôles publics. Le verdict « maintien » porte sur les parcours et réponses effectivement observés ; il ne ferme pas ces limites d'accessibilité et de robustesse.
+
+---
+
 ## Contre-recette indépendante du correctif `33b1005` — 27 octobre 2026
 
 **Verdict ciblé : LP-QA-03 / P2 CLOS sur la bêta locale de ce SHA, pour le saut tardif sous JSON retardé de 10 s.** La contre-recette ne transforme pas le verdict défavorable de `bb2dec53` ci-dessous : celui-ci reste l'état constaté **avant** correction. Sur `33b1005`, le pied demeure exactement à la même position de 9 à 13 s sur les quatre pages et aux quatre largeurs ; l'état « catalogue trop lent » reste visible quand la réponse arrive, puis « Réessayer » permet de retrouver les données. Il s'agit d'une clôture **locale et ciblée**, sans validation de publication : PUB-11-01 et les limites de zoom natif, mouvement réduit et hébergement restent distincts.
