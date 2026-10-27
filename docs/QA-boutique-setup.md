@@ -1,5 +1,33 @@
 # QA — Ligne Posée / boutique-setup
 
+## Contre-recette indépendante du correctif `33b1005` — 27 octobre 2026
+
+**Verdict ciblé : LP-QA-03 / P2 CLOS sur la bêta locale de ce SHA, pour le saut tardif sous JSON retardé de 10 s.** La contre-recette ne transforme pas le verdict défavorable de `bb2dec53` ci-dessous : celui-ci reste l'état constaté **avant** correction. Sur `33b1005`, le pied demeure exactement à la même position de 9 à 13 s sur les quatre pages et aux quatre largeurs ; l'état « catalogue trop lent » reste visible quand la réponse arrive, puis « Réessayer » permet de retrouver les données. Il s'agit d'une clôture **locale et ciblée**, sans validation de publication : PUB-11-01 et les limites de zoom natif, mouvement réduit et hébergement restent distincts.
+
+### Source et protocole de la reprise
+
+- Code audité : `33b1005b8f70974f2084ce9c7462d26b0c8cd8cc`, parent direct de `bb2dec53ffc2256bf480e28ff8bc870b92880de1`. Le worktree QA contenait ensuite le rapport documentaire `2a28336` ; aucun fichier d'exécution de `sites/boutique-setup/` ne différait de `33b1005`. La sortie locale a été réassemblée sous **Node 22.23.2** en mode `production` : **86 fichiers**, notice et règles MIME présentes, sans dépôt Cloudflare. Les commits de revue ou de tests arrivés sur `origin/main` pendant cette contre-recette ne sont pas un nouveau candidat de rendu.
+- Serveur QA temporaire sur `127.0.0.1` : seule la requête de `data/catalogue.json` était retenue **10 000 ms** ; les autres ressources arrivaient normalement. Ports séparés par scénario et largeur. Pour panier et commande, un `LP-SUP-03-04` avait été ajouté par clic réel avant le ralentissement, dans le même onglet. Le chronomètre des relevés commence **après l'ouverture de la page** ; la position du début du pied (`footer.getBoundingClientRect().top`) et sa visibilité calculée sont lues à environ **9 s et 13 s**. Les états et relances ont été lus dans le navigateur, sans manipulation de classes ou de contenu pour fabriquer le résultat.
+- **Contrôle du moment réel de réponse :** pour les huit cas à 375 et 1440 px, le serveur local a horodaté séparément la requête JSON et l'envoi de sa réponse. Les premiers relevés ont lieu **9,15 à 9,31 s après la requête, avant l'envoi à 10,00 s** ; les seconds **13,25 à 13,41 s après la requête, après l'envoi**. Exemple catalogue 375 px : requête `1793118763881`, pied à **1 963 px** à `1793118773107`, réponse à `1793118773893`, pied encore à **1 963 px** à `1793118777231` (horodatages Unix en millisecondes). La même relation avant/après est confirmée dans le journal pour fiche, panier et commande à ces deux largeurs. À 320 et 768 px, la stabilité 9→13 s est mesurée dans le navigateur avec le même retard configuré, sans corrélation individuelle au journal du serveur.
+
+### Pied à 9 s → 13 s, en pixels de viewport
+
+| Page | 320×568 | 375×667 | 768×1024 | 1440×900 |
+| --- | ---: | ---: | ---: | ---: |
+| Catalogue | **2 078 → 2 078** | **1 963 → 1 963** | **1 502 → 1 502** | **1 596 → 1 596** |
+| Fiche `sup-03` | **854 → 854** | **797 → 797** | **686 → 686** | **735 → 735** |
+| Panier rempli | **909 → 909** | **827 → 827** | **684 → 684** | **773 → 773** |
+| Commande remplie | **925 → 925** | **821 → 821** | **684 → 684** | **739 → 739** |
+
+Aux **seize couples page/largeur**, le pied est déjà `visible` et le marqueur `data-page-lent` ou `data-fiche-lent` est présent à 9 s ; ces états et les positions restent identiques à 13 s. Sur catalogue, aucune carte interactive ne surgit après la réponse tardive : la liste textuelle et la relance volontaire demeurent. Sur panier et commande, ni total ni validation tardive ne remplacent le message d'attente ; la fiche garde son repli stable déjà acquis au SHA précédent. La hausse mesurée sur `bb2dec53` (+11 624 px sur catalogue, +804 px sur panier et +805 px sur commande à 375 px) est donc **absente dans les mêmes scénarios** sur `33b1005`. Les horodatages ci-dessus prouvent directement le passage de la réponse JSON entre les deux relevés pour les huit couples à 375/1440 px ; les autres largeurs confirment la stabilité de mise en page sans cette preuve temporelle supplémentaire.
+
+### « Réessayer » et statut
+
+- À **375 et 1440 px**, après chacun des quatre états lents, le lien **« Réessayer » a été cliqué réellement** ; le serveur répondait alors immédiatement au JSON. Le catalogue est revenu à **20 liens de fiche**, la fiche `sup-03` à sa référence, le panier à `LP-SUP-03-04` et **169,00 €**, et la commande à la même référence, son bouton de fin de simulation et un total Standard de **173,90 €** pour une quantité 1. Aucun de ces écrans n'a conservé le marqueur d'attente lente après relance. À 320 et 768 px, la stabilité 9→13 s est vérifiée mais le clic de relance n'a pas été répété.
+- **LP-QA-03 / P2 : CLOS localement pour le remplacement tardif et le déplacement du pied**, sur `33b1005`, selon le critère de stabilité ci-dessus et avec relance fonctionnelle dans les deux formats extrêmes du premier contrôle. Le code de réduction du mouvement ne change pas la logique d'attente du JSON, mais le navigateur de cette session n'offre toujours pas d'émulation fidèle de `prefers-reduced-motion: reduce` : aucun passage en mouvement réduit n'est revendiqué. Le zoom navigateur natif 200 % et la recette hébergée n'ont pas été refaits. **PUB-11-01 reste OUVERT** jusqu'aux vraies réponses 404/MIME d'un artefact précis, après autorisation distincte ; aucun Cloudflare n'a été touché.
+
+---
+
 ## Recette indépendante de la bêta locale — source `bb2dec53` — 27 octobre 2026
 
 **Verdict : défavorable pour ce candidat exact.** Le parcours nominal, les données et les sept pages restent utilisables dans les scénarios joués, mais **LP-QA-03 (majeur)** est reproduit : avec le JSON retardé de 10 s, le catalogue, le panier et la commande rendent leur pied de page visible vers 8 s, puis le repoussent brutalement quand les données arrivent. **LP-QA-01 est clos sur cette source locale** pour la fiche ; **LP-QA-02 est clos sur l'artefact local** par la notice publique liée. Ces clôtures ne valent pas recette hébergée. Le gate **PUB-11-01 (vraies 404/MIME sur le Worker)** demeure ouvert ; aucune action Cloudflare n'a été effectuée.
