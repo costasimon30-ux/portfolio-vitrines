@@ -216,6 +216,8 @@ async function amorcer() {
   racine.setAttribute("data-page-module", "");
   try {
     const resultat = await chargerCatalogue(validerCatalogue);
+    // Après l'état « catalogue trop lent » (js/attente-page.js, 8 s), une réponse tardive ne remplace rien.
+    if (racine.hasAttribute("data-page-lent")) return;
     if (!resultat.ok) {
       console.error("Ligne Posée : catalogue indisponible ou invalide —", resultat.erreurs.join(" | "));
       afficherIndisponible();
@@ -224,8 +226,9 @@ async function amorcer() {
     demarrer(resultat.catalogue);
   } catch (e) {
     console.error("Ligne Posée : échec d'initialisation du catalogue —", e);
-    afficherIndisponible();
+    if (!racine.hasAttribute("data-page-lent")) afficherIndisponible();
   } finally {
+    racine.setAttribute("data-page-pret", "");
     racine.classList.remove("page-attente");
   }
 }

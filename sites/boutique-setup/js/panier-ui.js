@@ -18,7 +18,12 @@ export function demarrer() {
   document.documentElement.setAttribute("data-page-module", "");
 }
 export function libererAttente() {
+  document.documentElement.setAttribute("data-page-pret", "");
   document.documentElement.classList.remove("page-attente");
+}
+/** Vrai si js/attente-page.js a affiché l'état définitif « catalogue trop lent » : une réponse tardive ne remplace rien. */
+export function lentAffiche() {
+  return document.documentElement.hasAttribute("data-page-lent");
 }
 
 /** Annonce non intrusive dans la zone role="status" de la page (aria-live="polite"). */

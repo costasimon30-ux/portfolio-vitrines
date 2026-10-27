@@ -7,7 +7,7 @@
 import { validerCatalogue } from "./catalogue-core.js";
 import { el, vider, chargerCatalogue } from "./dom.js";
 import * as P from "./panier-core.js";
-import { annoncer, demarrer, libererAttente, repliAffiche, etat, lienCatalogue, ligneRecap, totaux } from "./panier-ui.js";
+import { annoncer, demarrer, libererAttente, repliAffiche, lentAffiche, etat, lienCatalogue, ligneRecap, totaux } from "./panier-ui.js";
 
 const $ = (id) => document.getElementById(id);
 const magasin = P.obtenirMagasin(window);
@@ -143,7 +143,7 @@ async function amorcer() {
   if (repliAffiche()) return; // module arrivé après le repli statique : on ne remplace rien
   demarrer();
   $("commande-repli").hidden = true;
-  $("commande-zone").append(el("p", {}, "Chargement du récapitulatif…"));
+  $("commande-zone").append(el("p", { class: "chargement" }, "Chargement du récapitulatif…"));
   try {
     const resultat = await chargerCatalogue(validerCatalogue);
     if (resultat.ok) catalogue = resultat.catalogue;
@@ -151,6 +151,8 @@ async function amorcer() {
   } catch (e) {
     console.error("Ligne Posée : échec d'initialisation de la commande —", e);
   }
+  // LP-QA-01 (extension) : après l'état « catalogue trop lent » (8 s), une réponse tardive ne remplace rien.
+  if (lentAffiche()) return;
   try {
     rendre();
   } finally {

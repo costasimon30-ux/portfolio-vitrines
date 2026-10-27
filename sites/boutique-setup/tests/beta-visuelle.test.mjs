@@ -66,7 +66,7 @@ test("catalogue : la liste de repli n'est pas visible avant le rendu (CLS), et r
   assert.match(css, /html\.page-attente \.bas-de-page/);
   const js = lire("js/page-catalogue.js");
   assert.ok(js.includes('setAttribute("data-page-module"') && js.includes('classList.remove("page-attente")') && js.includes("data-page-repli"));
-  assert.ok(/finally\s*\{\s*racine\.classList\.remove\("page-attente"\)/.test(js), "libération y compris en cas d'échec : le repli textuel reste lisible");
+  assert.ok(/finally\s*\{[^}]*racine\.classList\.remove\("page-attente"\)/.test(js), "libération y compris en cas d'échec : le repli textuel reste lisible");
 });
 
 test("commande : deux colonnes dès 1024 px sans changer l'ordre de lecture (récapitulatif puis choix)", () => {

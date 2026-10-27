@@ -19,6 +19,17 @@
   var liberer = function () {
     racine.classList.remove("page-attente");
   };
+  // Module démarré mais catalogue encore absent à 8 s : état DÉFINITIF « trop lent » (message stable avec relance
+  // volontaire, liens de retour et pied de page libérés). Le module ne remplace plus rien si le JSON arrive plus tard.
+  var ralentir = function () {
+    if (racine.hasAttribute("data-page-pret") || racine.hasAttribute("data-page-repli") || racine.hasAttribute("data-page-lent")) return;
+    racine.setAttribute("data-page-lent", "");
+    var lent = document.getElementById("page-lent");
+    if (lent) lent.hidden = false;
+    var chargements = document.querySelectorAll ? document.querySelectorAll(".chargement") : [];
+    for (var i = 0; i < chargements.length; i++) chargements[i].hidden = true;
+    liberer();
+  };
   var replier = function () {
     if (demarre() || racine.hasAttribute("data-page-repli")) return;
     racine.setAttribute("data-page-repli", "");
@@ -39,5 +50,5 @@
   });
   window.addEventListener("load", replier);
   setTimeout(replier, 2000);
-  setTimeout(liberer, 8000);
+  setTimeout(ralentir, 8000);
 })();

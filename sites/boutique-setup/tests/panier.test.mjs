@@ -815,12 +815,21 @@ async function lancerAttentePage({ demarrerAvant = false } = {}) {
     setAttribute: (a) => attrs.add(a),
     hasAttribute: (a) => attrs.has(a),
   };
-  const document = { documentElement: racine, addEventListener: (t, f) => { (ecouteurs.doc[t] ??= []).push(f); } };
+  const lent = { hidden: true };
+  const chargement = { hidden: false };
+  const document = {
+    documentElement: racine,
+    addEventListener: (t, f) => { (ecouteurs.doc[t] ??= []).push(f); },
+    getElementById: (id) => (id === "page-lent" ? lent : null),
+    querySelectorAll: (sel) => (sel === ".chargement" ? [chargement] : []),
+  };
   const window = { addEventListener: (t, f) => { (ecouteurs.win[t] ??= []).push(f); } };
   vm.runInNewContext(lire("js/attente-page.js"), { document, window, setTimeout: (f, ms) => minuteurs.push({ f, ms }) });
   if (demarrerAvant) racine.setAttribute("data-page-module");
   return {
     etat: () => ({ attente: classes.has("page-attente"), repli: attrs.has("data-page-repli") }),
+    lent: () => ({ marqueur: attrs.has("data-page-lent"), message: !lent.hidden, chargementMasque: chargement.hidden }),
+    racine,
     avancer: (ms) => minuteurs.filter((m) => m.ms <= ms).sort((a, b) => a.ms - b.ms).forEach((m) => m.f()),
     ecouteurs,
   };
@@ -841,13 +850,34 @@ test("attente de page : classe posée avant rendu ; module absent à 2 s ou en �
   assert.equal(c.etat().repli, false, "l'erreur d'une image n'est pas un échec du module");
 });
 
-test("attente de page : module démarré → pas de repli à 2 s (catalogue lent admis), sécurité à 8 s sans repli", async () => {
+test("attente de page / LP-QA-01 : module démarré → pas de repli à 2 s ; à 8 s, état définitif « catalogue trop lent », liens libérés", async () => {
   const a = await lancerAttentePage({ demarrerAvant: true });
   a.avancer(2000);
   assert.deepEqual(a.etat(), { attente: true, repli: false });
+  assert.deepEqual(a.lent(), { marqueur: false, message: false, chargementMasque: false });
   for (const f of a.ecouteurs.win.load) f({});
   for (const f of a.ecouteurs.doc.error) f({ target: { tagName: "SCRIPT" } });
   assert.equal(a.etat().repli, false);
   a.avancer(8000);
   assert.deepEqual(a.etat(), { attente: false, repli: false });
+  assert.deepEqual(a.lent(), { marqueur: true, message: true, chargementMasque: true }, "message stable affiché, texte de chargement retiré, marqueur lu par les modules");
+});
+
+test("attente de page / LP-QA-01 : contenu déjà prêt avant 8 s → aucun état « trop lent »", async () => {
+  const a = await lancerAttentePage({ demarrerAvant: true });
+  a.racine.setAttribute("data-page-pret");
+  a.avancer(8000);
+  assert.deepEqual(a.lent(), { marqueur: false, message: false, chargementMasque: false });
+});
+
+test("LP-QA-01 (catalogue, panier, commande) : garde après await, message stable et relance volontaire sur chaque page", () => {
+  for (const [f, page] of [["js/page-catalogue.js", "catalogue"], ["js/page-panier.js", "panier"], ["js/page-commande.js", "commande"]]) {
+    const src = lire(f);
+    const apres = src.slice(src.indexOf("await chargerCatalogue(validerCatalogue)"));
+    assert.ok(/lentAffiche\(\)\)\s*return;|data-page-lent"\)\)\s*return;/.test(apres.slice(0, 700)), `${f} : aucun rendu tardif après l'état lent`);
+    const html = lire(`${page}.html`);
+    assert.match(html, /id="page-lent"[^>]*hidden/, `${page}.html : message lent masqué par défaut`);
+    assert.match(html, /<a class="bouton" href="">Réessayer<\/a>/, `${page}.html : relance volontaire`);
+  }
+  assert.ok(lire("js/panier-ui.js").includes('"data-page-pret"'), "le module signale que le contenu est prêt");
 });
