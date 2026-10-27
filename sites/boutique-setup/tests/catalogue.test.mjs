@@ -29,7 +29,8 @@ const cat = chargerValide();
 /* ---------- Oracle : tableau de DIRECTION.md ---------- */
 
 function lireInventaireDirection() {
-  const lignes = fs.readFileSync(direction, "utf8").split("\n");
+  // Fins de ligne CRLF (extraction Windows, core.autocrlf=true) ou LF : le tableau doit être lu dans les deux cas.
+  const lignes = fs.readFileSync(direction, "utf8").split(/\r?\n/);
   const inv = [];
   for (const l of lignes) {
     const m = /^\| `((?:sup|tap|lum|ran)-0[1-5])` \| (.+?) \| (\d+) € \| (.+?) \| (.+?) \|$/.exec(l);
@@ -37,7 +38,12 @@ function lireInventaireDirection() {
   }
   return inv;
 }
-const inventaire = fs.existsSync(direction) ? lireInventaireDirection() : [];
+const direction_presente = fs.existsSync(direction);
+const inventaire = direction_presente ? lireInventaireDirection() : [];
+/* Le document existe mais aucune ligne n'est reconnue (parseur cassé, format modifié) : échec explicite, jamais un SKIP silencieux. */
+function exigerInventaire() {
+  assert.equal(inventaire.length, 20, "docs/DIRECTION.md présent : les 20 lignes du tableau doivent être reconnues (fins de ligne CRLF et LF comprises)");
+}
 
 const SUPPLEMENTS = {
   sup: [["Noir mat", 0], ["Graphite", 0], ["Blanc satiné", 0], ["Aspect aluminium brossé", 10]],
@@ -69,11 +75,19 @@ test("compteurs : 4 familles, 20 modèles, 80 SKU, 5 modèles et 20 SKU par fami
   }
 });
 
-test("l'inventaire de DIRECTION.md est lisible (20 lignes)", { skip: inventaire.length === 0 && "docs/DIRECTION.md absent" }, () => {
-  assert.equal(inventaire.length, 20);
+test("l'inventaire de DIRECTION.md est lisible (20 lignes)", { skip: !direction_presente && "docs/DIRECTION.md absent" }, () => {
+  exigerInventaire();
 });
 
-test("noms, descriptions, univers, famille et prix de base = tableau de DIRECTION.md", { skip: inventaire.length === 0 && "docs/DIRECTION.md absent" }, () => {
+test("le parseur de l'inventaire lit aussi un tableau en fins de ligne CRLF", () => {
+  const ligne = "| `sup-01` | Rehausseur d’écran | 59 € | Ergonomie, Essentiels | Une description. |";
+  const lire = (texte) => texte.split(/\r?\n/).filter((l) => /^\| `((?:sup|tap|lum|ran)-0[1-5])` \| (.+?) \| (\d+) € \| (.+?) \| (.+?) \|$/.test(l));
+  assert.equal(lire(`${ligne}\n${ligne}`).length, 2, "LF");
+  assert.equal(lire(`${ligne}\r\n${ligne}\r\n`).length, 2, "CRLF");
+});
+
+test("noms, descriptions, univers, famille et prix de base = tableau de DIRECTION.md", { skip: !direction_presente && "docs/DIRECTION.md absent" }, () => {
+  exigerInventaire();
   for (const ligne of inventaire) {
     const m = cat.parId.get(ligne.id);
     assert.ok(m, ligne.id);
@@ -87,7 +101,8 @@ test("noms, descriptions, univers, famille et prix de base = tableau de DIRECTIO
   }
 });
 
-test("chaque SKU : motif LP-TYPE-MODÈLE-VARIANTE, libellé et prix = base + supplément", { skip: inventaire.length === 0 && "docs/DIRECTION.md absent" }, () => {
+test("chaque SKU : motif LP-TYPE-MODÈLE-VARIANTE, libellé et prix = base + supplément", { skip: !direction_presente && "docs/DIRECTION.md absent" }, () => {
+  exigerInventaire();
   for (const ligne of inventaire) {
     const f = ligne.id.slice(0, 3);
     SUPPLEMENTS[f].forEach(([libelle, supplement], i) => {
