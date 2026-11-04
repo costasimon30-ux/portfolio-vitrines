@@ -163,6 +163,133 @@ main:focus { outline: none; }
 .nav-principale a:hover { border-bottom-color: var(--c-filet); }
 .nav-principale a[aria-current="page"] { font-weight: 700; border-bottom-color: var(--c-encre); }
 
+/* Menu plein écran (docs/DIRECTION.md, décision du 4 novembre 2026 et « Évolution ciblée — menu plein écran »).
+   Tout dépend de html.menu-js, posée par js/menu.js dans l'en-tête : sans script, le bouton n'existe pas et les
+   trois liens ci-dessus restent affichés. Le volet commence sous l'en-tête (--volet-haut, mesuré au moment de
+   l'ouverture) ; sa surface entre depuis le haut sous 1024 px et depuis la droite au-delà. Transitions CSS
+   seulement : une commande donnée pendant le mouvement repart de l'état courant. Fermé, le volet est masqué
+   (visibility) et inerte : aucun lien atteignable. */
+.menu-bouton { display: none; }
+.menu-js .site-header { position: relative; z-index: 20; }
+.menu-js .site-header__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-4) var(--e-16);
+}
+.menu-js .menu-bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-12);
+  min-width: 3rem;
+  min-height: 3rem;
+  margin-inline-end: calc(-1 * var(--e-8));
+  padding: 0 var(--e-8);
+  border: 0;
+  background: transparent;
+  color: var(--c-encre);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.menu-bouton__icone { position: relative; width: 1.5rem; height: .75rem; }
+.menu-bouton__icone::before,
+.menu-bouton__icone::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 2px solid currentColor;   /* bordure plutôt que fond : reste visible en contraste forcé */
+}
+.menu-bouton__icone::before { top: 0; }
+.menu-bouton__icone::after { bottom: 0; }
+.menu-ouvert .menu-bouton__icone::before { top: calc(50% - 1px); transform: rotate(45deg); }
+.menu-ouvert .menu-bouton__icone::after { bottom: calc(50% - 1px); transform: rotate(-45deg); }
+
+html.menu-ouvert { overflow: hidden; }
+.menu-ouvert body { padding-inline-end: var(--barre, 0px); }
+
+.menu-js .nav-principale {
+  position: fixed;
+  z-index: 1;
+  top: var(--volet-haut, 0px);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  visibility: hidden;
+  transition: visibility 0s linear .4s;
+}
+.menu-ouvert .nav-principale { visibility: visible; transition: visibility 0s; }
+.menu-js .nav-principale ul {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--e-32) max(var(--marge), calc((100% - var(--largeur)) / 2 + var(--marge))) calc(var(--e-32) + env(safe-area-inset-bottom, 0px));
+  background: var(--c-aplat);
+  color: var(--c-encre);
+  transform: translateY(-100%);
+  transition: transform .3s cubic-bezier(.4, 0, 1, 1) .1s;
+}
+.menu-ouvert .nav-principale ul { transform: none; transition: transform .42s cubic-bezier(.33, 1, .68, 1); }
+.menu-js .nav-principale li { border-bottom: 1px solid var(--c-filet); transition: border-color .15s ease; }
+.menu-js .nav-principale li:hover { border-bottom-color: var(--c-bord); }
+.menu-js .nav-principale a {
+  display: flex;
+  align-items: center;
+  min-height: 3.5rem;
+  padding: var(--e-12) 0;
+  border-bottom: 0;
+  font-size: clamp(1.75rem, 1rem + 7.5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  overflow-wrap: break-word;
+  text-decoration: underline 2px transparent;
+  text-underline-offset: .14em;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .1s linear, transform .1s linear, text-decoration-color .15s ease;
+}
+.menu-js .nav-principale a:hover { text-decoration-color: currentColor; }
+.menu-js .nav-principale a[aria-current="page"] { text-decoration: underline 3px currentColor; }
+.menu-ouvert .nav-principale a {
+  opacity: 1;
+  transform: none;
+  transition: opacity .22s ease-out .12s, transform .22s ease-out .12s, text-decoration-color .15s ease;
+}
+.menu-ouvert .nav-principale li:nth-child(2) a { transition-delay: .165s, .165s, 0s; }
+.menu-ouvert .nav-principale li:nth-child(3) a { transition-delay: .21s, .21s, 0s; }
+
+@media (max-width: 15em) {  /* zoom 200 % d'un téléphone de 320 px : plus de liste visible sous l'en-tête replié */
+  .menu-js .nav-principale ul { padding-top: var(--e-16); }
+}
+
+@media (min-width: 48em) {  /* 768 px : libellés de 56 à 64 px */
+  .menu-js .nav-principale a { font-size: clamp(3.5rem, 2rem + 3.2vw, 4rem); }
+}
+
+@media (min-width: 64em) {  /* 1024 px : volet encre, entrée latérale depuis la droite, groupe dans la hauteur médiane */
+  .menu-js .nav-principale ul {
+    background: var(--c-sombre);
+    color: var(--c-sur-sombre);
+    transform: translateX(100%);
+  }
+  .menu-ouvert .nav-principale ul { transform: none; }
+  .menu-js .nav-principale li { width: min(100%, 50rem); border-bottom-color: var(--c-bord); }
+  .menu-js .nav-principale li:first-child { margin-top: auto; }   /* marges auto : centrage qui cède si le texte grossit */
+  .menu-js .nav-principale li:last-child { margin-bottom: auto; }
+  .menu-js .nav-principale li:hover { border-bottom-color: var(--c-filet); }
+  .menu-js .nav-principale a { font-size: clamp(4.5rem, 6vw, 6rem); line-height: 1.05; padding-block: var(--e-16); }
+  .menu-js .nav-principale :focus-visible { outline-color: var(--c-focus-sombre); }
+}
+
 .site-footer {
   padding-block: var(--e-32);
   background: var(--c-aplat);

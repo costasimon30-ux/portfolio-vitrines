@@ -8,6 +8,7 @@
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/css/style.css">
+<script src="/js/menu.js"></script>
 </head>
 <body>
 <!-- Chemins partant de « / » : cette page répond aussi à des URL imbriquées,
@@ -22,7 +23,10 @@
 <header class="site-header">
   <div class="container site-header__inner">
     <a class="marque" href="/" aria-label="Ligne Posée, boutique fictive — accueil">Ligne Posée <small>boutique fictive</small></a>
-    <nav class="nav-principale" aria-label="Navigation principale">
+    <button class="menu-bouton" id="menu-bouton" type="button" aria-expanded="false" aria-controls="volet-nav" aria-label="Ouvrir le menu">
+      <span class="menu-bouton__libelle">Menu</span><span class="menu-bouton__icone" aria-hidden="true"></span>
+    </button>
+    <nav class="nav-principale" id="volet-nav" aria-label="Navigation principale">
       <ul>
         <li><a href="/">Accueil</a></li>
         <li><a href="/catalogue.html">Catalogue</a></li>
