@@ -118,8 +118,11 @@
     var p = ouvert && pieces();
     if (p) placer(p);
   });
-  // Retour par l'historique (cache de page) : le document réapparaît toujours volet fermé.
-  window.addEventListener("pageshow", function () {
+  // Retour par l'historique (cache de page) : le document réapparaît toujours volet fermé. pageshow est aussi
+  // émis au premier chargement, à la fin des modules : le volet ouvert entre-temps doit alors rester ouvert, avec
+  // son focus. Seule une page restaurée (persisted) est refermée.
+  window.addEventListener("pageshow", function (ev) {
+    if (!ev || !ev.persisted) return;
     var p = ouvert && pieces();
     if (p) fermer(p, false);
   });

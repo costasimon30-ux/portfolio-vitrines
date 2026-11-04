@@ -165,6 +165,23 @@ test("menu.js : le bouton « Fermer » ferme et rend le focus ; bascules success
   assert.equal(m.racine.classList.contains("menu-ouvert"), false, "page restaurée : volet fermé");
 });
 
+test("régression CR (2705fb5) : pageshow du premier chargement, après un module lent, ne ferme pas le volet", () => {
+  // Volet ouvert pendant que le module de la page attend ; à la fin du chargement, pageshow est émis avec
+  // persisted: false. Le volet doit rester ouvert et le focus rester dans le volet (pas sur le corps).
+  const m = monter({ analyse: "en-cours" });
+  m.cliquer();
+  m.finAnalyse();
+  for (const f of m.win.pageshow) f({ persisted: false });
+  assert.equal(m.racine.classList.contains("menu-ouvert"), true, "premier pageshow : volet toujours ouvert");
+  assert.equal(m.bouton.getAttribute("aria-expanded"), "true");
+  assert.equal(m.volet.inert, false);
+  assert.equal(doc.activeElement, m.liens[0], "focus conservé sur Accueil");
+  // Une vraie restauration depuis le cache de navigation referme toujours.
+  for (const f of m.win.pageshow) f({ persisted: true });
+  assert.equal(m.racine.classList.contains("menu-ouvert"), false);
+  assert.equal(m.volet.inert, true);
+});
+
 test("menu.js : en-tête incomplet → classe retirée, les trois liens restent dans l'en-tête", () => {
   const m = monter({ sansBouton: true });
   assert.equal(m.racine.classList.contains("menu-js"), false);
