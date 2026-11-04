@@ -66,15 +66,18 @@ function element(tag, props = {}) {
     getBoundingClientRect: () => ({ bottom: props.bas ?? 0 }),
     querySelector: (s) => props.qs?.[s] ?? null,
     querySelectorAll: (s) => props.qsa?.[s] ?? [],
+    id: props.id ?? "", parent: null,
+    closest: (s) => { for (let n = el; n; n = n.parent) if (s === "#" + n.id) return n; return null; },
   };
   el.classList = { contains: (c) => el.classes.has(c), add: (c) => el.classes.add(c), remove: (...c) => c.forEach((x) => el.classes.delete(x)) };
   return el;
 }
 let doc;
-function monter({ sansBouton = false } = {}) {
+function monter({ sansBouton = false, analyse = "terminee" } = {}) {
   const liens = ["Accueil", "Catalogue", "Panier"].map((t) => element("a", { texte: t }));
   const libelle = element("span", { texte: "Menu" });
-  const bouton = element("button", { qs: { ".menu-bouton__libelle": libelle } });
+  const bouton = element("button", { id: "menu-bouton", qs: { ".menu-bouton__libelle": libelle } });
+  libelle.parent = bouton;
   const volet = element("nav", { qsa: { "a[href]": liens } });
   const marque = element("a", { texte: "Ligne Posée" });
   const entete = element("header", { bas: 111, qs: { ".marque": marque } });
@@ -94,15 +97,19 @@ function monter({ sansBouton = false } = {}) {
     querySelector: (s) => (s === ".site-header" ? entete : null),
     getElementById: (id) => ({ "menu-bouton": sansBouton ? null : bouton, "volet-nav": volet })[id] ?? null,
     addEventListener: (t, f) => { (ecouteursDoc[t] ??= []).push(f); },
+    removeEventListener: (t, f) => { ecouteursDoc[t] = (ecouteursDoc[t] ?? []).filter((g) => g !== f); },
   };
   const ecouteursWin = {};
   const erreurs = [];
   const window = { innerWidth: 1440, addEventListener: (t, f) => { (ecouteursWin[t] ??= []).push(f); }, console: { error: (...a) => erreurs.push(a.join(" ")) } };
   vm.runInNewContext(lire("js/menu.js"), { document: doc, window, console: window.console });
   const classeAvantInit = racine.classList.contains("menu-js");
-  for (const f of ecouteursDoc.DOMContentLoaded ?? []) f();
+  // DOMContentLoaded n'est jamais déclenché ici : il attend les modules de la page, qui peuvent rester en attente.
+  const finAnalyse = () => { doc.readyState = "interactive"; for (const f of ecouteursDoc.readystatechange ?? []) f(); };
+  if (analyse === "terminee") finAnalyse();
+  const cliquer = (cible = bouton) => { for (const f of ecouteursDoc.click ?? []) f({ target: cible }); };
   const touche = (key, shiftKey = false) => { let bloque = false; for (const f of ecouteursDoc.keydown ?? []) f({ key, shiftKey, preventDefault: () => { bloque = true; } }); return bloque; };
-  return { racine, bouton, volet, liens, marque, libelle, main, pied, lien, avis, entete, styles, touche, erreurs, classeAvantInit, win: ecouteursWin };
+  return { racine, bouton, volet, liens, marque, libelle, main, pied, lien, avis, entete, styles, touche, cliquer, finAnalyse, erreurs, classeAvantInit, win: ecouteursWin };
 }
 
 test("menu.js : classe posée avant le rendu ; état fermé initial : volet inerte, bouton « Ouvrir le menu »", () => {
@@ -116,7 +123,7 @@ test("menu.js : classe posée avant le rendu ; état fermé initial : volet iner
 
 test("menu.js : ouverture → état exposé, focus sur Accueil, page inerte (sauf avis de fiction), volet placé sous l'en-tête", () => {
   const m = monter();
-  m.bouton.declencher("click");
+  m.cliquer();
   assert.ok(m.racine.classList.contains("menu-ouvert"));
   assert.equal(m.bouton.getAttribute("aria-expanded"), "true");
   assert.equal(m.bouton.getAttribute("aria-label"), "Fermer le menu");
@@ -130,7 +137,7 @@ test("menu.js : ouverture → état exposé, focus sur Accueil, page inerte (sau
 
 test("menu.js : Tab et Maj+Tab bouclent sur marque, bouton et liens ; Échap ferme et rend le focus au bouton", () => {
   const m = monter();
-  m.bouton.declencher("click");
+  m.cliquer();
   m.liens[2].focus();
   assert.equal(m.touche("Tab"), true); assert.equal(doc.activeElement, m.marque, "après Panier : la marque");
   m.marque.focus();
@@ -148,12 +155,12 @@ test("menu.js : Tab et Maj+Tab bouclent sur marque, bouton et liens ; Échap fer
 
 test("menu.js : le bouton « Fermer » ferme et rend le focus ; bascules successives cohérentes ; retour d'historique fermé", () => {
   const m = monter();
-  for (let i = 0; i < 7; i++) m.bouton.declencher("click");
+  for (let i = 0; i < 7; i++) m.cliquer();
   assert.equal(m.bouton.getAttribute("aria-expanded"), "true", "7 bascules : ouvert");
-  m.bouton.declencher("click");
+  m.cliquer();
   assert.equal(m.bouton.getAttribute("aria-expanded"), "false");
   assert.equal(doc.activeElement, m.bouton);
-  m.bouton.declencher("click");
+  m.cliquer();
   for (const f of m.win.pageshow) f({ persisted: true });
   assert.equal(m.racine.classList.contains("menu-ouvert"), false, "page restaurée : volet fermé");
 });
@@ -170,4 +177,33 @@ test("menu.js : ni innerHTML, ni stockage, ni URL externe, ni capture du défile
   assert.ok(!/addEventListener\(\s*["'](scroll|wheel|touchmove)/.test(src));
   // Le premier lien est hors champ au début du mouvement : sans preventScroll, le conteneur défilerait et le volet sauterait.
   assert.ok(src.includes("liens[0].focus({ preventScroll: true })"));
+});
+
+test("régression CR (35a0501) : module de page en attente → le bouton répond avant DOMContentLoaded", () => {
+  // Analyse du document en cours, aucun DOMContentLoaded (un module de fiche reste en attente) : le bouton affiché
+  // doit déjà ouvrir et fermer le volet ; un clic sur son libellé compte comme un clic sur le bouton.
+  const m = monter({ analyse: "en-cours" });
+  assert.ok(m.racine.classList.contains("menu-js"));
+  m.cliquer(m.libelle);
+  assert.equal(m.bouton.getAttribute("aria-expanded"), "true", "ouvert sans attendre la fin des modules");
+  assert.equal(doc.activeElement, m.liens[0]);
+  assert.equal(m.touche("Escape"), true);
+  assert.equal(m.bouton.getAttribute("aria-expanded"), "false");
+  assert.equal(doc.activeElement, m.bouton);
+  m.cliquer();
+  m.finAnalyse();
+  assert.equal(m.bouton.getAttribute("aria-expanded"), "true", "la fin de l'analyse ne referme pas le volet");
+  assert.equal(m.main.inert, true, "état réappliqué à la page analysée");
+  assert.equal(m.racine.classList.contains("menu-js"), true);
+  const src = lire("js/menu.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.ok(!/DOMContentLoaded/.test(src), "aucune dépendance à DOMContentLoaded");
+  assert.match(src, /document\.addEventListener\("click"/, "clic délégué, posé dès l'en-tête");
+});
+
+test("menu.js : en-tête incomplet au premier clic pendant l'analyse → repli immédiat sur les liens de l'en-tête", () => {
+  const m = monter({ sansBouton: true, analyse: "en-cours" });
+  assert.equal(m.racine.classList.contains("menu-js"), true);
+  m.cliquer(m.bouton);
+  assert.equal(m.racine.classList.contains("menu-js"), false);
+  assert.ok(m.erreurs.some((e) => /menu indisponible/.test(e)));
 });
