@@ -40,11 +40,15 @@
       <p class="hero__accroche">Des objets sobres pour un bureau bien pensé.</p>
       <figure class="hero__figure">
         <div class="hero__cadre">
-          <img src="assets/produits/sup-01-640.webp"
-               srcset="assets/produits/sup-01-320.webp 320w, assets/produits/sup-01-640.webp 640w, assets/produits/sup-01-960.webp 960w"
-               sizes="(min-width: 90em) 594px, (min-width: 64em) calc((min(100vw, 1200px) - 96px) * .58), (min-width: 48em) calc(100vw - 48px), calc(100vw - 32px)"
-               width="960" height="640" decoding="async" fetchpriority="high"
-               alt="Rehausseur d’écran, illustration générée : plateau rectangulaire allongé posé sur deux pieds bas, avec un espace libre dessous.">
+          <!-- Visuel de repli (sans JavaScript) ; avec JavaScript, js/visuel-accueil.js insère à la place un produit tiré au hasard. -->
+          <noscript>
+            <img src="assets/produits/sup-01-640.webp"
+                 srcset="assets/produits/sup-01-320.webp 320w, assets/produits/sup-01-640.webp 640w, assets/produits/sup-01-960.webp 960w"
+                 sizes="(min-width: 90em) 594px, (min-width: 64em) calc((min(100vw, 1200px) - 96px) * .58), (min-width: 48em) calc(100vw - 48px), calc(100vw - 32px)"
+                 width="960" height="640" decoding="async" fetchpriority="high"
+                 alt="Rehausseur d’écran, illustration générée : plateau rectangulaire allongé posé sur deux pieds bas, avec un espace libre dessous.">
+          </noscript>
+          <script src="js/visuel-accueil.js"></script>
         </div>
         <figcaption class="hero__legende">Illustration générée — modèle fictif, finitions non représentées.</figcaption>
       </figure>

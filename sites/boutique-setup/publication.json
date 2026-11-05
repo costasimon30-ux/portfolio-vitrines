@@ -87,7 +87,8 @@
     "assets/produits/ran-05-960.webp",
     "js/apparition.js",
     "assets/produits/NOTICE.md",
-    "js/menu.js"
+    "js/menu.js",
+    "js/visuel-accueil.js"
   ],
   "sharedFiles": [],
   "contentTypeRules": true
