@@ -33,33 +33,32 @@ test("liste : 14 produits existants, noms du catalogue, descriptions de js/visue
   assert.deepEqual([...new Set(LISTE.map((v) => v.id.slice(0, 3)))], ["sup", "tap", "lum", "ran"], "les quatre familles");
 });
 
-test("accueil : repli sup-01 dans <noscript>, script synchrone juste après dans le cadre, publié", () => {
+test("accueil : vrai <img> de repli sup-01 dans le HTML, script synchrone juste après dans le cadre, publié", () => {
   const html = lire("index.html");
   const cadre = html.match(/<div class="hero__cadre">([\s\S]*?)<\/div>/)[1];
-  assert.match(cadre, /<noscript>\s*<img src="assets\/produits\/sup-01-640\.webp"[\s\S]*?<\/noscript>\s*<script src="js\/visuel-accueil\.js"><\/script>\s*$/);
+  assert.ok(!/<noscript/.test(cadre), "repli visible même si le script est bloqué");
+  assert.match(cadre, /<img src="assets\/produits\/sup-01-640\.webp"[^>]*alt="Rehausseur d’écran, illustration générée : [^"]+">\s*<script src="js\/visuel-accueil\.js"><\/script>\s*$/);
   assert.ok(JSON.parse(lire("publication.json")).publicFiles.includes("js/visuel-accueil.js"));
   for (const f of ["catalogue.html", "produit.html", "panier.html", "commande.html", "confirmation.html", "404.html"]) assert.ok(!lire(f).includes("visuel-accueil"), `${f} inchangé`);
 });
 
+const REPLI = { src: "assets/produits/sup-01-640.webp", alt: "Rehausseur d’écran, illustration générée : plateau rectangulaire allongé posé sur deux pieds bas, avec un espace libre dessous." };
 function charger({ stockage = new Map(), stockageCasse = false, hasard = Math.random } = {}) {
-  const inseres = [];
-  const script = { parentNode: { insertBefore: (n, ref) => { assert.equal(ref, script); inseres.push(n); } } };
-  const element = () => {
-    const attrs = {};
-    return { attrs, setAttribute: (a, v) => { attrs[a] = String(v); } };
-  };
+  // Faux <img> de repli du HTML, juste avant le script : le script le modifie sur place.
+  const attrs = {};
+  const img = { tagName: "IMG", src: REPLI.src, srcset: "repli", alt: REPLI.alt, attrs, setAttribute: (a, v) => { attrs[a] = String(v); } };
+  const script = { previousElementSibling: img };
   const sessionStorage = {
     getItem: (k) => { if (stockageCasse) throw new Error("SecurityError"); return stockage.has(k) ? stockage.get(k) : null; },
     setItem: (k, v) => { if (stockageCasse) throw new Error("SecurityError"); stockage.set(k, v); },
   };
   const math = Object.create(Math);
   math.random = hasard;
-  vm.runInNewContext(source, { document: { currentScript: script, createElement: element }, window: { sessionStorage }, Math: math });
-  assert.equal(inseres.length, 1, "une seule image insérée");
-  return inseres[0];
+  vm.runInNewContext(source, { document: { currentScript: script }, window: { sessionStorage }, Math: math });
+  return img;
 }
 
-test("image créée : src, srcset, alt, dimensions et priorité du même produit", () => {
+test("image de repli modifiée sur place : src, srcset et alt du même produit", () => {
   for (let i = 0; i < LISTE.length; i++) {
     const img = charger({ hasard: () => (i + 0.5) / LISTE.length });
     const v = LISTE.find((x) => x.id === img.attrs["data-visuel"]);
@@ -67,8 +66,6 @@ test("image créée : src, srcset, alt, dimensions et priorité du même produit
     assert.equal(img.src, `assets/produits/${v.id}-640.webp`);
     assert.equal(img.srcset, `assets/produits/${v.id}-320.webp 320w, assets/produits/${v.id}-640.webp 640w, assets/produits/${v.id}-960.webp 960w`);
     assert.equal(img.alt, `${v.nom}, illustration générée : ${v.desc}.`);
-    assert.deepEqual([img.width, img.height, img.decoding, img.attrs.fetchpriority], [960, 640, "async", "high"]);
-    assert.match(img.sizes, /^\(min-width: 90em\) 594px,/);
   }
 });
 
@@ -88,10 +85,9 @@ test("rechargements successifs dans un onglet : jamais deux fois de suite le mê
   assert.notEqual(charger({ stockage, hasard: () => 0.9999 }).attrs["data-visuel"], "ran-05");
 });
 
-test("stockage indisponible : tirage sans mémoire, une image valide quand même ; erreur → repli sup-01", () => {
+test("stockage indisponible : tirage sans mémoire ; erreur → l'image de repli sup-01 reste intacte", () => {
   const img = charger({ stockageCasse: true, hasard: () => 0.5 });
   assert.ok(LISTE.some((v) => v.id === img.attrs["data-visuel"]));
   const repli = charger({ hasard: () => { throw new Error("hasard indisponible"); } });
-  assert.equal(repli.attrs["data-visuel"], "sup-01");
-  assert.equal(repli.src, "assets/produits/sup-01-640.webp");
+  assert.deepEqual([repli.src, repli.srcset, repli.alt, repli.attrs["data-visuel"]], [REPLI.src, "repli", REPLI.alt, undefined]);
 });

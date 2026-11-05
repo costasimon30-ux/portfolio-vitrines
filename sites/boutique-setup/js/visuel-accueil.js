@@ -2,13 +2,14 @@
   Ligne Posée — visuel d'ouverture de l'accueil renouvelé à chaque chargement (docs/DIRECTION.md, décision de
   Simon du 5 novembre 2026).
 
-  Script classique et synchrone, placé dans le cadre du héros juste après le <noscript> qui contient le visuel de
-  repli (sup-01). Il crée l'image d'un produit choisi au hasard, avec src, srcset et alt du même produit, et les
-  mêmes sizes, dimensions et priorité que le repli. Le contenu d'un <noscript> n'est pas téléchargé quand
-  JavaScript est actif : une seule image est chargée. Sans JavaScript, le repli s'affiche tel quel.
+  Le HTML contient un vrai <img> de repli (sup-01) : il reste affiché sans JavaScript, si ce script est bloqué ou
+  s'il échoue. Ce script classique et synchrone, placé juste après lui dans le cadre du héros, remplace sur ce même
+  élément src, srcset et alt par ceux d'un produit tiré au hasard (sizes, dimensions et priorité inchangés). Le
+  navigateur peut avoir déjà demandé sup-01 avant l'exécution : une requête initiale de plus est acceptée au
+  profit de la robustesse du repli.
 
   Le visuel précédent de l'onglet (sessionStorage) est exclu du tirage ; si le stockage est indisponible, le
-  tirage se fait parmi tous les visuels. En cas d'erreur, le repli sup-01 est inséré.
+  tirage se fait parmi tous les visuels. En cas d'erreur, l'image de repli reste en place.
 
   Seuls les produits dont l'objet reste entier dans le cadre 4:3 (recadrage cover, 50 % 58 %) sont proposés.
   Noms et descriptions : mêmes textes que data/catalogue.json et js/visuels.js (vérifié par tests/accueil.test.mjs).
@@ -32,10 +33,9 @@
     ["ran-05", "Module à tiroir", "bloc à deux tiroirs, dont un entrouvert"],
   ];
   var CLE = "ligne-posee-visuel-accueil";
-  var SIZES = "(min-width: 90em) 594px, (min-width: 64em) calc((min(100vw, 1200px) - 96px) * .58), (min-width: 48em) calc(100vw - 48px), calc(100vw - 32px)";
   var script = document.currentScript;
-  var cadre = script && script.parentNode;
-  if (!cadre) return;
+  var img = script && script.previousElementSibling;
+  if (!img || img.tagName !== "IMG") return;
 
   var lireStockage = function () {
     try { return window.sessionStorage.getItem(CLE); } catch (e) { return null; }
@@ -48,27 +48,16 @@
     var candidats = VISUELS.filter(function (v) { return v[0] !== precedent; });
     return candidats[Math.floor(Math.random() * candidats.length)];
   };
-  var image = function (v) {
+  try {
+    var v = choisir();
     var dossier = "assets/produits/" + v[0];
-    var img = document.createElement("img");
-    img.src = dossier + "-640.webp";
+    // srcset avant src : le navigateur choisit la largeur dans le nouveau jeu, sans repasser par l'ancien.
     img.srcset = dossier + "-320.webp 320w, " + dossier + "-640.webp 640w, " + dossier + "-960.webp 960w";
-    img.sizes = SIZES;
-    img.width = 960;
-    img.height = 640;
-    img.decoding = "async";
-    img.setAttribute("fetchpriority", "high");
+    img.src = dossier + "-640.webp";
     img.alt = v[1] + ", illustration générée : " + v[2] + ".";
     img.setAttribute("data-visuel", v[0]);
-    return img;
-  };
-
-  var v = VISUELS[0];
-  try {
-    v = choisir();
     ecrireStockage(v[0]);
   } catch (e) {
-    v = VISUELS[0];
+    /* l'image de repli sup-01 du HTML reste affichée */
   }
-  cadre.insertBefore(image(v), script);
 })();
