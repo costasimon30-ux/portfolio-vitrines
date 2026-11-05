@@ -4,6 +4,10 @@ Ce fichier centralise les décisions de direction (produit, contenu, périmètre
 
 ## Portfolio global
 
+### Ligne Posée — visuel d’accueil renouvelé, décision de Simon du 5 novembre 2026
+
+Sur la seule page d’accueil de Ligne Posée, afficher à chaque nouveau chargement un visuel choisi parmi les images de produits déjà présentes dans la bibliothèque du site, en évitant de reprendre immédiatement le visuel précédent dans le même onglet lorsque le stockage navigateur est disponible. Garder le cadre, le cadrage, la légende et le parcours existants ; adapter le texte alternatif à l’objet réellement montré. Prévoir un visuel de repli si JavaScript ou le stockage échoue. Aucun nouveau média, changement du catalogue, des autres pages ou du Worker. Claude Code réalise ce petit lot ; tests ciblés seulement. Cette décision n’autorise pas à elle seule une nouvelle publication Cloudflare.
+
 ### Menu plein écran de Ligne Posée — décision de Simon du 4 novembre 2026
 
 **Demande.** Après avoir vu la bêta publiée de Ligne Posée, Simon demande de reprendre en priorité l'effet du menu burger de [GOOD Meat](https://www.goodmeat.co/?ref=minimal.gallery) : un grand volet qui s'ouvre et se ferme avec fluidité. Ce changement ciblé remplace, pour Ligne Posée, la règle précédente imposant les trois liens de navigation toujours visibles et excluant le menu burger. La bêta actuellement servie sur le Worker `ligne-posee` reste la référence de départ ; son existence n'autorise pas une nouvelle publication.
